@@ -18,7 +18,7 @@
 <style lang="scss" scoped>
 .navbar {
   height: 50px;
-  background-color: #ff6f3c;
+  background-color: #ff6666;
   color: aliceblue;
 }
 .container-xxl {
