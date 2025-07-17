@@ -1,9 +1,11 @@
 <script setup>
+import Category from '@/components/Category.vue';
+import HomeImg from '@/components/HomeImg.vue';
 </script>
 
 <template>
-
-  <div>home</div>
+  <HomeImg></HomeImg>
+  <category></category>
 </template>
 
-<style scoped></style>
+<style lang="scss" scoped></style>
