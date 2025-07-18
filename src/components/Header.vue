@@ -30,4 +30,7 @@
 .container-xxl {
   left: 200px !important;
 }
+a {
+  cursor: pointer;
+}
 </style>
