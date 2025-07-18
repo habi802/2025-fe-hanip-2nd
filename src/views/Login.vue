@@ -33,7 +33,9 @@ const submit = async () => {
 
     <div class="container">
       <form class="login-form" @submit.prevent="submit">
-        <div class="logo">hanip</div>
+        <div class="logo">
+          <img src="@/imgs/logoname.png" alt="">
+        </div>
         <h2 class="title">로그인</h2>
 
         <div class="form-floating">
@@ -74,11 +76,27 @@ const submit = async () => {
 </template>
 
 <style scoped lang="scss">
-
+@font-face {
+    font-family: 'BMJUA';
+    src: url('https://fastly.jsdelivr.net/gh/projectnoonnu/noonfonts_one@1.0/BMJUA.woff') format('woff');
+    font-weight: normal;
+    font-style: normal;
+}
+* {
+  font-family: 'BMJUA';
+  letter-spacing: 1px;
+}
 .login {
   display: flex;
-  flex-direction: column;
+  //flex-direction: column;
   align-items: center;
+  justify-content: center;
+  margin-bottom: 1rem;
+  
+  img {
+    width: 200px;
+    height: auto;
+  }
 
   .container {
     margin-top: 60px;
@@ -171,7 +189,7 @@ const submit = async () => {
         border: none;
 
         &:hover {
-          background-color: darken(#ff6666, 10%);
+          background-color: darken(#ff6666, 5%);
         }
       }
 
@@ -181,7 +199,7 @@ const submit = async () => {
         border: 1px solid #ff6666;;
 
         &:hover {
-          background-color: #fff4e5;
+          background-color: #ffe5e5;
         }
       }
     }
