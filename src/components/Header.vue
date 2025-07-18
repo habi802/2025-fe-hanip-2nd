@@ -1,9 +1,12 @@
-<script setup></script>
+<script setup>
+import router from '@/router';
+
+</script>
 
 <template>
   <header>
     <div class="navbar shadow-sm">
-      <div><img class="logo" src="@/imgs/haniplogo2.png" /></div>
+      <div><img class="logo" src="@/imgs/haniplogo2.png" @click="router.push('/')" /></div>
       
       <div class="container">
         <router-link to="/" class="navbar-brand"></router-link>
@@ -12,6 +15,9 @@
           <a>장바구니</a>
           <div class="login">
             <router-link to="/login">로그인</router-link>
+          </div>
+          <div class="login">
+            <router-link to="/join">회원가입</router-link>
           </div>
         </div>
       </div>
