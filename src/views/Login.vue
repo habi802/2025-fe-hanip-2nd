@@ -65,9 +65,9 @@ const submit = async () => {
         </div>
 
         <button type="submit" class="btn login-btn">로그인</button>
-        <button type="button" class="btn signup-btn" @click="router.push('/signup')">
+        <button type="button" class="btn signup-btn" @click="router.push('/join')">
           회원가입
-        </button>
+        </button> 
       </form>
     </div>
   </div>

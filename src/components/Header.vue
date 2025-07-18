@@ -6,7 +6,9 @@
       <div class="container">
         <router-link to="/" class="navbar-brand"> </router-link>
         <div class="menus d-flex gap-3">
-          <a>로그인</a>
+          <div class="login">
+            <router-link to="/login">로그인</router-link>
+          </div>
           <a>주문 내역</a>
           <a>장바구니</a>
         </div>
@@ -16,6 +18,10 @@
 </template>
 
 <style lang="scss" scoped>
+.login a{
+  text-decoration:none; 
+  color: white 
+}
 .navbar {
   height: 50px;
   background-color: #ff6666;
