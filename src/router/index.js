@@ -15,7 +15,11 @@ const router = createRouter({
     {
       path: '/join',
       component: () => import('@/views/Join.vue')
-    }
+    },
+    {
+      path: '/categoryList',
+      component: () => import('@/views/Category.vue'),
+    },
   ],
 });
 
