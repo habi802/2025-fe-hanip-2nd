@@ -6,7 +6,7 @@ const menus = [
   { text: "공지·한마디", path: "/owner/store" },
   { text: "주문 내역", path: "/owner/orders" },
   { text: "메뉴 관리", path: "/owner/menu" },
-  { text: "회원 관리", path: "/owner/members" },
+  { text: "리뷰 관리", path: "/owner/review" },
   { text: "쿠폰 관리", path: "/owner/coupons" },
   { text: "후원 관리", path: "/owner/donations" },
   { text: "광고 관리", path: "/owner/ads" },
