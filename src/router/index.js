@@ -20,6 +20,10 @@ const router = createRouter({
       path: '/categoryList',
       component: () => import('@/views/Category.vue'),
     },
+    {
+      path: '/store/review',
+      component: () => import('@/components/store/Review.vue'),
+    }
   ],
 });
 
