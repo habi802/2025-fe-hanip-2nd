@@ -60,7 +60,7 @@ const submit = async () => {
         </div>
 
         <div class="options">
-          <label><input type="checkbox" /> 아이디 저장</label>
+          <label><input type="checkbox" class="circle" /> 아이디 저장</label>
           <div class="links">
             <a href="#">아이디 찾기</a><span>|</span><a href="#">비밀번호 찾기</a>
           </div>
@@ -85,14 +85,15 @@ const submit = async () => {
 * {
   font-family: 'BMJUA';
   letter-spacing: 1px;
+  box-sizing: border-box;
 }
 .login {
   display: flex;
-  //flex-direction: column;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
   margin-bottom: 1rem;
-  min-height: center;
+  min-height: 100vh;
   
   img {
     width: 150px;
@@ -102,14 +103,16 @@ const submit = async () => {
 
   .container {
     margin-top: 60px;
-    max-width: 440px;
-    width: 100%;
+    //max-width: 100%;
+    width: 440px;
     padding: 2rem;
 
     .login-form {
+      width: 440px;
       display: flex;
       flex-direction: column;
       gap: 1rem;
+      align-items: center;
 
       .logo {
         font-size: 2.5rem;
@@ -123,14 +126,15 @@ const submit = async () => {
         font-size: 2.5rem;
         text-align: center;
         margin-bottom: 1.5rem;
-        font-weight: 600;
+        font-weight: 400;
       }
 
       .form-floating {
         position: relative;
+        width: 100%;
 
         input {
-          width: 100%;
+          width: 440px;
           padding: 0.75rem 1rem;
           border: 1px solid #7d7d7d;
           border-radius: 6px;
@@ -147,16 +151,46 @@ const submit = async () => {
       }
 
       .options {
+        width: 440px;
         display: flex;
         justify-content: space-between;
         font-size: 0.85rem;
-        color: #7d7d7d;
+        color: #000;
 
         label {
           display: flex;
           align-items: center;
           gap: 0.4rem;
+          font-weight: 100;
         }
+
+        input[type="checkbox"].circle {
+            appearance: none;
+            -webkit-appearance: none;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            border: 1px solid #7d7d7d;
+            position: relative;
+            cursor: pointer;
+            vertical-align: middle;
+            margin-right: 6px;
+
+            &:checked {
+              background-color: #ff6666;
+              border-color: #ff6666;
+            }
+
+            &:checked::after {
+              content: "v";
+              color: #fff;
+              font-size: 12px;
+              position: absolute;
+              left: 3px;
+              top: -1px;
+            }
+          }
+
 
         .links {
           display: flex;
@@ -164,8 +198,9 @@ const submit = async () => {
           gap: 0.4rem;
 
           a {
-            color: #777;
+            color: #000;
             text-decoration: none;
+            font-weight: 100;
 
             &:hover {
               text-decoration: underline;
@@ -173,19 +208,19 @@ const submit = async () => {
           }
 
           span {
-            color: #aaa;
+            color: #000;
           }
         }
       }
 
       .btn {
+        width: 440px;
         padding: 0.75rem;
         border-radius: 4px;
         font-size: 1rem;
-        font-weight: bold;
+        font-weight: 500;
         cursor: pointer;
       }
-
       .login-btn {
         background-color: #ff6666;;
         color: white;
@@ -199,7 +234,7 @@ const submit = async () => {
       .signup-btn {
         background-color: white;
         color: #ff6666;;
-        border: 1px solid #ff6666;;
+        border: 1px solid #ff6666;
 
         &:hover {
           background-color: #ffe5e5;

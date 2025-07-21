@@ -49,7 +49,7 @@
         <div class="customer-service">
           <h4>고객센터</h4>
           <p>고객센터 번호</p>
-          <p>이메일주소</p>
+          <p>이메일주소</p> 
         </div>
         
       </div>
@@ -72,8 +72,8 @@
   display: flex;
   justify-content: center; // 중앙 정렬
   align-items: flex-start;
-  gap: 0; // 구분선 포함 3등분 처리
-  max-width: 1200px;
+  gap: 10px; // 구분선 포함 3등분 처리
+  max-width: 60%;
   margin: 0 auto;
   padding: 30px 20px;
 }
