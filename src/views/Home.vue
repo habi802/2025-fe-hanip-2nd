@@ -8,13 +8,20 @@ onMounted(() => {
   window.addEventListener('scroll', handleScroll);
 });
 
+const arrow = () => {
+  window.scrollTo({
+    top: 0,
+    behavior: 'smooth',
+  });
+};
+
 const handleScroll = () => {
   const scrollY = window.scrollY;
   const windowHeight = window.innerHeight;
   console.log(scrollY);
   console.log('w :', windowHeight);
 
-  if (scrollY - windowHeight < windowHeight + 500) {
+  if (scrollY < 2037) {
   }
 };
 </script>
@@ -24,7 +31,7 @@ const handleScroll = () => {
     <HomeImg></HomeImg>
     <category></category>
     <Guide></Guide>
-    <img class="arrow" src="/src/imgs/arrow.png" />
+    <img @click="arrow" class="arrow" src="/src/imgs/arrow.png" />
   </div>
 </template>
 

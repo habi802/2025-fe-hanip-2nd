@@ -25,6 +25,8 @@ const homeRouter = () => {
           id="title"
           class="searchBox"
           placeholder="주소를 검색해 주세요"
+          onfocus="this.placeholder=''"
+          onblur="this.placeholder='주소를 검색해 주세요'"
         />
         <img
           @click="caLink"
@@ -35,11 +37,12 @@ const homeRouter = () => {
       <div class="containerOne">
         <router-link to="/" class="navbar-brand"></router-link>
         <div class="menus d-flex gap-3">
-          <a>주문 내역</a>
-          <a>장바구니</a>
+          <img id="menu" class="shooping" src="/src/imgs/shopping.png" />
           <div class="login">
-            <router-link to="/login">로그인</router-link>
+            <router-link id="menu" to="/login">로그인</router-link>
           </div>
+          <a id="menu">|</a>
+          <a id="menu">회원가입</a>
         </div>
       </div>
     </div>
@@ -59,6 +62,12 @@ const homeRouter = () => {
 .containerOne {
   margin-bottom: 30px;
   margin-right: 100px;
+  margin-top: -12px;
+  .shooping {
+    width: 45px;
+    margin-right: 14px;
+  }
+  margin-right: 215px;
 }
 
 img.logo {
@@ -66,9 +75,13 @@ img.logo {
   height: auto;
   object-fit: contain;
   margin-left: 210px;
+  margin-bottom: 15px;
   cursor: pointer;
 }
 .menus {
+  color: #ff6666;
+  font-weight: 800;
+  font-size: 13px;
   display: flex;
   gap: 1rem;
   align-items: center;
@@ -76,16 +89,22 @@ img.logo {
 
 .login a {
   text-decoration: none;
-  color: #000;
+  font-weight: 800;
+  color: #ff6666;
 }
 .searchBar {
-  margin-bottom: 10px;
+  // margin-bottom: 15px;
   font-size: 0.7em;
   border: 2px solid #fcaeae;
   border-radius: 20px;
-  margin-right: 90px;
+  margin-right: -30px;
+  margin-bottom: 15px;
   input {
     padding-left: 43px;
+  }
+  input:focus {
+    outline: none;
+    box-shadow: none;
   }
   .searchImg {
     width: 20px;

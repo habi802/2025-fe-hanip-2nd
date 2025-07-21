@@ -111,6 +111,10 @@ const caLink = () => {
       input {
         padding-left: 43px;
       }
+      input:focus {
+        outline: none;
+        box-shadow: none;
+      }
       .searchImg {
         width: 30px;
         position: relative;
