@@ -13,8 +13,8 @@ console.log(props.order);
       <div class="order-info">
         <div>닉네임: {{ order.name }}</div>
         <div>주소: {{ order.address }}</div>
-        <div v-for="i in 2" :key="i">메뉴</div>
-        <div>총 가격</div>
+        <div v-for="i in 2" :key="i">메뉴: {{ order.menuName }}</div>
+        <div>총 가격: {{ order.amount.toLocaleString() }}원</div>
       </div>
   
       <div class="order-menu">
