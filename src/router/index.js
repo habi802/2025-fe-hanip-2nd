@@ -8,11 +8,6 @@ const router = createRouter({
       name: "home",
       component: () => import("@/views/Home.vue"),
     },
-    {
-      path: "/modify",
-      name: "home",
-      component: () => import("@/components/StoreModify.vue"),
-    },
   ],
 });
 
