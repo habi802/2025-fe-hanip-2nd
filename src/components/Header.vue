@@ -1,18 +1,48 @@
-<script setup></script>
+<script setup>
+import { useRouter } from 'vue-router';
+
+const router = useRouter();
+
+const homeRouter = () => {
+  router.push('/');
+};
+</script>
 
 <template>
   <header>
-    <div class="navbar shadow-sm">
-      <div><img class="logo" src="@/imgs/haniplogo2.png" /></div>
-      
-      <div class="container">
+    <div class="navbar">
+      <div>
+        <img
+          @click="homeRouter"
+          class="logo"
+          src="/src/imgs/hanipLogogroup.png"
+        />
+      </div>
+      <div class="searchBar">
+        <input
+          @click="caLink"
+          type="text"
+          id="title"
+          class="searchBox"
+          placeholder="주소를 검색해 주세요"
+          onfocus="this.placeholder=''"
+          onblur="this.placeholder='주소를 검색해 주세요'"
+        />
+        <img
+          @click="caLink"
+          class="searchImg"
+          src="/src/imgs/weui_location-filled.png"
+        />
+      </div>
+      <div class="containerOne">
         <router-link to="/" class="navbar-brand"></router-link>
         <div class="menus d-flex gap-3">
-          <a>주문 내역</a>
-          <a>장바구니</a>
+          <img id="menu" class="shooping" src="/src/imgs/shopping.png" />
           <div class="login">
-            <router-link to="/login">로그인</router-link>
+            <router-link id="menu" to="/login">로그인</router-link>
           </div>
+          <a id="menu">|</a>
+          <a id="menu">회원가입</a>
         </div>
       </div>
     </div>
@@ -21,30 +51,37 @@
 
 <style lang="scss" scoped>
 .navbar {
-  height: 60px;
-  background-color: #ff6666;
-  color: white;
-
+  height: 77px;
+  background-color: #fff;
+  color: #000;
   display: flex;
   align-items: center;
   justify-content: space-between;
   padding: 0 1rem;
 }
+.containerOne {
+  margin-bottom: 30px;
+  margin-right: 100px;
+  margin-top: -12px;
+  .shooping {
+    width: 45px;
+    margin-right: 14px;
+  }
+  margin-right: 215px;
+}
 
 img.logo {
-  width: 60px;
+  width: 190px;
   height: auto;
   object-fit: contain;
-  margin-left: 100%;
+  margin-left: 210px;
+  margin-bottom: 15px;
+  cursor: pointer;
 }
-
-.container {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
 .menus {
+  color: #ff6666;
+  font-weight: 800;
+  font-size: 13px;
   display: flex;
   gap: 1rem;
   align-items: center;
@@ -52,7 +89,40 @@ img.logo {
 
 .login a {
   text-decoration: none;
-  color: white;
+  font-weight: 800;
+  color: #ff6666;
 }
-
+.searchBar {
+  // margin-bottom: 15px;
+  font-size: 0.7em;
+  border: 2px solid #fcaeae;
+  border-radius: 20px;
+  margin-right: -30px;
+  margin-bottom: 15px;
+  input {
+    padding-left: 43px;
+  }
+  input:focus {
+    outline: none;
+    box-shadow: none;
+  }
+  .searchImg {
+    width: 20px;
+    position: relative;
+    right: 35px;
+    bottom: 2px;
+    cursor: pointer;
+  }
+  .searchBox {
+    border: none;
+    width: 564px;
+    height: 36px;
+    border-radius: 20px;
+  }
+  .searchBox::placeholder {
+    color: #fcaeae;
+    text-align: center;
+    margin-left: 40px;
+  }
+}
 </style>
