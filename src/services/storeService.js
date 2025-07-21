@@ -5,6 +5,10 @@ export const getStore = (id) => {
   return axios.get(`/store/${id}`).catch((e) => e.response);
 };
 
+export const getOrder = () => {
+  return axios.get(`/order`).catch((e) => e.response);
+};
+
 export const modify = (formData) => {
   const config = {
     header: {
