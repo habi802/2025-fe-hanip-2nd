@@ -34,15 +34,15 @@ const submit = async () => {
     <div class="container">
       <form class="login-form" @submit.prevent="submit">
         <div class="logo">
-          <img src="@/imgs/logoname.png" alt="">
+          <img src="@/imgs/symbollogo.png" alt="한입 심볼 로고">
         </div>
-        <h2 class="title">로그인</h2>
+        <h1 class="title">로그인</h1>
 
         <div class="form-floating">
           <input
             type="text"
             id="loginId"
-            placeholder="아이디"
+            placeholder="아이디 (영문, 숫자 4~16자)"
             v-model="state.form.loginId"
           />
           <label for="loginId"></label>
@@ -52,7 +52,7 @@ const submit = async () => {
           <input
             type="password"
             id="loginPw"
-            placeholder="비밀번호"
+            placeholder="비밀번호 (영문, 숫자, 특수문자 혼합 8~16자)"
             v-model="state.form.loginPw"
             autocomplete="off"
           />
@@ -92,15 +92,17 @@ const submit = async () => {
   align-items: center;
   justify-content: center;
   margin-bottom: 1rem;
+  min-height: center;
   
   img {
-    width: 200px;
+    width: 150px;
     height: auto;
+    margin-bottom: 0;
   }
 
   .container {
     margin-top: 60px;
-    max-width: 420px;
+    max-width: 440px;
     width: 100%;
     padding: 2rem;
 
@@ -118,7 +120,7 @@ const submit = async () => {
       }
 
       .title {
-        font-size: 1.5rem;
+        font-size: 2.5rem;
         text-align: center;
         margin-bottom: 1.5rem;
         font-weight: 600;
@@ -130,16 +132,17 @@ const submit = async () => {
         input {
           width: 100%;
           padding: 0.75rem 1rem;
-          border: 1px solid #ccc;
+          border: 1px solid #7d7d7d;
           border-radius: 6px;
-          font-size: 1rem;
+          font-size: 14px;
+          letter-spacing: -0.5px;
         }
 
         label {
           display: block;
           margin-top: 0.5rem;
           font-size: 0.85rem;
-          color: #777;
+          color: #7d7d7d;
         }
       }
 
@@ -147,7 +150,7 @@ const submit = async () => {
         display: flex;
         justify-content: space-between;
         font-size: 0.85rem;
-        color: #555;
+        color: #7d7d7d;
 
         label {
           display: flex;
