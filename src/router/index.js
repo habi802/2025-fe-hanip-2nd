@@ -11,6 +11,11 @@ const router = createRouter({
       meta: { layout: MainLayout },
     },
     {
+      path: '/stores/:id',
+      component: () => import('@/views/Store.vue'),
+      meta: { layout: MainLayout },
+    },
+    {
       path: '/owner',
       component: () => import('@/views/Category.vue'),
       meta: { layout: OwnerLayout },
