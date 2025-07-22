@@ -1,5 +1,5 @@
 <script setup>
-import { computed } from 'vue';
+import { computed, ref } from 'vue';
 
 const ownerName = "-사장님별명?-";
 
@@ -24,6 +24,26 @@ const StarIcon = {
     </svg>
   `
 }
+
+
+
+// 날짜 관련
+const showDatePicker = ref(false);
+const startDate = ref('2025-07-01');
+const endDate = ref('2025-08-01');
+
+const formattedDateRange = computed(() => {
+  if (!startDate.value || !endDate.value) return '';
+  const format = (dateStr) => {
+    const [y, m, d] = dateStr.split('-');
+    return `${y}.${m}.${d}`;
+  };
+  return `${format(startDate.value)} ~ ${format(endDate.value)}`;
+});
+
+const toggleDatePicker = () => {
+  showDatePicker.value = !showDatePicker.value;
+};
 
 </script>
 
@@ -65,7 +85,19 @@ const StarIcon = {
                 <span style="font-size: 20px;">조회 기간 설정</span>
                 <span style="font-size: 13px; color: #838383; font-weight: 200;">2025.07.01 ~ 2025.08.01</span>
             </div>
-            <input type="date" class="btn"><img src="/src/imgs/owner/Icon_목록단추.svg" alt="목록단추" title="목록단추">
+            <img src="/src/imgs/owner/Icon_목록단추.svg" alt="목록단추" title="달력 열기" style="cursor: pointer;" @click="toggleDatePicker" />
+            
+            <!-- 달력 영역 -->
+            <div v-if="showDatePicker" class="date-picker-popup">
+                <label>
+                    시작일 <input type="date" v-model="startDate" />
+                </label>
+                <label>
+                    종료일 <input type="date" v-model="endDate" />
+                </label>
+            </div>
+
+
         </div>
     </div>
 
@@ -281,6 +313,38 @@ const StarIcon = {
         flex-shrink: 0;
     }
 
+}
+
+.date-filter {
+  position: relative; // ✅ 여기 추가
+
+  .date-picker-popup {
+    position: absolute;
+    top: 93%;
+    right: 0;
+    z-index: 10;
+    background: #fff;
+    padding: 15px 27px;
+    margin-top: 8px;
+    border-radius: 15px;
+    box-shadow: 2px 2px 5px #ccc;
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    width: max-content;
+
+    label {
+      display: flex;
+      flex-direction: column;
+      font-size: 13px;
+    }
+
+    input[type="date"] {
+      padding: 5px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+    }
+  }
 }
 
 </style>
