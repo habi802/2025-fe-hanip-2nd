@@ -2,11 +2,12 @@
 import Category from '@/components/Category.vue';
 import HomeImg from '@/components/HomeImg.vue';
 import Guide from '@/components/Guide.vue';
+import RecommendStore from '@/components/RecommendStore.vue';
 import { onMounted } from 'vue';
 
-onMounted(() => {
-  window.addEventListener('scroll', handleScroll);
-});
+// onMounted(() => {
+//   window.addEventListener('scroll', handleScroll);
+// });
 
 const arrow = () => {
   window.scrollTo({
@@ -15,15 +16,12 @@ const arrow = () => {
   });
 };
 
-const handleScroll = () => {
-  const scrollY = window.scrollY;
-  const windowHeight = window.innerHeight;
-  console.log(scrollY);
-  console.log('w :', windowHeight);
-
-  if (scrollY < 2037) {
-  }
-};
+// const handleScroll = () => {
+//   const scrollY = window.scrollY;
+//   const windowHeight = window.innerHeight;
+//   console.log(scrollY);
+//   console.log('w :', windowHeight);
+// };
 </script>
 
 <template>
@@ -31,6 +29,7 @@ const handleScroll = () => {
     <HomeImg></HomeImg>
     <category></category>
     <Guide></Guide>
+    <RecommendStore></RecommendStore>
     <img @click="arrow" class="arrow" src="/src/imgs/arrow.png" />
   </div>
 </template>
@@ -41,10 +40,11 @@ const handleScroll = () => {
   height: 100%;
 }
 .arrow {
-  position: fixed;
+  position: sticky;
   width: 72px;
   bottom: 100px;
   left: 1800px;
   z-index: 999;
+  margin-bottom: 100px;
 }
 </style>
