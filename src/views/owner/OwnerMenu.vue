@@ -16,7 +16,7 @@ onMounted( async() => {
     }
 })
 
-// 데이터
+// 일단 데이터
 const state = reactive({
   form: []
 });
