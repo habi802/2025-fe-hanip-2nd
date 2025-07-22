@@ -17,28 +17,126 @@ import 'swiper/css/scrollbar';
 
 //
 import { getStoreList } from '@/services/storeService';
-import { reactive } from 'vue';
+import { reactive, onMounted } from 'vue';
 import StoreList from '@/components/StoreList.vue';
 import { getMenus } from '@/services/menuServeice';
+import Category from '@/components/Category.vue';
 
 const state = reactive({
   stores: [],
 });
 
-const onSwiper = async (swiper) => {
-  console.log(swiper);
-  const res = await getStoreList();
-  console.log('res.data :', res.data);
+const name = reactive({
+  text: '전체',
+});
+
+// 카테고리 필터
+// 전체 찾기
+const searchAll = () => {
+  findAll();
+  name.text = '전체';
+};
+// 한식 찾기
+const searchKoreanFood = () => {
+  const searchCategory = {
+    category: '한식',
+  };
+  name.text = '한식';
+  findAll(searchCategory);
+};
+// 중식 찾기
+const searchChina = () => {
+  const searchCategory = {
+    category: '중식',
+  };
+  name.text = '중식';
+  findAll(searchCategory);
+};
+// 일식 찾기
+const searchJapanese = () => {
+  const searchCategory = {
+    category: '일식',
+  };
+  name.text = '일식';
+  findAll(searchCategory);
+};
+// 양식 찾기
+const searchWesternFood = () => {
+  const searchCategory = {
+    category: '양식',
+  };
+  name.text = '양식';
+  findAll(searchCategory);
+};
+// 디저트 찾기
+const searchDessert = () => {
+  const searchCategory = {
+    category: '디저트',
+  };
+  name.text = '디저트';
+  findAll(searchCategory);
+};
+// 분식 찾기
+const searchSnackFood = () => {
+  const searchCategory = {
+    category: '분식',
+  };
+  name.text = '분식';
+  findAll(searchCategory);
+};
+// 패스트푸드 찾기
+const searchFastFood = () => {
+  const searchCategory = {
+    category: '패스트푸드',
+  };
+  name.text = '패스트푸드';
+  findAll(searchCategory);
+};
+// 아시안 푸드 찾기
+const searchAsian = () => {
+  const searchCategory = {
+    category: '아시안',
+  };
+  name.text = '아시안';
+  findAll(searchCategory);
+};
+// 치킨 찾기
+const searchChick = () => {
+  const searchCategory = {
+    category: '치킨',
+  };
+  name.text = '치킨';
+  findAll(searchCategory);
+};
+// 피자 찾기
+const searchPizza = () => {
+  const searchCategory = {
+    category: '피자',
+  };
+  name.text = '피자';
+  findAll(searchCategory);
+};
+// 야식 찾기
+const searchLateNight = () => {
+  const searchCategory = {
+    category: '야식',
+  };
+  name.text = '야식';
+  findAll(searchCategory);
+};
+
+//
+
+const findAll = async (params) => {
+  const res = await getStoreList(params);
   state.stores = res.data.resultData;
-  console.log('state.stores:', state.stores);
-
-  const menus = await getMenus();
-  console.log('menus:', menus);
 };
 
-const onSlideChange = () => {
-  console.log('slide change');
-};
+
+onMounted(async () => {
+  findAll({});
+});
+
 
 const arrow = () => {
   window.scrollTo({
@@ -49,7 +147,7 @@ const arrow = () => {
 </script>
 
 <template>
-  <div class="text">전체</div>
+  <div class="text">{{ name.text }}</div>
   <div class="categorys">
     <div class="categorySwipe">
       <div class="swiperLeft">
@@ -64,55 +162,89 @@ const arrow = () => {
         :modules="[Navigation, Pagination, Scrollbar, A11y, Autoplay]"
         :speed="100"
         :loop="true"
-        @swiper="onSwiper"
-        @slideChange="onSlideChange"
       >
         <swiper-slide
-          ><img src="/src/imgs/allImg.png" />
+          ><img @click="searchAll" src="/src/imgs/allImg.png" alt="allImg" />
           <div>전체</div></swiper-slide
         >
         <swiper-slide
-          ><img src="/src/imgs/koreanfood.png" />
+          ><img
+            @click="searchKoreanFood"
+            src="/src/imgs/koreanfood.png"
+            alt="koreanImg"
+          />
           <div>한식</div></swiper-slide
         >
         <swiper-slide
-          ><img src="/src/imgs/jjajangmyeon.png" />
+          ><img
+            @click="searchChina"
+            src="/src/imgs/jjajangmyeon.png"
+            alt="ChinaImg"
+          />
           <div>중식</div></swiper-slide
         >
         <swiper-slide
-          ><img src="/src/imgs/porkcutlet.png" />
+          ><img
+            @click="searchJapanese"
+            src="/src/imgs/porkcutlet.png"
+            alt="japanese"
+          />
           <div>일식</div></swiper-slide
         >
         <swiper-slide
-          ><img src="/src/imgs/pasta.png" />
+          ><img
+            @click="searchWesternFood"
+            src="/src/imgs/pasta.png"
+            alt="westernFood"
+          />
           <div>양식</div></swiper-slide
         >
         <swiper-slide
-          ><img src="/src/imgs/dessert.png" />
+          ><img
+            @click="searchDessert"
+            src="/src/imgs/dessert.png"
+            alt="dessert"
+          />
           <div>카페/디저트</div></swiper-slide
         >
         <swiper-slide
-          ><img src="/src/imgs/tteokbokki.png" />
+          ><img
+            @click="searchSnackFood"
+            src="/src/imgs/tteokbokki.png"
+            alt="snackFood"
+          />
           <div>분식</div></swiper-slide
         >
         <swiper-slide
-          ><img src="/src/imgs/hamburger.png" />
+          ><img
+            @click="searchFastFood"
+            src="/src/imgs/hamburger.png"
+            alt="fastFood"
+          />
           <div>패스트푸드</div></swiper-slide
         >
         <swiper-slide
-          ><img src="/src/imgs/ricenoodles.png" />
+          ><img
+            @click="searchAsian"
+            src="/src/imgs/ricenoodles.png"
+            alt="asian"
+          />
           <div>아시안</div></swiper-slide
         >
         <swiper-slide
-          ><img src="/src/imgs/chicken.png" />
+          ><img @click="searchChick" src="/src/imgs/chicken.png" alt="chick" />
           <div>치킨</div></swiper-slide
         >
         <swiper-slide
-          ><img src="/src/imgs/pizza.png" />
+          ><img @click="searchPizza" src="/src/imgs/pizza.png" alt="pizza" />
           <div>피자</div></swiper-slide
         >
         <swiper-slide
-          ><img src="/src/imgs/pigfeet.png" />
+          ><img
+            @click="searchLateNight"
+            src="/src/imgs/pigfeet.png"
+            alt="lateNight"
+          />
           <div>야식</div></swiper-slide
         >
       </swiper>

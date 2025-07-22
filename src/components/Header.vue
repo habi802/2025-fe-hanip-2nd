@@ -1,6 +1,7 @@
 <script setup>
 import { useRouter } from 'vue-router';
 import { useAccountStore } from '@/stores/account';
+import { logout } from '@/services/userService';
 
 const account = useAccountStore();
 
@@ -10,7 +11,8 @@ const homeRouter = () => {
 };
 
 // 로그아웃
-const logout = () => {
+const logoutIn = async() => {
+  const res = await logout();
   account.setLoggedIn(false);
 };
 </script>
@@ -46,8 +48,8 @@ const logout = () => {
           <template v-if="account.state.loggedIn">
             <img class="order" src="/src/imgs/order.png" />
             <img id="menu" class="shooping" src="/src/imgs/shopping.png" />
-            <img class="myPage" src="/src/imgs/myPage.png"/>
-            <div @click="logout">로그아웃</div>
+            <img class="myPage" src="/src/imgs/myPage.png" />
+            <div @click="logoutIn">로그아웃</div>
           </template>
           <template v-else>
             <img id="menu" class="shooping" src="/src/imgs/shopping.png" />
@@ -88,7 +90,7 @@ const logout = () => {
     width: 45px;
     margin-right: 14px;
   }
-  .myPage{
+  .myPage {
     width: 55px;
     margin-right: 14px;
   }

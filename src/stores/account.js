@@ -1,6 +1,5 @@
 import { reactive, computed } from 'vue';
 import { defineStore } from 'pinia';
-import { check } from '@/services/userService';
 
 export const useAccountStore = defineStore('account', () => {
   const state = reactive({
