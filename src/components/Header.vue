@@ -10,7 +10,7 @@ const homeRouter = () => {
 };
 
 // 로그아웃
-const logout = async () => {
+const logout = () => {
   account.setLoggedIn(false);
 };
 </script>
