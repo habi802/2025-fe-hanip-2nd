@@ -32,7 +32,7 @@ const router = createRouter({
     },
     {
       path: '/owner/review',
-      component: () => import('@/components/store/Review.vue'),
+      component: () => import('@/components/owner/Review.vue'),
       meta: { layout: OwnerLayout },
     },
   ],

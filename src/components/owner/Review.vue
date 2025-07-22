@@ -60,12 +60,12 @@ const StarIcon = {
         <h2>리뷰 내역</h2>
         <!-- 조회기간설정 카드 -->
         <div class="date-filter">
-            <img src="/src/imgs/store/Icon_조회기간설정.svg" alt="캘린더아이콘" title="캘린더아이콘">
+            <img src="/src/imgs/owner/Icon_조회기간설정.svg" alt="캘린더아이콘" title="캘린더아이콘">
             <div>
                 <span style="font-size: 20px;">조회 기간 설정</span>
                 <span style="font-size: 13px; color: #838383; font-weight: 200;">2025.07.01 ~ 2025.08.01</span>
             </div>
-            <img src="/src/imgs/store/Icon_목록단추.svg" alt="목록단추" title="목록단추">
+            <img src="/src/imgs/owner/Icon_목록단추.svg" alt="목록단추" title="목록단추">
         </div>
     </div>
 
