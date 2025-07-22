@@ -1,7 +1,7 @@
 <script setup>
 const props = defineProps({
     item: {
-        name: String,
+        userName: String,
         rating: Number,
         menuName: String,
         menuCount: Number,
@@ -16,7 +16,7 @@ const props = defineProps({
 <template>
     <div class="border rounded p-3 mb-2">
         <div class="mb-2">
-            <span class="pe-2">{{ props.item.name }}</span>
+            <span class="pe-2">{{ props.item.userName }}</span>
             <span>{{ props.item.created }}</span>
         </div>
         <div class="mb-2">

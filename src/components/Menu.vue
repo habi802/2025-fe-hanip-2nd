@@ -11,7 +11,7 @@ const props = defineProps({
 </script>
 
 <template>
-    <div class="border rounded p-3 mb-2">
+    <div class="menu border rounded p-3 mb-2">
         <div class="row">
             <div class="col-8 col-md-10">
                 <h5>{{ props.item.name }}</h5>
@@ -25,6 +25,12 @@ const props = defineProps({
     </div>
 </template>
 
-<style scoped>
+<style lang="scss" scoped>
+.menu {
+    cursor: pointer;
 
+    &:hover {
+        border-color: #000 !important;
+    }
+}
 </style>
