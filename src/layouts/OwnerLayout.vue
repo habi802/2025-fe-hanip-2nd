@@ -76,10 +76,7 @@ const handleClickOutside = (e) => {
 <template>
   <div class="d-flex" style="min-height: 100vh">
     <!-- 사이드바 -->
-    <div
-      class="d-flex flex-column p-4 bg-white"
-      style="width: 300px; min-height: 100vh"
-    >
+    <div class="p-4" style="width: 300px; flex-shrink: 0;">
       <div class="text-center mb-5">
         <img
           class="logo"
