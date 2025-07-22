@@ -30,6 +30,11 @@ const router = createRouter({
       component: () => import('@/views/Category.vue'),
       meta: { layout: MainLayout },
     },
+    {
+      path: '/login',
+      component: () => import('@/views/Login.vue'),
+      meta: { layout: MainLayout },
+    },
   ],
 });
 export default router;

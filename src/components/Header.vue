@@ -1,5 +1,9 @@
 <script setup>
 import { useRouter } from 'vue-router';
+import { useAccountStore } from '@/stores/account';
+
+
+const account = useAccountStore();
 
 const router = useRouter();
 
@@ -36,12 +40,18 @@ const homeRouter = () => {
       </div>
       <div class="containerOne">
         <div class="menus d-flex gap-3">
-          <img id="menu" class="shooping" src="/src/imgs/shopping.png" />
-          <div class="login">
-            <router-link id="menu" to="/login">로그인</router-link>
-          </div>
-          <a id="menu">|</a>
-          <router-link id="menu" to="/join">회원가입</router-link>
+          <template v-if="account.state.loggedIn">
+            <img id="menu" class="shooping" src="/src/imgs/shopping.png" />
+            <div id="menu">로그아웃</div>
+          </template>
+          <template v-else>
+            <img id="menu" class="shooping" src="/src/imgs/shopping.png" />
+            <div class="login">
+              <router-link id="menu" to="/login">로그인</router-link>
+            </div>
+            <a id="menu">|</a>
+            <router-link id="menu" to="/join">회원가입</router-link>
+          </template>
         </div>
       </div>
     </div>
