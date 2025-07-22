@@ -4,6 +4,9 @@ import { useRouter } from 'vue-router';
 import { getItems, removeCart, removeItem } from '@/services/cartService';
 
 const router = useRouter();
+const goToCart = () => {
+  router.push('/cart');
+};
 
 const state = reactive({
   items: [],
@@ -35,7 +38,7 @@ const clear = async () => {
 <template>
   <div :class="$style.container">
     <!-- 상단 헤더 및 타이틀 -->
-    <img :class="$style.groupIcon" src="Group 1124.png" alt="헤더 배경" />
+    <img :class="$style.groupIcon" src="Group 1124.png" alt="헤더 배경"  @click="goToCart"/>
     <div :class="$style.div29">장바구니</div>
   </div>
 
