@@ -2,12 +2,16 @@
 import { useRouter } from 'vue-router';
 import { useAccountStore } from '@/stores/account';
 
-
 const account = useAccountStore();
 
 const router = useRouter();
 const homeRouter = () => {
   router.push('/');
+};
+
+// 로그아웃
+const logout = () => {
+  account.setLoggedIn(false);
 };
 </script>
 
@@ -40,8 +44,10 @@ const homeRouter = () => {
       <div class="containerOne">
         <div class="menus d-flex gap-3">
           <template v-if="account.state.loggedIn">
+            <img class="order" src="/src/imgs/order.png" />
             <img id="menu" class="shooping" src="/src/imgs/shopping.png" />
-            <div id="menu">로그아웃</div>
+            <img class="myPage" src="/src/imgs/myPage.png"/>
+            <div @click="logout">로그아웃</div>
           </template>
           <template v-else>
             <img id="menu" class="shooping" src="/src/imgs/shopping.png" />
@@ -78,6 +84,14 @@ const homeRouter = () => {
     margin-right: 14px;
   }
   margin-right: 215px;
+  .order {
+    width: 45px;
+    margin-right: 14px;
+  }
+  .myPage{
+    width: 55px;
+    margin-right: 14px;
+  }
 }
 img.logo {
   width: 190px;
@@ -88,7 +102,7 @@ img.logo {
   cursor: pointer;
 }
 .menus {
-  color: #FF6666;
+  color: #ff6666;
   font-weight: 800;
   font-size: 13px;
   display: flex;
@@ -100,13 +114,13 @@ img.logo {
 #menu {
   text-decoration: none;
   font-weight: 800;
-  color: #FF6666;
+  color: #ff6666;
 }
 
 .searchBar {
   // margin-bottom: 15px;
   font-size: 0.7em;
-  border: 2px solid #FCAEAE;
+  border: 2px solid #fcaeae;
   border-radius: 20px;
   margin-right: -30px;
   margin-bottom: 15px;
@@ -131,7 +145,7 @@ img.logo {
     border-radius: 20px;
   }
   .searchBox::placeholder {
-    color: #FCAEAE;
+    color: #fcaeae;
     text-align: center;
     margin-left: 40px;
   }
