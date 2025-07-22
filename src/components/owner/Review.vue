@@ -65,7 +65,7 @@ const StarIcon = {
                 <span style="font-size: 20px;">조회 기간 설정</span>
                 <span style="font-size: 13px; color: #838383; font-weight: 200;">2025.07.01 ~ 2025.08.01</span>
             </div>
-            <img src="/src/imgs/owner/Icon_목록단추.svg" alt="목록단추" title="목록단추">
+            <input type="date" class="btn"><img src="/src/imgs/owner/Icon_목록단추.svg" alt="목록단추" title="목록단추">
         </div>
     </div>
 
@@ -134,17 +134,18 @@ const StarIcon = {
     overflow: auto;
     padding : 56px;
     .total-wrap{
+        display: flex;
+        gap : 30px;
+        margin-top: 20px;
+        margin-bottom: 40px;
         .circle{
             background-color: #ff6666;
             border-radius: 100%;
             width: 85px;
             height: 85px;
             margin-left: 65px;
-            margin-right: 30px; }
-        display: flex;
-        gap : 30px;
-        margin-top: 20px;
-        margin-bottom: 40px;
+            margin-right: 30px; 
+        }
         .total-box{
             align-items: center;
             background-color: #fff;
@@ -153,18 +154,13 @@ const StarIcon = {
             display: flex;
             height: 137px;
             width: 337px;
-
-            :last-child{
-                display: block;
-            }
+            :last-child{ display: block; }
             span:nth-of-type(1){
                 line-height: 1;
                 font-size: 40px;
                 font-weight: 800;
             }
-    
         }
-
     }
 
     .review-header{
@@ -183,8 +179,6 @@ const StarIcon = {
         width: 295px;
         height: 75px;
         padding: 15px 15px ;
-
-            img:first-child{ }
         div{
             span{
                 display: block;
@@ -198,40 +192,32 @@ const StarIcon = {
         }
     }
 
-
-
-
     .review-box{
         background-color: #fff;
         border-radius: 15px;
         padding: 30px;
         width: 422px;
         font-size: 14px;
-
-        
         .profile{
             align-items: center;
             display: flex;
             margin-bottom: 25px;
-            
             .profile-circle{
                 background-color: #a3a3a3;
                 border-radius: 100%;
                 width: 48px;
                 height: 48px;
             }
-            div:nth-of-type(2) {
-                margin-left: 20px;
-            }
+            div:nth-of-type(2) {margin-left: 20px;}
             div:nth-of-type(2) > span{
                 display: block;
                 align-items: center;
             }
-            span:nth-of-type(1){
-                font-size: 25px;}
+            span:nth-of-type(1){font-size: 25px;}
                 span:nth-of-type(2){
                     font-size: 15px;
-                    color: #a3a3a3;}
+                    color: #a3a3a3;
+                }
         }
         .btn-wrap{
             display: flex;
@@ -259,41 +245,40 @@ const StarIcon = {
         display: flex;
         align-items: center; /* 수직 정렬 가운데로 */
         gap: 8px;            /* 별과 숫자 간격 */
-        
     }
     
     .star-ratings {
         position: relative;
-    display: inline-block;
-    width: 120px; /* ★ 너비를 고정하면 퍼센트 연산이 더 정확 */
-    height: 24px;
+        display: inline-block;
+        width: 120px; /* 너비를 고정하면 퍼센트 연산이 더 정확 */
+        height: 24px;
     }
 
     .star-ratings-base,
     .star-ratings-fill {
         position: absolute;
         top: 0;
-    left: 0;
-    display: flex;
-    width: 100%;
-    height: 100%;
+        left: 0;
+        display: flex;
+        width: 100%;
+        height: 100%;
     }
 
     .star-ratings-base {
         color: #dcdcdc;
-    z-index: 0;
+        z-index: 0;
     }
 
     .star-ratings-fill {
         color: gold;
-    overflow: hidden;
-    z-index: 1;
+        overflow: hidden;
+        z-index: 1;
     }
 
     .star-icon {
-    width: 24px;
-    height: 24px;
-    flex-shrink: 0;
+        width: 24px;
+        height: 24px;
+        flex-shrink: 0;
     }
 
 }
