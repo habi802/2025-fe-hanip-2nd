@@ -114,7 +114,6 @@ onMounted(async () => {
 </script>
 
 <template>
-    <!-- 가게 정보, 주문표 -->
     <div class="container">
         <div class="row">
             <div class="col-12 col-md-8 p-4">
@@ -145,7 +144,20 @@ onMounted(async () => {
                         <span>삭제</span>
                     </div>
                     <div v-if="state.carts.length > 0">
-                        
+                        <div v-for="item in state.carts" :key="item.id">
+                            <div class="d-flex justify-content-between mb-2">
+                                <span>{{ item.name }}</span>
+                                <span>{{ item.price.toLocaleString() }}원</span>
+                            </div>
+                            <div class="d-flex justify-content-between">
+                                <div>
+                                    <span>{{ item.quantity }}</span>
+                                </div>
+                                <div>
+                                    <button type="button" class="btn btn-basic">메뉴 취소</button>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                     <div v-else>
                         메뉴를 선택해주세요.
@@ -159,7 +171,6 @@ onMounted(async () => {
         </div>
     </div>
 
-    <!-- 가게 메뉴, 리뷰 -->
     <div class="container">
         <div class="row">
             <div class="col-12 col-md-8">

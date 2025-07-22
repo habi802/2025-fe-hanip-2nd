@@ -1,6 +1,7 @@
 <script setup>
 import { reactive } from 'vue';
 import { useRouter } from 'vue-router';
+import { login } from '@/services/userService';
 
 const router = useRouter();
 
@@ -18,7 +19,7 @@ const submit = async () => {
     case 200:
       await router.push('/');
       break;
-    case 404:
+    case 401:
       alert('아이디/비밀번호를 확인해 주세요.');
       break;
     default:
@@ -29,7 +30,6 @@ const submit = async () => {
 
 <template>
   <div class="login">
-    <HeaderComponent />
 
     <div class="container">
       <form class="login-form" @submit.prevent="submit">
@@ -186,7 +186,7 @@ const submit = async () => {
               color: #fff;
               font-size: 12px;
               position: absolute;
-              left: 3px;
+              left: 5px;
               top: -1px;
             }
           }

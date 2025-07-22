@@ -34,6 +34,7 @@ const memberType = ref('general');
       <label class="serveTitle">기본정보</label>
       <div class="titleLine"></div>
       <div class="form-group">
+        
         <label>✪ 아이디</label>
         <input type="text" placeholder="영문 소문자/숫자, 4~16자" />
       </div>
