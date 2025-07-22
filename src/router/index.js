@@ -44,6 +44,11 @@ const router = createRouter({
       component: () => import('@/components/owner/Orders.vue'),
       meta: { layout: OwnerLayout },
     },
+    {
+      path: '/mypage',
+      component: () => import('@/views/Mypage.vue'),
+      meta: { layout: MainLayout },
+    }
   ],
 });
 export default router;
