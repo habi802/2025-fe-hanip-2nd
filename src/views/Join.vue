@@ -1,9 +1,33 @@
 <script setup>
 import router from '@/router/index';
-import { ref } from 'vue'
+import { reactive, ref } from 'vue'
 
 const memberType = ref('general');
 
+const state = reactive({
+  form: {
+    name: '',
+    loginId: '',
+    loginPw: '',
+    postcode: '',
+    address: '',
+    addressDetail: '',
+    phone: '',
+    email: '',
+    role:'',
+  }
+});
+
+const submit = async () => {
+  const res = await join(state.form);
+  console.log('res:', res);
+  if (res.status === 200) {
+    alert('회원가입을 축하합니다.');
+    await router.push('/');
+  } else {
+    alert('아이디/비밀번호를 확인해 주세요.');
+  }
+};
 
 </script>
 
