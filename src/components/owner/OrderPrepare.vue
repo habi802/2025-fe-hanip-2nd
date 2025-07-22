@@ -1,31 +1,18 @@
 <script setup>
-import { getOrder } from "@/services/storeService";
 import { onMounted, reactive, computed, ref, inject } from "vue";
 import OrderDeliveryDetail from "./OrderPrePareDetail.vue";
+import { useOrderStore } from "@/stores/orderStore";
 
-// ref
+// 피니아
+const orderStore = useOrderStore();
+
+// ref 더보기
 const visibleCount = ref(4);
-
 const visibleOrders = computed(() => {
-  return preparingList.value.slice(0, visibleCount.value);
+  return orderStore.preparingList.slice(0, visibleCount.value);
 });
 
-// 양방향 배열
-const state = reactive({
-  form: [],
-});
-
-// 화면에 띄우기
-onMounted(async () => {
-  const res = await getOrder();
-  state.form = res.data.resultData;
-});
-
-// 배열에서 상태 거르기
-const preparingList = computed(() =>
-  state.form.filter((o) => o.status === "PREPARING")
-);
-
+// 가게 활성화 여부
 const isOpen = inject("isOpen");
 </script>
 
@@ -39,20 +26,23 @@ const isOpen = inject("isOpen");
       </div>
 
       <template v-else>
-        <div v-if="preparingList.length === 0" class="text-center text-muted">
+        <div
+          v-if="orderStore.preparingList.length === 0"
+          class="text-center text-muted"
+        >
           현재 들어온 주문이 없습니다.
         </div>
 
         <template v-else>
           <OrderDeliveryDetail
             class="mb-3"
-            v-for="order in preparingList"
+            v-for="order in visibleOrders"
             :key="order.id"
             :order="order"
           />
 
           <div
-            v-if="visibleCount < preparingList.length"
+            v-if="visibleCount < orderStore.preparingList.length"
             class="text-center mt-3"
           >
             <button

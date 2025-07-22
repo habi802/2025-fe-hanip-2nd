@@ -2,6 +2,9 @@
 import OrderCard from "@/components/owner/OrderCard.vue";
 import OrderDelivery from "@/components/owner/OrderDelivery.vue";
 import OrderPrepare from "@/components/owner/OrderPrepare.vue";
+import { useOrderStore } from "@/stores/orderStore";
+
+const orderStore = useOrderStore();
 </script>
 
 <template>
@@ -13,13 +16,13 @@ import OrderPrepare from "@/components/owner/OrderPrepare.vue";
   <div class="padding">
     <div class="d-flex">
       <div style="flex: 1">
-        <OrderCard />
+        <OrderCard :orders="orderStore.orderedList" />
       </div>
       <div style="flex: 1">
-        <OrderPrepare />
+        <OrderPrepare :orders="orderStore.preparingList" />
       </div>
       <div style="flex: 1">
-        <OrderDelivery />
+        <OrderDelivery :orders="orderStore.deliveringList" />
       </div>
     </div>
   </div>

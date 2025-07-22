@@ -1,69 +1,93 @@
 <script setup>
-import OwnerMenuCard from '@/components/owner/OwnerMenuCard.vue';
-import { getOneMenu } from '@/services/menuServeice';
-import { onMounted, reactive, ref } from 'vue';
-import { useRouter } from 'vue-router';
+import OwnerMenuCard from "@/components/owner/OwnerMenuCard.vue";
+import { getOneMenu, saveMenu } from "@/services/menuServeice";
+import { onMounted, reactive, ref } from "vue";
+import { useRouter } from "vue-router";
+import defaultMenuImage from "@/imgs/owner/haniplogo_sample.png";
 
 // router, ref
 const router = useRouter();
 const addMenuModal = ref(null);
+const previewImage = ref(defaultMenuImage);
 
-onMounted( async() => {
-    const res = await getOneMenu(1);
-    if(res.status === 200) {
-        state.form = res.data.resultData;
-        // console.log("res: ", res.data.resultData)
-    }
-})
-
-// 일단 데이터
-const state = reactive({
-  form: []
+onMounted(async () => {
+  // 사장님 전용 조회 api 필요
+  const res = await getOneMenu(1);
+  if (res.status === 200) {
+    state.form = res.data.resultData;
+    console.log("res: ", res.data.resultData);
+  }
 });
 
-// 수정 버튼
-const editMenu = (id) => {
-  console.log("수정 페이지로 이동 → 메뉴 ID:", id);
-  router.push(`/owner/menu/${id}`)
-};
+// 메뉴 데이터
+const state = reactive({
+  form: [],
+});
 
 // 모달
 const newMenu = reactive({
   name: "",
   price: "",
   comment: "",
-})
+  imagePath: null,
+});
 
 // 모달 창 열기
 const openAddMenuModal = () => {
+  newMenu.name = "";
+  newMenu.price = "";
+  newMenu.comment = "";
+
   const modal = new bootstrap.Modal(addMenuModal.value);
   modal.show();
 };
 
 // 등록하기
-const submitMenu = () => {
-  console.log('새 메뉴 등록:', newMenu);
-  // 등록
-
-  //(테스트용)
-  state.form.push({
-    id: Date.now(),
-    name: newMenu.name,
-    price: newMenu.price,
-    comment: newMenu.comment,
-    image: '' // 이미지 경로도 추가 가능
-  });
+const submitMenu = async () => {
+  const formData = new FormData();
+  const payload = {
+    data: {
+      storeId: "",
+      name: newMenu.name,
+      price: newMenu.price,
+      comment: newMenu.comment,
+    },
+    img: newMenu.imagePath,
+  };
 
   // 입력값 초기화
-  newMenu.name = '';
-  newMenu.price = '';
-  newMenu.comment = '';
+  newMenu.name = "";
+  newMenu.price = "";
+  newMenu.comment = "";
+  newMenu.imagePath = null;
 
-  // 모달 닫기
+  formData.append("img", payload.img);
+  formData.append(
+    "data",
+    new Blob([JSON.stringify(payload.data)], { type: "application/json" })
+  );
+
+  const res = await saveMenu(formData);
+  if (res.status !== 200) {
+    alert("에러 발생");
+    return;
+  }
+
+  alert("등록 성공");
+
+  // 모달 창 닫기
   const modal = bootstrap.Modal.getInstance(addMenuModal.value);
   modal.hide();
 };
 
+// 사진 미리보기
+const handleFileSelected = (e) => {
+  const file = e.target.files[0];
+  if (file) {
+    previewImage.value = URL.createObjectURL(file);
+    state.form = file;
+  }
+};
 </script>
 
 <template>
@@ -85,21 +109,62 @@ const submitMenu = () => {
     </div>
   </div>
 
-     <!-- 부트스트랩 모달 -->
+  <!-- 부트스트랩 모달 -->
   <div class="modal fade" ref="addMenuModal" tabindex="-1">
     <div class="modal-dialog">
       <div class="modal-content">
         <div class="modal-header">
           <h5 class="modal-title">메뉴 추가</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+          <button
+            type="button"
+            class="btn-close"
+            data-bs-dismiss="modal"
+          ></button>
         </div>
         <div class="modal-body">
-          <input v-model="newMenu.name" type="text" class="form-control mb-2" placeholder="메뉴 이름" />
-          <input v-model="newMenu.price" type="number" class="form-control mb-2" placeholder="가격" />
-          <textarea v-model="newMenu.comment" class="form-control" placeholder="설명"></textarea>
+          <!-- 프리뷰 -->
+          <div v-if="previewImage" class="text-center">
+            <img
+              :src="previewImage"
+              alt="미리보기"
+              style="
+                max-width: 70%;
+                height: auto;
+                border-radius: 8px;
+                margin-top: 10px;
+                margin-bottom: 10px;
+              "
+            />
+            <!-- 이미지 업로드 -->
+            <input
+              type="file"
+              accept="image/*"
+              @change="handleFileSelected"
+              class="form-control mb-2"
+            />
+          </div>
+          <input
+            v-model="newMenu.name"
+            type="text"
+            class="form-control mb-2"
+            placeholder="메뉴 이름"
+          />
+          <input
+            v-model="newMenu.price"
+            type="number"
+            class="form-control mb-2"
+            placeholder="가격"
+          />
+          <textarea
+            v-model="newMenu.comment"
+            class="form-control"
+            placeholder="설명"
+          ></textarea>
         </div>
         <div class="modal-footer">
-          <button class="btn btn-secondary" data-bs-dismiss="modal">취소</button>
+          <button class="btn btn-secondary" data-bs-dismiss="modal">
+            취소
+          </button>
           <button class="btn btn-primary" @click="submitMenu">등록</button>
         </div>
       </div>
@@ -126,7 +191,7 @@ const submitMenu = () => {
 }
 
 .add-card {
-  width: 590PX;
+  width: 590px;
   height: 250px;
   display: flex;
   justify-content: center;

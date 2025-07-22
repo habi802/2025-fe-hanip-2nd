@@ -1,31 +1,18 @@
 <script setup>
-import { getOrder } from "@/services/storeService";
-import { onMounted, reactive, computed, ref, inject } from "vue";
+import { computed, ref, inject } from "vue";
 import DeatailOrderCard from "./OrderCardDetail.vue";
+import { useOrderStore } from "@/stores/orderStore";
 
-// ref
+// 피니아
+const orderStore = useOrderStore();
+
+// ref 더보기
 const visibleCount = ref(4);
-
 const visibleOrders = computed(() => {
-  return orderedList.value.slice(0, visibleCount.value);
+  return orderStore.orderedList.slice(0, visibleCount.value);
 });
 
-// 양방향 배열
-const state = reactive({
-  form: [],
-});
-
-// 화면에 띄우기
-onMounted(async () => {
-  const res = await getOrder();
-  state.form = res.data.resultData;
-});
-
-// 배열에서 상태 거르기
-const orderedList = computed(() =>
-  state.form.filter((o) => o.status === "ORDERED")
-);
-
+// 가게 활성화 여부
 const isOpen = inject("isOpen");
 </script>
 
@@ -39,7 +26,10 @@ const isOpen = inject("isOpen");
       </div>
 
       <template v-else>
-        <div v-if="orderedList.length === 0" class="text-center text-muted">
+        <div
+          v-if="orderStore.orderedList.length === 0"
+          class="text-center text-muted"
+        >
           현재 들어온 주문이 없습니다.
         </div>
 
@@ -52,7 +42,7 @@ const isOpen = inject("isOpen");
           />
 
           <div
-            v-if="visibleCount < orderedList.length"
+            v-if="visibleCount < orderStore.orderedList.length"
             class="text-center mt-3"
           >
             <button

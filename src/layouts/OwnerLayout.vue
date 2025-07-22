@@ -1,20 +1,16 @@
 <script setup>
-import { ref, onMounted, provide, onBeforeUnmount } from "vue";
+import { useOrderStore } from "@/stores/orderStore";
+import { ref, onMounted, onUnmounted, provide, watch } from "vue";
 import { RouterLink, useRouter, useRoute } from "vue-router";
-
-onMounted(() => {
-  document.addEventListener('click', handleClickOutside);
-})
-
-onBeforeUnmount(() => {
-  document.removeEventListener('click', handleClickOutside);
-});
 
 // ref, route, router
 const router = useRouter();
 const route = useRoute();
 const isOpen = ref(true);
-const bell = ref(false);
+const redDot = ref(false);
+const orderStore = useOrderStore();
+const notifications = ref([]); // 알림배열
+const removedNotification = ref(new Set());
 
 const homeRouter = () => {
   router.push("/");
@@ -33,6 +29,61 @@ const menus = [
   { text: "광고 관리", path: "/owner/ads" },
 ];
 
+// 데이터 한번 뿌리기
+onMounted(async () => {
+  // 데이터 가져오기
+  orderStore.fetchOrders();
+
+  // 5초마다 가져오기
+  setInterval(() => {
+    orderStore.fetchOrders();
+  }, 5000);
+
+  const saved = localStorage.getItem("removedNotification");
+  if (saved) {
+    removedNotification.value = new Set(JSON.parse(saved));
+  }
+});
+
+onUnmounted(() => {
+  clearInterval(interval);
+});
+
+// 알림 갱신 (watch)
+watch(
+  () => orderStore.orderedList,
+  (newOrders) => {
+    newOrders.forEach((order) => {
+      // 삭제한 알림이면 추가하지 않음
+      if (removedNotification.value.has(order.id)) return;
+
+      const exists = notifications.value.find((n) => n.id === order.id);
+      if (!exists) {
+        notifications.value.push({
+          id: order.id,
+          message: `새로운 주문: ${order.id}`,
+        });
+        redDot.value = true; // 빨간 점 ON
+      }
+    });
+  },
+  { deep: true }
+);
+
+const openDropdown = () => {
+  redDot.value = false;
+};
+
+// 삭제할 때 localStorage에 저장
+const removeNotification = (id) => {
+  notifications.value = notifications.value.filter((n) => n.id !== id);
+  removedNotification.value.add(id);
+  localStorage.setItem(
+    "removedNotification",
+    JSON.stringify(Array.from(removedNotification.value))
+  );
+};
+
 // 영업 버튼 토글
 const toggleBusiness = () => {
   if (isOpen.value) {
@@ -50,33 +101,15 @@ const toggleBusiness = () => {
   }
 };
 
-// 검색 링크
-const caLink = () => {
-  console.log("검색!");
-};
-
 // provide (영업 데이터 옮기기)
 provide("isOpen", isOpen);
 provide("toggleBusiness", toggleBusiness);
-
-
-// 드랍다운 메뉴
-const toggle = () => {
-  bell.value = !bell.value;
-};
-
-const handleClickOutside = (e) => {
-  if (!e.target.closest('.popover-menu') && !e.target.closest('.icon')) {
-    bell.value = false;
-  }
-};
-
 </script>
 
 <template>
   <div class="d-flex" style="min-height: 100vh">
     <!-- 사이드바 -->
-    <div class="p-4" style="width: 300px; flex-shrink: 0;">
+    <div class="p-4" style="width: 300px; flex-shrink: 0">
       <div class="text-center mb-5">
         <img
           class="logo"
@@ -114,47 +147,65 @@ const handleClickOutside = (e) => {
       style="background-color: #e8e8e8"
     >
       <!-- 검색 + 영업 버튼 -->
+
       <div
         class="d-flex align-items-center justify-content-between paddingSearch"
       >
         <div class="d-flex align-items-center" style="gap: 16px">
-          <div class="searchBar d-flex align-items-center">
-            <input
-              @click="caLink"
-              type="text"
-              id="title"
-              class="searchBox"
-              placeholder="검색"
-            />
-            <img
-              @click="caLink"
-              class="searchImg"
-              src="/src/imgs/search_icon.png"
-            />
-          </div>
-          <div class="relative">
-            <img src="/src/imgs/owner/icon_bell.svg" class="icon" style="cursor: pointer;" @click="toggle" />
-          <img src="/src/imgs/owner/icon_chat.svg" class="icon" />
-          <img src="/src/imgs/owner/icon_present.svg" class="icon" />
-          <img src="/src/imgs/owner/icon_config.svg" class="icon" />
-        </div>
-
-          <!-- 벨 알림 팝 오버 -->
-           <div v-if="bell" class="popover-menu">
-              <ul class="py-2 text-sm text-gray-700">
-                <li class="px-4 py-2 hover:bg-gray-100">메뉴 1</li>
-                <li class="px-4 py-2 hover:bg-gray-100">메뉴 2</li>
-                <li class="px-4 py-2 hover:bg-gray-100">메뉴 3</li>
-              </ul>
-          </div>
+          <li class="nav-item nav-channel-search-wrapper d-none d-sm-block">
+            <form id="" class="position-relative">
+              <img src="/src/imgs/search_icon.png" class="search-icon-inside" />
+              <input
+                type="search"
+                class="form-control ps-5 search"
+                autocomplete="off"
+                placeholder="검색"
+              />
+            </form>
+          </li>
 
           <button
             :class="['btn', isOpen ? 'btn-success' : 'btn-danger']"
             @click="toggleBusiness"
             style="height: 50px"
           >
-            {{ isOpen ? "영업 중" : "영업 중단" }}
+            {{ isOpen ? "영업 진행" : "영업 중단" }}
           </button>
+
+          <!-- 팝업 메뉴 -->
+          <div class="relative d-flex">
+            <div class="dropdown position-relative">
+              <img
+                src="/src/imgs/owner/icon_bell.svg"
+                class="icon"
+                data-bs-toggle="dropdown"
+                style="cursor: pointer"
+                role="button"
+                @click="openDropdown"
+              />
+              <div class="red-dot" v-show="redDot"></div>
+
+              <div class="dropdown-menu dropdown-menu-start">
+                <div class="title px-3 py-2">알림</div>
+                <div class="dropdown-divider"></div>
+                <ul class="noti-item-list list-unstyled m-0 px-3">
+                  <li v-if="notifications.length === 0">알림이 없습니다.</li>
+                  <li
+                    v-for="order in notifications"
+                    :key="order.id"
+                    @click.stop="removeNotification(order.id)"
+                    style="cursor: pointer"
+                  >
+                    {{ order.message }}
+                  </li>
+                </ul>
+              </div>
+            </div>
+
+            <img src="/src/imgs/owner/icon_chat.svg" class="icon" />
+            <img src="/src/imgs/owner/icon_present.svg" class="icon" />
+            <img src="/src/imgs/owner/icon_config.svg" class="icon" />
+          </div>
         </div>
 
         <!-- 유저 정보 -->
@@ -186,32 +237,6 @@ img.logo {
   padding-left: 52px;
 }
 
-.searchBar {
-  position: relative;
-  font-size: 0.8em;
-
-  .searchBox {
-    border: none;
-    width: 730px;
-    height: 50px;
-    border-radius: 10px;
-    padding-left: 23px;
-    font-size: 15px;
-  }
-
-  .searchBox:focus {
-    outline: none;
-    box-shadow: none;
-  }
-
-  .searchImg {
-    width: 24px;
-    position: absolute;
-    right: 15px;
-    cursor: pointer;
-  }
-}
-
 .searchBox::placeholder {
   font-size: 16px;
   color: #a8a8a8;
@@ -222,19 +247,34 @@ img.logo {
   height: 50px;
 }
 
-.popover-menu {
-  position: absolute;
-  right: 605px; 
-  top: 95px;    
-  background: white;
-  border: 1px solid #ddd;
-  border-radius: 8px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  z-index: 9999;
-  width: 200px;
+.size {
+  height: 54px;
 }
 
-.size {
- height: 54px;
+.search-icon-inside {
+  position: absolute;
+  left: 15px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 20px;
+  height: 20px;
+  pointer-events: none;
+}
+
+.search {
+  border-radius: 10px;
+  width: 730px;
+  height: 50px;
+}
+
+.red-dot {
+  width: 12px;
+  height: 12px;
+  background-color: red;
+  border-radius: 50%;
+  position: absolute;
+  top: 0px;
+  right: 4px;
+  border: 1px solid white;
 }
 </style>
