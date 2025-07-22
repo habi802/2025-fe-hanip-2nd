@@ -25,6 +25,16 @@ const router = createRouter({
       component: () => import('@/components/owner/Review.vue'),
       meta: { layout: OwnerLayout },
     },
+    {
+      path: '/categoryList',
+      component: () => import('@/views/Category.vue'),
+      meta: { layout: MainLayout },
+    },
+    {
+      path: '/login',
+      component: () => import('@/views/Login.vue'),
+      meta: { layout: MainLayout },
+    },
   ],
 });
 export default router;

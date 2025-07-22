@@ -7,11 +7,9 @@ const layout = computed(() => {
   return route.meta.layout || MainLayout
 })
 </script>
-
 <template>
   <component :is="layout">
     <router-view />
   </component>
 </template>
-
 <style scoped></style>

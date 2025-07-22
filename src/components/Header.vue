@@ -1,5 +1,9 @@
 <script setup>
 import { useRouter } from 'vue-router';
+import { useAccountStore } from '@/stores/account';
+
+
+const account = useAccountStore();
 
 const router = useRouter();
 
@@ -35,14 +39,19 @@ const homeRouter = () => {
         />
       </div>
       <div class="containerOne">
-        <router-link to="/" class="navbar-brand"></router-link>
         <div class="menus d-flex gap-3">
-          <img id="menu" class="shooping" src="/src/imgs/shopping.png" />
-          <div class="login">
-            <router-link id="menu" to="/login">로그인</router-link>
-          </div>
-          <a id="menu">|</a>
-          <a id="menu">회원가입</a>
+          <template v-if="account.state.loggedIn">
+            <img id="menu" class="shooping" src="/src/imgs/shopping.png" />
+            <div id="menu">로그아웃</div>
+          </template>
+          <template v-else>
+            <img id="menu" class="shooping" src="/src/imgs/shopping.png" />
+            <div class="login">
+              <router-link id="menu" to="/login">로그인</router-link>
+            </div>
+            <a id="menu">|</a>
+            <router-link id="menu" to="/join">회원가입</router-link>
+          </template>
         </div>
       </div>
     </div>
@@ -58,6 +67,8 @@ const homeRouter = () => {
   align-items: center;
   justify-content: space-between;
   padding: 0 1rem;
+  -webkit-box-shadow: 1px 9px 13px -1px rgba(0, 0, 0, 0.12);
+  box-shadow: 1px 9px 13px -1px rgba(0, 0, 0, 0.12);
 }
 .containerOne {
   margin-bottom: 30px;
@@ -75,7 +86,7 @@ img.logo {
   height: auto;
   object-fit: contain;
   margin-left: 210px;
-  margin-bottom: 15px;
+  margin-bottom: 8px;
   cursor: pointer;
 }
 .menus {
@@ -85,13 +96,14 @@ img.logo {
   display: flex;
   gap: 1rem;
   align-items: center;
+  margin-top: 30px;
 }
-
-.login a {
+#menu {
   text-decoration: none;
   font-weight: 800;
   color: #ff6666;
 }
+
 .searchBar {
   // margin-bottom: 15px;
   font-size: 0.7em;
