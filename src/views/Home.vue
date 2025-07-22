@@ -43,7 +43,7 @@ const arrow = () => {
   position: sticky;
   width: 72px;
   bottom: 100px;
-  left: 1800px;
+  left: 93%;
   z-index: 999;
   margin-bottom: 100px;
 }

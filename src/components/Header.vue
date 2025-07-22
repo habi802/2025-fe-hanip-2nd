@@ -11,9 +11,14 @@ const homeRouter = () => {
 };
 
 // 로그아웃
-const logoutIn = async() => {
+const logoutIn = async () => {
   const res = await logout();
   account.setLoggedIn(false);
+};
+
+// 마이 페이지 이동
+const myPageRouter = () => {
+  router.push('/my_page');
 };
 </script>
 
@@ -48,7 +53,11 @@ const logoutIn = async() => {
           <template v-if="account.state.loggedIn">
             <img class="order" src="/src/imgs/order.png" />
             <img id="menu" class="shooping" src="/src/imgs/shopping.png" />
-            <img class="myPage" src="/src/imgs/myPage.png" />
+            <img
+              @click="myPageRouter"
+              class="myPage"
+              src="/src/imgs/myPage.png"
+            />
             <div @click="logoutIn">로그아웃</div>
           </template>
           <template v-else>
@@ -93,6 +102,7 @@ const logoutIn = async() => {
   .myPage {
     width: 55px;
     margin-right: 14px;
+    cursor: pointer;
   }
 }
 img.logo {

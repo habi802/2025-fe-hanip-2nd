@@ -39,6 +39,14 @@ const router = createRouter({
       path: '/join',
       component: () => import('@/views/Join.vue'),
     },
+    {
+      path: '/my_page',
+      component: () => import('@/views/MyPage.vue'),
+    },
+    {
+      path: '/stores/:id',
+      component: () => import('@/views/Store.vue'),
+    },
   ],
 });
 export default router;

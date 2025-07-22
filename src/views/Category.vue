@@ -132,11 +132,9 @@ const findAll = async (params) => {
   state.stores = res.data.resultData;
 };
 
-
 onMounted(async () => {
   findAll({});
 });
-
 
 const arrow = () => {
   window.scrollTo({
