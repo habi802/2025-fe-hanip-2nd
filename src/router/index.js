@@ -11,21 +11,6 @@ const router = createRouter({
       meta: { layout: MainLayout },
     },
     {
-      path: '/login',
-      component: () => import('@/views/Login.vue'),
-      meta: { layout: MainLayout },
-    },
-    {
-      path: '/join',
-      component: () => import('@/views/Join.vue'),
-      meta: { layout: MainLayout },
-    },
-    {
-      path: '/categoryList',
-      component: () => import('@/views/Category.vue'),
-      meta: { layout: MainLayout },
-    },
-    {
       path: '/owner',
       component: () => import('@/views/Category.vue'),
       meta: { layout: OwnerLayout },
