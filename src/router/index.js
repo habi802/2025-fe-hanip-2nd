@@ -35,6 +35,10 @@ const router = createRouter({
       component: () => import('@/views/Login.vue'),
       meta: { layout: MainLayout },
     },
+    {
+      path: '/join',
+      component: () => import('@/views/Join.vue'),
+    },
   ],
 });
 export default router;
