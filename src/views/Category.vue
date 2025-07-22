@@ -19,7 +19,7 @@ import 'swiper/css/scrollbar';
 import { getStoreList } from '@/services/storeService';
 import { reactive, onMounted } from 'vue';
 import StoreList from '@/components/StoreList.vue';
-import { getMenus } from '@/services/menuServeice';
+import { getMenus } from '@/services/menuService';
 import Category from '@/components/Category.vue';
 
 const state = reactive({
