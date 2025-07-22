@@ -37,6 +37,8 @@ const openAddMenuModal = () => {
   newMenu.name = "";
   newMenu.price = "";
   newMenu.comment = "";
+  newMenu.imagePath = null;
+  previewImage.value = defaultMenuImage;
 
   const modal = new bootstrap.Modal(addMenuModal.value);
   modal.show();
@@ -60,6 +62,7 @@ const submitMenu = async () => {
   newMenu.price = "";
   newMenu.comment = "";
   newMenu.imagePath = null;
+  previewImage.value = defaultMenuImage;
 
   formData.append("img", payload.img);
   formData.append(
@@ -85,7 +88,7 @@ const handleFileSelected = (e) => {
   const file = e.target.files[0];
   if (file) {
     previewImage.value = URL.createObjectURL(file);
-    state.form = file;
+    newMenu.imagePath = file;
   }
 };
 </script>
@@ -97,12 +100,7 @@ const handleFileSelected = (e) => {
   </div>
   <div class="padding pb-5">
     <div class="row gap-3">
-      <OwnerMenuCard
-        v-for="menu in state.form"
-        :key="menu.id"
-        :menu="menu"
-        @edit="editMenu(menu.id)"
-      />
+      <OwnerMenuCard v-for="menu in state.form" :key="menu.id" :menu="menu" />
       <div class="card add-card" @click="openAddMenuModal">
         <div class="add-content">+ 메뉴 추가하기</div>
       </div>

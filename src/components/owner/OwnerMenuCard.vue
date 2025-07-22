@@ -20,7 +20,7 @@ const handleFileSelected = (e) => {
   const file = e.target.files[0];
   if (file) {
     previewImage.value = URL.createObjectURL(file);
-    menu.imagePath = file;
+    newMenu.imagePath = file;
   }
 };
 
@@ -63,9 +63,9 @@ const editMenu = () => {
       </div>
       <div class="col-md-7 d-flex flex-column justify-content-between p-3">
         <div>
-          <h5 class="card-title">{{ menu.name }}</h5>
-          <h6 class="text-muted">{{ menu.price.toLocaleString() + "원" }}</h6>
-          <p class="card-text small mt-2">{{ menu.comment }}</p>
+          <h5 class="card-title">{{ props.menu.name }}</h5>
+          <h6 class="text-muted">{{ props.menu.price.toLocaleString() + "원" }}</h6>
+          <p class="card-text small mt-2">{{ props.menu.comment }}</p>
         </div>
         <div class="d-flex gap-2 mt-3 justify-content-end">
           <button @click="editMenu" class="btn btn-primary mt-3">수정</button>
