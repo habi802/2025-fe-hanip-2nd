@@ -422,6 +422,7 @@ input::placeholder {
 .ownerTitle2 {
   padding-left: 12px; 
   padding-bottom: 10px;
+  color: #686868;
 }
 
 

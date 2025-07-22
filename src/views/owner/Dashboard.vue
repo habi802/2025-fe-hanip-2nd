@@ -35,6 +35,7 @@ import OrderPrepare from "@/components/owner/OrderPrepare.vue";
 .ownerTitle2 {
   padding-left: 12px;
   padding-bottom: 10px;
+  color: #686868;
 }
 
 .padding {

@@ -1,10 +1,20 @@
 <script setup>
-import { ref, provide } from "vue";
+import { ref, onMounted, provide, onBeforeUnmount } from "vue";
 import { RouterLink, useRouter, useRoute } from "vue-router";
 
+onMounted(() => {
+  document.addEventListener('click', handleClickOutside);
+})
+
+onBeforeUnmount(() => {
+  document.removeEventListener('click', handleClickOutside);
+});
+
+// ref, route, router
 const router = useRouter();
 const route = useRoute();
 const isOpen = ref(true);
+const bell = ref(false);
 
 const homeRouter = () => {
   router.push("/");
@@ -48,6 +58,19 @@ const caLink = () => {
 // provide (영업 데이터 옮기기)
 provide("isOpen", isOpen);
 provide("toggleBusiness", toggleBusiness);
+
+
+// 드랍다운 메뉴
+const toggle = () => {
+  bell.value = !bell.value;
+};
+
+const handleClickOutside = (e) => {
+  if (!e.target.closest('.popover-menu') && !e.target.closest('.icon')) {
+    bell.value = false;
+  }
+};
+
 </script>
 
 <template>
@@ -57,20 +80,20 @@ provide("toggleBusiness", toggleBusiness);
       class="d-flex flex-column p-4 bg-white"
       style="width: 300px; min-height: 100vh"
     >
-      <div class="text-center mb-4">
+      <div class="text-center mb-5">
         <img
           class="logo"
           @click="homeRouter"
           src="/src/imgs/haniplogo3.png"
           alt="logo"
-          style="width: 210px"
+          style="width: 180px"
         />
       </div>
       <ul class="nav nav-pills flex-column gap-4 fw-bolder">
         <li class="nav-item" v-for="menu in menus" :key="menu.text">
           <RouterLink
             :to="menu.path"
-            class="nav-link w-100 text-center"
+            class="nav-link w-100 text-center size d-flex justify-content-center align-items-center"
             :style="{
               backgroundColor: route.path === menu.path ? '#f66463' : '#dddddd',
               color:
@@ -112,6 +135,22 @@ provide("toggleBusiness", toggleBusiness);
               src="/src/imgs/search_icon.png"
             />
           </div>
+          <div class="relative">
+            <img src="/src/imgs/owner/icon_bell.svg" class="icon" style="cursor: pointer;" @click="toggle" />
+          <img src="/src/imgs/owner/icon_chat.svg" class="icon" />
+          <img src="/src/imgs/owner/icon_present.svg" class="icon" />
+          <img src="/src/imgs/owner/icon_config.svg" class="icon" />
+        </div>
+
+          <!-- 벨 알림 팝 오버 -->
+           <div v-if="bell" class="popover-menu">
+              <ul class="py-2 text-sm text-gray-700">
+                <li class="px-4 py-2 hover:bg-gray-100">메뉴 1</li>
+                <li class="px-4 py-2 hover:bg-gray-100">메뉴 2</li>
+                <li class="px-4 py-2 hover:bg-gray-100">메뉴 3</li>
+              </ul>
+          </div>
+
           <button
             :class="['btn', isOpen ? 'btn-success' : 'btn-danger']"
             @click="toggleBusiness"
@@ -179,5 +218,26 @@ img.logo {
 .searchBox::placeholder {
   font-size: 16px;
   color: #a8a8a8;
+}
+
+.icon {
+  width: 60px;
+  height: 50px;
+}
+
+.popover-menu {
+  position: absolute;
+  right: 605px; 
+  top: 95px;    
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  z-index: 9999;
+  width: 200px;
+}
+
+.size {
+ height: 54px;
 }
 </style>
