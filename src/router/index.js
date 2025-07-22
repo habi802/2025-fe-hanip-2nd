@@ -1,7 +1,6 @@
 import MainLayout from '@/layouts/MainLayout.vue';
 import OwnerLayout from '@/layouts/OwnerLayout.vue';
 import { createRouter, createWebHistory } from 'vue-router';
-
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
@@ -10,14 +9,6 @@ const router = createRouter({
       name: 'home',
       component: () => import('@/views/Home.vue'),
       meta: { layout: MainLayout },
-    },
-    {
-      path: "/login",
-      component: () => import("@/views/Login.vue")
-    },
-    {
-      path: "/join",
-      component: () => import("@/views/Join.vue")
     },
     {
       path: '/stores/:id',
@@ -44,7 +35,10 @@ const router = createRouter({
       component: () => import('@/views/Login.vue'),
       meta: { layout: MainLayout },
     },
+    {
+      path: '/join',
+      component: () => import('@/views/Join.vue'),
+    },
   ],
 });
-
 export default router;
