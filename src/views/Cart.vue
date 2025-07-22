@@ -5,6 +5,7 @@ import { getItems, removeCart, removeItem } from '@/services/cartService';
 
 const router = useRouter();
 const goToCart = () => {
+  console.log('이동 좀 합시다')
   router.push('/cart');
 };
 
