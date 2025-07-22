@@ -39,6 +39,11 @@ const router = createRouter({
       path: '/join',
       component: () => import('@/views/Join.vue'),
     },
+    {
+      path: '/owner/orders',
+      component: () => import('@/components/owner/Orders.vue'),
+      meta: { layout: OwnerLayout },
+    },
   ],
 });
 export default router;

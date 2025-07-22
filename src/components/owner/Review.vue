@@ -159,7 +159,6 @@ const StarIcon = {
             }
             span:nth-of-type(1){
                 line-height: 1;
-                text-align: center;
                 font-size: 40px;
                 font-weight: 800;
             }
@@ -185,8 +184,7 @@ const StarIcon = {
         height: 75px;
         padding: 15px 15px ;
 
-        img:first-child{
-        }
+            img:first-child{ }
         div{
             span{
                 display: block;
