@@ -116,8 +116,8 @@ onMounted(async () => {
 <template>
     <div class="container">
         <div class="row">
-            <div class="col-12 col-md-8 p-4">
-                <div class="row border rounded p-3">
+            <div class="col-12 col-md-8 p-3">
+                <div class="row border rounded p-3 mb-3">
                     <div class="col-6 col-md-4 mb-4">
                         <div class="store-image border rounded h-100">
                             이것은 가게의 이미지다
@@ -136,44 +136,7 @@ onMounted(async () => {
                         <span>{{ state.store.address }}</span>
                     </div>
                 </div>
-            </div>
-            <div class="col-12 col-md-4 p-4 d-flex flex-column">
-                <div class="row border rounded p-4 mb-2">
-                    <div class="d-flex justify-content-between border-bottom pb-2 mb-2">
-                        <span>주문표</span>
-                        <span>삭제</span>
-                    </div>
-                    <div v-if="state.carts.length > 0">
-                        <div v-for="item in state.carts" :key="item.id">
-                            <div class="d-flex justify-content-between mb-2">
-                                <span>{{ item.name }}</span>
-                                <span>{{ item.price.toLocaleString() }}원</span>
-                            </div>
-                            <div class="d-flex justify-content-between">
-                                <div>
-                                    <span>{{ item.quantity }}</span>
-                                </div>
-                                <div>
-                                    <button type="button" class="btn btn-basic">메뉴 취소</button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div v-else>
-                        메뉴를 선택해주세요.
-                    </div>
-                    <div class="text-end border-top pt-2 mt-2">
-                        {{ computedTotalPrice }}
-                    </div>
-                </div>
-                <button type="button" class="btn btn-basic">주문하기</button>
-            </div>
-        </div>
-    </div>
 
-    <div class="container">
-        <div class="row">
-            <div class="col-12 col-md-8">
                 <div class="menu-title rounded pt-2 ps-3">
                     <h3 class="mb-1">메뉴</h3>
                 </div>
@@ -201,11 +164,66 @@ onMounted(async () => {
                     </div>
                 </div>
             </div>
+
+            <div class="col-12 col-md-4 d-flex flex-column p-3">
+                <div class="row border rounded p-4 mb-2">
+                    <div class="d-flex justify-content-between border-bottom pb-2 mb-2">
+                        <span>주문표</span>
+                        <span>삭제</span>
+                    </div>
+                    <div v-if="state.carts.length > 0">
+                        <div v-for="(item, idx) in state.carts" :key="item.id">
+                            <div class="p-2" :class="{'border-top': idx !== 0}">
+                                <div class="d-flex justify-content-between mb-2">
+                                    <span>{{ item.name }}</span>
+                                    <span>{{ item.price.toLocaleString() }}원</span>
+                                </div>
+                                <div class="d-flex justify-content-between">
+                                    <div>
+                                        <button type="button" class="btn btn-basic btn-quantity">+</button>
+                                        <span class="p-3">{{ item.quantity }}</span>
+                                        <button type="button" class="btn btn-basic btn-quantity">-</button>
+                                    </div>
+                                    <div>
+                                        <button type="button" class="btn btn-basic btn-submit">메뉴 취소</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div v-else>
+                        메뉴를 선택해주세요.
+                    </div>
+                    <div class="text-end border-top pt-2 mt-2">
+                        {{ computedTotalPrice }}
+                    </div>
+                </div>
+                <router-link to="/order" class="btn btn-basic btn-submit">주문하기</router-link>
+            </div>
+        </div>
+    </div>
+    
+    <div class="container">
+        <div class="row">
+            <div class="col-12 col-md-8 p-4">
+                
+            </div>
+            <div class="col-12 col-md-4 p-4">
+                
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="row">
+            <div class="col-12 col-md-8">
+                
+            </div>
         </div>
     </div>
 </template>
 
-<style scoped>
+<style lang="scss" scoped>
 @font-face {
     font-family: 'BMJUA';
     src: url('https://fastly.jsdelivr.net/gh/projectnoonnu/noonfonts_one@1.0/BMJUA.woff') format('woff');
@@ -219,10 +237,21 @@ onMounted(async () => {
 
 .btn-basic {
     background-color: white;
-    color: #ff6666;
-    border: 1px solid #ff6666;
+    border-width: 1px;
+    border-style: solid;
     font-family: 'BMJUA';
     letter-spacing: 1px;
+    line-height: 1.2;
+
+    &.btn-submit {
+        border-color: #ff6666;
+        color: #ff6666;
+    }
+    
+    &.btn-quantity {
+        border-color: #000;
+        color: #000;
+    }
 
     &:hover {
         background-color: #ffe5e5;
