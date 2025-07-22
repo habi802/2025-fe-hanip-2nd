@@ -1,9 +1,33 @@
 <script setup>
 import router from '@/router/index';
-import { reactive, ref } from 'vue'
+import { reactive, ref, watch } from 'vue';
+import { join } from '@/services/userService';
 
-const memberType = ref('general');
+// 회원 타입 구분: 일반고객(customer) 또는 업주(owner)
+const memberType = ref('customer');
 
+// 비밀번호 확인용
+const confirmPw = ref('');
+
+// 일반 회원 일반전화 필드
+const phoneAreaCode = ref('02');
+
+// 일반 회원용 전화번호 필드
+const phone1 = ref('010');
+const phone2 = ref('');
+const phone3 = ref('');
+
+// 업주 회원용 가게 전화번호
+const ownerTel1 = ref('02');
+const ownerTel2 = ref('');
+const ownerTel3 = ref('');
+
+// 업주 회원용 대표자 휴대전화
+const ownerPhone1 = ref('010');
+const ownerPhone2 = ref('');
+const ownerPhone3 = ref('');
+
+// 전체 폼 상태
 const state = reactive({
   form: {
     name: '',
@@ -14,21 +38,128 @@ const state = reactive({
     addressDetail: '',
     phone: '',
     email: '',
-    role:'',
+    role: '',
+  },
+  owner: {
+    name: '',
+    category: '',
+    tel: '',
+    businessNumber: '',
+    licenesPath: '',
+    imagePath: '',
   }
 });
 
-const submit = async () => {
-  const res = await join(state.form);
-  console.log('res:', res);
-  if (res.status === 200) {
-    alert('회원가입을 축하합니다.');
-    await router.push('/');
-  } else {
-    alert('아이디/비밀번호를 확인해 주세요.');
-  }
+// 약관 동의 상태
+const agreement = reactive({
+  allAgree: false,
+  terms: {
+    useTerms: false,
+    privacyPolicy: false,
+    thirdParty: false,
+  },
+  marketing: false,
+  sms: false,
+  email: false,
+});
+
+// 회원 타입 변경 시 role 값 자동 반영
+watch(memberType, (val) => {
+  state.form.role = val;  // 'customer' or 'owner'
+});
+
+// 일반 전화번호 조합
+watch([phone1, phone2, phone3], () => {
+  state.form.phone = `${phone1.value}-${phone2.value}-${phone3.value}`;
+});
+
+// 업주용 가게 전화번호 조합
+watch([ownerTel1, ownerTel2, ownerTel3], () => {
+  state.owner.tel = `${ownerTel1.value}-${ownerTel2.value}-${ownerTel3.value}`;
+});
+
+// 업주용 대표자 휴대폰 조합
+watch([ownerPhone1, ownerPhone2, ownerPhone3], () => {
+  state.owner.businessNumber = `${ownerPhone1.value}-${ownerPhone2.value}-${ownerPhone3.value}`;
+});
+
+// 전체 약관 동의 시 세부 항목도 일괄 변경
+const toggleAllAgree = () => {
+  const val = agreement.allAgree;
+  agreement.terms.useTerms = val;
+  agreement.terms.privacyPolicy = val;
+  agreement.terms.thirdParty = val;
+  agreement.marketing = val;
+  agreement.sms = val;
+  agreement.email = val;
 };
 
+// 회원가입 처리 함수
+const submit = async () => {
+  // 공통 필수값 확인
+  if (!state.form.loginId || !state.form.loginPw || !state.form.email) {
+    alert('아이디, 비밀번호, 이메일은 필수입니다.');
+    return;
+  }
+
+  // 회원 유형별 필수값 확인
+  if (memberType.value === 'customer') {
+    if (!state.form.name) {
+      alert('이름은 필수입니다.');
+      return;
+    }
+  } else if (memberType.value === 'owner') {
+    if (!state.owner.name) {
+      alert('가게 상호명은 필수입니다.');
+      return;
+    }
+    if (!state.owner.category) {
+      alert('가게 카테고리는 필수입니다.');
+      return;
+    }
+  }
+
+  // 필수 약관 동의 여부 확인
+  if (!agreement.terms.useTerms || !agreement.terms.privacyPolicy || !agreement.terms.thirdParty) {
+    alert('필수 약관에 모두 동의해 주세요.');
+    return;
+  }
+
+  // 비밀번호 확인값과 입력값 비교
+  if (confirmPw.value !== state.form.loginPw) {
+    alert('비밀번호 확인이 일치하지 않습니다.');
+    return;
+  }
+
+  // 서버에 전송할 데이터 구성
+  const payload = {
+    ...state.form,
+    owner: memberType.value === 'owner' ? state.owner : null
+  };
+
+  console.log('전송 데이터:', payload); // 디버깅용
+
+  try {
+    console.log('전송할 데이터:', payload); 
+    const res = await join(payload);
+    console.log('회원가입 결과:', res);
+
+    if (res.status === 200) {
+      confirm('회원가입 되었습니다!');
+      router.push('/');
+    } else {
+      alert('입력 정보를 다시 확인해 주세요.');
+    }
+  } catch (err) {
+    console.error('회원가입 실패:', err);
+
+    if (err.response?.status === 401) {
+      alert('권한이 없습니다. 관리자에게 문의하세요.');
+    } else {
+      alert('회원가입 중 오류가 발생했습니다.');
+    }
+  }
+};
 </script>
 
 <template>
@@ -42,7 +173,7 @@ const submit = async () => {
       <div class="form-group">
       <label>✪ 회원구분</label>
         <div class="radio-group">
-          <label id="radio"><input type="radio" class="circle" name="memberType" value="general" v-model="memberType" /> 일반</label>
+          <label id="radio"><input type="radio" class="circle" name="memberType" value="customer" v-model="memberType" /> 일반</label>
           <label><input type="radio" class="circle" name="memberType" value="owner" v-model="memberType" /> 업주</label>
         </div>
       </div>
@@ -60,27 +191,27 @@ const submit = async () => {
       <div class="form-group">
         
         <label>✪ 아이디</label>
-        <input type="text" placeholder="영문 소문자/숫자, 4~16자" />
+        <input type="text" v-model="state.form.loginId" placeholder="영문 소문자/숫자, 4~16자" />
       </div>
       <div class="sevLine"></div>
 
       <div class="form-group">
         <label>✪ 비밀번호</label>
-        <input type="password" placeholder="영문 대/소문자+숫자+특수문자 조합 8~16자" />
+        <input type="password" v-model="state.form.loginPw" placeholder="영문 대/소문자+숫자+특수문자 조합 8~16자" />
       </div>
       <div class="sevLine"></div>
 
       <div class="form-group">
         <label>✪ 비밀번호 확인</label>
-        <input type="password" placeholder="비밀번호를 한 번 더 입력해주세요" />
+        <input type="password" v-model="confirmPw" placeholder="비밀번호를 한 번 더 입력해주세요" />
       </div>
       <div class="sevLine"></div>
       
       <!-- 일반 회원 -->
-      <template v-if="memberType === 'general'">
+      <template v-if="memberType === 'customer'">
       <div class="form-group">
         <label>✪ 이름</label>
-        <input type="text" />
+        <input type="text" v-model="state.form.name"/>
       </div>
       <div class="sevLine"></div>
 
@@ -88,12 +219,12 @@ const submit = async () => {
       <div class="form-group address-group">
   <label>✪ 주소</label>
   <div class="address-row">
-    <input type="text" placeholder="우편번호" />
+    <input type="text" v-model="state.form.postcode" placeholder="우편번호" />
     <button type="button">주소검색</button>
   </div>
   <div class="sev-addres-row">
-    <input type="text" placeholder="기본주소" />
-    <input type="text" placeholder="상세주소 (선택입력가능)" />
+    <input type="text" v-model="state.form.address" placeholder="기본주소" />
+    <input type="text" v-model="state.form.addressDetail" placeholder="상세주소 (선택입력가능)" />
   </div>
 </div>
       <div class="sevLine"></div>
@@ -101,7 +232,7 @@ const submit = async () => {
       <div class="form-group phone-input-wrap">
   <label>✪ 일반번호</label>
   <div class="phone-input">
-    <select>
+    <select v-model="phoneAreaCode">
       <option>02</option>
       <option>031</option>
       <option>032</option>
@@ -141,15 +272,15 @@ const submit = async () => {
       <div class="form-group phone-input-wrap">
   <label>✪ 휴대전화</label>
   <div class="phone-input">
-    <select>
+    <select v-model="phone1">
       <option>010</option>
       <option>016</option>
       <option>017</option>
       <option>018</option>
       <option>019</option>
     </select>
-    <input type="text" />
-    <input type="text" />
+    <input type="text" v-model="phone2" />
+    <input type="text" v-model="phone3" />
   </div>
 </div>
       <div class="sevLine"></div>
@@ -157,7 +288,7 @@ const submit = async () => {
       <!-- 이메일 -->
       <div class="form-group">
         <label>✪ 이메일</label>
-        <input type="email" placeholder="반드시 사용 중인 메일을 @ 형식으로 입력하세요." />
+        <input type="email" v-model="state.form.email" placeholder="반드시 사용 중인 메일을 @ 형식으로 입력하세요." />
       </div>
       <div class="sevLine"></div>
     </template>
@@ -167,7 +298,7 @@ const submit = async () => {
       <!-- 대표자 이름 -->
       <div class="form-group owner-form">
         <label>✪ 대표자 이름</label>
-        <input type="text" />
+        <input type="text" v-model="state.form.name" />
       </div>
       <div class="sevLine"></div>
 
@@ -175,12 +306,12 @@ const submit = async () => {
       <div class="owner-form form-group address-group">
   <label>✪ 가게주소</label>
   <div class="address-row">
-    <input type="text" placeholder="우편번호" />
+    <input type="text" v-model="state.form.postcode" placeholder="우편번호" />
     <button type="button">주소검색</button>
   </div>
   <div class="sev-addres-row">
-    <input type="text" placeholder="기본주소" />
-    <input type="text" placeholder="상세주소 (선택입력가능)" />
+    <input type="text" v-model="state.form.address" placeholder="기본주소" />
+    <input type="text" v-model="state.form.addressDetail" placeholder="상세주소 (선택입력가능)" />
   </div>
 </div>
       <div class="sevLine"></div>
@@ -189,7 +320,7 @@ const submit = async () => {
       <div class="owner-form form-group phone-input-wrap">
   <label>✪ 가게전화</label>
   <div class="phone-input">
-    <select>
+    <select v-model="ownerTel1">
       <option>02</option>
       <option>031</option>
       <option>032</option>
@@ -219,8 +350,8 @@ const submit = async () => {
       <option>018</option>
       <option>019</option>
     </select>
-    <input type="text" />
-    <input type="text" />
+    <input type="text" v-model="ownerTel2"/>
+    <input type="text" v-model="ownerTel3"/>
   </div>
 </div>
       <div class="sevLine"></div>
@@ -229,8 +360,8 @@ const submit = async () => {
       <div class="owner-form form-group phone-input-wrap">
   <label>✪ 가게 상호명 및 카테고리</label>
   <div class="phone-input">
-    <input type="text"/>
-    <select>
+    <input type="text" v-model="state.owner.name"/>
+    <select v-model="state.owner.category">
       <option>카테고리</option>
       <option>한식</option>
       <option>일식</option>
@@ -252,7 +383,7 @@ const submit = async () => {
       <div class="owner-upload owner-form">
   <label>✪ 사업자 등록번호</label>
   <div class="upload-row">
-    <input type="text" class="upload-box"/>
+    <input type="text" v-model="state.owner.licenesPath" class="upload-box"/>
     <button type="button">조회</button>
   </div>
   </div>
@@ -261,22 +392,22 @@ const submit = async () => {
   <!-- 이메일 -->
   <div class="owner-form form-group">
         <label>✪ 이메일</label>
-        <input type="email" placeholder="반드시 사용 중인 메일을 @ 형식으로 입력하세요." />
+        <input type="email" v-model="state.form.email" placeholder="반드시 사용 중인 메일을 @ 형식으로 입력하세요." />
       </div>
       <div class="sevLine"></div>
       <!-- 휴대전화 -->
       <div class="form-group phone-input-wrap">
   <label>✪ 휴대전화</label>
   <div class="phone-input">
-    <select>
+    <select v-model="ownerPhone1">
       <option>010</option>
       <option>016</option>
       <option>017</option> 
       <option>018</option>
       <option>019</option>
     </select>
-    <input type="text" />
-    <input type="text" />
+    <input type="text" v-model="ownerPhone2"/>
+    <input type="text" v-model="ownerPhone3"/>
   </div>
 </div>
       <div class="sevLine"></div>
@@ -300,28 +431,28 @@ const submit = async () => {
 
       <div class="agreement">
         <p class="all-agree"><label class="custom-checkbox">
-          <input type="checkbox" class="circle"/> <strong><span class="highlight">[전체동의]</span></strong> 이용약관 및 개인정보수집 및 이용, 쇼핑정보 수신(선택)에 모두 동의합니다. </label>
+          <input type="checkbox" class="circle" v-model="agreement.allAgree" @change="toggleAllAgree"/> <strong><span class="highlight">[전체동의]</span></strong> 이용약관 및 개인정보수집 및 이용, 쇼핑정보 수신(선택)에 모두 동의합니다. </label>
         </p>
 
         <ul class="terms-list">
-          <li><label class="custom-checkbox"><input type="checkbox" class="circle"/><span class="highlight"> [필수]</span> 이용약관 동의</label></li>
-          <li><label class="custom-checkbox"><input type="checkbox" class="circle"/> <span class="highlight">[필수]</span> 개인정보 수집 이용 동의</label></li>
-          <li><label class="custom-checkbox"><input type="checkbox" class="circle"/> <span class="highlight">[필수]</span> 개인정보 제3자 제공 동의</label></li>
+          <li><label class="custom-checkbox"><input type="checkbox" class="circle" v-model="agreement.terms.useTerms"/><span class="highlight"> [필수]</span> 이용약관 동의</label></li>
+          <li><label class="custom-checkbox"><input type="checkbox" class="circle" v-model="agreement.terms.privacyPolicy"/> <span class="highlight">[필수]</span> 개인정보 수집 이용 동의</label></li>
+          <li><label class="custom-checkbox"><input type="checkbox" class="circle" v-model="agreement.terms.thirdParty"/> <span class="highlight">[필수]</span> 개인정보 제3자 제공 동의</label></li>
         </ul>
 
         <div class="marketing">
-          <p><label class="custom-checkbox"><input type="checkbox" class="circle" /><span class="highlight"> [선택]</span> 쇼핑정보 수신 동의</label></p>
+          <p><label class="custom-checkbox"><input type="checkbox" class="circle" v-model="agreement.marketing"/><span class="highlight"> [선택]</span> 쇼핑정보 수신 동의</label></p>
         </div>
 
         <div class="sev-marketing">
-          <span><label class="custom-checkbox"><input type="checkbox" class="circle"/> SMS 수신을 동의하십니까?</label></span>
-          <span><label class="custom-checkbox"><input type="checkbox" class="circle"/> 이메일 수신을 동의하십니까?</label></span>
+          <span><label class="custom-checkbox"><input type="checkbox" class="circle" v-model="agreement.sms"/> SMS 수신을 동의하십니까?</label></span>
+          <span><label class="custom-checkbox"><input type="checkbox" class="circle" v-model="agreement.email"/> 이메일 수신을 동의하십니까?</label></span>
         </div>
       </div>
 
       <!-- 제출 버튼 -->
       <div class="form-submit">
-        <button type="submit" @click="router.push('/home')">회원가입</button>
+        <button type="submit" >회원가입</button>
       </div>
     </form>
   </div>
