@@ -14,11 +14,11 @@
           <div class="star">
             <img id="icon" src="/src/imgs/star.png" />
             4.8
-            <span class="starNum">(938)</span>
+            <span class="starNum">(8)</span>
           </div>
           <div class="love">
             <img id="icon" src="/src/imgs/love.png" />
-            927
+            12
           </div>
         </div>
         <div id="smallText">배달료 0원 ~ 3000원</div>
@@ -29,161 +29,161 @@
     <!--  -->
     <div class="store">
       <div class="storeImgBox">
-        <img class="sImg" src="/src/imgs/recStore_1.png" />
+        <img class="sImg" src="/src/imgs/RecommendStoreImg/snackFood.png" />
       </div>
       <div class="storeTextBox">
-        <div class="sText">오십계</div>
+        <div class="sText">할매분식</div>
         <div class="icons">
           <div class="star">
             <img id="icon" src="/src/imgs/star.png" />
-            4.8
-            <span class="starNum">(938)</span>
+            4.7
+            <span class="starNum">(10)</span>
           </div>
           <div class="love">
             <img id="icon" src="/src/imgs/love.png" />
-            927
+            9
           </div>
         </div>
         <div id="smallText">배달료 0원 ~ 3000원</div>
-        <div id="smallText">최소 주문 금액 13000원</div>
+        <div id="smallText">최소 주문 금액 14000원</div>
       </div>
       <div class="btn">자세히보기</div>
     </div>
     <!--  -->
     <div class="store">
       <div class="storeImgBox">
-        <img class="sImg" src="/src/imgs/recStore_1.png" />
+        <img class="sImg" src="/src/imgs/RecommendStoreImg/dessert.png" />
       </div>
       <div class="storeTextBox">
-        <div class="sText">오십계</div>
+        <div class="sText">디저트24</div>
         <div class="icons">
           <div class="star">
             <img id="icon" src="/src/imgs/star.png" />
-            4.8
-            <span class="starNum">(938)</span>
+            4.9
+            <span class="starNum">(17)</span>
           </div>
           <div class="love">
             <img id="icon" src="/src/imgs/love.png" />
-            927
+            23
           </div>
         </div>
         <div id="smallText">배달료 0원 ~ 3000원</div>
-        <div id="smallText">최소 주문 금액 13000원</div>
+        <div id="smallText">최소 주문 금액 8000원</div>
       </div>
       <div class="btn">자세히보기</div>
     </div>
     <!--  -->
     <div class="store">
       <div class="storeImgBox">
-        <img class="sImg" src="/src/imgs/recStore_1.png" />
+        <img class="sImg" src="/src/imgs/RecommendStoreImg/hamburger.png" />
       </div>
       <div class="storeTextBox">
-        <div class="sText">오십계</div>
+        <div class="sText">영국버거</div>
         <div class="icons">
           <div class="star">
             <img id="icon" src="/src/imgs/star.png" />
             4.8
-            <span class="starNum">(938)</span>
+            <span class="starNum">(18)</span>
           </div>
           <div class="love">
             <img id="icon" src="/src/imgs/love.png" />
-            927
+            16
           </div>
         </div>
         <div id="smallText">배달료 0원 ~ 3000원</div>
-        <div id="smallText">최소 주문 금액 13000원</div>
+        <div id="smallText">최소 주문 금액 14000원</div>
       </div>
       <div class="btn">자세히보기</div>
     </div>
     <!--  -->
     <div class="store">
       <div class="storeImgBox">
-        <img class="sImg" src="/src/imgs/recStore_1.png" />
+        <img class="sImg" src="/src/imgs/RecommendStoreImg/pizza.png" />
       </div>
       <div class="storeTextBox">
-        <div class="sText">오십계</div>
+        <div class="sText">56밀피자</div>
         <div class="icons">
           <div class="star">
             <img id="icon" src="/src/imgs/star.png" />
-            4.8
-            <span class="starNum">(938)</span>
+            4.9
+            <span class="starNum">(6)</span>
           </div>
           <div class="love">
             <img id="icon" src="/src/imgs/love.png" />
-            927
+            11
           </div>
         </div>
         <div id="smallText">배달료 0원 ~ 3000원</div>
-        <div id="smallText">최소 주문 금액 13000원</div>
+        <div id="smallText">최소 주문 금액 21000원</div>
       </div>
       <div class="btn">자세히보기</div>
     </div>
     <!--  -->
     <div class="store">
       <div class="storeImgBox">
-        <img class="sImg" src="/src/imgs/recStore_1.png" />
+        <img class="sImg" src="/src/imgs/RecommendStoreImg/congee.png" />
       </div>
       <div class="storeTextBox">
-        <div class="sText">오십계</div>
+        <div class="sText">봄죽</div>
         <div class="icons">
           <div class="star">
             <img id="icon" src="/src/imgs/star.png" />
             4.8
-            <span class="starNum">(938)</span>
+            <span class="starNum">(13)</span>
           </div>
           <div class="love">
             <img id="icon" src="/src/imgs/love.png" />
-            927
+            7
           </div>
         </div>
         <div id="smallText">배달료 0원 ~ 3000원</div>
-        <div id="smallText">최소 주문 금액 13000원</div>
+        <div id="smallText">최소 주문 금액 15000원</div>
       </div>
       <div class="btn">자세히보기</div>
     </div>
     <!--  -->
     <div class="store">
       <div class="storeImgBox">
-        <img class="sImg" src="/src/imgs/recStore_1.png" />
+        <img class="sImg" src="/src/imgs/RecommendStoreImg/hotDog.png" />
       </div>
       <div class="storeTextBox">
-        <div class="sText">오십계</div>
+        <div class="sText">용감핫도그</div>
         <div class="icons">
           <div class="star">
             <img id="icon" src="/src/imgs/star.png" />
-            4.8
-            <span class="starNum">(938)</span>
+            4.9
+            <span class="starNum">(6)</span>
           </div>
           <div class="love">
             <img id="icon" src="/src/imgs/love.png" />
-            927
+            21
           </div>
         </div>
         <div id="smallText">배달료 0원 ~ 3000원</div>
-        <div id="smallText">최소 주문 금액 13000원</div>
+        <div id="smallText">최소 주문 금액 11000원</div>
       </div>
       <div class="btn">자세히보기</div>
     </div>
     <!--  -->
     <div class="store">
       <div class="storeImgBox">
-        <img class="sImg" src="/src/imgs/recStore_1.png" />
+        <img class="sImg" src="/src/imgs/RecommendStoreImg/jjambbong.png" />
       </div>
       <div class="storeTextBox">
-        <div class="sText">오십계</div>
+        <div class="sText">매운짬뽕</div>
         <div class="icons">
           <div class="star">
             <img id="icon" src="/src/imgs/star.png" />
-            4.8
-            <span class="starNum">(938)</span>
+            4.5
+            <span class="starNum">(7)</span>
           </div>
           <div class="love">
             <img id="icon" src="/src/imgs/love.png" />
-            927
+            27
           </div>
         </div>
         <div id="smallText">배달료 0원 ~ 3000원</div>
-        <div id="smallText">최소 주문 금액 13000원</div>
+        <div id="smallText">최소 주문 금액 18000원</div>
       </div>
       <div class="btn">자세히보기</div>
     </div>
@@ -278,7 +278,7 @@
     width: 200px;
     padding: 10px;
     margin-top: 15px;
-    margin-left: 20%;
+    margin-left: 23%;
     border-radius: 10px;
   }
 }
