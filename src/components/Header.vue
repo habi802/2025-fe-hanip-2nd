@@ -6,7 +6,6 @@ import { useAccountStore } from '@/stores/account';
 const account = useAccountStore();
 
 const router = useRouter();
-
 const homeRouter = () => {
   router.push('/');
 };
@@ -80,7 +79,6 @@ const homeRouter = () => {
   }
   margin-right: 215px;
 }
-
 img.logo {
   width: 190px;
   height: auto;
@@ -90,7 +88,7 @@ img.logo {
   cursor: pointer;
 }
 .menus {
-  color: #ff6666;
+  color: #FF6666;
   font-weight: 800;
   font-size: 13px;
   display: flex;
@@ -98,16 +96,17 @@ img.logo {
   align-items: center;
   margin-top: 30px;
 }
+
 #menu {
   text-decoration: none;
   font-weight: 800;
-  color: #ff6666;
+  color: #FF6666;
 }
 
 .searchBar {
   // margin-bottom: 15px;
   font-size: 0.7em;
-  border: 2px solid #fcaeae;
+  border: 2px solid #FCAEAE;
   border-radius: 20px;
   margin-right: -30px;
   margin-bottom: 15px;
@@ -132,7 +131,7 @@ img.logo {
     border-radius: 20px;
   }
   .searchBox::placeholder {
-    color: #fcaeae;
+    color: #FCAEAE;
     text-align: center;
     margin-left: 40px;
   }
