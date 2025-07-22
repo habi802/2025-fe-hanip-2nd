@@ -5,8 +5,8 @@ import OrderPrepare from "@/components/owner/OrderPrepare.vue";
 </script>
 
 <template>
-  <div class="ownerTitle1">대시보드</div>
-  <div class="ownerTitle2">
+  <div class="owner-title1">대시보드</div>
+  <div class="owner-title2">
     어서오세요! {{}} 사장님, 관리자 페이지에 다시 오신 것을 환영합니다!
   </div>
 
@@ -24,15 +24,16 @@ import OrderPrepare from "@/components/owner/OrderPrepare.vue";
     </div>
   </div>
 </template>
+
 <style scoped>
-.ownerTitle1 {
+.owner-title1 {
   font-size: 30px;
   font-weight: bold;
   padding-left: 12px;
   padding-bottom: 2px;
 }
 
-.ownerTitle2 {
+.owner-title2 {
   padding-left: 12px;
   padding-bottom: 10px;
   color: #686868;
