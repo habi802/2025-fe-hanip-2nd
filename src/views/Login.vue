@@ -19,15 +19,16 @@ const submit = async () => {
     console.log("응답 전체확인용:", res);
     console.log("res.data:", res.data);
     console.log("res.data.resultData:", res.data.resultData);
-
+    
     if (res.status === 200) {
-      const { role } = res.data;  // 회원 유형 고객 or 가게사장
-      console.log("role 값: ", role);
+      const { role } = res.data.resultData;  // 회원 유형 고객 or 가게사장
+      console.log("role 값: ", role); // undefined 해결하기 ㅠㅠ
+      console.log("res.data.resultData:", res.data.resultData);
 
-      if (role === 'customer') {
-        router.push('/'); // 업주용 메인화면
+      if (role === 'owner') {
+        router.push('/owner'); // 업주용 메인화면
       } else {
-        router.push('/owner'); // 고객용 메인화면
+        router.push('/'); // 고객용 메인화면
       }
     } else if (res.status === 401) {
       alert('아이디/비밀번호를 확인해 주세요.');
