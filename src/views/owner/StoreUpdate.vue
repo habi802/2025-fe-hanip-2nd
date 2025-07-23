@@ -87,7 +87,7 @@ const submit = async (e) => {
   // 백엔드에 보낼 데이터
   const payload = {
     data: {
-      storeId: 1,
+      storeId: state.form.id,
       password: state.form.password,
       comment: state.form.comment,
       postcode: state.form.zipcode,
