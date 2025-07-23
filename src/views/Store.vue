@@ -27,7 +27,7 @@ const loadStore = async id => {
 
     if (res === undefined || res.data.resultStatus !== 200) {
         alert(res.data.resultMessage);
-        router.push( { path: '/' });
+        router.push({ path: '/' });
         return;
     }
 
@@ -155,7 +155,7 @@ onMounted(async () => {
                         {{ computedTotalPrice }}
                     </div>
                 </div>
-                <router-link to="/order" class="btn btn-basic btn-submit">주문하기</router-link>
+                <router-link :to="`/stores/${route.params.id}/order`" class="btn btn-basic btn-submit">주문하기</router-link>
             </div>
         </div>
     </div>
