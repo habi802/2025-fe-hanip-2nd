@@ -59,6 +59,11 @@ const router = createRouter({
       component: () => import('@/views/Cart.vue'),
       meta: { layout: MainLayout },
     },
+    {
+      path: '/mypage',
+      component: () => import('@/views/Mypage.vue'),
+      meta: {}
+    }
   ],
 });
 export default router;
