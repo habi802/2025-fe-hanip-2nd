@@ -45,6 +45,7 @@ onMounted(() => {
     }
 
     state.carts = carts.state.items;
+    calculateTotal();
 });
 
 watch([phone1, phone2, phone3], () => {
