@@ -1,15 +1,20 @@
 <script setup>
-import { computed, onMounted, reactive } from 'vue';
+import { onMounted, reactive, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { getStore } from '@/services/storeService';
 import { getOneMenu } from '@/services/menuService';
 import { getReviewsByStoreId } from '@/services/reviewServices';
-import { removeItem } from '@/services/cartService';
+import { updateQuantity, removeItem, removeCart } from '@/services/cartService';
+import { useAccountStore } from '@/stores/account';
 import Menu from '@/components/Menu.vue';
 import Review from '@/components/Review.vue';
 
 const route = useRoute();
 const router = useRouter();
+
+const account = useAccountStore();
+
+const totalPrice = ref(0);
 
 const state = reactive({
     store: {
@@ -57,11 +62,60 @@ const loadReviews = async id => {
     }
 
     state.reviews = res.data.resultData;
+    loadCarts(id);
+}
+
+const loadCarts = async id => {
+    // 수정 예정 수정 예정 수정 예정
+    const res = await removeCart();
+
+    if (res === undefined || res.data.resultStatus !== 200) {
+        //alert(res.data.resultMessage);
+        return;
+    }
+    // 수정 예정 수정 예정 수정 예정
 }
 
 const addCart = item => {
     item.quantity = 1;
     state.carts.push(item);
+    calculateTotal();
+}
+
+const decreaseQuantity = async idx => {
+    if (state.carts[idx].quantity > 1) {
+        const params = {
+            cartId: state.carts[idx].id,
+            quantity: state.carts[idx].quantity - 1
+        }
+
+        const res = await updateQuantity(params);
+
+        if (res === undefined || res.data.resultStatus !== 200) {
+            alert(res.data.resultMessage);
+            return;
+        }
+
+        state.carts[idx].quantity--;
+        calculateTotal();
+    }
+}
+
+const increaseQuantity = async idx => {
+    const params = {
+        cartId: state.carts[idx].id,
+        quantity: state.carts[idx].quantity + 1
+    }
+
+    const res = await updateQuantity(params);
+
+    if (res === undefined || res.data.resultStatus !== 200) {
+        alert(res.data.resultMessage);
+        return;
+    }
+
+    state.carts[idx].quantity++;
+    calculateTotal();
 }
 
 const deleteCart = async cartId => {
@@ -76,14 +130,31 @@ const deleteCart = async cartId => {
         const deleteIdx = state.carts.findIndex(item => item.id === cartId);
         if (deleteIdx > -1) {
             state.carts.splice(deleteIdx, 1);
+            calculateTotal();
         }
     }
 }
 
-const computedTotalPrice = computed(() => {
-    const price = 20000;
-    return price.toLocaleString() + '원';
-});
+const calculateTotal = () => {
+    totalPrice.value = 0;
+
+    state.carts.forEach(item => {
+        const price = item.price * item.quantity;
+        totalPrice.value += price;
+    });
+};
+
+const toOrder = () => {
+    if (!account.state.loggedIn) {
+        alert('로그인 후 주문이 가능합니다.');
+        return;
+    } else if (state.carts.length < 1) {
+        alert('메뉴를 선택해주세요.');
+        return;
+    }
+
+    router.push({ path: `/stores/${route.params.id}/order` });
+}
 
 onMounted(async () => {
     const storeId = route.params.id;
@@ -155,13 +226,13 @@ onMounted(async () => {
                             <div class="p-2" :class="{'border-top': idx !== 0}">
                                 <div class="d-flex justify-content-between mb-2">
                                     <span>{{ item.name }}</span>
-                                    <span>{{ item.price.toLocaleString() }}원</span>
+                                    <span>{{ (item.price * item.quantity).toLocaleString() }}원</span>
                                 </div>
                                 <div class="d-flex justify-content-between">
                                     <div>
-                                        <button type="button" class="btn btn-basic btn-quantity">-</button>
+                                        <button type="button" class="btn btn-basic btn-quantity" @click="decreaseQuantity(idx)">-</button>
                                         <span class="p-3">{{ item.quantity }}</span>
-                                        <button type="button" class="btn btn-basic btn-quantity">+</button>
+                                        <button type="button" class="btn btn-basic btn-quantity" @click="increaseQuantity(idx)">+</button>
                                     </div>
                                     <div>
                                         <button type="button" class="btn btn-basic btn-submit" @click="deleteCart(item.id)">메뉴 취소</button>
@@ -174,10 +245,10 @@ onMounted(async () => {
                         메뉴를 선택해주세요.
                     </div>
                     <div class="text-end border-top pt-2 mt-2">
-                        {{ computedTotalPrice }}
+                        {{ totalPrice.toLocaleString() }}원
                     </div>
                 </div>
-                <router-link :to="`/stores/${route.params.id}/order`" class="btn btn-basic btn-submit">주문하기</router-link>
+                <button type="button" @click="toOrder()" class="btn btn-basic btn-submit">주문하기</button>
             </div>
         </div>
     </div>
