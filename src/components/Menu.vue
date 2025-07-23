@@ -30,11 +30,7 @@ const props = defineProps({
     cursor: pointer;
 
     &:hover {
-<<<<<<< HEAD
         border-color: #fcaeae !important;
-=======
-        border-color: #000 !important;
->>>>>>> 0e8d89af13fdef8c62c6434cba6559bbf28591b2
     }
 }
 </style>
