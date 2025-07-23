@@ -25,7 +25,7 @@ const submit = async () => {
       console.log("role 값: ", role); // undefined 해결하기 ㅠㅠ
       console.log("res.data.resultData:", res.data.resultData);
 
-      if (role === 'owner') {
+      if (role === "OWNER") {
         router.push('/owner'); // 업주용 메인화면
       } else {
         router.push('/'); // 고객용 메인화면
