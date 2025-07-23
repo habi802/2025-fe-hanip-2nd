@@ -1,6 +1,7 @@
 <script setup>
 import { onMounted, reactive } from 'vue';
 import { useRouter } from 'vue-router';
+import { findByUserId, update } from '@/services/userService';
 
 const router = useRouter();
 
@@ -28,18 +29,33 @@ const state = reactive({
 //   state.form.phone = `${phone1.value}-${phone2.value}-${phone3.value}`;
 // });
 
-// 사용자 정보 가져오기
-onMounted(async () => { 
-  try {
-    const loginId = localStorage.getItem('loginId'); // or 로그인 시 저장된 값
-    console.log('localStorage loginId:', loginId); // user 로그인 정보를 저장하고 있는지 확인용
 
-    const res = await find(loginId); // userService에서 끌고와야함
+// 컴포넌트 마운트 시 사용자 정보 조회
+onMounted(async () => {
+  try {
+    // 로그인 시 localStorage에 저장된 사용자 ID 가져오기
+    const id = localStorage.getItem('id'); // or 로그인 시 저장된 값
+    console.log('localStorage loginId:', id); // user 로그인 정보를 저장하고 있는지 확인용
+
+
+    if (!id) {
+      alert('로그인 정보가 없습니다. 로그인 후 이용해주세요.');
+      router.push('/login');
+      return;
+    }
+
+    // API 호출: 사용자 정보 조회
+    const res = await findByUserId(id); // userService에서 끌고와야함
+
     if (res && res.data) {
-      Object.assign(state.form, res.data); // 정보 채우기
+      // 조회된 사용자 정보로 폼 초기화
+      Object.assign(state.form, res.data);// 정보 채우기
+    } else {
+      alert('사용자 정보를 불러오는데 실패했습니다.');
     }
   } catch (err) {
-      console.error('사용자 정보 로딩 실패: ', err);
+    console.error('사용자 정보 로딩 실패:', err);
+    alert('사용자 정보 로딩 중 오류가 발생했습니다.');
   }
 });
 
@@ -47,11 +63,22 @@ onMounted(async () => {
 //  정보 수정 성공 여부
 const submitForm = async (e) => {
   e.preventDefault();
+
   try {
-    const loginId = localStorage.getItem('loginId');
-    await update(loginId, state.form); // API 요청
+    // 수정 요청 전 폼 유효성 체크 등 필요시 추가
+
+    const id = localStorage.getItem('id');
+    if (!id) {
+      alert('로그인 정보가 없습니다.');
+      router.push('/login');
+      return;
+    }
+
+    // API 호출: 사용자 정보 수정
+    await update(id, state.form);
+
     alert('정보가 성공적으로 수정되었습니다.');
-    router.push('/mypage'); // 마이페이지나 원하는 페이지로 이동
+    router.push('/mypage');  // 수정 완료 후 마이페이지로 이동
   } catch (err) {
     console.error('정보 수정 실패:', err);
     alert('정보 수정에 실패했습니다.');

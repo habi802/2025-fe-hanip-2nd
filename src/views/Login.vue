@@ -22,14 +22,14 @@ const submit = async () => {
     
     if (res.status === 200) {
       // 서버에서 loginId 같이 내려주는지 확인 필요
-      const { role, loginId } = res.data.resultData;  // 회원 유형 고객 or 가게사장
+      const { role, id } = res.data.resultData;  // 회원 유형 고객 or 가게사장
       console.log("role 값: ", role); // undefined 해결하기 ㅠㅠ
       console.log("res.data.resultData:", res.data.resultData);
 
-      if (loginId) {
-        localStorage.setItem('loginId', loginId); // 이걸 꼭 추가!
+      if (id) {
+        localStorage.setItem('id', id); // 이걸 꼭 추가!
       } else {
-        console.warn('loginId가 응답에 없습니다.');
+        console.warn('id가 응답에 없습니다.');
       }
 
       console.log("role 값: ", role);
