@@ -73,7 +73,7 @@ const searchDessert = () => {
   const searchCategory = {
     category: '디저트',
   };
-  name.text = '디저트';
+  name.text = '카페/디저트';
   findAll(searchCategory);
 };
 // 분식 찾기
@@ -132,11 +132,9 @@ const findAll = async (params) => {
   state.stores = res.data.resultData;
 };
 
-
 onMounted(async () => {
   findAll({});
 });
-
 
 const arrow = () => {
   window.scrollTo({

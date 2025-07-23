@@ -143,7 +143,7 @@ const caLink = () => {
   }
   .category {
     .categoryBox {
-      width: 1500px;
+      width: 84.3%;
       margin: 0 auto;
       #categoryItems {
         margin-top: 75px;
@@ -151,7 +151,8 @@ const caLink = () => {
         // background-color: antiquewhite;
         #cImg {
           cursor: pointer;
-          width: 220px;
+          // width: 220px;
+          width: 91%;
           border-radius: 50%;
         }
         #cName {
@@ -162,6 +163,12 @@ const caLink = () => {
         }
       }
     }
+  }
+}
+
+@media (max-width: 650px) {
+  .searchBar {
+    display: none;
   }
 }
 </style>
