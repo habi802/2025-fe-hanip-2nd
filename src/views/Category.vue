@@ -151,100 +151,46 @@ const arrow = () => {
       <div class="swiperLeft">
         <img class="left" src="/src/imgs/NavigationLeft.png" />
       </div>
-      <swiper
-        :navigation="{
-          nextEl: '.swiperRight',
-          prevEl: '.swiperLeft',
-        }"
-        :slides-per-view="6"
-        :modules="[Navigation, Pagination, Scrollbar, A11y, Autoplay]"
-        :speed="100"
-        :loop="true"
-      >
-        <swiper-slide
-          ><img @click="searchAll" src="/src/imgs/allImg.png" alt="allImg" />
-          <div>전체</div></swiper-slide
-        >
-        <swiper-slide
-          ><img
-            @click="searchKoreanFood"
-            src="/src/imgs/koreanfood.png"
-            alt="koreanImg"
-          />
-          <div>한식</div></swiper-slide
-        >
-        <swiper-slide
-          ><img
-            @click="searchChina"
-            src="/src/imgs/jjajangmyeon.png"
-            alt="ChinaImg"
-          />
-          <div>중식</div></swiper-slide
-        >
-        <swiper-slide
-          ><img
-            @click="searchJapanese"
-            src="/src/imgs/porkcutlet.png"
-            alt="japanese"
-          />
-          <div>일식</div></swiper-slide
-        >
-        <swiper-slide
-          ><img
-            @click="searchWesternFood"
-            src="/src/imgs/pasta.png"
-            alt="westernFood"
-          />
-          <div>양식</div></swiper-slide
-        >
-        <swiper-slide
-          ><img
-            @click="searchDessert"
-            src="/src/imgs/dessert.png"
-            alt="dessert"
-          />
-          <div>카페/디저트</div></swiper-slide
-        >
-        <swiper-slide
-          ><img
-            @click="searchSnackFood"
-            src="/src/imgs/tteokbokki.png"
-            alt="snackFood"
-          />
-          <div>분식</div></swiper-slide
-        >
-        <swiper-slide
-          ><img
-            @click="searchFastFood"
-            src="/src/imgs/hamburger.png"
-            alt="fastFood"
-          />
-          <div>패스트푸드</div></swiper-slide
-        >
-        <swiper-slide
-          ><img
-            @click="searchAsian"
-            src="/src/imgs/ricenoodles.png"
-            alt="asian"
-          />
-          <div>아시안</div></swiper-slide
-        >
-        <swiper-slide
-          ><img @click="searchChick" src="/src/imgs/chicken.png" alt="chick" />
-          <div>치킨</div></swiper-slide
-        >
-        <swiper-slide
-          ><img @click="searchPizza" src="/src/imgs/pizza.png" alt="pizza" />
-          <div>피자</div></swiper-slide
-        >
-        <swiper-slide
-          ><img
-            @click="searchLateNight"
-            src="/src/imgs/pigfeet.png"
-            alt="lateNight"
-          />
-          <div>야식</div></swiper-slide
-        >
+      <swiper :navigation="{
+        nextEl: '.swiperRight',
+        prevEl: '.swiperLeft',
+      }" :slides-per-view="6" :modules="[Navigation, Pagination, Scrollbar, A11y, Autoplay]" :speed="100" :loop="true">
+        <swiper-slide><img @click="searchAll" src="/src/imgs/allImg.png" alt="allImg" />
+          <div>전체</div>
+        </swiper-slide>
+        <swiper-slide><img @click="searchKoreanFood" src="/src/imgs/koreanfood.png" alt="koreanImg" />
+          <div>한식</div>
+        </swiper-slide>
+        <swiper-slide><img @click="searchChina" src="/src/imgs/jjajangmyeon.png" alt="ChinaImg" />
+          <div>중식</div>
+        </swiper-slide>
+        <swiper-slide><img @click="searchJapanese" src="/src/imgs/porkcutlet.png" alt="japanese" />
+          <div>일식</div>
+        </swiper-slide>
+        <swiper-slide><img @click="searchWesternFood" src="/src/imgs/pasta.png" alt="westernFood" />
+          <div>양식</div>
+        </swiper-slide>
+        <swiper-slide><img @click="searchDessert" src="/src/imgs/dessert.png" alt="dessert" />
+          <div>카페/디저트</div>
+        </swiper-slide>
+        <swiper-slide><img @click="searchSnackFood" src="/src/imgs/tteokbokki.png" alt="snackFood" />
+          <div>분식</div>
+        </swiper-slide>
+        <swiper-slide><img @click="searchFastFood" src="/src/imgs/hamburger.png" alt="fastFood" />
+          <div>패스트푸드</div>
+        </swiper-slide>
+        <swiper-slide><img @click="searchAsian" src="/src/imgs/ricenoodles.png" alt="asian" />
+          <div>아시안</div>
+        </swiper-slide>
+        <swiper-slide><img @click="searchChick" src="/src/imgs/chicken.png" alt="chick" />
+          <div>치킨</div>
+        </swiper-slide>
+        <swiper-slide><img @click="searchPizza" src="/src/imgs/pizza.png" alt="pizza" />
+          <div>피자</div>
+        </swiper-slide>
+        <swiper-slide><img @click="searchLateNight" src="/src/imgs/pigfeet.png" alt="lateNight" />
+          <div>야식</div>
+        </swiper-slide>
       </swiper>
       <div class="swiperRight">
         <img class="right" src="/src/imgs/NavigationRight.png" />
@@ -290,26 +236,29 @@ const arrow = () => {
 <style lang="scss" scoped>
 @font-face {
   font-family: 'BMJUA';
-  src: url('https://fastly.jsdelivr.net/gh/projectnoonnu/noonfonts_one@1.0/BMJUA.woff')
-    format('woff');
+  src: url('https://fastly.jsdelivr.net/gh/projectnoonnu/noonfonts_one@1.0/BMJUA.woff') format('woff');
   font-weight: normal;
   font-style: normal;
 }
+
 * {
   font-family: 'BMJUA';
   letter-spacing: 1px;
 }
+
 .text {
   text-align: center;
   margin-top: 135px;
   font-size: 2.5em;
   color: #ff6666;
 }
+
 .categorys {
   display: flex;
   justify-content: center;
   margin-top: 90px;
   text-align: center;
+
   .categorySwipe {
     display: flex;
     justify-content: center;
@@ -325,6 +274,7 @@ const arrow = () => {
       border-radius: 50%;
       cursor: pointer;
     }
+
     .left {
       width: 17px;
       height: 28px;
@@ -332,6 +282,7 @@ const arrow = () => {
       margin-right: 50px;
       border-radius: 5px;
     }
+
     .right {
       width: 17px;
       height: 28px;
@@ -341,6 +292,7 @@ const arrow = () => {
     }
   }
 }
+
 .line {
   width: 1280px;
   margin: 0 auto;
@@ -359,9 +311,11 @@ const arrow = () => {
   margin-top: 150px;
   background-color: #fff;
 }
+
 .footer {
   margin-bottom: 300px;
 }
+
 .arrow {
   position: sticky;
   width: 72px;
