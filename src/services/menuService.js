@@ -4,7 +4,12 @@ const path = '/menu';
 
 // 메뉴 추가
 export const saveMenu = (menuData) => {
-  return axios.post(path, menuData).catch((e) => e.response);
+  const config = {
+    headers: {
+      'Content-Type': 'multipart/form-data',
+    },
+  };
+  return axios.post(path, menuData,config).catch((e) => e.response);
 };
 
 // 가게 메뉴 전체 조회
