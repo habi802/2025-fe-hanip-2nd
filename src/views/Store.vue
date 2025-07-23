@@ -1,11 +1,14 @@
 <script setup>
 import { computed, onMounted, reactive } from 'vue';
-import { useRoute } from 'vue-router';
+import { useRoute, useRouter } from 'vue-router';
 import { getStore } from '@/services/storeService';
+import { getOneMenu } from '@/services/menuService';
+import { getReviewsByStoreId } from '@/services/reviewServices';
 import Menu from '@/components/Menu.vue';
 import Review from '@/components/Review.vue';
 
 const route = useRoute();
+const router = useRouter();
 
 const state = reactive({
     store: {
@@ -16,87 +19,43 @@ const state = reactive({
     },
     menus: [],
     reviews: [],
-    carts: [
-        {
-            id: 1,
-            name: '떡볶이',
-            quantity: 1,
-            price: 15000,
-        },
-        {
-            id: 2,
-            name: '곱도리탕',
-            quantity: 1,
-            price: 20000,
-        }
-    ],
+    carts: [],
 });
 
 const loadStore = async id => {
     const res = await getStore(id);
 
     if (res === undefined || res.data.resultStatus !== 200) {
+        alert(res.data.resultMessage);
+        router.push({ path: '/' });
+        return;
+    }
+
+    state.store = res.data.resultData;
+    loadMenus(id);
+}
+
+const loadMenus = async id => {
+    const res = await getOneMenu(id);
+
+    if (res === undefined || res.data.resultStatus !== 200) {
+        alert(res.data.resultMessage);
+        return;
+    }
+
+    state.menus = res.data.resultData;
+    loadReviews(id);
+}
+
+const loadReviews = async id => {
+    const res = await getReviewsByStoreId(id);
+
+    if (res === undefined || res.data.resultStatus !== 200) {
         alert('조회 실패');
         return;
     }
 
-    state.store = res.data.resultData; 
-}
-
-const loadMenus = async id => {
-    // const res = await getStore(id);
-
-    // if (res === undefined || res.data.resultStatus !== 200) {
-    //     alert('조회 실패');
-    //     return;
-    // }
-
-    // state.menus = res.data.resultData;
-    state.menus = [
-        {
-            id: 1,
-            name: '빅맥',
-            comment: '맛있는 맥도날드 햄버거!',
-            price: 20000,
-            imagePath: ''
-        },
-        {
-            id: 2,
-            name: '밀크쉐이크',
-            comment: '감자튀김을 찍어 드셔 보세요!',
-            price: 6000,
-            imagePath: ''
-        }
-    ];
-}
-
-const loadReviews = async id => {
-    // const res = await getStore(id);
-
-    // if (res === undefined || res.data.resultStatus !== 200) {
-    //     alert('조회 실패');
-    //     return;
-    // }
-
-    // state.reviews = res.data.resultData;
-    state.reviews = [
-        {
-            name: '로날드',
-            rating: 5.0,
-            comment: '정말 맛있는 햄버거예요!',
-            imagePath: '',
-            ownerComment: '',
-            created: '2025-07-20 20:44:37'
-        },
-        {
-            name: '켄터키 후라이드',
-            rating: 2.5,
-            comment: '별롭니다.',
-            imagePath: '',
-            ownerComment: '저런.. 유감이네요ㅠ',
-            created: '2025-07-21 12:31:04'
-        }
-    ];
+    state.reviews = res.data.resultData;
 }
 
 const computedTotalPrice = computed(() => {
@@ -108,8 +67,6 @@ onMounted(async () => {
     const storeId = route.params.id;
 
     loadStore(storeId);
-    loadMenus(storeId);
-    loadReviews(storeId);
 });
 </script>
 
@@ -198,26 +155,7 @@ onMounted(async () => {
                         {{ computedTotalPrice }}
                     </div>
                 </div>
-                <router-link to="/order" class="btn btn-basic btn-submit">주문하기</router-link>
-            </div>
-        </div>
-    </div>
-    
-    <div class="container">
-        <div class="row">
-            <div class="col-12 col-md-8 p-4">
-                
-            </div>
-            <div class="col-12 col-md-4 p-4">
-                
-            </div>
-        </div>
-    </div>
-
-    <div class="container">
-        <div class="row">
-            <div class="col-12 col-md-8">
-                
+                <router-link :to="`/stores/${route.params.id}/order`" class="btn btn-basic btn-submit">주문하기</router-link>
             </div>
         </div>
     </div>
