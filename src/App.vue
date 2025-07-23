@@ -37,4 +37,8 @@ watch(
     <router-view />
   </component>
 </template>
+<<<<<<< HEAD
 <style scoped></style>
+=======
+<style scoped></style>
+>>>>>>> 0e8d89af13fdef8c62c6434cba6559bbf28591b2
