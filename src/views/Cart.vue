@@ -249,7 +249,7 @@ const groupedItems = computed(() => {
   border-radius: 8px;
   font-weight: bold;
   cursor: pointer;
-  margin-left: 14px;
+  margin-left: 14\px;
 }
 
 .div-login {
