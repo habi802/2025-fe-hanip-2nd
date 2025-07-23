@@ -1,18 +1,32 @@
 <script setup>
+import { modifyStatus } from '@/services/orderService';
+
 const props = defineProps({
   order: Object,
 });
 
 console.log(props.order);
+
+const accepct = async() => {
+  const body = {
+    orderId: props.order.id,
+    status: "PREPARING",
+  }
+  const res = await modifyStatus(body);
+  if(res.status !== 200) {
+    alert("에러");
+    return;
+  }
+}
 </script>
 
 <template>
   <div class="order-card shadow">
     <div class="order-info">
-      <div>닉네임: {{ order.name }}</div>
+      <div>닉네임: {{ order.userName }}</div>
       <div>주소: {{ order.address }}</div>
-      <div v-for="i in 1" :key="i">
-        메뉴: {{ order.menuName }} | 수량: {{ order.quantity }}
+      <div v-for="(menu, index) in order.menus" :key="index">
+        메뉴: {{ menu.name }} | 수량: {{ menu.quantity }}
       </div>
       <div>총 가격: {{ order.amount.toLocaleString() }}원</div>
     </div>
@@ -20,8 +34,8 @@ console.log(props.order);
     <div class="order-menu"></div>
 
     <div class="order-actions">
-      <button class="cancel-btn" @click="$emit('cancel')">주문 취소</button>
-      <button class="accept-btn" @click="$emit('accept')">주문 수락</button>
+      <button class="cancel-btn" @click="cancel">주문 취소</button>
+      <button class="accept-btn" @click="accepct">주문 수락</button>
     </div>
   </div>
 </template>
@@ -43,7 +57,7 @@ console.log(props.order);
 }
 
 .order-info {
-  width: 70%;
+  width: 90%;
   font-weight: 500;
   line-height: 2;
 }

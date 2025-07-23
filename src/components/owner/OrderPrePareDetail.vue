@@ -1,24 +1,38 @@
 <script setup>
+import { modifyStatus } from '@/services/orderService';
+
 const props = defineProps({
   order: Object,
 });
 
 console.log(props.order);
+
+const dlivery = async() => {
+  const body = {
+    orderId: props.order.id,
+    status: "DELIVERING",
+  }
+  const res = await modifyStatus(body);
+  if(res.status !== 200) {
+    alert("에러");
+    return;
+  }
+}
 </script>
 
 <template>
   <div class="order-card shadow">
     <div class="order-info">
-      <div>닉네임: {{ order.name }}</div>
+      <div>닉네임: {{ order.userName }}</div>
       <div>주소: {{ order.address }}</div>
-      <div v-for="i in 1" :key="i">
-        메뉴: {{ order.menuName }} | 수량: {{ order.quantity }}
+      <div v-for="(menu, index) in order.menus" :key="index">
+        메뉴: {{ menu.name }} | 수량: {{ menu.quantity }}
       </div>
       <div>총 가격: {{ order.amount.toLocaleString() }}원</div>
     </div>
 
     <div class="order-actions justify-content-center">
-      <button class="accept-btn" @click="$emit('accept')">배달 배차</button>
+      <button class="accept-btn" @click="dlivery">배달 배차</button>
     </div>
   </div>
 </template>
@@ -40,7 +54,7 @@ console.log(props.order);
 }
 
 .order-info {
-  width: 70%;
+  width: 90%;
   font-weight: 500;
   line-height: 2;
 }

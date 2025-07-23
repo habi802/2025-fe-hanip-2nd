@@ -17,6 +17,16 @@ const router = createRouter({
       meta: { layout: MainLayout },
     },
     {
+      path: '/stores/:id/order',
+      component: () => import('@/views/Order.vue'),
+      meta: { layout: MainLayout },
+    },
+    {
+      path: '/stores/:id/order/success',
+      component: () => import('@/views/OrderSuccess.vue'),
+      meta: { layout: MainLayout },
+    },
+    {
       path: '/owner',
       component: () => import('@/views/owner/Dashboard.vue'),
       meta: { layout: OwnerLayout },
