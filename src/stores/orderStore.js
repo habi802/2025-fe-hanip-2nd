@@ -1,13 +1,13 @@
 import { defineStore } from "pinia";
-import { getOrder } from "@/services/orderService";
+import { getOwnerOrder } from '@/services/orderService';
 
 export const useOrderStore = defineStore("order", {
   state: () => ({
     orders: [],
   }),
   actions: {
-    async fetchOrders() {
-      const res = await getOrder();
+    async fetchOrders(id) {
+      const res = await getOwnerOrder(id);
       this.orders = res.data.resultData;
     },
   },

@@ -11,8 +11,8 @@ console.log(props.order);
     <div class="order-info">
       <div>닉네임: {{ order.name }}</div>
       <div>주소: {{ order.address }}</div>
-      <div v-for="i in 1" :key="i">
-        메뉴: {{ order.menuName }} | 수량: {{ order.quantity }}
+      <div v-for="(menu, index) in order.menus" :key="index">
+        메뉴: {{ menu.name }} | 수량: {{ menu.quantity }}
       </div>
       <div>총 가격: {{ order.amount.toLocaleString() }}원</div>
     </div>
@@ -36,7 +36,7 @@ console.log(props.order);
 }
 
 .order-info {
-  width: 70%;
+  width: 90%;
   font-weight: 500;
   line-height: 2;
 }
