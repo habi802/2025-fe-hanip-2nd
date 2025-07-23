@@ -598,6 +598,5 @@ const clear = async () => {
   text-align: center;
   font-size: 32px;
   color: #000;
-  font-family: 'BM JUA_OTF';
 }
 </style>
