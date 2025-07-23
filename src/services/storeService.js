@@ -20,5 +20,8 @@ export const modify = (formData) => {
   };
   return axios.put("/store", formData, config).catch((e) => e.response);
 };
+export const getStoreList = (params) => {
+  return axios.get('/store', { params }).catch((e) => e.response);
+};
 
 export default axios;
