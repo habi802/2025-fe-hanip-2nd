@@ -2,7 +2,6 @@
 import { computed, ref , reactive, onMounted } from 'vue';
 import { useOwnerStore, useUserInfo,  } from '@/stores/account'
 import { useReviewStore } from '@/stores/review';
-import { activeStore , getStore } from '@/services/storeService';
 
 //상단 : 어서오세요! OOO사장님~~
 const userInfo = useUserInfo();
@@ -189,16 +188,9 @@ const submitReview = async () => {
             <div class="review-score">
                 <div class="star-ratings">
                     <!-- 채워진 별 -->
-                    <div class="star-ratings-fill" :style="{ width: ratingToPercent + '%' }">
+                    <div class="star-ratings-fill" :style="{ width: review.rating * 20 + '%' }">
                         <svg v-for="n in 5" :key="'fill' + n" class="star-icon" viewBox="0 0 24 24" fill="currentColor">
-                            <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.286 3.975a1 
-                            1 0 00.95.69h4.184c.969 0 1.371 1.24.588 
-                            1.81l-3.39 2.46a1 1 0 00-.364 1.118l1.286 
-                            3.975c.3.921-.755 1.688-1.54 
-                            1.118l-3.39-2.46a1 1 0 00-1.175 
-                            0l-3.39 2.46c-.785.57-1.84-.197-1.54-1.118l1.286-3.975a1 
-                            1 0 00-.364-1.118L2.22 9.402c-.783-.57-.38-1.81.588-1.81h4.184a1 
-                            1 0 00.95-.69l1.286-3.975z"/>
+                        <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.286 3.975a1 1 0 00.95.69h4.184c.969 0 1.371 1.24.588 1.81l-3.39 2.46a1 1 0 00-.364 1.118l1.286 3.975c.3.921-.755 1.688-1.54 1.118l-3.39-2.46a1 1 0 00-1.175 0l-3.39 2.46c-.785.57-1.84-.197-1.54-1.118l1.286-3.975a1 1 0 00-.364-1.118L2.22 9.402c-.783-.57-.38-1.81.588-1.81h4.184a1 1 0 00.95-.69l1.286-3.975z"/>
                         </svg>
                     </div>
 
@@ -216,7 +208,7 @@ const submitReview = async () => {
                         </svg>
                     </div>
                 </div>
-                <span class="score-text">{{ averageScore }}</span>
+                <span class="score-text">{{ review.rating }}</span>
             </div>
 
             <div class="btn-wrap">
@@ -326,14 +318,14 @@ const submitReview = async () => {
     }
 
     .review-box-wrap{
-        display: flex;
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(422px, 1fr));
         gap: 20px;
 
         .review-box{
             background-color: #fff;
             border-radius: 15px;
             padding: 30px;
-            width: 422px;
             font-size: 14px;
             .profile{
                 align-items: center;
