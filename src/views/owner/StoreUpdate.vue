@@ -34,7 +34,7 @@ const getStoreData = async () => {
     state.form.category = data.category;
 
     // 가게주소
-    state.form.zipcode = data.zipcode
+    state.form.zipcode = data.postcode
     state.form.baseAddress = data.address
     state.form.detailAddress = data.addressDetail
 
@@ -81,7 +81,6 @@ const submit = async (e) => {
   e.preventDefault();
 
   const formData = new FormData();
-  const address = `${state.form.zipcode},${state.form.baseAddress},${state.form.detailAddress}`;
   const tel = `${state.form.storeTel1}-${state.form.storeTel2}-${state.form.storeTel3}`;
   const phone = `${state.form.mobile1}-${state.form.mobile2}-${state.form.mobile3}`;
 
@@ -91,7 +90,9 @@ const submit = async (e) => {
       storeId: 1,
       password: state.form.password,
       comment: state.form.comment,
-      address: address,
+      postcode: state.form.zipcode,
+      address: state.form.baseAddress,
+      addressDetail: state.form.detailAddress,
       tel: tel,
       ownerName: state.form.ownerName,
       category: state.form.category,

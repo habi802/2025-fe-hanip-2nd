@@ -1,12 +1,13 @@
 <script setup>
+import { getOwnerOrder } from '@/services/orderService';
+import { activeStore, getStore } from '@/services/storeService';
 import { useOrderStore } from "@/stores/orderStore";
-import { ref, onMounted, onUnmounted, provide, watch } from "vue";
+import { ref, onMounted, provide, watch, computed, reactive } from "vue";
 import { RouterLink, useRouter, useRoute } from "vue-router";
 
 // ref, route, router
 const router = useRouter();
 const route = useRoute();
-const isOpen = ref(true);
 const redDot = ref(false);
 const orderStore = useOrderStore();
 const notifications = ref([]); // 알림배열
@@ -15,6 +16,36 @@ const removedNotification = ref(new Set());
 const homeRouter = () => {
   router.push("/");
 };
+
+onMounted(async () => {
+  const res = await getStore();
+  if (res.status !== 200) {
+    alert("에러");
+    return;
+  }
+  state.form = res.data.resultData;
+  isOpen.value = state.form.isActive;
+  
+  // id가 준비된 후에 호출
+  if(state.form.id) {
+    await getOwnerOrder(state.form.id);
+    orderStore.fetchOrders(state.form.id);
+  }
+
+  // 5초마다 반복 호출
+  setInterval(() => {
+    if(state.form.id) {
+      orderStore.fetchOrders(state.form.id);
+    }
+  }, 5000);
+});
+
+// 가게 데이터
+const state = reactive ({
+  form: {}
+});
+
+
 
 const menus = [
   { text: "대시보드", path: "/owner" },
@@ -29,24 +60,24 @@ const menus = [
   { text: "광고 관리", path: "/owner/ads" },
 ];
 
-// 데이터 한번 뿌리기
+
+ // 데이터 가져오기
+ watch(
+  () => state.form.id,
+  (newId) => {
+    if (newId) {
+      console.log("보내는 storeId:", newId);
+      orderStore.fetchOrders(newId);
+    }
+  }
+);
+
+// 알림 갱신
 onMounted(async () => {
-  // 데이터 가져오기
-  orderStore.fetchOrders();
-
-  // 5초마다 가져오기
-  // setInterval(() => {
-  //   orderStore.fetchOrders();
-  // }, 5000);
-
   const saved = localStorage.getItem("removedNotification");
   if (saved) {
     removedNotification.value = new Set(JSON.parse(saved));
   }
-});
-
-onUnmounted(() => {
-  clearInterval(interval);
 });
 
 // 알림 갱신 (watch)
@@ -85,18 +116,26 @@ const removeNotification = (id) => {
 };
 
 // 영업 버튼 토글
-const toggleBusiness = () => {
-  if (isOpen.value) {
-    if (confirm("영업을 중단하시겠습니까?")) {
-      isOpen.value = !isOpen.value;
-      return;
+const isOpen = ref();
+
+const toggleBusiness = async () => {
+  console.log("isActive: ", isOpen.value)
+  const storeId = state.form.id;
+  // await activeStore(storeId);
+
+  if(isOpen.value === 0) {
+    if(confirm("가게 영업을 시작하시겠습니까?")) {
+      await activeStore(storeId);
+      await router.push({ path: "/" });
+      await router.push({ path: "/owner" });
     }
   }
 
-  if (!isOpen.value) {
-    if (confirm("영업을 시작하시겠습니까?")) {
-      isOpen.value = !isOpen.value;
-      return;
+  if(isOpen.value === 1) {
+    if(confirm("가게 영업을 중지하겠습니까?")) {
+      await activeStore(storeId);
+      await router.push({ path: "/" });
+      await router.push({ path: "/owner" });
     }
   }
 };
@@ -165,11 +204,11 @@ provide("toggleBusiness", toggleBusiness);
           </li>
 
           <button
-            :class="['btn', isOpen ? 'btn-success' : 'btn-danger']"
+            :class="['btn', isOpen === 1 ? 'btn-success' : 'btn-danger']"
             @click="toggleBusiness"
             style="height: 50px"
           >
-            {{ isOpen ? "영업 진행" : "영업 중단" }}
+            {{ isOpen === 1 ? "영업 진행" : "영업 중단" }}
           </button>
 
           <!-- 팝업 메뉴 -->
