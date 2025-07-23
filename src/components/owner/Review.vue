@@ -1,45 +1,52 @@
 <script setup>
 import { computed, ref , reactive, onMounted } from 'vue';
-import { useUserInfo } from '@/stores/account'
+import { useOwnerStore, useUserInfo,  } from '@/stores/account'
 import { useReviewStore } from '@/stores/review';
-
-// const props = defineProps({
-//   order: Object,
-// });
-
-// console.log("props.order" + props.order);
+import { activeStore , getStore } from '@/services/storeService';
 
 //상단 : 어서오세요! OOO사장님~~
 const userInfo = useUserInfo();
-const ownerName = computed(() => userInfo.userName);
-
-
+//가게정보가져오기 
+const ownerStore = useOwnerStore();
 // 리뷰 데이터 가져오기
 const reviewStore = useReviewStore();
 
-onMounted(async () => {
-  // 1. 유저 정보 먼저 불러오기
-  
-  await userInfo.fetchStore();
-  
-  // storeId가 존재하는 경우에만 리뷰를 가져오기
-  let storeId = await userInfo.storeId;
-  console.log("스토어 아이디:", storeId);
 
-  //storeId = 1;
-  if (storeId) {
+const userName = computed(() => userInfo.userName);
+const userId = computed(() => userInfo.userId);
+const storeId = computed(() => ownerStore.storeId);
+
+onMounted(async () => {
+    console.log("유저정보: ", userId.value);
+    
+    ownerStore.fetchStoreInfo();
+
+    // 1. 유저 정보 먼저 불러오기
+    await userInfo.fetchStore();
+
+    // storeId가 존재하는 경우에만 리뷰를 가져오기
+    await ownerStore.fetchStoreInfo();
+    console.log("스토어 아이디:", storeId.value);
+
+    if (storeId.value) {
     // 리뷰 데이터를 가져오는 메서드 호출
-    await reviewStore.fetchReviews(storeId);
+    await reviewStore.fetchReviews(storeId.value);
     console.log("리뷰 데이터 구조:", reviewStore.reviews);
-} else {
+    } else {
     console.error('스토어 아이디가 없습니다.');
-  }
+    }
 });
 
 
 //리뷰별표시
-const averageScore = 4.3;
-const ratingToPercent = computed(() => averageScore * 20); // 4.5 -> 90%
+const averageScore = computed(() => {
+  const reviews = reviewStore.reviews;
+  if (!reviews || reviews.length === 0) return 0;
+  const total = reviews.reduce((sum, review) => sum + review.rating, 0);
+  return (total / reviews.length).toFixed(1);
+});
+console.log("별점평균 : " , averageScore);
+const ratingToPercent = computed(() => averageScore.value * 20); // 4.5 -> 90%
 
 // 별 아이콘 컴포넌트 정의
 const StarIcon = {
@@ -75,34 +82,34 @@ const toggleDatePicker = () => {
 // -----------모달-------------
 const addReviewModal = ref(null);
 const newdReview = reactive({
-  comment: "",
+    comment: "",
 });
 
 // 모달 창 열기
 const openAddReviewModal = () => {
-  newdReview.comment = "";
-  const modal = new bootstrap.Modal(addReviewModal.value);
-  modal.show();
+    newdReview.comment = "";
+    const modal = new bootstrap.Modal(addReviewModal.value);
+    modal.show();
 };
 
 // 등록하기
 const submitReview = async () => {
 
-  /*
-  const payload = {
+    /*
+    const payload = {
     data: {
-      storeId: "",
-      name: newMenu.name,
-      price: newMenu.price,
-      comment: newMenu.comment,
+        storeId: "",
+        name: newMenu.name,
+        price: newMenu.price,
+        comment: newMenu.comment,
     },
     img: newMenu.imagePath,
-  };
+    };
   */
 
   // 모달 창 닫기
-  const modal = bootstrap.Modal.getInstance(addReviewModal.value);
-  modal.hide();
+    const modal = bootstrap.Modal.getInstance(addReviewModal.value);
+    modal.hide();
 };
 
 
@@ -110,10 +117,13 @@ const submitReview = async () => {
 </script>
 
 <template>
+
+<span style="z-index: 100px; font-weight: 900; position: absolute; left: 10px;"> 유저아이디 : {{ userId }} 스토어아이디: {{ storeId }}</span>
+
 <div class="wrap" > 
     <div>
         <h2>리뷰 관리</h2>
-        <span style="color : #838383">어서오세요! 〔 {{ ownerName }} 〕 사장님, 관리자 페이지에 다시 오신것을 환영합니다</span>
+        <span style="color : #838383">어서오세요! 〔 {{ userName }} 〕 사장님, 관리자 페이지에 다시 오신것을 환영합니다</span>
         
         <!-- 전체 토탈 카드 -->
         <div class="total-wrap">
