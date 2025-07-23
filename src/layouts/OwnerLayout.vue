@@ -1,6 +1,6 @@
 <script setup>
 import { getOwnerOrder } from '@/services/orderService';
-import { activeStore, getStore } from '@/services/storeService';
+import { activeStore, getOwnerStore } from '@/services/storeService';
 import { useOrderStore } from "@/stores/orderStore";
 import { ref, onMounted, provide, watch, computed, reactive } from "vue";
 import { RouterLink, useRouter, useRoute } from "vue-router";
@@ -18,7 +18,8 @@ const homeRouter = () => {
 };
 
 onMounted(async () => {
-  const res = await getStore();
+  const res = await getOwnerStore();
+ // console.log("res: ", res)
   if (res.status !== 200) {
     alert("에러");
     return;
@@ -32,12 +33,12 @@ onMounted(async () => {
     orderStore.fetchOrders(state.form.id);
   }
 
-  // 5초마다 반복 호출
-  setInterval(() => {
-    if(state.form.id) {
-      orderStore.fetchOrders(state.form.id);
-    }
-  }, 5000);
+  // // 5초마다 반복 호출
+  // setInterval(() => {
+  //   if(state.form.id) {
+  //     orderStore.fetchOrders(state.form.id);
+  //   }
+  // }, 5000);
 });
 
 // 가게 데이터
