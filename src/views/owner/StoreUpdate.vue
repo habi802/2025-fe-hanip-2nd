@@ -1,5 +1,5 @@
 <script setup>
-import { getStore, modify } from "@/services/storeService";
+import { getOwnerStore, modify } from "@/services/storeService";
 import { reactive, onMounted, nextTick, ref } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import defaultStoreImage from "@/imgs/default-store.jpg";
@@ -20,7 +20,7 @@ onMounted(async () => {
 
 // 가게 정보 가져오기
 const getStoreData = async () => {
-  const res = await getStore();
+  const res = await getOwnerStore();
   const data = res.data.resultData;
   console.log("data: ", res.data.resultData);
 

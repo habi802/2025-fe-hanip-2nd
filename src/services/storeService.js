@@ -1,7 +1,7 @@
-import axios from './httpRequester';
+import axios from "./httpRequester";
 
-export const getStore = () => {
-  return axios.get(`/store/owner`).catch((e) => e.response);
+export const getStore = (id) => {
+  return axios.get(`/store/${id}`).catch((e) => e.response);
 };
 
 export const getOrder = () => {
@@ -19,6 +19,14 @@ export const modify = (formData) => {
     },
   };
   return axios.put("/store", formData, config).catch((e) => e.response);
+};
+
+export const getOwnerStore = () => {
+  return axios.get(`/store/owner`).catch((e) => e.response);
+};
+
+export const getStoreList = (params) => {
+  return axios.get("/store", { params }).catch((e) => e.response);
 };
 
 export default axios;
