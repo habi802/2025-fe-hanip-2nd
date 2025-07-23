@@ -1,7 +1,7 @@
 <script setup>
 import { ref } from "vue";
 
-// 메뉴 정보 (양방향 바인딩용)
+// 메뉴 정보
 const menuForm = ref({
   name: "",
   description: "",
@@ -101,3 +101,6 @@ const submitEdit = () => {
     </div>
   </div>
 </template>
+
+<style scoped>
+</style>

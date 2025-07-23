@@ -17,7 +17,7 @@ const router = createRouter({
     },
     {
       path: '/owner',
-      component: () => import('@/views/Category.vue'),
+      component: () => import('@/views/owner/Dashboard.vue'),
       meta: { layout: OwnerLayout },
     },
     {
@@ -26,9 +26,33 @@ const router = createRouter({
       meta: { layout: OwnerLayout },
     },
     {
-      path: '/cart',
-      component: () => import('@/views/Cart.vue'),
+      path: '/categoryList',
+      component: () => import('@/views/Category.vue'),
       meta: { layout: MainLayout },
+    },
+    {
+      path: '/login',
+      component: () => import('@/views/Login.vue'),
+      meta: { layout: MainLayout },
+    },
+    {
+      path: '/join',
+      component: () => import('@/views/Join.vue'),
+    },
+    {
+      path: '/owner/menu',
+      component: () => import('@/views/owner/OwnerMenu.vue'),
+      meta: { layout: OwnerLayout },
+    },
+    {
+      path: '/owner/store',
+      component: () => import('@/views/owner/StoreUpdate.vue'),
+      meta: { layout: OwnerLayout },
+    },
+    {
+      path: '/owner/orders',
+      component: () => import('@/components/owner/Orders.vue'),
+      meta: { layout: OwnerLayout },
     },
   ],
 });
