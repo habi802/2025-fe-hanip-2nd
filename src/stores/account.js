@@ -1,5 +1,7 @@
 import { reactive, computed } from 'vue';
 import { defineStore } from 'pinia';
+import {logined} from '@/services/userService'
+
 
 export const useAccountStore = defineStore('account', () => {
   const state = reactive({
@@ -15,3 +17,24 @@ export const useAccountStore = defineStore('account', () => {
 
   return { state, setChecked, setLoggedIn };
 });
+
+
+//로그인정보 불러오기
+export const useUserInfo = defineStore('userInfo', {
+  state: () => ({
+    userName: null,
+  }),
+  actions: {
+    async fetchStore() {
+      const res = await logined();
+      console.log(res)
+      if (res && res.status === 200) {
+        this.userName = res.data.resultData.name;
+        console.log(res);
+      } else {
+        console.error('유저 정보 불러오기 실패', res);
+      }
+    },
+  },
+});
+

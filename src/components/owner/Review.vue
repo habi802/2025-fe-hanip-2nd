@@ -1,8 +1,23 @@
 <script setup>
-import { computed, ref } from 'vue';
+import { computed, ref , reactive, onMounted } from 'vue';
+import { useUserInfo } from '@/stores/account'
+import { useReviewStore } from '@/stores/review';
 
-const ownerName = "-사장님별명?-";
 
+//상단 : 어서오세요! OOO사장님~~
+const userInfo = useUserInfo();
+const ownerName = computed(() => userInfo.userName);
+onMounted(async()=>{
+    await userInfo.fetchStore();
+})
+
+
+// 리뷰 데이터 가져오기
+const reviewStore = useReviewStore();
+const storeId = 1; // 예시 storeId
+onMounted(async () => {
+  await reviewStore.fetchReviews(storeId);  // storeId에 해당하는 리뷰들을 가져옵니다.
+});
 
 // 리뷰내역 
 const customer = "박도흠";
@@ -10,19 +25,16 @@ const dayCount = "2일전";
 const customerReview = "꾸덕한 크림 파스타를 좋아하는데, 딱 제가 찾던 맛이었어요. 소스가 너무 묽지 않고 입안에 감기는 느낌이 좋았고, 베이컨이랑 버섯도 넉넉하게 들어가 있어서 씹는 맛도 있네요. 느끼할 줄 알았는데 마지막까지 맛있게 먹었어요.";
 
 //리뷰별표시
-
 const averageScore = 4.3;
 const ratingToPercent = computed(() => averageScore * 20); // 4.5 -> 90%
 
 // 별 아이콘 컴포넌트 정의
 const StarIcon = {
-  template: `
-    <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"
-         xmlns="http://www.w3.org/2000/svg" class="star-icon">
-      <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 
-               8.63 2 9.24l5.46 4.73L5.82 21z"/>
+    template: `
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg" class="star-icon">
+        <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/>
     </svg>
-  `
+    `
 }
 
 
@@ -45,20 +57,57 @@ const toggleDatePicker = () => {
   showDatePicker.value = !showDatePicker.value;
 };
 
+
+
+// -----------모달-------------
+const addReviewModal = ref(null);
+const newdReview = reactive({
+  comment: "",
+});
+
+// 모달 창 열기
+const openAddReviewModal = () => {
+  newdReview.comment = "";
+  const modal = new bootstrap.Modal(addReviewModal.value);
+  modal.show();
+};
+
+// 등록하기
+const submitReview = async () => {
+
+  /*
+  const payload = {
+    data: {
+      storeId: "",
+      name: newMenu.name,
+      price: newMenu.price,
+      comment: newMenu.comment,
+    },
+    img: newMenu.imagePath,
+  };
+  */
+
+  // 모달 창 닫기
+  const modal = bootstrap.Modal.getInstance(addReviewModal.value);
+  modal.hide();
+};
+
+
+
 </script>
 
 <template>
 <div class="wrap" > 
     <div>
         <h2>리뷰 관리</h2>
-        <span style="color : #838383">어서오세요! {{ ownerName }}사장님 관리자 페이지에 다시 오신것을 환영합니다</span>
+        <span style="color : #838383">어서오세요! 〔 {{ ownerName }} 〕 사장님, 관리자 페이지에 다시 오신것을 환영합니다</span>
         
         <!-- 전체 토탈 카드 -->
         <div class="total-wrap">
             <div class="total-box">
                 <div class="circle"></div>
                 <div>
-                    <span>{{ 103 }}</span>
+                    <span>{{ 10 }}</span>
                     <span>전체 리뷰 수</span>
                 </div>
             </div>
@@ -101,17 +150,17 @@ const toggleDatePicker = () => {
         </div>
     </div>
 
-     <div class="review-box">
+     <div class="review-box" v-for="(review, index) in reviews" :key="index">
         <div class="profile">
             <div class="profile-circle">
-                <img src="" alt=""/>
+                <img :src="review.profileImage" alt="프로필"/>
             </div>
             <div>
-                <span>{{ customer }}</span>
-                <span>{{ dayCount }}</span>
+                <span>{{  reviewStore.customer }}</span>
+                <span>{{  reviewStore.dayCount }}</span>
             </div>
         </div>
-            <p>{{ customerReview }}</p>    
+            <p>{{  reviewStore.comment }}</p>    
 
         <!-- 별점표시 -->
         <div class="review-score">
@@ -149,7 +198,34 @@ const toggleDatePicker = () => {
 
         <div class="btn-wrap">
             <button class="btn btn-delete">리뷰 삭제</button>
-            <button class="btn btn-comment">댓글 작성</button>
+            <button class="btn btn-comment" @click="openAddReviewModal">댓글 작성</button>
+        </div>
+    </div>
+
+
+        <!-- 부트스트랩 모달 -->
+    <div class="modal fade" ref="addReviewModal" tabindex="-1">
+        <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+            <h5 class="modal-title">답글 달기</h5>
+            <button
+                type="button"
+                class="btn-close"
+                data-bs-dismiss="modal"
+            ></button>
+            </div>
+            <div class="modal-body">
+                <!-- v-model="newReview.comment" -->
+            <textarea class="form-control" placeholder="설명" ></textarea>
+            </div>
+            <div class="modal-footer">
+            <button class="btn btn-secondary" data-bs-dismiss="modal">
+                취소
+            </button>
+            <button class="btn btn-primary" @click="submitMenu">등록</button>
+            </div>
+        </div>
         </div>
     </div>
 
@@ -316,15 +392,16 @@ const toggleDatePicker = () => {
 }
 
 .date-filter {
-  position: relative; // ✅ 여기 추가
+  position: relative;
 
   .date-picker-popup {
     position: absolute;
+    width: 100%;
     top: 93%;
     right: 0;
     z-index: 10;
     background: #fff;
-    padding: 15px 27px;
+    padding: 15px;
     margin-top: 8px;
     border-radius: 15px;
     box-shadow: 2px 2px 5px #ccc;
