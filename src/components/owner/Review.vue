@@ -3,26 +3,39 @@ import { computed, ref , reactive, onMounted } from 'vue';
 import { useUserInfo } from '@/stores/account'
 import { useReviewStore } from '@/stores/review';
 
+// const props = defineProps({
+//   order: Object,
+// });
+
+// console.log("props.order" + props.order);
 
 //상단 : 어서오세요! OOO사장님~~
 const userInfo = useUserInfo();
 const ownerName = computed(() => userInfo.userName);
-onMounted(async()=>{
-    await userInfo.fetchStore();
-})
 
 
 // 리뷰 데이터 가져오기
 const reviewStore = useReviewStore();
-const storeId = 1; // 예시 storeId
+
 onMounted(async () => {
-  await reviewStore.fetchReviews(storeId);  // storeId에 해당하는 리뷰들을 가져옵니다.
+  // 1. 유저 정보 먼저 불러오기
+  
+  await userInfo.fetchStore();
+  
+  // storeId가 존재하는 경우에만 리뷰를 가져오기
+  let storeId = await userInfo.storeId;
+  console.log("스토어 아이디:", storeId);
+
+  //storeId = 1;
+  if (storeId) {
+    // 리뷰 데이터를 가져오는 메서드 호출
+    await reviewStore.fetchReviews(storeId);
+    console.log("리뷰 데이터 구조:", reviewStore.reviews);
+} else {
+    console.error('스토어 아이디가 없습니다.');
+  }
 });
 
-// 리뷰내역 
-const customer = "박도흠";
-const dayCount = "2일전";
-const customerReview = "꾸덕한 크림 파스타를 좋아하는데, 딱 제가 찾던 맛이었어요. 소스가 너무 묽지 않고 입안에 감기는 느낌이 좋았고, 베이컨이랑 버섯도 넉넉하게 들어가 있어서 씹는 맛도 있네요. 느끼할 줄 알았는데 마지막까지 맛있게 먹었어요.";
 
 //리뷰별표시
 const averageScore = 4.3;
@@ -149,56 +162,57 @@ const submitReview = async () => {
 
         </div>
     </div>
-
-     <div class="review-box" v-for="(review, index) in reviews" :key="index">
-        <div class="profile">
-            <div class="profile-circle">
-                <img :src="review.profileImage" alt="프로필"/>
-            </div>
-            <div>
-                <span>{{  reviewStore.customer }}</span>
-                <span>{{  reviewStore.dayCount }}</span>
-            </div>
-        </div>
-            <p>{{  reviewStore.comment }}</p>    
-
-        <!-- 별점표시 -->
-        <div class="review-score">
-            <div class="star-ratings">
-                <!-- 채워진 별 -->
-                <div class="star-ratings-fill" :style="{ width: ratingToPercent + '%' }">
-                    <svg v-for="n in 5" :key="'fill' + n" class="star-icon" viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.286 3.975a1 
-                        1 0 00.95.69h4.184c.969 0 1.371 1.24.588 
-                        1.81l-3.39 2.46a1 1 0 00-.364 1.118l1.286 
-                        3.975c.3.921-.755 1.688-1.54 
-                        1.118l-3.39-2.46a1 1 0 00-1.175 
-                        0l-3.39 2.46c-.785.57-1.84-.197-1.54-1.118l1.286-3.975a1 
-                        1 0 00-.364-1.118L2.22 9.402c-.783-.57-.38-1.81.588-1.81h4.184a1 
-                        1 0 00.95-.69l1.286-3.975z"/>
-                    </svg>
+    <div class="review-box-wrap">
+        <div class="review-box"  v-for="(review, index) in reviewStore.reviews" :key="index">
+            <div class="profile">
+                <div class="profile-circle">
+                    <img :src="review.profileImage" alt="프로필"/>
                 </div>
-
-                <!-- 기본 별 -->
-                <div class="star-ratings-base">
-                    <svg v-for="n in 5" :key="'base' + n" class="star-icon" viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.286 3.975a1 
-                        1 0 00.95.69h4.184c.969 0 1.371 1.24.588 
-                        1.81l-3.39 2.46a1 1 0 00-.364 1.118l1.286 
-                        3.975c.3.921-.755 1.688-1.54 
-                        1.118l-3.39-2.46a1 1 0 00-1.175 
-                        0l-3.39 2.46c-.785.57-1.84-.197-1.54-1.118l1.286-3.975a1 
-                        1 0 00-.364-1.118L2.22 9.402c-.783-.57-.38-1.81.588-1.81h4.184a1 
-                        1 0 00.95-.69l1.286-3.975z"/>
-                    </svg>
+                <div>
+                    <span>{{  review.customer }}</span>
+                    <span>{{  review.dayCount }}</span>
                 </div>
             </div>
-            <span class="score-text">{{ averageScore }}</span>
-        </div>
+                <p>{{  review.comment }}</p>    
 
-        <div class="btn-wrap">
-            <button class="btn btn-delete">리뷰 삭제</button>
-            <button class="btn btn-comment" @click="openAddReviewModal">댓글 작성</button>
+            <!-- 별점표시 -->
+            <div class="review-score">
+                <div class="star-ratings">
+                    <!-- 채워진 별 -->
+                    <div class="star-ratings-fill" :style="{ width: ratingToPercent + '%' }">
+                        <svg v-for="n in 5" :key="'fill' + n" class="star-icon" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.286 3.975a1 
+                            1 0 00.95.69h4.184c.969 0 1.371 1.24.588 
+                            1.81l-3.39 2.46a1 1 0 00-.364 1.118l1.286 
+                            3.975c.3.921-.755 1.688-1.54 
+                            1.118l-3.39-2.46a1 1 0 00-1.175 
+                            0l-3.39 2.46c-.785.57-1.84-.197-1.54-1.118l1.286-3.975a1 
+                            1 0 00-.364-1.118L2.22 9.402c-.783-.57-.38-1.81.588-1.81h4.184a1 
+                            1 0 00.95-.69l1.286-3.975z"/>
+                        </svg>
+                    </div>
+
+                    <!-- 기본 별 -->
+                    <div class="star-ratings-base">
+                        <svg v-for="n in 5" :key="'base' + n" class="star-icon" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.286 3.975a1 
+                            1 0 00.95.69h4.184c.969 0 1.371 1.24.588 
+                            1.81l-3.39 2.46a1 1 0 00-.364 1.118l1.286 
+                            3.975c.3.921-.755 1.688-1.54 
+                            1.118l-3.39-2.46a1 1 0 00-1.175 
+                            0l-3.39 2.46c-.785.57-1.84-.197-1.54-1.118l1.286-3.975a1 
+                            1 0 00-.364-1.118L2.22 9.402c-.783-.57-.38-1.81.588-1.81h4.184a1 
+                            1 0 00.95-.69l1.286-3.975z"/>
+                        </svg>
+                    </div>
+                </div>
+                <span class="score-text">{{ averageScore }}</span>
+            </div>
+
+            <div class="btn-wrap">
+                <button class="btn btn-delete">리뷰 삭제</button>
+                <button class="btn btn-comment" @click="openAddReviewModal">댓글 작성</button>
+            </div>
         </div>
     </div>
 
@@ -223,7 +237,7 @@ const submitReview = async () => {
             <button class="btn btn-secondary" data-bs-dismiss="modal">
                 취소
             </button>
-            <button class="btn btn-primary" @click="submitMenu">등록</button>
+            <button class="btn btn-primary" @click="submitReview">등록</button>
             </div>
         </div>
         </div>
@@ -273,8 +287,9 @@ const submitReview = async () => {
 
     .review-header{
         display: flex;
-        align-items: center;
+        align-items: baseline;
         justify-content: space-between;
+        margin-bottom: 10px;
     }
 
     .date-filter{
@@ -300,53 +315,57 @@ const submitReview = async () => {
         }
     }
 
-    .review-box{
-        background-color: #fff;
-        border-radius: 15px;
-        padding: 30px;
-        width: 422px;
-        font-size: 14px;
-        .profile{
-            align-items: center;
-            display: flex;
-            margin-bottom: 25px;
-            .profile-circle{
-                background-color: #a3a3a3;
-                border-radius: 100%;
-                width: 48px;
-                height: 48px;
-            }
-            div:nth-of-type(2) {margin-left: 20px;}
-            div:nth-of-type(2) > span{
-                display: block;
-                align-items: center;
-            }
-            span:nth-of-type(1){font-size: 25px;}
-                span:nth-of-type(2){
-                    font-size: 15px;
-                    color: #a3a3a3;
-                }
-        }
-        .btn-wrap{
-            display: flex;
-            justify-content: space-around;
-            margin-top: 20px;
-            width: 100%;
+    .review-box-wrap{
+        display: flex;
+        gap: 20px;
 
-        }
-        .btn{
+        .review-box{
+            background-color: #fff;
             border-radius: 15px;
-            border: #ff6666 solid;
-            color: #ff6666;
-            height: 55px;
-            width: 145px;
-        }
-        .btn:hover{
-            background-color:#ff6666;
-            color: #fff;
+            padding: 30px;
+            width: 422px;
+            font-size: 14px;
+            .profile{
+                align-items: center;
+                display: flex;
+                margin-bottom: 25px;
+                .profile-circle{
+                    background-color: #a3a3a3;
+                    border-radius: 100%;
+                    width: 48px;
+                    height: 48px;
+                }
+                div:nth-of-type(2) {margin-left: 20px;}
+                div:nth-of-type(2) > span{
+                    display: block;
+                    align-items: center;
+                }
+                span:nth-of-type(1){font-size: 25px;}
+                    span:nth-of-type(2){
+                        font-size: 15px;
+                        color: #a3a3a3;
+                    }
+            }
+            .btn-wrap{
+                display: flex;
+                justify-content: space-around;
+                margin-top: 20px;
+                width: 100%;
+
+            }
+            .btn{
+                border-radius: 15px;
+                border: #ff6666 solid;
+                color: #ff6666;
+                height: 55px;
+                width: 145px;
+            }
+            .btn:hover{
+                background-color:#ff6666;
+                color: #fff;
+            }
         }
     }
-    
     
     
     .review-score{

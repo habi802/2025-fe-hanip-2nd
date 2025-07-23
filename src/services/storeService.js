@@ -8,8 +8,12 @@ export const getOrder = () => {
   return axios.get(`/order`).catch((e) => e.response);
 };
 
-export const activeStore = (id) => {
+export const activeStore2 = (id) => {
   return axios.patch(`/store/${id}`).catch((e) => e.response);
+};
+
+export const activeStore = (id) => {
+  return axios.get(`/store/${id}`).catch((e) => e.response);
 };
 
 export const modify = (formData) => {
