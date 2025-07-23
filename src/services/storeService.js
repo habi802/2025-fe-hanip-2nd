@@ -5,6 +5,10 @@ export const getStore = (id) => {
   return axios.get(`/store/${id}`).catch((e) => e.response);
 };
 
+export const getOrder = () => {
+  return axios.get(`/order`).catch((e) => e.response);
+};
+
 export const modify = (formData) => {
   const config = {
     header: {
@@ -14,8 +18,8 @@ export const modify = (formData) => {
   return axios.put('/store', formData, config).catch((e) => e.response);
 };
 
-export const getStoreList = () => {
-  return axios.get('/store').catch((e) => e.response);
+export const getStoreList = (params) => {
+  return axios.get('/store', { params }).catch((e) => e.response);
 };
 
 export default axios;

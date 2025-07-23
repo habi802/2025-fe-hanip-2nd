@@ -14,12 +14,13 @@ const account = useAccountStore();
 
 const checkAcconut = async () => {
   const res = await check();
+  console.log('res:', res);
   if (res == undefined || res.status != 200) {
     account.setChecked(false);
     return;
   }
   account.setChecked(true);
-  account.setLoggedIn((res.status = 200));
+  account.setLoggedIn(res.data.resultData > 0);
 };
 onMounted(() => {
   checkAcconut();

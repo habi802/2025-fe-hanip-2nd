@@ -1,12 +1,6 @@
 <script setup>
-import Category from './Category.vue';
-import { onMounted } from 'vue';
-
 const props = defineProps({
   stores: Object,
-});
-onMounted(() => {
-  console.log('props :', props.stores);
 });
 </script>
 
@@ -17,7 +11,7 @@ onMounted(() => {
     </div>
     <div class="storeTextBox">
       <div class="sTextBox">
-        <div class="sText">{{ props.stores.name}}</div>
+        <div class="sText">{{ props.stores.name }}</div>
         <div id="smallText">배달료 0원 ~ 3000원</div>
         <div id="smallText">최소 주문 금액 13000원</div>
       </div>
