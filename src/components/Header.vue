@@ -25,6 +25,11 @@ const myPageRouter = () => {
 const cartRouter = () => {
   router.push('/cart');
 };
+
+//주문내역 페이지로 이동
+const orderRouter = () => {
+  router.push({ path: '/my-page', query: { section: 'order' } });
+};
 </script>
 
 <template>
@@ -56,7 +61,7 @@ const cartRouter = () => {
       <div class="containerOne">
         <div class="menus d-flex gap-3">
           <template v-if="account.state.loggedIn">
-            <img class="order" src="/src/imgs/order.png" />
+            <img @click="orderRouter" class="order" src="/src/imgs/order.png" />
             <img
               @click="cartRouter"
               id="menu"
@@ -68,7 +73,7 @@ const cartRouter = () => {
               class="myPage"
               src="/src/imgs/myPage.png"
             />
-            <div @click="logoutIn">로그아웃</div>
+            <div id="menu" @click="logoutIn">로그아웃</div>
           </template>
           <template v-else>
             <img
@@ -113,6 +118,7 @@ const cartRouter = () => {
   .order {
     width: 45px;
     margin-right: 14px;
+    cursor: pointer;
   }
   .myPage {
     width: 55px;
