@@ -11,9 +11,19 @@ const homeRouter = () => {
 };
 
 // 로그아웃
-const logoutIn = async() => {
+const logoutIn = async () => {
   const res = await logout();
   account.setLoggedIn(false);
+};
+
+// 마이 페이지 이동
+const myPageRouter = () => {
+  router.push('/my_page');
+};
+
+//카트 페이지로 이동
+const cartRouter = () => {
+  router.push('/cart');
 };
 </script>
 
@@ -47,12 +57,26 @@ const logoutIn = async() => {
         <div class="menus d-flex gap-3">
           <template v-if="account.state.loggedIn">
             <img class="order" src="/src/imgs/order.png" />
-            <img id="menu" class="shooping" src="/src/imgs/shopping.png" />
-            <img class="myPage" src="/src/imgs/myPage.png" />
+            <img
+              @click="cartRouter"
+              id="menu"
+              class="shooping"
+              src="/src/imgs/shopping.png"
+            />
+            <img
+              @click="myPageRouter"
+              class="myPage"
+              src="/src/imgs/myPage.png"
+            />
             <div @click="logoutIn">로그아웃</div>
           </template>
           <template v-else>
-            <img id="menu" class="shooping" src="/src/imgs/shopping.png" />
+            <img
+              @click="cartRouter"
+              id="menu"
+              class="shooping"
+              src="/src/imgs/shopping.png"
+            />
             <div class="login">
               <router-link id="menu" to="/login">로그인</router-link>
             </div>
@@ -93,6 +117,7 @@ const logoutIn = async() => {
   .myPage {
     width: 55px;
     margin-right: 14px;
+    cursor: pointer;
   }
 }
 img.logo {
@@ -114,6 +139,7 @@ img.logo {
 }
 
 #menu {
+  cursor: pointer;
   text-decoration: none;
   font-weight: 800;
   color: #ff6666;
@@ -121,6 +147,7 @@ img.logo {
 
 .searchBar {
   // margin-bottom: 15px;
+  width: 31.5%;
   font-size: 0.7em;
   border: 2px solid #fcaeae;
   border-radius: 20px;
@@ -142,7 +169,8 @@ img.logo {
   }
   .searchBox {
     border: none;
-    width: 564px;
+    width: 96%;
+    // width: 564px;
     height: 36px;
     border-radius: 20px;
   }
@@ -150,6 +178,24 @@ img.logo {
     color: #fcaeae;
     text-align: center;
     margin-left: 40px;
+  }
+}
+
+@media (max-width: 1650px) {
+  .searchBar {
+    display: none;
+  }
+}
+@media (max-width: 1200px) {
+  .containerOne {
+    display: none;
+  }
+  .navbar {
+    display: flex;
+    justify-content: center;
+    img.logo {
+      margin-left: 0px;
+    }
   }
 }
 </style>

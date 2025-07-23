@@ -17,6 +17,11 @@ export const getMenus = (menuId) => {
   return axios.get(path, { params: menuId }).catch((e) => e.response);
 };
 
+// 로그인 아이디에 따른 가게 메뉴 조회
+export const getStoreIdAndMenus = () => {
+  return axios.get(`${path}/owner`).catch((e) => e.response);
+};
+
 // 메뉴 한개 수정
 export const modifyMenu = (menuId, menuData) => {
   return axios.put(path, menuData, { params: menuId }).catch((e) => e.response);
