@@ -15,12 +15,12 @@ const previewImage = ref(defaultStoreImage);
 
 // 화면에 원래 가게 정보 뿌리기
 onMounted(async () => {
-  await getStoreData(1);
+  await getStoreData();
 });
 
 // 가게 정보 가져오기
-const getStoreData = async (id) => {
-  const res = await getStore(id);
+const getStoreData = async () => {
+  const res = await getStore();
   const data = res.data.resultData;
   console.log("data: ", res.data.resultData);
 
@@ -34,10 +34,9 @@ const getStoreData = async (id) => {
     state.form.category = data.category;
 
     // 가게주소
-    const addressParts = data.address.split(",");
-    state.form.zipcode = addressParts[0] || "";
-    state.form.baseAddress = addressParts[1] || "";
-    state.form.detailAddress = addressParts[2] || "";
+    state.form.zipcode = data.postcode
+    state.form.baseAddress = data.address
+    state.form.detailAddress = data.addressDetail
 
     // 가게번호
     const telParts = data.tel.split("-");
@@ -82,7 +81,6 @@ const submit = async (e) => {
   e.preventDefault();
 
   const formData = new FormData();
-  const address = `${state.form.zipcode},${state.form.baseAddress},${state.form.detailAddress}`;
   const tel = `${state.form.storeTel1}-${state.form.storeTel2}-${state.form.storeTel3}`;
   const phone = `${state.form.mobile1}-${state.form.mobile2}-${state.form.mobile3}`;
 
@@ -92,7 +90,9 @@ const submit = async (e) => {
       storeId: 1,
       password: state.form.password,
       comment: state.form.comment,
-      address: address,
+      postcode: state.form.zipcode,
+      address: state.form.baseAddress,
+      addressDetail: state.form.detailAddress,
       tel: tel,
       ownerName: state.form.ownerName,
       category: state.form.category,
