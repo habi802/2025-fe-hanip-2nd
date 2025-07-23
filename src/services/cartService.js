@@ -1,11 +1,15 @@
 import axios from './httpRequester';
 
-export const addItem = itemId => {
-  return axios.post('/cart', { itemId }).catch(e => e.response);
+export const addItem = menuId => {
+  return axios.post('/cart', { menuId }).catch(e => e.response);
 }
 
 export const getItem = () => {
   return axios.get('/cart').catch(e => e.response);
+}
+
+export const updateQuantity = args => {
+  return axios.patch('/cart', args).catch(e => e.response);
 }
 
 export const removeItem = cartId => {

@@ -1,4 +1,5 @@
 <script setup></script>
+
 <template>
   <footer class="footer">
     <div class="container">
@@ -26,23 +27,21 @@
       <div class="footer-divider"></div>
       <!-- 오른쪽 회사 정보 -->
       <div class="footer-info">
-        <div class="footer-logo">
-          <img src="@/imgs/haniplogo2.png" alt="Hanlp 로고" />
-        </div>
-        <!-- 한입회사 대표 설명 -->
-        <div class="company-details">
-          <h5>한입 Hanip</h5>
-          <p>대표 박도흠</p>
-          <p>대구 중구 중앙대로 394<br />(남일동 5층)</p>
-          <p>사업자 등록번호</p>
-        </div>
-        <!-- 고객센터 전화번호 연결 -->
-        <div class="customer-service">
-          <h4>고객센터</h4>
-          <p>고객센터 번호</p>
-          <p>이메일주소</p>
-        </div>
-      </div>
+  <div class="footer-logo">
+    <img src="@/imgs/symbollogo.png" alt="Hanlp 로고" />
+  </div>
+  <div class="footer-column company-details">
+    <h4>한입 Hanip</h4>
+    <p>대표 박도흠</p>
+    <p>대구 중구 중앙대로 394<br />(남일동 5층)</p>
+    <p>사업자 등록번호</p>
+  </div>
+  <div class="footer-column customer-service">
+    <h4>고객센터</h4>
+    <p>고객센터 번호</p>
+    <p>이메일주소</p>
+  </div>
+</div>
     </div>
     <div class="footer-bottom">
       <div class="copyright">All right reserved.&copy;Hanip Company,2025</div>
@@ -50,91 +49,99 @@
   </footer>
 </template>
 <style lang="scss" scoped>
+@font-face {
+    font-family: 'Pretendard-Regular';
+    src: url('https://fastly.jsdelivr.net/gh/Project-Noonnu/noonfonts_2107@1.1/Pretendard-Regular.woff') format('woff');
+    font-weight: 400;
+    font-style: normal;
+}
+*{
+  font-family: 'Pretendard-Regular';
+}
 .footer {
-  background-color: #3a3a3a;
+  background-color: #525252;
   color: white;
   padding: 2rem 1rem 1rem;
   font-size: 0.8rem;
+
   .container {
     display: flex;
     justify-content: center; // 중앙 정렬
     align-items: flex-start;
-    gap: 0; // 구분선 포함 3등분 처리
+    gap: 20px; // 구분선 포함 3등분 처리
     max-width: 1200px;
     margin: 0 auto;
     padding: 30px 20px;
   }
+ 
   .footer-menus {
     display: flex;
     gap: 1.5rem;
+    
     .footer-column {
+      margin-right: 10px;
+      
       h4 {
-        margin-bottom: 0.8rem;
-        font-size: 1rem;
+        margin-bottom: 1rem;
+        font-size: 20px;
         font-weight: bold;
       }
-      ul {
-        list-style: none;
-        padding: 0;
-        margin: 0;
-        li {
-          margin-bottom: 0.4rem;
-          font-size: 0.9rem;
-          cursor: pointer;
-          &:hover {
-            text-decoration: underline;
-          }
-        }
+      p {
+        margin-top: 2rem;
+        margin-bottom: -1.5rem;
+        margin-right: 4rem;
       }
     }
   }
+  
   .footer-divider {
     width: 1px;
     background-color: #bbb;
     height: 120px;
     margin: 0 1.5rem;
   }
+  
   .footer-info {
-    display: contents;
-    align-items: flex-start;
-    gap: 1rem;
-    max-width: 100px;
-    padding-left: -20px;
-    flex-wrap: wrap;
+    display: flex;                 // 수평 정렬
+    align-items: flex-start;       // 상단 기준 정렬
+    justify-content: flex-start;   // 왼쪽 정렬
+    gap: 3rem;  
+    
     .footer-logo {
       display: flex;
       align-items: first baseline;
       padding: 0;
       margin: 0;
+
       img {
-        height: 50px;
+        height: 70px;
         width: auto;
         padding: 0;
         margin-right: 20px;
       }
     }
+
     .footer-texts {
       display: flex;
       flex-direction: row;
       gap: 2rem;
-      .company-details,
-      .customer-service {
-        font-size: 0.9rem;
-        p {
-          margin: 0.2rem 0;
-        }
-        h4 {
-          margin: 0.5rem 0 0.3rem;
-          font-weight: bold;
-        }
+      
+      .footer-column.company-details {
+       padding: 2rem; 
       }
+
+    }
+    h4 {
+      margin-bottom: 2rem;
+      font-size: 20px;
+      font-weight: bold;
     }
   }
   .footer-bottom {
     margin-top: 2rem;
     text-align: left;
     font-size: 0.8rem;
-    color: #ccc;
+    color: #c8c8c8;
     margin-left: 2rem;
   }
 }
