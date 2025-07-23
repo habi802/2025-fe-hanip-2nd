@@ -1,6 +1,6 @@
 <script setup>
 import OwnerMenuCard from "@/components/owner/OwnerMenuCard.vue";
-import { getOneMenu, saveMenu } from "@/services/menuServeice";
+import { getOneMenu, saveMenu } from "@/services/menuService";
 import { onMounted, reactive, ref } from "vue";
 import { useRouter } from "vue-router";
 import defaultMenuImage from "@/imgs/owner/haniplogo_sample.png";
