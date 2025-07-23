@@ -13,17 +13,27 @@ const state = reactive({
 });
 
 const submit = async () => {
-  const res = await login(state.form);
+  try {
+    const res = await login(state.form);
 
-  switch (res.status) {
-    case 200:
-      await router.push('/');
-      break;
-    case 401:
+    if (res.status === 200) {
+      const { role } = res.data;  // 회원 유형 고객 or 가게사장
+
+      console.log("role 값: ", role);
+      
+      if (role === 'owner') {
+        router.push('/owner'); // 업주용 메인화면
+      } else {
+        router.push('/'); // 고객용 메인화면
+      }
+    } else if (res.status === 401) {
       alert('아이디/비밀번호를 확인해 주세요.');
-      break;
-    default:
+    } else {
       alert('알 수 없는 오류가 발생했습니다.');
+    }
+  } catch (error) {
+    console.error('로그인 오류:', error);
+    alert('서버 오류가 발생했습니다.');
   }
 };
 

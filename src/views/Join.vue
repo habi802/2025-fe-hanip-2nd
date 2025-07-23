@@ -137,7 +137,7 @@ const submit = async () => {
     owner: memberType.value === 'owner' ? state.owner : null
   };
 
-  console.log('전송 데이터:', payload); // 디버깅용
+  console.log('전송 데이터:', payload); // 디버깅 확인용
 
   try {
     console.log('전송할 데이터:', payload); 
@@ -146,7 +146,11 @@ const submit = async () => {
 
     if (res.status === 200) {
       confirm('회원가입 되었습니다!');
-      router.push('/');
+      if (memberType.value === 'owner') {
+        router.push('/owner'); // 업주면 /owner 페이지로
+      } else {
+        router.push('/');      // 일반회원은 홈으로
+      }
     } else {
       alert('입력 정보를 다시 확인해 주세요.');
     }
