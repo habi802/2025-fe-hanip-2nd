@@ -1,32 +1,42 @@
 <script setup>
+import { useRouter } from 'vue-router';
+
+const router = useRouter();
+
 const props = defineProps({
   stores: Object,
 });
+
+const storeRouter = () => {
+  router.push(`/stores/${props.stores.storeId}`);
+};
 </script>
 
 <template>
-  <div class="store">
-    <div class="storeImgBox">
-      <img class="sImg" src="/src/imgs/recStore_1.png" />
-    </div>
-    <div class="storeTextBox">
-      <div class="sTextBox">
-        <div class="sText">{{ props.stores.name }}</div>
-        <div id="smallText">배달료 0원 ~ 3000원</div>
-        <div id="smallText">최소 주문 금액 13000원</div>
+  <div @click="storeRouter" class="router">
+    <div class="store">
+      <div class="storeImgBox">
+        <img class="sImg" src="/src/imgs/recStore_1.png" />
       </div>
-      <div class="icons">
-        <div class="star">
-          <img id="icon" src="/src/imgs/star.png" />
-          4.8
-          <span class="starNum">(938)</span>
+      <div class="storeTextBox">
+        <div class="sTextBox">
+          <div class="sText">{{ props.stores.name }}</div>
+          <div id="smallText">배달료 0원 ~ 3000원</div>
+          <div id="smallText">최소 주문 금액 13000원</div>
         </div>
-        <div class="love">
-          <img id="icon" src="/src/imgs/love.png" />
-          927
+        <div class="icons">
+          <div class="star">
+            <img id="icon" src="/src/imgs/star.png" />
+            4.8
+            <span class="starNum">(938)</span>
+          </div>
+          <div class="love">
+            <img id="icon" src="/src/imgs/love.png" />
+            927
+          </div>
         </div>
+        <div class="btn">자세히보기</div>
       </div>
-      <div class="btn">자세히보기</div>
     </div>
   </div>
 </template>

@@ -1,5 +1,6 @@
 import MainLayout from '@/layouts/MainLayout.vue';
 import OwnerLayout from '@/layouts/OwnerLayout.vue';
+import { compile } from 'sass';
 import { createRouter, createWebHistory } from 'vue-router';
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -57,6 +58,11 @@ const router = createRouter({
     {
       path: '/cart',
       component: () => import('@/views/Cart.vue'),
+      meta: { layout: MainLayout },
+    },
+    {
+      path: '/my-page',
+      component: () => import('@/views/MyPage.vue'),
       meta: { layout: MainLayout },
     },
   ],
