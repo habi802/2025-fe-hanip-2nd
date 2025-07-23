@@ -28,8 +28,8 @@ export const getStoreIdAndMenus = () => {
 };
 
 // 메뉴 한개 수정
-export const modifyMenu = (menuId, menuData) => {
-  return axios.put(path, menuData, { params: menuId }).catch((e) => e.response);
+export const modifyMenu = (menuData) => {
+  return axios.put(path, menuData).catch((e) => e.response);
 };
 
 // 메뉴 삭제

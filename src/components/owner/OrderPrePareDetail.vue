@@ -1,6 +1,6 @@
 <script setup>
-import { modifyStatus } from '@/services/orderService';
-import { useOrderStore } from '@/stores/orderStore';
+import { modifyStatus } from "@/services/orderService";
+import { useOrderStore } from "@/stores/orderStore";
 
 const orderStore = useOrderStore();
 const props = defineProps({
@@ -9,19 +9,19 @@ const props = defineProps({
 
 console.log(props.order);
 
-const dlivery = async() => {
+const dlivery = async () => {
   const body = {
     orderId: props.order.id,
     status: "DELIVERING",
-  }
+  };
   const res = await modifyStatus(body);
-  if(res.status !== 200) {
+  if (res.status !== 200) {
     alert("에러");
     return;
   }
 
   await orderStore.fetchOrders(props.order.storeId);
-}
+};
 </script>
 
 <template>
@@ -41,7 +41,7 @@ const dlivery = async() => {
   </div>
 </template>
 
-<style scoped>
+<style lang="scss" scoped>
 .order-card {
   background: white;
   border-radius: 12px;
@@ -83,5 +83,13 @@ const dlivery = async() => {
   border-radius: 8px;
   font-size: 14px;
   width: 130px;
+  transition: background-color 0.3s, color 0.3s;
+}
+
+.accept-btn:hover {
+  background: #d44b4a;
+}
+.accept-btn:active {
+  background: #b23837;
 }
 </style>

@@ -1,6 +1,6 @@
 <script setup>
 import { getOwnerStore, modify } from "@/services/storeService";
-import { reactive, onMounted, nextTick, ref } from "vue";
+import { reactive, onMounted, nextTick, ref, inject } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import defaultStoreImage from "@/imgs/default-store.jpg";
 
@@ -32,11 +32,12 @@ const getStoreData = async () => {
     state.form.email = data.email;
     state.form.comment = data.comment;
     state.form.category = data.category;
+    state.form.id = data.id;
 
     // 가게주소
-    state.form.zipcode = data.postcode
-    state.form.baseAddress = data.address
-    state.form.detailAddress = data.addressDetail
+    state.form.zipcode = data.postcode;
+    state.form.baseAddress = data.address;
+    state.form.detailAddress = data.addressDetail;
 
     // 가게번호
     const telParts = data.tel.split("-");
@@ -118,8 +119,8 @@ const submit = async (e) => {
     alert("에러 발생");
     return;
   }
-
-  alert("수정 성공");
+  state.form.password = "";
+  alert("수정되었습니다!");
 };
 
 // 사진 미리보기
@@ -184,14 +185,18 @@ const searchAddress = () => {
     },
   }).open();
 };
+
+const ownerName = inject("ownerName", "");
 </script>
 
 <template>
-
-  <div class="min-vh-100 pb-5" style="background-color: #e8e8e8;">
+  <div class="min-vh-100 pb-5" style="background-color: #e8e8e8">
     <div>
       <div class="owner-title1">가게 수정</div>
-      <div class="owner-title2">어서오세요! {{ state.form.ownerName }} 사장님, 가게 수정 페이지에 오신 것을 환영합니다!</div>
+      <div class="owner-title2">
+        어서오세요! {{ ownerName }} 사장님, 가게 수정 페이지에 오신 것을
+        환영합니다!
+      </div>
     </div>
     <div class="container-fluid d-flex mb-5">
       <div class="card shadow p-5 w-100" style="max-width: 1100px">
@@ -415,15 +420,13 @@ input::placeholder {
 .owner-title1 {
   font-size: 30px;
   font-weight: bold;
-  padding-left: 12px; 
+  padding-left: 12px;
   padding-bottom: 2px;
 }
 
 .owner-title2 {
-  padding-left: 12px; 
+  padding-left: 12px;
   padding-bottom: 10px;
   color: #686868;
 }
-
-
 </style>
