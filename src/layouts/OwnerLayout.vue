@@ -38,12 +38,12 @@ onMounted(async () => {
     orderStore.fetchOrders(state.form.id);
   }
 
-  // 5초마다 반복 호출
-  setInterval(() => {
-    if(state.form.id) {
-      orderStore.fetchOrders(state.form.id);
-    }
-  }, 5000);
+  // // 5초마다 반복 호출
+  // setInterval(() => {
+  //   if(state.form.id) {
+  //     orderStore.fetchOrders(state.form.id);
+  //   }
+  // }, 5000);
 });
 
 // 가게 데이터
