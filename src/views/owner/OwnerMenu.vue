@@ -1,6 +1,6 @@
 <script setup>
 import OwnerMenuCard from "@/components/owner/OwnerMenuCard.vue";
-import { getOneMenu, saveMenu } from "@/services/menuService";
+import { getStoreIdAndMenus, saveMenu } from "@/services/menuService";
 import { onMounted, reactive, ref } from "vue";
 import { useRouter } from "vue-router";
 import defaultMenuImage from "@/imgs/owner/haniplogo_sample.png";
@@ -12,7 +12,7 @@ const previewImage = ref(defaultMenuImage);
 
 onMounted(async () => {
   // 사장님 전용 조회 api 필요
-  const res = await getOneMenu(1);
+  const res = await getStoreIdAndMenus();
   if (res.status === 200) {
     state.form = res.data.resultData;
     console.log("res: ", res.data.resultData);

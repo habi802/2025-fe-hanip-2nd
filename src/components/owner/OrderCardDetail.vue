@@ -1,9 +1,23 @@
 <script setup>
+import { modifyStatus } from '@/services/orderService';
+
 const props = defineProps({
   order: Object,
 });
 
 console.log(props.order);
+
+const accepct = async() => {
+  const body = {
+    orderId: props.order.id,
+    status: "PREPARING",
+  }
+  const res = await modifyStatus(body);
+  if(res.status !== 200) {
+    alert("에러");
+    return;
+  }
+}
 </script>
 
 <template>
@@ -20,8 +34,8 @@ console.log(props.order);
     <div class="order-menu"></div>
 
     <div class="order-actions">
-      <button class="cancel-btn" @click="$emit('cancel')">주문 취소</button>
-      <button class="accept-btn" @click="$emit('accept')">주문 수락</button>
+      <button class="cancel-btn" @click="cancel">주문 취소</button>
+      <button class="accept-btn" @click="accepct">주문 수락</button>
     </div>
   </div>
 </template>
