@@ -35,9 +35,9 @@ onMounted(async () => {
   orderStore.fetchOrders();
 
   // 5초마다 가져오기
-  setInterval(() => {
-    orderStore.fetchOrders();
-  }, 5000);
+  // setInterval(() => {
+  //   orderStore.fetchOrders();
+  // }, 5000);
 
   const saved = localStorage.getItem("removedNotification");
   if (saved) {
