@@ -1,5 +1,5 @@
-import axios from 'axios';
-axios.defaults.baseURL = 'http://localhost:8080/api';
+import axios from './httpRequester';
+
 
 export const getStore = (id) => {
   return axios.get(`/store/${id}`).catch((e) => e.response);

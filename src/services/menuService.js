@@ -1,5 +1,5 @@
-import axios from 'axios';
-axios.defaults.baseURL = 'http://localhost:8080/api';
+import axios from './httpRequester';
+
 const path = '/menu';
 
 // 메뉴 추가
@@ -15,6 +15,11 @@ export const getOneMenu = (storeId) => {
 // 메뉴 조회
 export const getMenus = (menuId) => {
   return axios.get(path, { params: menuId }).catch((e) => e.response);
+};
+
+// 로그인 아이디에 따른 가게 메뉴 조회
+export const getStoreIdAndMenus = () => {
+  return axios.get(`${path}/owner`).catch((e) => e.response);
 };
 
 // 메뉴 한개 수정
