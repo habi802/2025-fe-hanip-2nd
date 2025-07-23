@@ -1,5 +1,10 @@
 <script setup>
 import { reactive } from 'vue';
+
+// 컴포넌트 import
+import Account from '@/components/myPage/Account.vue';
+
+//
 const user = reactive({
   name: '서하빈',
   orders: 0,
@@ -45,6 +50,7 @@ const myAccount = [
       </div>
     </div>
   </div>
+  <account></account>
 </template>
 <style lang="scss" scoped>
 @font-face {
