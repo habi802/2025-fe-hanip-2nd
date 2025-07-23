@@ -35,11 +35,42 @@ const name = reactive({
 onMounted(() => {
   nextTick(() => {
     const text = router.currentRoute.value.query.section;
-    console.log("text", text)
     switch (text) {
       case 'korean':
         searchKoreanFood();
-        break
+        break;
+      case 'china':
+        searchChina();
+        break;
+      case 'japan':
+        searchJapanese();
+        break;
+      case 'pasta':
+        searchWesternFood();
+        break;
+      case 'cafe':
+        searchDessert();
+        break;
+      case 'snack':
+        searchSnackFood();
+        break;
+      case 'fast':
+        searchFastFood();
+        break;
+      case 'asian':
+        searchAsian();
+        break;
+      case 'chicken':
+        searchChick();
+        break;
+      case 'pizza':
+        searchPizza();
+        break;
+      case 'night':
+        searchLateNight();
+        break;
+      default:
+        findAll({});
     }
   })
 })
@@ -147,9 +178,6 @@ const findAll = async (params) => {
   state.stores = res.data.resultData;
 };
 
-onMounted(async () => {
-  findAll({});
-});
 
 const arrow = () => {
   window.scrollTo({
