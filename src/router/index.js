@@ -75,6 +75,31 @@ const router = createRouter({
       component: () => import('@/views/MyPage.vue'),
       meta: { layout: MainLayout },
     },
+    {
+      path: '/owner/delivery',
+      component: () => import('@/views/owner/Delivery.vue'),
+      meta: { layout: OwnerLayout },
+    },
+    {
+      path: '/owner/donations',
+      component: () => import('@/views/owner/Donations.vue'),
+      meta: { layout: OwnerLayout },
+    },
+    {
+      path: '/owner/customer',
+      component: () => import('@/views/owner/Customer.vue'),
+      meta: { layout: OwnerLayout },
+    },
+    {
+      path: '/owner/coupons',
+      component: () => import('@/views/owner/Coupons.vue'),
+      meta: { layout: OwnerLayout },
+    },
+    {
+      path: '/owner/ads',
+      component: () => import('@/views/owner/ads.vue'),
+      meta: { layout: OwnerLayout },
+    },
   ],
 });
 export default router;

@@ -1,10 +1,15 @@
 <script setup>
 import { defineProps, reactive, ref } from "vue";
 import defaultMenuImage from "@/imgs/owner/haniplogo_sample.png";
+import { modifyMenu, getMenus } from "@/services/menuService";
+import { useRouter } from "vue-router";
+
+const emit = defineEmits(["menuUpdated"]);
 
 // ref
 const previewImage = ref(defaultMenuImage);
 const modifyMenuModal = ref(null);
+const router = useRouter();
 
 const props = defineProps({
   menu: {
@@ -26,6 +31,7 @@ const handleFileSelected = (e) => {
 
 // 모달
 const newMenu = reactive({
+  id: "",
   name: "",
   price: "",
   comment: "",
@@ -34,12 +40,27 @@ const newMenu = reactive({
 
 // 모달 창 열기
 const editMenu = () => {
+  newMenu.menuId = props.menu.menuId;
   newMenu.name = props.menu.name;
   newMenu.price = props.menu.price;
   newMenu.comment = props.menu.comment;
 
   const modal = new bootstrap.Modal(modifyMenuModal.value);
   modal.show();
+};
+
+// 수정
+const submitMenu = async () => {
+  const res = await modifyMenu(newMenu);
+  if (res.status != 200) {
+    alert("에러");
+    return;
+  }
+
+  emit("menuUpdated");
+  // 모달 창 닫기
+  const modal = bootstrap.Modal.getInstance(modifyMenuModal.value);
+  modal.hide();
 };
 </script>
 
@@ -63,13 +84,15 @@ const editMenu = () => {
       </div>
       <div class="col-md-7 d-flex flex-column justify-content-between p-3">
         <div>
-          <h5 class="card-title">{{ props.menu.name }}</h5>
-          <h6 class="text-muted">{{ props.menu.price.toLocaleString() + "원" }}</h6>
-          <p class="card-text small mt-2">{{ props.menu.comment }}</p>
+          <h5 class="card-title card-size mb-3">{{ props.menu.name }}</h5>
+          <h6 class="text-muted mb-2">
+            {{ props.menu.price.toLocaleString() + "원" }}
+          </h6>
+          <p class="card-text small mt-2">"{{ props.menu.comment }}"</p>
         </div>
         <div class="d-flex gap-2 mt-3 justify-content-end">
-          <button @click="editMenu" class="btn btn-primary mt-3">수정</button>
-          <button @click="deleteMenu" class="btn btn-danger mt-3">삭제</button>
+          <button @click="editMenu" class="accept-btn">수정</button>
+          <button @click="deleteMenu" class="delete-btn">삭제</button>
         </div>
       </div>
     </div>
@@ -128,14 +151,55 @@ const editMenu = () => {
           ></textarea>
         </div>
         <div class="modal-footer">
+          <button class="btn btn-primary" @click="submitMenu">수정</button>
           <button class="btn btn-secondary" data-bs-dismiss="modal">
             취소
           </button>
-          <button class="btn btn-primary" @click="submitMenu">수정</button>
         </div>
       </div>
     </div>
   </div>
 </template>
 
-<style scoped></style>
+<style scoped>
+.card-size {
+  font-weight: 600;
+  font-size: 20px;
+}
+
+.accept-btn {
+  background: #f66463;
+  border: none;
+  color: white;
+  border-radius: 8px;
+  font-size: 18px;
+  width: 68px;
+  height: 42px;
+  transition: background-color 0.3s, color 0.3s;
+}
+
+.accept-btn:hover {
+  background: #d44b4a;
+}
+.accept-btn:active {
+  background: #b23837;
+}
+
+.delete-btn {
+  background: #a3a3a3;
+  border: none;
+  color: white;
+  border-radius: 8px;
+  font-size: 18px;
+  width: 68px;
+  height: 42px;
+  transition: background-color 0.3s, color 0.3s;
+}
+
+.delete-btn:hover {
+  background: #838383;
+}
+.delete-btn:active {
+  background: #696969;
+}
+</style>
