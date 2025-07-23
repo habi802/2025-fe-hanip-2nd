@@ -4,6 +4,7 @@ import { useRoute, useRouter } from 'vue-router';
 import { getStore } from '@/services/storeService';
 import { getOneMenu } from '@/services/menuService';
 import { getReviewsByStoreId } from '@/services/reviewServices';
+import { removeItem } from '@/services/cartService';
 import Menu from '@/components/Menu.vue';
 import Review from '@/components/Review.vue';
 
@@ -58,6 +59,27 @@ const loadReviews = async id => {
     state.reviews = res.data.resultData;
 }
 
+const addCart = item => {
+    item.quantity = 1;
+    state.carts.push(item);
+}
+
+const deleteCart = async cartId => {
+    const res = await removeItem(cartId);
+
+    if (res === undefined || res.data.resultStatus !== 200) {
+        alert('삭제 실패');
+        return;
+    }
+
+    if (res.data.resultData === 1) {
+        const deleteIdx = state.carts.findIndex(item => item.id === cartId);
+        if (deleteIdx > -1) {
+            state.carts.splice(deleteIdx, 1);
+        }
+    }
+}
+
 const computedTotalPrice = computed(() => {
     const price = 20000;
     return price.toLocaleString() + '원';
@@ -100,7 +122,7 @@ onMounted(async () => {
                 <div class="pt-2 mb-3">
                     <div v-if="state.menus.length > 0">
                         <div v-for="item in state.menus" :key="item.id">
-                            <Menu :item="item" />
+                            <Menu :item="item" @addCart="addCart" />
                         </div>
                     </div>
                     <div v-else>
@@ -137,12 +159,12 @@ onMounted(async () => {
                                 </div>
                                 <div class="d-flex justify-content-between">
                                     <div>
-                                        <button type="button" class="btn btn-basic btn-quantity">+</button>
-                                        <span class="p-3">{{ item.quantity }}</span>
                                         <button type="button" class="btn btn-basic btn-quantity">-</button>
+                                        <span class="p-3">{{ item.quantity }}</span>
+                                        <button type="button" class="btn btn-basic btn-quantity">+</button>
                                     </div>
                                     <div>
-                                        <button type="button" class="btn btn-basic btn-submit">메뉴 취소</button>
+                                        <button type="button" class="btn btn-basic btn-submit" @click="deleteCart(item.id)">메뉴 취소</button>
                                     </div>
                                 </div>
                             </div>
