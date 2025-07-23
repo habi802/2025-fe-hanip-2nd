@@ -10,6 +10,10 @@ export const modifyStatus = (params) => {
 
 export const getOwnerOrder = (id) => {
   return axios.get(`/order/owner/${id}`).catch((e) => e.response);
-} 
+}
+
+export const addOrder = args => {
+  return axios.post('/order', args).catch(e => e.response);
+}
 
 export default axios;

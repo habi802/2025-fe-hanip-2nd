@@ -2,9 +2,11 @@
 import { onMounted, reactive, ref, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { updateQuantity, removeItem } from '@/services/cartService';
+import { addOrder } from '@/services/orderService';
 import { useAccountStore } from '@/stores/account';
 import { useCartStore } from '@/stores/cart';
 
+const route = useRoute();
 const router = useRouter();
 
 const account = useAccountStore();
@@ -14,13 +16,14 @@ const state = reactive({
     user: {},
     carts: [],
     form: {
+        storeId: route.params.id,
         address: '',
         addressDetail: '',
         phone: '',
         storeRequest: '',
         riderRequest: '',
         payment: 'CARD',
-        menuIds: []
+        orders: []
     }
 });
 
@@ -93,11 +96,11 @@ const calculateTotal = () => {
     });
 };
 
-const submit = () => {
+const submit = async () => {
     if (state.form.address.trim().length === 0) {
         alert('주소를 입력해주세요.');
         return;
-    } else if (state.form.addressDetial.trim().length === 0) {
+    } else if (state.form.addressDetail.trim().length === 0) {
         alert('전화번호를 입력해주세요.');
         return;
     } else if (phone2.value.trim().length === 0 || phone3.value.trim().length === 0) {
@@ -105,7 +108,23 @@ const submit = () => {
         return;
     }
 
+    state.form.orders = state.carts.map(item => ({
+        menuId: item.menuId,
+        quantity: item.quantity
+    }));
     
+    const res = await addOrder(state.form);
+
+    if (res === undefined || res.status !== 200) {
+        alert('등록 실패');
+        return;
+    }
+
+    if (state.form.payment === 'BANK') {
+
+    }
+
+    await router.push({ path: `/stores/${route.params.id}/order/success` });
 };
 </script>
 
