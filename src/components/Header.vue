@@ -18,7 +18,7 @@ const logoutIn = async () => {
 
 // 마이 페이지 이동
 const myPageRouter = () => {
-  router.push('/my_page');
+  router.push('/my-page');
 };
 
 //카트 페이지로 이동

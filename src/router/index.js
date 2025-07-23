@@ -61,7 +61,7 @@ const router = createRouter({
       meta: { layout: MainLayout },
     },
     {
-      path: '/my_page',
+      path: '/my-page',
       component: () => import('@/views/MyPage.vue'),
       meta: { layout: MainLayout },
     },
