@@ -20,7 +20,8 @@ onMounted(() => {
 const load = async () => {
   if (!loggedIn.value) return;
   const res = await getItem();
-  if (res === undefined || res.status !== 200 || res.data.resultStatus !== 200) return;
+  if (res === undefined || res.status !== 200 || res.data.resultStatus !== 200)
+    return;
 
   state.items = res.data.resultData || [];
 };
@@ -28,7 +29,7 @@ const load = async () => {
 const remove = async (cartId) => {
   const res = await removeItem(cartId);
   if (res === undefined || res.status !== 200) return;
-  
+
   load();
 };
 
@@ -76,12 +77,15 @@ const groupedItems = computed(() => {
   <div class="cart-empty-wrapper">
     <div class="top-row">
       <div class="header-row">
-        <img
-          class="back-icon"
-          alt="뒤로가기"
-          src="/src/imgs/cartimgs/arrowios.svg"
-        />
-        <div class="div29">장바구니</div>
+        <div class="title-wrap">
+          <img
+            class="back-icon"
+            alt="뒤로가기"
+            src="/src/imgs/cartimgs/arrowios.svg"
+          />
+          <div class="div29">장바구니</div>
+        </div>
+        <div class="clear" @click="clear">장바구니 삭제</div>
       </div>
       <div class="step-horizontal">
         <span class="step-text">01 음식선택</span>
@@ -105,7 +109,7 @@ const groupedItems = computed(() => {
   <div v-if="!loggedIn" class="div18">
     <p class="login-cart">로그인을 하시면 장바구니를 사용할 수 있습니다.</p>
     <div class="groupContainer">
-      <button class="div19" @click="goToLogin">로그인하기</button>
+      <button class="div-login" @click="goToLogin">로그인하기</button>
     </div>
   </div>
 
@@ -152,7 +156,6 @@ const groupedItems = computed(() => {
     <div class="cart-footer">
       <p class="total">총 금액: {{ totalPrice.toLocaleString() }}원</p>
       <div class="groupContainer">
-        <div class="div19" @click="clear">장바구니 삭제</div>
         <div class="div19" @click="goToOrder">주문하기</div>
       </div>
     </div>
@@ -160,76 +163,208 @@ const groupedItems = computed(() => {
 </template>
 
 <style scoped>
+
 .cart-empty-wrapper {
-  max-width: 720px;
+  max-width: 1024px;
   margin: 50px auto;
   padding: 20px;
-}
-.top-row {
   display: flex;
-  justify-content: space-between;
-  column-gap: 100px;
-  margin-bottom: 120px;
+  flex-direction: column;
 }
-.header-row {
+
+.title-wrap {
   display: flex;
   align-items: center;
 }
+
+.top-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 40px;
+}
+
+.header-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px
+}
+
 .back-icon {
   width: 24px;
   height: 24px;
   margin-right: 10px;
 }
+
 .div29 {
-  font-size: 24px;
+  font-size: 28px;
   font-weight: bold;
-  white-space: nowrap;
 }
+
 .step-horizontal {
   display: flex;
   align-items: center;
   gap: 8px;
   font-size: 14px;
   font-weight: bold;
-  padding-left: 200px;
-  white-space: nowrap;
 }
+
+.step-text.current {
+  color: #ff6666;
+  font-size: 16px;
+}
+
 .arrow img {
   width: 12px;
   height: auto;
 }
-.step-text.current {
-  font-size: 18px;
-  font-weight: bold;
-  color: #ff6666;
+
+.login-cart {
+    font-size: 16px;
+  margin-bottom: 50px;
+  text-align: center;
+  color: #555;
 }
-.arrow {
-  font-size: 16px;
-}
+
+/* 로그인 상태 안내 */
 .div18 {
   font-size: 16px;
-  margin-bottom: 70px;
-  color: #333;
+  margin-bottom: 50px;
   text-align: center;
+  color: #555;
 }
+
 .groupContainer {
   display: flex;
   justify-content: center;
   margin-top: 20px;
+  gap: 20px;
 }
+
+.clear {
+  color: #fff;
+  background-color: #ff6666;
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-weight: bold;
+  cursor: pointer;
+  margin-left: 14px;
+}
+
+.div-login {
+    border: 2px solid #ff6666;
+  color: #ff6666;
+  background-color: #fff;
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-weight: bold;
+  cursor: pointer;
+  margin-bottom: 40px;
+}
+
 .div19 {
   border: 2px solid #ff6666;
   color: #ff6666;
-  background-color: #ffffff;
-  padding: 10px 30px;
-  border-radius: 6px;
+  background-color: #fff;
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-weight: bold;
   cursor: pointer;
-  margin-bottom: 100px;
-  align-items: center;
+  margin-bottom: 91px;
 }
 
-.login-cart {
-  text-align: center;
-  margin-bottom: 50px;
+.store-box {
+  border: 1px solid #ccc;
+  border-radius: 16px;
+  padding: 20px;
+  margin-bottom: 30px;
+}
+
+.store-info {
+  margin-bottom: 20px;
+}
+
+.store-name {
+  font-size: 20px;
+  font-weight: bold;
+}
+
+.store-sub {
+  font-size: 14px;
+  color: #888;
+}
+
+.cart-item {
+  display: flex;
+  align-items: center;
+  margin-bottom: 16px;
+  gap: 16px;
+}
+
+.cart-item img {
+  width: 64px;
+  height: 64px;
+  border-radius: 12px;
+  object-fit: cover;
+}
+
+.item-content {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex: 1;
+}
+
+.item-name {
+  font-weight: 600;
+  flex: 1;
+}
+
+.qty-box {
+  display: flex;
+  align-items: center;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.qty-box button {
+  padding: 4px 10px;
+  background-color: #fff;
+  border: none;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.qty-box span {
+  padding: 0 12px;
+}
+
+.item-price {
+  font-weight: bold;
+  margin-left: 16px;
+  min-width: 80px;
+  text-align: right;
+}
+
+.item-content button {
+  margin-left: 16px;
+  background: none;
+  border: none;
+  color: #ff6666;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.cart-footer {
+  margin-top: 40px;
+  text-align: right;
+}
+
+.total {
+  font-size: 18px;
+  font-weight: bold;
+  margin-bottom: 20px;
 }
 </style>
