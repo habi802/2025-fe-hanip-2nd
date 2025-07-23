@@ -6,6 +6,7 @@ import { getOneMenu } from '@/services/menuService';
 import { getReviewsByStoreId } from '@/services/reviewServices';
 import { updateQuantity, removeItem, removeCart } from '@/services/cartService';
 import { useAccountStore } from '@/stores/account';
+import { useCartStore } from '@/stores/cart';
 import Menu from '@/components/Menu.vue';
 import Review from '@/components/Review.vue';
 
@@ -13,8 +14,7 @@ const route = useRoute();
 const router = useRouter();
 
 const account = useAccountStore();
-
-const totalPrice = ref(0);
+const carts = useCartStore();
 
 const state = reactive({
     store: {
@@ -27,6 +27,8 @@ const state = reactive({
     reviews: [],
     carts: [],
 });
+
+const totalPrice = ref(0);
 
 const loadStore = async id => {
     const res = await getStore(id);
@@ -153,10 +155,11 @@ const toOrder = () => {
         return;
     }
 
+    carts.state.items = state.carts;
     router.push({ path: `/stores/${route.params.id}/order` });
 }
 
-onMounted(async () => {
+onMounted(() => {
     const storeId = route.params.id;
 
     loadStore(storeId);
