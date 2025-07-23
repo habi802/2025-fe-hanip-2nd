@@ -1,6 +1,8 @@
 <script setup>
 import { modifyStatus } from '@/services/orderService';
+import { useOrderStore } from '@/stores/orderStore';
 
+const orderStore = useOrderStore();
 const props = defineProps({
   order: Object,
 });
@@ -17,6 +19,9 @@ const accepct = async() => {
     alert("에러");
     return;
   }
+
+    // 상태 업데이트
+    await orderStore.fetchOrders(props.order.storeId);
 }
 </script>
 
