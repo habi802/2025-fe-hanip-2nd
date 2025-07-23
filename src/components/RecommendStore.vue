@@ -194,14 +194,14 @@
 
 <style lang="scss" scoped>
 @font-face {
-  font-family: 'BMJUA';
-  src: url('https://fastly.jsdelivr.net/gh/projectnoonnu/noonfonts_one@1.0/BMJUA.woff')
-    format('woff');
+  font-family: "BMJUA";
+  src: url("https://fastly.jsdelivr.net/gh/projectnoonnu/noonfonts_one@1.0/BMJUA.woff")
+    format("woff");
   font-weight: 600;
   font-style: normal;
 }
 .f_text {
-  font-family: 'BMJUA';
+  font-family: "BMJUA";
   letter-spacing: 2px;
   color: #ff6666;
   font-size: 2em;
@@ -252,7 +252,7 @@
       }
     }
     .icons {
-      font-family: 'BMJUA';
+      font-family: "BMJUA";
       display: flex;
       margin-top: 10px;
       #icon {
@@ -270,7 +270,7 @@
     }
   }
   .btn {
-    font-family: 'BMJUA';
+    font-family: "BMJUA";
     font-size: 1.3em;
     color: #fff;
     background-color: #ff6666;
@@ -284,5 +284,22 @@
 }
 .footer {
   margin-bottom: 300px;
+}
+
+@media (max-width: 1600px) {
+  .guideBox {
+    justify-content: center;
+    width: 1200px;
+  }
+}
+@media (max-width: 1400px) {
+  .guideBox {
+    width: 800px;
+  }
+}
+@media (max-width: 900px){
+  .guideBox{
+    width: 500px;
+  }
 }
 </style>
