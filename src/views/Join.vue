@@ -657,6 +657,7 @@ input[type="radio"].circle:checked::after {
         flex: 1;
     }
 }
+
 .form-group:not(.address-group):not(.phone-input-wrap):not(.agreement):not(:has(.radio-group)) {
   display: block;
   margin-top: 1rem;
@@ -849,6 +850,8 @@ input.upload-box {
           }
             }
         }
+
+        // 약관동의 체크박스 
   input[type="checkbox"].circle {
   appearance: none;
   -webkit-appearance: none;
