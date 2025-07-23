@@ -27,11 +27,7 @@ const loadStore = async id => {
 
     if (res === undefined || res.data.resultStatus !== 200) {
         alert(res.data.resultMessage);
-<<<<<<< HEAD
-        router.push({ path: '/' });
-=======
         router.push( { path: '/' });
->>>>>>> 0e8d89af13fdef8c62c6434cba6559bbf28591b2
         return;
     }
 
@@ -159,11 +155,7 @@ onMounted(async () => {
                         {{ computedTotalPrice }}
                     </div>
                 </div>
-<<<<<<< HEAD
-                <router-link :to="`/stores/${route.params.id}/order`" class="btn btn-basic btn-submit">주문하기</router-link>
-=======
                 <router-link to="/order" class="btn btn-basic btn-submit">주문하기</router-link>
->>>>>>> 0e8d89af13fdef8c62c6434cba6559bbf28591b2
             </div>
         </div>
     </div>
