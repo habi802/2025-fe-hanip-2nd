@@ -1,5 +1,5 @@
-import axios from 'axios';
-axios.defaults.baseURL = 'http://localhost:8080/api';
+import axios from './httpRequester';
+
 const path = '/menu';
 
 // 메뉴 추가
