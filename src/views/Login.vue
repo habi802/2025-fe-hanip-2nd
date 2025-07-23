@@ -21,9 +21,18 @@ const submit = async () => {
     console.log("res.data.resultData:", res.data.resultData);
     
     if (res.status === 200) {
-      const { role } = res.data.resultData;  // 회원 유형 고객 or 가게사장
+      // 서버에서 loginId 같이 내려주는지 확인 필요
+      const { role, loginId } = res.data.resultData;  // 회원 유형 고객 or 가게사장
       console.log("role 값: ", role); // undefined 해결하기 ㅠㅠ
       console.log("res.data.resultData:", res.data.resultData);
+
+      if (loginId) {
+        localStorage.setItem('loginId', loginId); // 이걸 꼭 추가!
+      } else {
+        console.warn('loginId가 응답에 없습니다.');
+      }
+
+      console.log("role 값: ", role);
 
       if (role === "OWNER") {
         router.push('/owner'); // 업주용 메인화면

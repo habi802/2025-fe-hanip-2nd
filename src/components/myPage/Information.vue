@@ -1,10 +1,10 @@
 <script setup>
-import { reactive } from 'vue';
+import { onMounted, reactive } from 'vue';
 import { useRouter } from 'vue-router';
 
 const router = useRouter();
 
-// 사용자 정보 상태
+// 사용자 정보 리스트
 const state = reactive({
   form: {
     loginId: '', // ID 비활성화 해야함!!
@@ -28,7 +28,35 @@ const state = reactive({
 //   state.form.phone = `${phone1.value}-${phone2.value}-${phone3.value}`;
 // });
 
+// 사용자 정보 가져오기
+onMounted(async () => { 
+  try {
+    const loginId = localStorage.getItem('loginId'); // or 로그인 시 저장된 값
+    console.log('localStorage loginId:', loginId); // user 로그인 정보를 저장하고 있는지 확인용
 
+    const res = await find(loginId); // userService에서 끌고와야함
+    if (res && res.data) {
+      Object.assign(state.form, res.data); // 정보 채우기
+    }
+  } catch (err) {
+      console.error('사용자 정보 로딩 실패: ', err);
+  }
+});
+
+
+//  정보 수정 성공 여부
+const submitForm = async (e) => {
+  e.preventDefault();
+  try {
+    const loginId = localStorage.getItem('loginId');
+    await update(loginId, state.form); // API 요청
+    alert('정보가 성공적으로 수정되었습니다.');
+    router.push('/mypage'); // 마이페이지나 원하는 페이지로 이동
+  } catch (err) {
+    console.error('정보 수정 실패:', err);
+    alert('정보 수정에 실패했습니다.');
+  }
+};
 </script>
 
 <template>
@@ -38,12 +66,12 @@ const state = reactive({
       <div class="solid"></div>
 
       <div class="container">
-        <form class="information-form">
+        <form class="information-form" @submit="submitForm">
           <div class="form-group">
 
             <!-- 아이디 비활성화 -->
             <label> 아이디</label>
-            <input type="text" class="form-input" :value="state.form.loginId" placeholder="" />
+            <input type="text" class="form-input" :value="state.form.loginId" placeholder="" readonly/>
           </div>
           <div class="sevLine"></div>
 
