@@ -1,58 +1,89 @@
-<script setup></script>
+<script setup>
+import { reactive } from 'vue';
+import { useRouter } from 'vue-router';
+
+const router = useRouter();
+
+// 사용자 정보 상태
+const state = reactive({
+  form: {
+    loginId: '', // ID 비활성화 해야함!!
+    loginPw: '',
+    name: '',
+    postcode: '',
+    address: '',
+    addressDetail: '',
+    phone: '',
+    email: '',
+  }
+});
+
+// 일반 회원용 전화번호 필드
+// const phone1 = ref('010');
+// const phone2 = ref('');
+// const phone3 = ref('');
+
+// // 일반 전화번호 조합
+// watch([phone1, phone2, phone3], () => {
+//   state.form.phone = `${phone1.value}-${phone2.value}-${phone3.value}`;
+// });
+
+
+</script>
 
 <template>
   <div class="box">
     <div>
       <div>정보 수정</div>
       <div class="solid"></div>
-      
+
       <div class="container">
         <form class="information-form">
           <div class="form-group">
 
             <!-- 아이디 비활성화 -->
             <label> 아이디</label>
-            <input type="text" class="form-input" placeholder="본인 닉네임 및 아이디" />
+            <input type="text" class="form-input" :value="state.form.loginId" placeholder="" />
           </div>
           <div class="sevLine"></div>
 
           <!-- 비밀번호 확인 -->
           <div class="form-group">
             <label> ✪ 비밀번호 확인</label>
-            <input type="password" class="form-input" placeholder="현재 비밀번호를 입력해주세요." />
+            <input type="password" class="form-input" v-model="state.form.loginPw" placeholder="현재 비밀번호를 입력해주세요." />
           </div>
           <div class="sevLine"></div>
 
           <!-- 일반 회원 -->
           <div class="form-group">
             <label> 이름</label>
-            <input type="text" class="form-input" />
+            <input type="text" class="form-input" v-model="state.form.name"/>
           </div>
           <div class="sevLine"></div>
 
           <!-- 주소 -->
           <div class="form-group address-group">
-          <label> 주소</label>
-          <div class="address-fields">
+            <label> 주소</label>
+            <div class="address-fields">
 
-            <!-- 우편번호 + 주소검색 버튼 -->
-            <div class="address-row">
-              <input type="text" placeholder="우편번호" />
-              <button type="button"> 주소검색</button>
-            </div>
-            
-            <!-- 기본주소 단독 줄 -->
-            <div class="address-input-row">
-              <input type="text" placeholder="기본주소" />
-            </div>
-            
-            <!-- 상세주소 단독 줄 -->
-            <div class="address-input-row">
-              <input type="text" placeholder="상세주소 (선택입력가능)" />
+              <!-- 우편번호 + 주소검색 버튼 -->
+              <div class="address-row">
+                <input type="text" placeholder="우편번호" v-model="state.form.postcode" />
+                <button type="button"> 주소검색</button>
+              </div>
+
+              <!-- 기본주소 단독 줄 -->
+              <div class="address-input-row">
+                <input type="text" placeholder="기본주소" v-model="state.form.address" />
+              </div>
+
+              <!-- 상세주소 단독 줄 -->
+              <div class="address-input-row">
+                <input type="text" placeholder="상세주소 (선택입력가능)" v-model="state.form.addressDetail"/>
+              </div>
             </div>
           </div>
-        </div>
-        <div class="sevLine"></div>
+          <div class="sevLine"></div>
 
           <!-- 일반번호 -->
           <div class="form-group phone-input-wrap">
@@ -114,13 +145,13 @@
           <!-- 이메일 -->
           <div class="form-group">
             <label> 이메일</label>
-            <input type="email" class="form-input"  placeholder="반드시 사용 중인 메일을 @ 형식으로 입력하세요." />
+            <input type="email" class="form-input" placeholder="반드시 사용 중인 메일을 @ 형식으로 입력하세요." v-model="state.form.email"/>
           </div>
           <div class="sevLine"></div>
 
           <!-- 제출 버튼 -->
           <div class="form-submit">
-            <button type="submit" >수정</button>
+            <button type="submit">수정</button>
           </div>
         </form>
       </div>
@@ -131,16 +162,16 @@
 <style lang="scss" scoped>
 @font-face {
   font-family: 'BMJUA';
-  src: url('https://fastly.jsdelivr.net/gh/projectnoonnu/noonfonts_one@1.0/BMJUA.woff')
-    format('woff');
+  src: url('https://fastly.jsdelivr.net/gh/projectnoonnu/noonfonts_one@1.0/BMJUA.woff') format('woff');
   font-weight: normal;
   font-style: normal;
 }
+
 .box {
   font-family: 'BMJUA';
   font-size: 1.4em;
   letter-spacing: -1.5px;
-  
+
   .solid {
     width: 1100px;
     border: 1px #000 solid;
@@ -174,6 +205,7 @@
   display: flex;
   flex-direction: column;
 }
+
 // 입력창 공통 스타일 (아이디, 비번, 이메일 등)
 input[type='text'],
 input[type='password'],
@@ -197,13 +229,14 @@ input[type='email'] {
     font-size: 16px;
     margin-left: 10px;
   }
-  
-// 입력창 공통 사이즈 (아이디, 비번, 이메일 ) 
-.form-input {
-  width: 459px;
-}
 
-  input, // 전화번호 정렬
+  // 입력창 공통 사이즈 (아이디, 비번, 이메일 ) 
+  .form-input {
+    width: 459px;
+  }
+
+  input,
+  // 전화번호 정렬
   select {
     flex: 1;
     width: 170px;
@@ -216,7 +249,7 @@ input[type='email'] {
 
   label {
     display: inline-block;
-    width: 235px;      // label 고정 폭
+    width: 235px; // label 고정 폭
     text-align: left;
     margin-left: 10px;
     vertical-align: middle;
@@ -235,6 +268,7 @@ input[type='email'] {
     vertical-align: middle;
   }
 }
+
 // 주소 입력 영역 정렬 (주소, 상세주소)
 .address-group {
   display: flex;
@@ -247,18 +281,18 @@ input[type='email'] {
     font-size: 16px;
     padding-top: 12px; // 위에 살짝 띄워 정렬
   }
-  
+
   // 오른쪽 전체 주소 input 그룹
   .address-fields {
     display: flex;
     flex-direction: column;
     gap: 0.8rem;
-    
+
     // 1줄: 우편번호 + 주소검색
     .address-row {
       display: flex;
       gap: 0.5rem;
-      
+
       input[type='text'] {
         margin-top: 1rem;
         width: 390px;
@@ -268,8 +302,9 @@ input[type='email'] {
         border: 1px solid #ccc;
         border-radius: 8px;
       }
-      
+
       button {
+        margin-top: 1rem;
         width: 90px;
         height: 45px;
         background-color: #fff;
@@ -278,13 +313,13 @@ input[type='email'] {
         color: #ff6666;
         font-weight: bold;
         cursor: pointer;
-        
+
         &:hover {
           background-color: #ffe5e5;
         }
       }
     }
-    
+
     // 2~3줄: 기본주소 / 상세주소
     .address-input-row input[type='text'] {
       width: 495px;
@@ -307,17 +342,17 @@ input[type='email'] {
 
     select {
       margin-top: 1rem;
-        width: 213px;
-        height: 45px;
-        border-radius: 8px;
-        border: 1px solid #ccc;
-        margin-left: 100;
-        
+      width: 213px;
+      height: 45px;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      margin-left: 100;
+
     }
 
     input {
-        flex: 1;
-        margin-top: 1rem;
+      flex: 1;
+      margin-top: 1rem;
     }
   }
 }
@@ -325,7 +360,7 @@ input[type='email'] {
 
 // 수정 버튼 css
 .form-submit {
-  
+
   button {
     width: 1110px;
     height: 55px;
@@ -339,11 +374,11 @@ input[type='email'] {
     transition: background-color 0.2s;
     margin-bottom: 10rem;
     margin-top: 3rem;
+
     // 선택시 색바뀌는 반응
     &:hover {
       background-color: #ffe5e5;
     }
   }
 }
-
 </style>
