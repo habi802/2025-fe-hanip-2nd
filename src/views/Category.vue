@@ -17,10 +17,11 @@ import 'swiper/css/scrollbar';
 
 //
 import { getStoreList } from '@/services/storeService';
-import { reactive, onMounted } from 'vue';
+import { reactive, onMounted, nextTick } from 'vue';
 import StoreList from '@/components/StoreList.vue';
-import { getMenus } from '@/services/menuService';
-import Category from '@/components/Category.vue';
+import { useRouter } from 'vue-router';
+
+const router = useRouter();
 
 const state = reactive({
   stores: [],
@@ -29,6 +30,20 @@ const state = reactive({
 const name = reactive({
   text: '전체',
 });
+// 라우터 필터용
+
+onMounted(() => {
+  nextTick(() => {
+    const text = router.currentRoute.value.query.section;
+    console.log("text", text)
+    switch (text) {
+      case 'korean':
+        searchKoreanFood();
+        break
+    }
+  })
+})
+
 
 // 카테고리 필터
 // 전체 찾기
@@ -273,6 +288,10 @@ const arrow = () => {
       height: 125px;
       border-radius: 50%;
       cursor: pointer;
+
+      &:hover {
+        opacity: 80%;
+      }
     }
 
     .left {
@@ -323,5 +342,9 @@ const arrow = () => {
   left: 1800px;
   z-index: 999;
   margin-bottom: 100px;
+
+  &:hover {
+    opacity: 80%;
+  }
 }
 </style>
