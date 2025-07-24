@@ -23,7 +23,8 @@ const state = reactive({
         storeRequest: '',
         riderRequest: '',
         payment: 'CARD',
-        orders: []
+        orders: [],
+        agree: false
     }
 });
 
@@ -88,6 +89,28 @@ const increaseQuantity = async idx => {
     calculateTotal();
 }
 
+const deleteCart = async cartId => {
+    const res = await removeItem(cartId);
+
+    if (res === undefined || res.data.resultStatus !== 200) {
+        alert('삭제 실패');
+        return;
+    }
+
+    if (res.data.resultData === 1) {
+        const deleteIdx = state.carts.findIndex(item => item.id === cartId);
+        if (deleteIdx > -1) {
+            state.carts.splice(deleteIdx, 1);
+            calculateTotal();
+        }
+
+        if (state.carts < 1) {
+            alert('메뉴가 전부 삭제되었습니다.');
+            router.back();
+        }
+    }
+}
+
 const calculateTotal = () => {
     totalPrice.value = 0;
 
@@ -106,6 +129,9 @@ const submit = async () => {
         return;
     } else if (phone2.value.trim().length === 0 || phone3.value.trim().length === 0) {
         alert('전화번호를 입력해주세요.');
+        return;
+    } else if (!state.form.agree) {
+        alert('결제 약관에 동의해주세요.');
         return;
     }
 
@@ -150,45 +176,73 @@ const submit = async () => {
         <div class="container">
             <form class="row" @submit.prevent="submit">
                 <div class="col-12 col-md-8">
-                    <div class="row">
-                        <h4>배달 정보</h4>
-                        <div class="mb-2">
-                            <label for="address" class="form-label">주소</label>
-                            <input id="address" type="text" class="form-control" placeholder="주소 입력" v-model="state.form.address">
+                    <h4 class="mb-3">배달 정보</h4>
+                    <div class="row mb-2">
+                        <div class="col-12 col-md-3">
+                            <label for="address" class="col-form-label">주소</label>
                         </div>
-                        <div class="mb-2">
-                            <input id="address-detail" type="text" class="form-control" placeholder="상세주소 입력" v-model="state.form.addressDetail">
+                        <div class="col-12 col-md-9">
+                            <input id="address" type="text" class="form-control mb-2" placeholder="주소 입력" v-model="state.form.address">
+                            <input id="address-detail" type="text" class="form-control" placeholder="상세주소 입력 (필수)" v-model="state.form.addressDetail">
                         </div>
-                        <div class="mb-2">
-                            <label for="phone" class="form-label">전화번호</label>
-                            <select class="form-control" v-model="phone1">
-                                <option>010</option>
-                                <option>016</option>
-                                <option>017</option>
-                                <option>018</option>
-                                <option>019</option>
-                            </select>
-                            <input type="text" class="form-control" v-model="phone2" />
-                            <input type="text" class="form-control" v-model="phone3" />
+                    </div>
+                    <div class="row mb-2">
+                        <div class="col-12 col-md-3">
+                            <label for="" class="col-form-label">전화번호</label>
                         </div>
-                        <div class="mb-2">
-                            <label for="store-request" class="form-label">요청사항 (가게)</label>
-                            <input id="store-request" type="text" class="form-control" placeholder="요청사항 입력" v-model="state.form.storeRequest">
+                        <div class="col-12 col-md-9">
+                            <div class="row g-2">
+                                <div class="col-4">
+                                    <select class="form-control" v-model="phone1">
+                                        <option>010</option>
+                                        <option>016</option>
+                                        <option>017</option>
+                                        <option>018</option>
+                                        <option>019</option>
+                                    </select>
+                                </div>
+                                <div class="col-4">
+                                    <input type="text" class="form-control" v-model="phone2" />
+                                </div>
+                                <div class="col-4">
+                                    <input type="text" class="form-control" v-model="phone3" />
+                                </div>
+                            </div>
                         </div>
-                        <div class="mb-2">
-                            <label for="rider-request" class="form-label">요청사항 (라이더)</label>
-                            <input id="rider-request" type="text" class="form-control" placeholder="주소 입력" v-model="state.form.riderRequest">
+                    </div>
+                    <div class="row mb-2">
+                        <div class="col-12">
+                            <label for="store-request" class="col-form-label">주문 시 요청사항 (가게)</label>
                         </div>
-                        <div class="mb-2">
-                            <label class="form-label">결제 수단 선택</label>
+                        <div class="col-12">
+                            <input id="store-request" type="text" class="form-control" placeholder="가게 요청사항 입력" v-model="state.form.storeRequest">
+                        </div>
+                    </div>
+                    <div class="row mb-2">
+                        <div class="col-12">
+                            <label for="rider-request" class="col-form-label">주문 시 요청사항 (라이더)</label>
+                        </div>
+                        <div class="col-12">
+                            <input id="rider-request" type="text" class="form-control" placeholder="라이더 요청사항 입력" v-model="state.form.riderRequest">
+                        </div>
+                    </div>
+                    <div class="row mb-2">
+                        <div class="col-12">
+                            <label class="col-form-label">결제 수단 선택</label>
+                        </div>
+                        <div class="col-12">
                             <div class="form-check">
                                 <input id="card" class="form-check-input" type="radio" value="CARD" v-model="state.form.payment">
                                 <label class="form-check-label" for="card">카드 결제</label>
                             </div>
+                        </div>
+                        <div class="col-12">
                             <div class="form-check">
                                 <input id="bank" class="form-check-input" type="radio" value="BANK" v-model="state.form.payment">
                                 <label class="form-check-label" for="bank">무통장 입금</label>
                             </div>
+                        </div>
+                        <div class="col-12">
                             <div class="form-check">
                                 <input id="on-site" class="form-check-input" type="radio" value="ON_SITE" v-model="state.form.payment">
                                 <label class="form-check-label" for="on-site">현장 결제(포장)</label>
@@ -232,6 +286,14 @@ const submit = async () => {
                             {{ totalPrice.toLocaleString() }}원
                         </div>
                     </div>
+                    <p class="all-agree">
+                        <label class="custom-checkbox">
+                            <input type="checkbox" v-model="state.form.agree" />
+                            <span>
+                                이용약관, 개인정보 수집 및 애용, 개인정보 제 3자 제공, 전자금융거래 이용약관, 만 14세 이상 이용자 내용 확인하였으며 결제에 동의합니다.
+                            </span>
+                        </label>
+                    </p>
                     <button type="submit" class="btn btn-basic btn-submit">결제하기</button>
                 </div>
             </form>
@@ -241,7 +303,7 @@ const submit = async () => {
 
 <style lang="scss" scoped>
 .cart-empty-wrapper {
-    max-width: 720px;
+    max-width: 1024px;
     margin: 50px auto;
     padding: 20px;
 }
@@ -286,24 +348,70 @@ const submit = async () => {
 .arrow {
     font-size: 16px;
 }
-.form-floating {
+input, select {
+    height: 50px;
+    padding: 0.5rem;
+    font-size: 1rem;
+    border: 1px solid #c8c8c8;
+    border-radius: 8px;
+    vertical-align: middle;
+}
+.form-control:focus {
+    box-shadow: none;
+    border: 2px solid #000;
+}
+input[type="radio"] {
+    appearance: none;
+    -webkit-appearance: none;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    border: 1px solid #7d7d7d;
     position: relative;
-    width: 100%;
+    cursor: pointer;
+    vertical-align: middle;
+    margin-right: 8px;
+    background-color: white;
+}
+input[type="radio"]:checked {
+    background-color: #fff;
+    border-color: #ff6666;
+}
+input[type="radio"]:checked::after {
+    content: "";
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 10px;
+    height: 10px;
+    background-color: #ff6666;
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+}
+input[type="checkbox"] {
+    appearance: none;
+    -webkit-appearance: none;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    border: 1px solid #7d7d7d;
+    position: relative;
+    cursor: pointer;
+    vertical-align: middle;
 
-    input {
-        width: 440px;
-        padding: 0.75rem 1rem;
-        border: 1px solid #7d7d7d;
-        border-radius: 6px;
-        font-size: 14px;
-        letter-spacing: -0.5px;
+    &:checked {
+        background-color: #ff6666;
+        border-color: #ff6666;
     }
 
-    label {
-        display: block;
-        margin-top: 0.5rem;
-        font-size: 0.85rem;
-        color: #7d7d7d;
+    &:checked::after {
+        content: "V";
+        color: white;
+        font-size: 12px;
+        position: absolute;
+        left: 3px;
+        top: 0.5px;
     }
 }
 .btn-basic {
