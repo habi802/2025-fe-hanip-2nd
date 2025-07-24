@@ -42,7 +42,6 @@ const clear = async () => {
 
 const increaseQty = (item) => {
   item.quantity++;
-  // 서버에도 수량 변경 요청 추가 가능
 };
 
 const decreaseQty = (item) => {
@@ -55,13 +54,32 @@ const totalPrice = computed(() =>
 
 const goToLogin = () => router.push('/login');
 const goToMain = () => router.push('/');
-const goToOrder = () => router.push('/order');
+
+const goToOrder = (group) => {
+  if (!group || !group.items || group.items.length === 0) {
+    alert('주문할 메뉴가 없습니다.');
+    return;
+  }
+
+  const orderItems = group.items.map((item) => ({
+    id: item.id,
+    menuId: item.menuId || item.menu_id || item.id,
+    quantity: item.quantity,
+    price: item.price,
+    name: item.name,
+    imagePath: item.image_path,
+  }));
+
+  localStorage.setItem('orderItems', JSON.stringify(orderItems));
+  router.push(`/stores/${group.items[0].storeId}/order`);
+};
 
 const groupedItems = computed(() => {
   const groups = {};
   for (const item of state.items) {
     if (!groups[item.storeName]) {
       groups[item.storeName] = {
+        storeId: item.storeId,
         storeName: item.storeName,
         storeNotice: item.storeNotice,
         items: [],
@@ -151,19 +169,26 @@ const groupedItems = computed(() => {
           <button @click="remove(item.id)">X</button>
         </div>
       </div>
-    </div>
 
-    <div class="cart-footer">
-      <p class="total">총 금액: {{ totalPrice.toLocaleString() }}원</p>
-      <div class="groupContainer">
-        <div class="div19" @click="goToOrder">주문하기</div>
+      <!-- 각 그룹마다 주문 버튼 배치 -->
+      <div class="cart-footer">
+        <p class="total">
+          총 금액:
+          {{
+            group.items
+              .reduce((sum, item) => sum + item.price * item.quantity, 0)
+              .toLocaleString()
+          }}원
+        </p>
+        <div class="groupContainer">
+          <div class="div19" @click="goToOrder(group)">주문하기</div>
+        </div>
       </div>
     </div>
   </div>
 </template>
 
 <style scoped>
-
 .cart-empty-wrapper {
   max-width: 1024px;
   margin: 50px auto;
@@ -188,7 +213,7 @@ const groupedItems = computed(() => {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 20px
+  gap: 20px;
 }
 
 .back-icon {
@@ -221,7 +246,7 @@ const groupedItems = computed(() => {
 }
 
 .login-cart {
-    font-size: 16px;
+  font-size: 16px;
   margin-bottom: 50px;
   text-align: center;
   color: #555;
@@ -249,11 +274,11 @@ const groupedItems = computed(() => {
   border-radius: 8px;
   font-weight: bold;
   cursor: pointer;
-  margin-left: 14px;
+  margin-left: 14\px;
 }
 
 .div-login {
-    border: 2px solid #ff6666;
+  border: 2px solid #ff6666;
   color: #ff6666;
   background-color: #fff;
   padding: 10px 20px;
