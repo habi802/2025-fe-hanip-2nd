@@ -38,11 +38,14 @@ const phone3 = ref('');
 const totalPrice = ref(0);
 
 onMounted(async () => {
+    const saved = localStorage.getItem('orderItems');
+    const items = saved ? JSON.parse(saved) : [];
+
     if (!account.state.loggedIn) {
         alert('로그인 후 주문이 가능합니다.');
         router.push({ path: '/' });
         return;
-    } else if (cart.state.items < 1) {
+    } else if (cart.state.items < 1 && items.length < 1) {
         alert('메뉴를 선택해주세요.');
         router.back();
         return;
@@ -66,9 +69,6 @@ onMounted(async () => {
     phone2.value = phone[1];
     phone3.value = phone[2];
     state.form.phone = `${phone1.value}-${phone2.value}-${phone3.value}`;
-
-    const saved = localStorage.getItem('orderItems');
-    const items = saved ? JSON.parse(saved) : [];
 
     state.carts = items.length !== 0 ? items : cart.state.items;
     calculateTotal();
@@ -174,6 +174,10 @@ const submit = async () => {
 
     if (state.form.payment === 'BANK') {
 
+    }
+
+    if (cart.state.items.length < 1) {
+        cart.state.items = state.carts;
     }
 
     await router.push({ path: `/stores/${route.params.id}/order/success` });
