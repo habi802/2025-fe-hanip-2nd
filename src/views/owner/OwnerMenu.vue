@@ -48,7 +48,6 @@ const openAddMenuModal = () => {
 // 등록하기
 const submitMenu = async () => {
   const formData = new FormData();
-  const imgageFile = newMenu.imagePath
   const payload = {
     data: {
       id: state.form.menuId,

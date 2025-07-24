@@ -20,6 +20,7 @@ const props = defineProps({
 
 // 사진 미리보기
 previewImage.value = defaultMenuImage;
+const MenuImage = `/pic/menu-profile/${props.menu.menuId}`
 
 const handleFileSelected = (e) => {
   const file = e.target.files[0];
@@ -69,7 +70,7 @@ const submitMenu = async () => {
     new Blob([JSON.stringify(payload.data)], { type: "application/json" })
   );
 
-  const res = await modifyMenu(newMenu);
+  const res = await modifyMenu(formData);
   if (res.status != 200) {
     alert("에러");
     return;
@@ -88,7 +89,7 @@ const deleteOneMenu = async () => {
     alert("에러");
     return;
   }
-  router.push({ path: "/owner/menu" });
+  emit("menuUpdated");
 }
 </script>
 
@@ -100,7 +101,7 @@ const deleteOneMenu = async () => {
     <div class="row g-0 h-100">
       <div class="col-md-5 d-flex align-items-center justify-content-center">
         <img
-          :src="previewImage"
+          :src="previewImage ? previewImage : MenuImage"
           alt="메뉴 사진 미리보기"
           style="
             max-width: 100%;
