@@ -19,7 +19,6 @@ const submit = async () => {
   try {
     const res = await login(state.form);
     console.log("응답 전체확인용:", res);
-    console.log("res.data:", res.data);
     console.log("res.data.resultData:", res.data.resultData);
 
     if (res.status === 200) {
@@ -29,12 +28,12 @@ const submit = async () => {
       console.log("res.data.resultData:", res.data.resultData);
 
       if (id) {
-        localStorage.setItem('id', id); // 이걸 꼭 추가!
+        localStorage.setItem('id', id); // 이걸 꼭 추가!(유저 정보 수정시 필요한거)
       } else {
-        console.warn('id가 응답에 없습니다.');
+        console.warn('id가 응답에 없습니다.'); // 응답 확인용
       }
 
-      console.log("role 값: ", role);
+      console.log("role 값: ", role); // owner 인지 customer 인지
 
       // 아이디 저장 여부 확인
       if (state.saveId) {
