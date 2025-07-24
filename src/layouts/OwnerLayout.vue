@@ -42,8 +42,9 @@ onMounted(async () => {
   if(state.form.id) {
     orderStore.fetchOrders(state.form.id);
   }
-  // setInterval(() => {
-  // }, 5000);
+  setInterval(() => {
+    orderStore.fetchOrders(state.form.id);
+  }, 5000);
 });
 
 

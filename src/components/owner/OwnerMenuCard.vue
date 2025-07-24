@@ -1,7 +1,7 @@
 <script setup>
 import { defineProps, reactive, ref } from "vue";
 import defaultMenuImage from "@/imgs/owner/haniplogo_sample.png";
-import { modifyMenu, getMenus } from "@/services/menuService";
+import { modifyMenu, getMenus, deleteMenu } from "@/services/menuService";
 import { useRouter } from "vue-router";
 
 const emit = defineEmits(["menuUpdated"]);
@@ -20,6 +20,7 @@ const props = defineProps({
 
 // 사진 미리보기
 previewImage.value = defaultMenuImage;
+const MenuImage = `D:/home/download/menu-profile/${props.menu.menuId}/${props.menu.imagePath}`
 
 const handleFileSelected = (e) => {
   const file = e.target.files[0];
@@ -51,7 +52,25 @@ const editMenu = () => {
 
 // 수정
 const submitMenu = async () => {
-  const res = await modifyMenu(newMenu);
+  const formData = new FormData();
+  const payload = {
+    data: {
+      id: props.menu.menuId,
+      storeId: props.menu.storeId,
+      name: newMenu.name,
+      price: newMenu.price,
+      comment: newMenu.comment,
+    },
+    img: newMenu.imagePath,
+  };
+
+  formData.append("img", payload.img);
+  formData.append(
+    "data",
+    new Blob([JSON.stringify(payload.data)], { type: "application/json" })
+  );
+
+  const res = await modifyMenu(formData);
   if (res.status != 200) {
     alert("에러");
     return;
@@ -62,6 +81,16 @@ const submitMenu = async () => {
   const modal = bootstrap.Modal.getInstance(modifyMenuModal.value);
   modal.hide();
 };
+
+// 삭제
+const deleteOneMenu = async () => {
+  const res = await deleteMenu(props.menu.menuId)
+  if (res.status != 200) {
+    alert("에러");
+    return;
+  }
+  emit("menuUpdated");
+}
 </script>
 
 <template>
@@ -72,8 +101,8 @@ const submitMenu = async () => {
     <div class="row g-0 h-100">
       <div class="col-md-5 d-flex align-items-center justify-content-center">
         <img
-          :src="previewImage"
-          alt="메뉴 사진 미리보기"
+          :src="previewImage || `/pic/menu-profile/${props.menu.menuId}/${props.menu.imagePath}`"
+          :alt="`메뉴 사진(${props.menu.name})`"
           style="
             max-width: 100%;
             max-height: 100%;
@@ -92,7 +121,7 @@ const submitMenu = async () => {
         </div>
         <div class="d-flex gap-2 mt-3 justify-content-end">
           <button @click="editMenu" class="accept-btn">수정</button>
-          <button @click="deleteMenu" class="delete-btn">삭제</button>
+          <button @click="deleteOneMenu" class="delete-btn">삭제</button>
         </div>
       </div>
     </div>

@@ -50,6 +50,7 @@ const submitMenu = async () => {
   const formData = new FormData();
   const payload = {
     data: {
+      id: state.form.menuId,
       storeId: state.form.storeId,
       name: newMenu.name,
       price: newMenu.price,
@@ -58,24 +59,31 @@ const submitMenu = async () => {
     img: newMenu.imagePath,
   };
 
-  // 입력값 초기화
-  newMenu.name = "";
-  newMenu.price = "";
-  newMenu.comment = "";
-  newMenu.imagePath = null;
-  previewImage.value = defaultMenuImage;
-
   formData.append("img", payload.img);
   formData.append(
     "data",
     new Blob([JSON.stringify(payload.data)], { type: "application/json" })
   );
 
+
   const res = await saveMenu(formData);
-  if (res.status !== 200) {
+  console.log("imagePath:", newMenu.imagePath);
+  console.log("instanceof File:", newMenu.imagePath instanceof File);
+
+  if (!(newMenu.imagePath instanceof File)) {
+    alert("이미지를 선택해 주세요");
+    return;
+  } else if (res.status !== 200) {
     alert("에러 발생");
     return;
   }
+
+  // 입력값 초기화
+  newMenu.name = "";
+  newMenu.price = "";
+  newMenu.comment = "";
+  newMenu.imagePath = null;
+  previewImage.value = defaultMenuImage;
 
   alert("등록 성공");
 
