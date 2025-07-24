@@ -5,10 +5,7 @@ import { updateQuantity, removeItem } from '@/services/cartService';
 import { addOrder } from '@/services/orderService';
 import { useAccountStore } from '@/stores/account';
 import { useCartStore } from '@/stores/cart';
-
-// 수정 예정 수정 예정
 import { getUser } from '@/services/userService';
-// 수정 예정 수정 예정
 
 const route = useRoute();
 const router = useRouter();
@@ -17,7 +14,9 @@ const account = useAccountStore();
 const cart = useCartStore();
 
 const state = reactive({
+    // 장바구니 정보
     carts: [],
+    // 주문 등록 form 정보
     form: {
         storeId: route.params.id,
         address: '',
@@ -35,12 +34,16 @@ const phone1 = ref('010');
 const phone2 = ref('');
 const phone3 = ref('');
 
+// 장바구니 총 금액 표시하기 위한 변수
 const totalPrice = ref(0);
 
 onMounted(async () => {
+    // 나현 씨가 담당한 장바구니 화면에서 받아오려고 쓴 변수(자바스크립트 localStorage 검색)
     const saved = localStorage.getItem('orderItems');
     const items = saved ? JSON.parse(saved) : [];
 
+    // 
+    // 주소창에 입력해서 강제로 들어가는 것을 방지하기 위함
     if (!account.state.loggedIn) {
         alert('로그인 후 주문이 가능합니다.');
         router.push({ path: '/' });
@@ -140,7 +143,7 @@ const calculateTotal = () => {
     totalPrice.value = 0;
 
     state.carts.forEach(item => {
-        const price = item.price * item.quantity;
+      const price = item.price * item.quantity;
         totalPrice.value += price;
     });
 };
