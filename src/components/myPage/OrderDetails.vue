@@ -1,5 +1,32 @@
 <script setup>
-import { ref } from 'vue';
+import { reactive, ref, onMounted } from 'vue';
+import OrderAndReview from './OrderAndReview.vue';
+import { getOrder } from '@/services/orderService'
+import { getReviewsByStoreId } from '@/services/reviewServices';
+// state
+const state = reactive({
+  orders: []
+})
+
+// onMounted
+onMounted(() => {
+  findorder();
+
+})
+
+const findorder = async () => {
+  const res = await getOrder();
+  console.log(res.data.resultData);
+  state.orders= res.data.resultData;
+}
+const findReview = async (storeId) => {
+  const res = await getReviewsByStoreId(storeId);
+  console.log("review", res.data.resultData);
+}
+
+
+
+//
 let on = ref(true);
 
 const boardBtn = () => {
@@ -24,6 +51,10 @@ const selectStar = (index) => {
       <div class="solid"></div>
     </div>
   </div>
+  <div v-for="order in state.orders">
+    <order-and-review :order="order" />
+  </div>
+  <order-and-review></order-and-review>
   <div :style="{ height: on ? '315px' : '750px' }" class="bigBoard">
     <div class="board">
       <div class="boardLeft">
@@ -76,6 +107,11 @@ const selectStar = (index) => {
             <div id="starFill" v-for="(star, index) in stars" :key="index" :class="{ 'filled': index < selected }"
               @click="selectStar(index)">
               ★
+            </div>
+            <div>
+              <input type="file" id="imgOne" class="" accept="image/*" @change="" />
+              <div>
+              </div>
             </div>
           </div>
           <div class="leftBox">
@@ -308,5 +344,12 @@ const selectStar = (index) => {
 
 .filled {
   color: yellow !important;
+}
+
+#imgOne {
+  font-family: 'Pretendard-Regular';
+  font-size: 0.6em;
+  margin-left: 10px;
+  margin-bottom: 10px;
 }
 </style>

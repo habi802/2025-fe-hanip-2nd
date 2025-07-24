@@ -14,7 +14,7 @@ let OrderDetail = ref(false);
 let inf = ref(false);
 // let pay = ref(false);
 let favor = ref(false);
-let ct = ref(false);
+
 
 // 주문내역, 마이페이지 라우터 확인
 onMounted(() => {
@@ -34,7 +34,7 @@ const mainClick = () => {
   inf.value = false;
   // pay.value = false;
   favor.value = false;
-  ct.value = false;
+
   main.value = true;
 };
 
@@ -43,7 +43,7 @@ const orderClick = () => {
   inf.value = false;
   // pay.value = false;
   favor.value = false;
-  ct.value = false;
+
   main.value = false;
 };
 
@@ -52,7 +52,7 @@ const infClick = () => {
   inf.value = true;
   // pay.value = false;
   favor.value = false;
-  ct.value = false;
+
   main.value = false;
 };
 const payClick = () => {
@@ -60,7 +60,7 @@ const payClick = () => {
   inf.value = false;
   // pay.value = true;
   favor.value = false;
-  ct.value = false;
+
   main.value = false;
 };
 
@@ -69,18 +69,11 @@ const favorClick = () => {
   inf.value = false;
   // pay.value = false;
   favor.value = true;
-  ct.value = false;
+
   main.value = false;
 };
 
-const ctClick = () => {
-  OrderDetail.value = false;
-  inf.value = false;
-  // pay.value = false;
-  favor.value = false;
-  ct.value = true;
-  main.value = false;
-};
+
 
 //
 const myAccount = ['주문내역', '정보수정', '즐겨찾기', '고객센터'];
@@ -111,9 +104,9 @@ const myAccount = ['주문내역', '정보수정', '즐겨찾기', '고객센터
       <div v-if="favor">
         <Favorites></Favorites>
       </div>
-      <div v-if="ct">
+      <!-- <div v-if="ct">
         <customerCt></customerCt>
-      </div>
+      </div> -->
       <div v-if="main">
         <AccountMain></AccountMain>
       </div>

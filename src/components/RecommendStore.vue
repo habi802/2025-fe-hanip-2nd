@@ -295,4 +295,60 @@
 .footer {
   margin-bottom: 300px;
 }
+
+// 반응형
+@media (max-width: 1800px) {
+  .guideBox {
+    justify-content: center;
+    width: 1200px;
+  }
+}
+
+@media (max-width: 1400px) {
+  .guideBox {
+    width: 900px;
+
+    .store {
+      width: 200px;
+      height: 300px;
+
+      .storeImgBox {
+        width: 150px;
+        height: 130px;
+        margin-left: 25px;
+        margin-top: 2px;
+
+        .sImg {
+          width: 150px;
+
+        }
+      }
+
+      .storeTextBox {
+        margin-top: -10px;
+        font-size: 0.8em;
+      }
+
+      .btn {
+        width: 100px;
+        font-size: 0.6em;
+        margin-top: 3px;
+        margin-left: 50px;
+      }
+
+    }
+  }
+}
+
+@media (max-width: 1030px) {
+  .guideBox {
+    width: 800px;
+  }
+}
+
+@media (max-width:800px) {
+  .guideBox {
+    width: 450px;
+  }
+}
 </style>
