@@ -1,17 +1,13 @@
 <script setup>
 import { useRouter } from 'vue-router';
-
 const router = useRouter();
-
 const props = defineProps({
   stores: Object,
 });
-
 const storeRouter = () => {
   router.push(`/stores/${props.stores.storeId}`);
 };
 </script>
-
 <template>
   <div @click="storeRouter" class="router">
     <div class="store">
@@ -40,28 +36,31 @@ const storeRouter = () => {
     </div>
   </div>
 </template>
-
 <style lang="scss" scoped>
 .store {
   width: 420px;
   height: 371px;
   border-radius: 20px;
-  border: #6b6b6b solid 1px;
+  border: #6B6B6B solid 1px;
   overflow: hidden;
+
   .storeImgBox {
     width: 420px;
     height: 250px;
     overflow: hidden;
     border-radius: 20px 20px 0px 0px;
+
     .sImg {
       width: 420px;
       border-radius: 20px 20px 0px 0px;
     }
   }
+
   .storeTextBox {
     position: relative;
     display: flex;
     margin-left: 15px;
+
     #smallText {
       font-size: 12px;
       font-family: sans-serif;
@@ -69,6 +68,7 @@ const storeRouter = () => {
       margin-top: 4px;
       letter-spacing: 0.5px;
     }
+
     .sText {
       font-family: sans-serif;
       font-size: 1.2em;
@@ -76,6 +76,7 @@ const storeRouter = () => {
       margin-top: 17px;
     }
   }
+
   .icons {
     font-family: 'BMJUA';
     display: flex;
@@ -83,27 +84,31 @@ const storeRouter = () => {
     font-size: 13px;
     flex-direction: column;
     margin-left: 25px;
+
     #icon {
       width: 15px;
     }
+
     .star {
       .starNum {
         font-size: 10px;
         letter-spacing: 0.5px;
       }
     }
+
     .love {
       font-size: 13px;
       letter-spacing: 0.5px;
     }
   }
 }
+
 .btn {
   position: absolute;
   font-family: 'BMJUA';
   font-size: 0.8em;
   color: #fff;
-  background-color: #ff6666;
+  background-color: #FF6666;
   text-align: center;
   width: 94px;
   height: 36px;

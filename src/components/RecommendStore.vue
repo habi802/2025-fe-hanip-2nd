@@ -1,5 +1,4 @@
 <script setup></script>
-
 <template>
   <div class="f_text">한입 추천 가게</div>
   <div class="guideBox">
@@ -191,7 +190,6 @@
   </div>
   <div class="footer"></div>
 </template>
-
 <style lang="scss" scoped>
 @font-face {
   font-family: 'BMJUA';
@@ -203,7 +201,7 @@
 .f_text {
   font-family: 'BMJUA';
   letter-spacing: 2px;
-  color: #ff6666;
+  color: #FF6666;
   font-size: 2em;
   text-align: center;
   padding-top: 50px;
@@ -247,7 +245,7 @@
 
       #smallText {
         font-size: 0.8em;
-        color: #6c6c6c;
+        color: #6C6C6C;
         margin-top: 6px;
       }
 
@@ -284,7 +282,7 @@
     font-family: 'BMJUA';
     font-size: 1.3em;
     color: #fff;
-    background-color: #ff6666;
+    background-color: #FF6666;
     text-align: center;
     width: 200px;
     padding: 10px;
