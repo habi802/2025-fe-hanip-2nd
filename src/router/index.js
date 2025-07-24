@@ -72,7 +72,7 @@ const router = createRouter({
     },
     {
       path: "/my-page",
-      component: () => import("@/views/MyPage.vue"),
+      component: () => import("@/views/Mypage.vue"),
       meta: { layout: MainLayout },
     },
     {
