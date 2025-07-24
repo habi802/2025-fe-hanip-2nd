@@ -96,6 +96,9 @@ const toggleAllAgree = () => {
 
 // 회원가입 처리 함수
 const submit = async () => {
+  state.form.role = memberType.value;
+  console.log('submit 시작, memberType:', memberType.value);
+  console.log('가입 요청 데이터 확인:', JSON.stringify(state.form, null, 2));
   // 공통 필수값 확인
   if (!state.form.loginId || !state.form.loginPw || !state.form.email) {
     alert('아이디, 비밀번호, 이메일은 필수입니다.');
@@ -137,6 +140,7 @@ const submit = async () => {
     owner: memberType.value === 'owner' ? state.owner : null
   };
 
+  console.log('가입 요청 데이터 확인:', JSON.stringify(state.form, null, 2));
   console.log('전송 데이터:', payload); // 디버깅 확인용
 
   try {
@@ -145,7 +149,8 @@ const submit = async () => {
     console.log('회원가입 결과:', res);
 
     if (res.status === 200) {
-      confirm('회원가입 되었습니다!');
+      alert('회원가입 되었습니다!');
+      
       // 서버가 user 데이터 res.data.resultData로 준다고 가정
       if (res.data.resultData) {
         localStorage.setItem('user', JSON.stringify(res.data.resultData));
@@ -153,7 +158,7 @@ const submit = async () => {
       if (memberType.value === 'owner') {
         router.push('/owner'); // 업주면 /owner 페이지로
       } else {
-        router.push('/');      // 일반회원은 홈으로
+        router.push('/');
       }
     } else {
       alert('입력 정보를 다시 확인해 주세요.');

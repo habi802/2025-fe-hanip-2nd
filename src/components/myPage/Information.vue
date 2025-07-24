@@ -1,7 +1,7 @@
 <script setup>
-import { onMounted, reactive } from 'vue';
+import { onMounted, reactive, ref, watch } from 'vue';
 import { useRouter } from 'vue-router';
-//import { findByUserId, update } from '@/services/userService';
+import { getUser, update } from '@/services/userService';
 
 const router = useRouter();
 
@@ -19,15 +19,15 @@ const state = reactive({
   }
 });
 
-// 일반 회원용 전화번호 필드
-// const phone1 = ref('010');
-// const phone2 = ref('');
-// const phone3 = ref('');
+//일반 회원용 전화번호 필드
+const phone1 = ref('010');
+const phone2 = ref('');
+const phone3 = ref('');
 
-// 전화번호 조합
-// watch([phone1, phone2, phone3], () => {
-//   state.form.phone = `${phone1.value}-${phone2.value}-${phone3.value}`;
-// });
+//전화번호 조합
+watch([phone1, phone2, phone3], () => {
+  state.form.phone = `${phone1.value}-${phone2.value}-${phone3.value}`;
+});
 
 
 // 컴포넌트 마운트 시 사용자 정보 조회
@@ -45,12 +45,18 @@ onMounted(async () => {
     }
 
     // API 호출: 사용자 정보 조회
-    const res = await findByUserId(id); // userService에서 끌고와야함
+    const res = await getUser(id); // userService에서 끌고와야함
 
     if (res && res.data) {
       // 조회된 사용자 정보로 폼 초기화
-      Object.assign(state.form, res.data);// 정보 채우기
-    } else {
+      Object.assign(state.form, res.data.resultData);// 정보 채우기
+    } if (res.data.resultData.phone) {
+      // 전화번호 분해해서 phone1/phone2/phone3에 넣어주는 부분
+        const phoneParts = res.data.resultData.phone.split('-');
+        phone1.value = phoneParts[0] || '';
+        phone2.value = phoneParts[1] || '';
+        phone3.value = phoneParts[2] || '';
+      } else {
       alert('사용자 정보를 불러오는데 실패했습니다.');
     }
   } catch (err) {
@@ -58,7 +64,6 @@ onMounted(async () => {
     alert('사용자 정보 로딩 중 오류가 발생했습니다.');
   }
 });
-
 
 //  정보 수정 성공 여부
 const submitForm = async (e) => {
@@ -101,7 +106,7 @@ const submitForm = async (e) => {
 
             <!-- 아이디 비활성화 -->
             <label> 아이디</label>
-            <input type="text" class="form-input" :value="state.form.loginId" placeholder="" readonly/>
+            <input type="text" class="form-input" :value="state.form.loginId" placeholder="" readonly />
           </div>
           <div class="sevLine"></div>
 
@@ -115,7 +120,7 @@ const submitForm = async (e) => {
           <!-- 일반 회원 -->
           <div class="form-group">
             <label> 이름</label>
-            <input type="text" class="form-input" v-model="state.form.name"/>
+            <input type="text" class="form-input" v-model="state.form.name" />
           </div>
           <div class="sevLine"></div>
 
@@ -137,7 +142,7 @@ const submitForm = async (e) => {
 
               <!-- 상세주소 단독 줄 -->
               <div class="address-input-row">
-                <input type="text" placeholder="상세주소 (선택입력가능)" v-model="state.form.addressDetail"/>
+                <input type="text" placeholder="상세주소 (선택입력가능)" v-model="state.form.addressDetail" />
               </div>
             </div>
           </div>
@@ -187,15 +192,15 @@ const submitForm = async (e) => {
           <div class="form-group phone-input-wrap">
             <label> 휴대전화</label>
             <div class="phone-input">
-              <select>
+              <select v-model="phone1">
                 <option>010</option>
                 <option>016</option>
                 <option>017</option>
                 <option>018</option>
                 <option>019</option>
               </select>
-              <input type="text" />
-              <input type="text" />
+              <input type="text" v-model="phone2" />
+              <input type="text" v-model="phone3" />
             </div>
           </div>
           <div class="sevLine"></div>
@@ -203,7 +208,8 @@ const submitForm = async (e) => {
           <!-- 이메일 -->
           <div class="form-group">
             <label> 이메일</label>
-            <input type="email" class="form-input" placeholder="반드시 사용 중인 메일을 @ 형식으로 입력하세요." v-model="state.form.email"/>
+            <input type="email" class="form-input" placeholder="반드시 사용 중인 메일을 @ 형식으로 입력하세요."
+              v-model="state.form.email" />
           </div>
           <div class="sevLine"></div>
 
