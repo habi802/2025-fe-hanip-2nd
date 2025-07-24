@@ -9,7 +9,7 @@ console.log(props.order);
 <template>
   <div class="order-card shadow">
     <div class="order-info">
-      <div>닉네임: {{ order.name }}</div>
+      <div>닉네임: {{ order.userName }}</div>
       <div>주소: {{ order.address }}</div>
       <div v-for="(menu, index) in order.menus" :key="index">
         메뉴: {{ menu.name }} | 수량: {{ menu.quantity }}

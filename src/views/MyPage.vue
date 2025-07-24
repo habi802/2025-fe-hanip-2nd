@@ -20,32 +20,34 @@ const myAccount = [
 ];
 </script>
 <template>
-  <div class="box">
-    <!-- 보더 왼쪽 -->
-    <div class="userboard">
-      <div class="userLeft">
-        <img class="userImg" src="/src/imgs/userImg.png" />
-        <div class="user">
-          <div>{{ user.name }}님 &nbsp; 반가워요!</div>
-          <div class="smalluser">
-            <span class="ip">한입</span>
-            <span class="rank">등급</span>
+  <div class="allBox">
+    <div class="box">
+      <!-- 보더 왼쪽 -->
+      <div class="userboard">
+        <div class="userLeft">
+          <img class="userImg" src="/src/imgs/userImg.png" />
+          <div class="user">
+            <div>{{ user.name }}님 &nbsp; 반가워요!</div>
+            <div class="smalluser">
+              <span class="ip">한입</span>
+              <span class="rank">등급</span>
+            </div>
           </div>
         </div>
-      </div>
-      <!-- 보더 오른쪽 -->
-      <div class="userright">
-        <div class="right">
-          <div>총 주문 수</div>
-          <div class="num">{{ user.orders }}</div>
-        </div>
-        <div class="right">
-          <div>쿠폰</div>
-          <div class="num">{{ user.cupon }}</div>
-        </div>
-        <div class="right">
-          <div>포인트</div>
-          <div class="num">{{ user.point }}</div>
+        <!-- 보더 오른쪽 -->
+        <div class="userright">
+          <div class="right">
+            <div>총 주문 수</div>
+            <div class="num">{{ user.orders }}</div>
+          </div>
+          <div class="right">
+            <div>쿠폰</div>
+            <div class="num">{{ user.cupon }}</div>
+          </div>
+          <div class="right">
+            <div>포인트</div>
+            <div class="num">{{ user.point }}</div>
+          </div>
         </div>
       </div>
     </div>
@@ -123,5 +125,23 @@ const myAccount = [
 .bottom {
   display: flex;
   justify-content: center;
+}
+
+@media (max-width: 1400px) {
+  .allBox {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  .box {
+    width: 1390px;
+    .userboard {
+      width: 800px;
+      flex-wrap: wrap;
+      .userLeft {
+        margin-top: 20px;
+      }
+    }
+  }
 }
 </style>
