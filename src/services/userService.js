@@ -25,3 +25,7 @@ export const logout = () => {
 export const getUser = () => {
     return axios.get(`${path}`).catch(e => e.response);
 }
+
+export const update = () => {
+    return axios.put(`${path}`).catch(e => e.response);
+}
