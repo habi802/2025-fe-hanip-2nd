@@ -7,11 +7,42 @@ const caLink = () => {
   router.push('/categoryList');
 };
 // 
-const koreanLick = () => {
+const koreanLink = () => {
   router.push({ path: '/categoryList', query: { section: 'korean' } })
 }
 
+const chinaLink = () => {
+  router.push({ path: '/categoryList', query: { section: 'china' } })
+}
+const japanLink = () => {
+  router.push({ path: '/categoryList', query: { section: 'japan' } })
+}
 
+const pastaLink = () => {
+  router.push({ path: '/categoryList', query: { section: 'pasta' } })
+}
+
+const cafeLink = () => {
+  router.push({ path: '/categoryList', query: { section: 'cafe' } })
+}
+const snackLink = () => {
+  router.push({ path: '/categoryList', query: { section: 'snack' } })
+}
+const fastFoodLink = () => {
+  router.push({ path: '/categoryList', query: { section: 'fast' } })
+}
+const asianLink = () => {
+  router.push({ path: '/categoryList', query: { section: 'asian' } })
+}
+const chickenLink = () => {
+  router.push({ path: '/categoryList', query: { section: 'chicken' } })
+}
+const pizzaLink = () => {
+  router.push({ path: '/categoryList', query: { section: 'pizza' } })
+}
+const nightLink = () => {
+  router.push({ path: '/categoryList', query: { section: 'night' } })
+}
 
 </script>
 <!--           class="form-control p-3 me-3" -->
@@ -32,49 +63,49 @@ const koreanLick = () => {
             <div id="cName">전체</div>
           </div>
           <div class="koreanfood">
-            <img @click="koreanLick" id="cImg" src="/src/imgs/koreanfood.png" />
+            <img @click="koreanLink" id="cImg" src="/src/imgs/koreanfood.png" />
             <div id="cName">한식</div>
           </div>
           <div class="jjajangmyeon">
-            <img @click="caLink" id="cImg" src="/src/imgs/jjajangmyeon.png" />
+            <img @click="chinaLink" id="cImg" src="/src/imgs/jjajangmyeon.png" />
             <div id="cName">중식</div>
           </div>
           <div class="porkcutlet">
-            <img @click="caLink" id="cImg" src="/src/imgs/porkcutlet.png" />
+            <img @click="japanLink" id="cImg" src="/src/imgs/porkcutlet.png" />
             <div id="cName">일식</div>
           </div>
           <div class="pasta">
-            <img @click="caLink" id="cImg" src="/src/imgs/pasta.png" />
+            <img @click="pastaLink" id="cImg" src="/src/imgs/pasta.png" />
             <div id="cName">양식</div>
           </div>
           <div class="dessert">
-            <img @click="caLink" id="cImg" src="/src/imgs/dessert.png" />
+            <img @click="cafeLink" id="cImg" src="/src/imgs/dessert.png" />
             <div id="cName">카페/디저트</div>
           </div>
         </div>
         <div id="categoryItems" class="categoryItem2 d-flex">
           <div class="tteokbokki">
-            <img @click="caLink" id="cImg" src="/src/imgs/tteokbokki.png" />
+            <img @click="snackLink" id="cImg" src="/src/imgs/tteokbokki.png" />
             <div id="cName">분식</div>
           </div>
           <div class="hamburger">
-            <img @click="caLink" id="cImg" src="/src/imgs/hamburger.png" />
-            <div id="cName">햄버거</div>
+            <img @click="fastFoodLink" id="cImg" src="/src/imgs/hamburger.png" />
+            <div id="cName">패스트푸드</div>
           </div>
           <div class="ricenoodles">
-            <img @click="caLink" id="cImg" src="/src/imgs/ricenoodles.png" />
+            <img @click="asianLink" id="cImg" src="/src/imgs/ricenoodles.png" />
             <div id="cName">아시안</div>
           </div>
           <div class="chicken">
-            <img @click="caLink" id="cImg" src="/src/imgs/chicken.png" />
+            <img @click="chickenLink" id="cImg" src="/src/imgs/chicken.png" />
             <div id="cName">치킨</div>
           </div>
           <div class="pizza">
-            <img @click="caLink" id="cImg" src="/src/imgs/pizza.png" />
+            <img @click="pizzaLink" id="cImg" src="/src/imgs/pizza.png" />
             <div id="cName">피자</div>
           </div>
           <div class="pigfeet">
-            <img @click="caLink" id="cImg" src="/src/imgs/pigfeet.png" />
+            <img @click="nightLink" id="cImg" src="/src/imgs/pigfeet.png" />
             <div id="cName">야식</div>
           </div>
         </div>
@@ -162,6 +193,10 @@ const koreanLick = () => {
           // width: 220px;
           width: 91%;
           border-radius: 50%;
+
+          &:hover {
+            opacity: 80%;
+          }
         }
 
         #cName {
