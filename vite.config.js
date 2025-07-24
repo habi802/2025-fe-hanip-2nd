@@ -11,14 +11,12 @@ export default defineConfig({
       '/pic': {
         target: 'http://localhost:8080',
         changeOrigin: true
-      }
-    },
-    proxy: {
+      },
       '/api': {
         target: 'http://localhost:8080',
         changeOrigin: true
       }
-    }
+    },    
   },
   plugins: [
     vue(),
