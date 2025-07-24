@@ -4,7 +4,7 @@ import { useRoute, useRouter } from 'vue-router';
 import { getStore } from '@/services/storeService';
 import { getOneMenu } from '@/services/menuService';
 import { getReviewsByStoreId } from '@/services/reviewServices';
-import { addFavorite } from '@/services/favoriteService';
+import { getFavorite, addFavorite, deleteFavorite } from '@/services/favoriteService';
 import { updateQuantity, removeItem, removeCart } from '@/services/cartService';
 import { useAccountStore } from '@/stores/account';
 import { useCartStore } from '@/stores/cart';
@@ -45,6 +45,18 @@ const loadStore = async id => {
     }
 
     state.store = res.data.resultData;
+    loadFavorite(id);
+}
+
+const loadFavorite = async id => {
+    const res = await getFavorite(id);
+
+    if (res === undefined || res.data.resultStatus !== 200) {
+        alert('조회 실패');
+        return;
+    }
+
+    state.store.favorite = res.data.resultData !== null ? true : false;
     loadMenus(id);
 }
 
@@ -87,7 +99,14 @@ const loadCarts = async id => {
 }
 
 const toggleFavorite = async id => {
-    console.log(id);
+    const res = state.store.favorite ? await deleteFavorite(id) : await addFavorite({ storeId: id });
+
+    if (res === undefined || res.data.resultStatus !== 200) {
+        alert('수정 실패');
+        return;
+    }
+
+    state.store.favorite = !state.store.favorite;
 }
 
 const addCart = item => {
@@ -198,7 +217,7 @@ onMounted(() => {
                         <h3>{{ state.store.name }}</h3>
                         <p>최소 주문 금액 15,000원</p>
                         <p>배달료 0원 ~ 3,000원</p>
-                        <span>⭐ 4.5(983) <span class="favorite" @click="toggleFavorite(state.store.id)">❤️</span> 927</span>
+                        <span>⭐ 4.5(983) <span class="favorite" @click="toggleFavorite(state.store.id)">{{ state.store.favorite ? '❤️' : '♡' }}</span> 927</span>
                     </div>
                     <div class="col-12 col-md-4">
                         <div id="map" class="border rounded mb-2">
