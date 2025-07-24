@@ -6,6 +6,10 @@ import { addOrder } from '@/services/orderService';
 import { useAccountStore } from '@/stores/account';
 import { useCartStore } from '@/stores/cart';
 
+// 수정 예정 수정 예정
+import { getUser } from '@/services/userService';
+// 수정 예정 수정 예정
+
 const route = useRoute();
 const router = useRouter();
 
@@ -13,7 +17,6 @@ const account = useAccountStore();
 const carts = useCartStore();
 
 const state = reactive({
-    user: {},
     carts: [],
     form: {
         storeId: route.params.id,
@@ -34,7 +37,7 @@ const phone3 = ref('');
 
 const totalPrice = ref(0);
 
-onMounted(() => {
+onMounted(async () => {
     if (!account.state.loggedIn) {
         alert('로그인 후 주문이 가능합니다.');
         router.push({ path: '/' });
@@ -44,6 +47,25 @@ onMounted(() => {
         router.back();
         return;
     }
+
+    const res = await getUser();
+
+    if (res === undefined) {
+        alert('조회 실패');
+        router.push({ path: '/' });
+        return;
+    } else if (res.data.resultStatus === 401) {
+        alert(res.data.resultMessage);
+        router.push({ path: '/' });
+        return;
+    }
+
+    state.form.address = res.data.resultData.address;
+    const phone = res.data.resultData.phone.split('-');
+    phone1.value = phone[0];
+    phone2.value = phone[1];
+    phone3.value = phone[2];
+    state.form.phone = `${phone1.value}-${phone2.value}-${phone3.value}`;
 
     state.carts = carts.state.items;
     calculateTotal();
@@ -125,7 +147,7 @@ const submit = async () => {
         alert('주소를 입력해주세요.');
         return;
     } else if (state.form.addressDetail.trim().length === 0) {
-        alert('전화번호를 입력해주세요.');
+        alert('상세 주소를 입력해주세요.');
         return;
     } else if (phone2.value.trim().length === 0 || phone3.value.trim().length === 0) {
         alert('전화번호를 입력해주세요.');

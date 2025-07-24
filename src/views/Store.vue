@@ -33,7 +33,11 @@ const totalPrice = ref(0);
 const loadStore = async id => {
     const res = await getStore(id);
 
-    if (res === undefined || res.data.resultStatus !== 200) {
+    if (res === undefined) {
+        alert('조회 실패');
+        router.push({ path: '/' });
+        return;
+    } else if (res.data.resultStatus !== 200) {
         alert(res.data.resultMessage);
         router.push({ path: '/' });
         return;
@@ -46,7 +50,10 @@ const loadStore = async id => {
 const loadMenus = async id => {
     const res = await getOneMenu(id);
 
-    if (res === undefined || res.data.resultStatus !== 200) {
+    if (res === undefined) {
+        alert('조회 실패');
+        return;
+    } else if (res.data.resultStatus !== 200) {
         alert(res.data.resultMessage);
         return;
     }
@@ -93,7 +100,10 @@ const decreaseQuantity = async idx => {
 
         const res = await updateQuantity(params);
 
-        if (res === undefined || res.data.resultStatus !== 200) {
+        if (res === undefined) {
+            alert('수정 실패');
+            return;
+        } else if (res.data.resultStatus !== 200) {
             alert(res.data.resultMessage);
             return;
         }
@@ -111,7 +121,10 @@ const increaseQuantity = async idx => {
 
     const res = await updateQuantity(params);
 
-    if (res === undefined || res.data.resultStatus !== 200) {
+    if (res === undefined) {
+        alert('수정 실패');
+        return;
+    } else if (res.data.resultStatus !== 200) {
         alert(res.data.resultMessage);
         return;
     }

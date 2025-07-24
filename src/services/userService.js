@@ -12,8 +12,16 @@ export const login = args => {
 
 export const check = () => {
     return axios.get(`${path}/check`).catch(e => e.response);
+}   
+
+export const logined = () => {
+    return axios.get(path).catch(e => e.response);
 }
 
 export const logout = () => {
     return axios.post(`${path}/logout`).catch(e => e.response);
+}
+
+export const getUser = () => {
+    return axios.get(`${path}`).catch(e => e.response);
 }
