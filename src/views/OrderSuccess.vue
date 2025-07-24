@@ -70,7 +70,7 @@ const calculateTotal = () => {
         </div>
 
         <div class="container">
-            <div class="border rounded p-3 mb-3">
+            <div class="border rounded p-3 mb-4">
                 <div class="row mb-2">
                     <div class="col-12">
                         <h5>주문 내역</h5>
@@ -106,15 +106,83 @@ const calculateTotal = () => {
                 </div>
             </div>
 
-            <div class="mb-3">
-                <h4>주문 처리 현황</h4>
-                <div class="border rounded">
-
+            <div class="mb-4">
+                <h4 class="mb-3">주문 처리 현황</h4>
+                <div class="border rounded p-5">
+                    <div class="d-flex justify-content-between mb-2">
+                        <div class="flex-fill">주문 완료</div>
+                        <div class="flex-fill">음식 준비중</div>
+                        <div class="flex-fill">배달중</div>
+                        <div class="flex-fill">배달 완료</div>
+                    </div>
+                    <div class="progress" style="height: 8px;">
+                        <div class="progress-bar" role="progressbar" style="width: 30%; background-color: #FF6666;"></div>
+                        <div class="progress-bar" role="progressbar" style="width: 70%; background-color: #FFEADD;"></div>
+                        </div>
                 </div>
             </div>
 
             <div>
-                <h4>다른 가게 주문하기</h4>
+                <h4 class="mb-3">다른 가게 주문하기</h4>
+                <div class="row">
+                    <div class="col-12 col-md-4">
+                        <div class="card h-100 shadow-sm">
+                            <div class="card-img-top">
+                                이것은 가게의 이미지다
+                            </div>
+                            <!-- <img src="" class="card-img-top" alt="음식 이미지"> -->
+                            <div class="card-body">
+                            <h6 class="card-title">도리식 닭도리탕</h6>
+                            <p class="mb-1 text-muted">배달비 0원 ~ 3000원</p>
+                            <p class="mb-2 text-muted">최소 주문 금액 10,000원</p>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div class="small">
+                                ⭐ 4.8 (96건) &nbsp;&nbsp; ❤️ 927
+                                </div>
+                                <button class="btn btn-outline-danger btn-sm">자세히보기</button>
+                            </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-12 col-md-4">
+                        <div class="card h-100 shadow-sm">
+                            <div class="card-img-top">
+                                이것은 가게의 이미지다
+                            </div>
+                            <!-- <img src="" class="card-img-top" alt="음식 이미지"> -->
+                            <div class="card-body">
+                            <h6 class="card-title">도리식 닭도리탕</h6>
+                            <p class="mb-1 text-muted">배달비 0원 ~ 3000원</p>
+                            <p class="mb-2 text-muted">최소 주문 금액 10,000원</p>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div class="small">
+                                ⭐ 4.8 (96건) &nbsp;&nbsp; ❤️ 927
+                                </div>
+                                <button class="btn btn-outline-danger btn-sm">자세히보기</button>
+                            </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-12 col-md-4">
+                        <div class="card h-100 shadow-sm">
+                            <div class="card-img-top">
+                                이것은 가게의 이미지다
+                            </div>
+                            <!-- <img src="" class="card-img-top" alt="음식 이미지"> -->
+                            <div class="card-body">
+                            <h6 class="card-title">도리식 닭도리탕</h6>
+                            <p class="mb-1 text-muted">배달비 0원 ~ 3000원</p>
+                            <p class="mb-2 text-muted">최소 주문 금액 10,000원</p>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div class="small">
+                                ⭐ 4.8 (96건) &nbsp;&nbsp; ❤️ 927
+                                </div>
+                                <button class="btn btn-outline-danger btn-sm">자세히보기</button>
+                            </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
