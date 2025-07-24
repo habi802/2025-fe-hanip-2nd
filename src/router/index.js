@@ -17,10 +17,6 @@ const router = createRouter({
       meta: { layout: MainLayout },
     },
     {
-<<<<<<< HEAD
-      path: "/owner",
-      component: () => import("@/views/owner/Dashboard.vue"),
-=======
       path: '/stores/:id/order',
       component: () => import('@/views/Order.vue'),
       meta: { layout: MainLayout },
@@ -33,7 +29,6 @@ const router = createRouter({
     {
       path: '/owner',
       component: () => import('@/views/owner/Dashboard.vue'),
->>>>>>> c0e3ea6ab2011d96309175197d5e36b9a204152f
       meta: { layout: OwnerLayout },
     },
     {
