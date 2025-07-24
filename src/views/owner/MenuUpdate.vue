@@ -32,7 +32,7 @@ const submitEdit = () => {
 </script>
 
 <template>
-  <div class="bg-light min-vh-100 py-5">
+  <div class="min-vh-100 py-5">
     <div class="container d-flex justify-content-center">
       <div class="card shadow p-5 w-100" style="max-width: 1100px">
         <div class="flex gap-12">
