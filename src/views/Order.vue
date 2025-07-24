@@ -14,7 +14,7 @@ const route = useRoute();
 const router = useRouter();
 
 const account = useAccountStore();
-const carts = useCartStore();
+const cart = useCartStore();
 
 const state = reactive({
     carts: [],
@@ -42,7 +42,7 @@ onMounted(async () => {
         alert('로그인 후 주문이 가능합니다.');
         router.push({ path: '/' });
         return;
-    } else if (carts.state.items < 1) {
+    } else if (cart.state.items < 1) {
         alert('메뉴를 선택해주세요.');
         router.back();
         return;
@@ -67,7 +67,10 @@ onMounted(async () => {
     phone3.value = phone[2];
     state.form.phone = `${phone1.value}-${phone2.value}-${phone3.value}`;
 
-    state.carts = carts.state.items;
+    const saved = localStorage.getItem('orderItems');
+    const items = saved ? JSON.parse(saved) : [];
+
+    state.carts = items.length !== 0 ? items : cart.state.items;
     calculateTotal();
 });
 
