@@ -167,10 +167,10 @@ const submitReview = async () => {
                     종료일 <input type="date" v-model="endDate" />
                 </label>
             </div>
-
-
         </div>
     </div>
+
+    <!-- 리뷰카드  -->
     <div class="review-box-wrap">
         <div class="review-box"  v-for="(review, index) in reviewStore.reviews" :key="index">
             <div class="profile">
@@ -178,8 +178,8 @@ const submitReview = async () => {
                     <img :src="review.profileImage" alt="프로필"/>
                 </div>
                 <div>
-                    <span>{{  review.customer }}</span>
-                    <span>{{  review.dayCount }}</span>
+                    <span>{{  review.userName }}</span>
+                    <span>{{  review.created }}</span> 
                 </div>
             </div>
                 <p>{{  review.comment }}</p>    
