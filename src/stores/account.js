@@ -1,7 +1,7 @@
 import { reactive, computed } from 'vue';
 import { defineStore } from 'pinia';
 import { logined } from '@/services/userService'
-import { activeStore , getStore } from '@/services/storeService';
+import { getOwnerStore } from '@/services/storeService';
 
 
 export const useAccountStore = defineStore('account', () => {
@@ -51,10 +51,10 @@ export const useOwnerStore = defineStore('owner', {
   }),
   actions: {
     async fetchStoreInfo() {
-      const res = await getStore();
+      const res = await getOwnerStore();
       if (res.status === 200) {
         this.storeId = res.data.resultData.id;
-        console.log("storeID: 여기도? :  ", this.storeId)
+        console.log("storeID: 여기도? : ㅇㅇ ", this.storeId)
       } else {
         console.error('가게 정보 불러오기 실패', res);
       }
