@@ -198,7 +198,7 @@ onMounted(() => {
                         <h3>{{ state.store.name }}</h3>
                         <p>최소 주문 금액 15,000원</p>
                         <p>배달료 0원 ~ 3,000원</p>
-                        <span>★ 4.5(983) ♥ 927</span>
+                        <span>⭐ 4.5(983) ❤️ 927</span>
                     </div>
                     <div class="col-12 col-md-4">
                         <div id="map" class="border rounded mb-2">
