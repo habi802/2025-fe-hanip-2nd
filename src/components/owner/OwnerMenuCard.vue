@@ -101,8 +101,8 @@ const deleteOneMenu = async () => {
     <div class="row g-0 h-100">
       <div class="col-md-5 d-flex align-items-center justify-content-center">
         <img
-          :src="`/pic/menu-profile/${props.menu.menuId}/${props.menu.imagePath}`" 
-          alt="메뉴 사진"
+          :src="previewImage || `/pic/menu-profile/${props.menu.menuId}/${props.menu.imagePath}`"
+          :alt="`메뉴 사진(${props.menu.name})`"
           style="
             max-width: 100%;
             max-height: 100%;
