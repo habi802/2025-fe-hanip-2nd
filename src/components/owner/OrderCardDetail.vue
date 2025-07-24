@@ -1,18 +1,52 @@
 <script setup>
+import { modifyStatus } from "@/services/orderService";
+import { useOrderStore } from "@/stores/orderStore";
+
+const orderStore = useOrderStore();
 const props = defineProps({
   order: Object,
 });
 
 console.log(props.order);
+
+const accepct = async () => {
+  const body = {
+    orderId: props.order.id,
+    status: "PREPARING",
+  };
+  const res = await modifyStatus(body);
+  if (res.status !== 200) {
+    alert("에러");
+    return;
+  }
+
+  // 상태 업데이트
+  await orderStore.fetchOrders(props.order.storeId);
+};
+
+const cancel = async () => {
+  const body = {
+    orderId: props.order.id,
+    status: "CANCELED",
+  };
+  const res = await modifyStatus(body);
+  if (res.status !== 200) {
+    alert("에러");
+    return;
+  }
+
+  // 상태 업데이트
+  await orderStore.fetchOrders(props.order.storeId);
+};
 </script>
 
 <template>
   <div class="order-card shadow">
     <div class="order-info">
-      <div>닉네임: {{ order.name }}</div>
+      <div>닉네임: {{ order.userName }}</div>
       <div>주소: {{ order.address }}</div>
-      <div v-for="i in 1" :key="i">
-        메뉴: {{ order.menuName }} | 수량: {{ order.quantity }}
+      <div v-for="(menu, index) in order.menus" :key="index">
+        메뉴: {{ menu.name }} | 수량: {{ menu.quantity }}
       </div>
       <div>총 가격: {{ order.amount.toLocaleString() }}원</div>
     </div>
@@ -20,8 +54,8 @@ console.log(props.order);
     <div class="order-menu"></div>
 
     <div class="order-actions">
-      <button class="cancel-btn" @click="$emit('cancel')">주문 취소</button>
-      <button class="accept-btn" @click="$emit('accept')">주문 수락</button>
+      <button class="cancel-btn" @click="cancel">주문 취소</button>
+      <button class="accept-btn" @click="accepct">주문 수락</button>
     </div>
   </div>
 </template>
@@ -43,7 +77,7 @@ console.log(props.order);
 }
 
 .order-info {
-  width: 70%;
+  width: 90%;
   font-weight: 500;
   line-height: 2;
 }
@@ -55,9 +89,10 @@ console.log(props.order);
 }
 
 .order-actions {
+  justify-content: center;
   margin-top: 20px;
   display: flex;
-  justify-content: space-between;
+  gap: 20px;
 }
 
 .cancel-btn {
@@ -67,6 +102,15 @@ console.log(props.order);
   padding: 6px 12px;
   border-radius: 8px;
   font-size: 14px;
+  transition: background-color 0.3s, color 0.3s;
+}
+
+.cancel-btn:hover {
+  background: #eeeeee;
+}
+
+.cancel-btn:active {
+  background: #afafaf;
 }
 
 .accept-btn {
@@ -76,5 +120,13 @@ console.log(props.order);
   padding: 6px 16px;
   border-radius: 8px;
   font-size: 14px;
+  transition: background-color 0.3s, color 0.3s;
+}
+
+.accept-btn:hover {
+  background: #d44b4a;
+}
+.accept-btn:active {
+  background: #b23837;
 }
 </style>

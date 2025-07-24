@@ -6,6 +6,7 @@ import { getOneMenu } from '@/services/menuService';
 import { getReviewsByStoreId } from '@/services/reviewServices';
 import { updateQuantity, removeItem, removeCart } from '@/services/cartService';
 import { useAccountStore } from '@/stores/account';
+import { useCartStore } from '@/stores/cart';
 import Menu from '@/components/Menu.vue';
 import Review from '@/components/Review.vue';
 
@@ -13,8 +14,7 @@ const route = useRoute();
 const router = useRouter();
 
 const account = useAccountStore();
-
-const totalPrice = ref(0);
+const carts = useCartStore();
 
 const state = reactive({
     store: {
@@ -28,10 +28,16 @@ const state = reactive({
     carts: [],
 });
 
+const totalPrice = ref(0);
+
 const loadStore = async id => {
     const res = await getStore(id);
 
-    if (res === undefined || res.data.resultStatus !== 200) {
+    if (res === undefined) {
+        alert('조회 실패');
+        router.push({ path: '/' });
+        return;
+    } else if (res.data.resultStatus !== 200) {
         alert(res.data.resultMessage);
         router.push({ path: '/' });
         return;
@@ -44,7 +50,10 @@ const loadStore = async id => {
 const loadMenus = async id => {
     const res = await getOneMenu(id);
 
-    if (res === undefined || res.data.resultStatus !== 200) {
+    if (res === undefined) {
+        alert('조회 실패');
+        return;
+    } else if (res.data.resultStatus !== 200) {
         alert(res.data.resultMessage);
         return;
     }
@@ -91,7 +100,10 @@ const decreaseQuantity = async idx => {
 
         const res = await updateQuantity(params);
 
-        if (res === undefined || res.data.resultStatus !== 200) {
+        if (res === undefined) {
+            alert('수정 실패');
+            return;
+        } else if (res.data.resultStatus !== 200) {
             alert(res.data.resultMessage);
             return;
         }
@@ -109,7 +121,10 @@ const increaseQuantity = async idx => {
 
     const res = await updateQuantity(params);
 
-    if (res === undefined || res.data.resultStatus !== 200) {
+    if (res === undefined) {
+        alert('수정 실패');
+        return;
+    } else if (res.data.resultStatus !== 200) {
         alert(res.data.resultMessage);
         return;
     }
@@ -153,10 +168,11 @@ const toOrder = () => {
         return;
     }
 
+    carts.state.items = state.carts;
     router.push({ path: `/stores/${route.params.id}/order` });
 }
 
-onMounted(async () => {
+onMounted(() => {
     const storeId = route.params.id;
 
     loadStore(storeId);

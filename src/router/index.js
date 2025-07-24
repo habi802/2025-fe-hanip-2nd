@@ -17,8 +17,23 @@ const router = createRouter({
       meta: { layout: MainLayout },
     },
     {
+<<<<<<< HEAD
       path: "/owner",
       component: () => import("@/views/owner/Dashboard.vue"),
+=======
+      path: '/stores/:id/order',
+      component: () => import('@/views/Order.vue'),
+      meta: { layout: MainLayout },
+    },
+    {
+      path: '/stores/:id/order/success',
+      component: () => import('@/views/OrderSuccess.vue'),
+      meta: { layout: MainLayout },
+    },
+    {
+      path: '/owner',
+      component: () => import('@/views/owner/Dashboard.vue'),
+>>>>>>> c0e3ea6ab2011d96309175197d5e36b9a204152f
       meta: { layout: OwnerLayout },
     },
     {
@@ -64,6 +79,31 @@ const router = createRouter({
       path: "/my-page",
       component: () => import("@/views/MyPage.vue"),
       meta: { layout: MainLayout },
+    },
+    {
+      path: '/owner/delivery',
+      component: () => import('@/views/owner/Delivery.vue'),
+      meta: { layout: OwnerLayout },
+    },
+    {
+      path: '/owner/donations',
+      component: () => import('@/views/owner/Donations.vue'),
+      meta: { layout: OwnerLayout },
+    },
+    {
+      path: '/owner/customer',
+      component: () => import('@/views/owner/Customer.vue'),
+      meta: { layout: OwnerLayout },
+    },
+    {
+      path: '/owner/coupons',
+      component: () => import('@/views/owner/Coupons.vue'),
+      meta: { layout: OwnerLayout },
+    },
+    {
+      path: '/owner/ads',
+      component: () => import('@/views/owner/ads.vue'),
+      meta: { layout: OwnerLayout },
     },
   ],
 });

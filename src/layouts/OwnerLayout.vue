@@ -1,12 +1,18 @@
 <script setup>
+import { getOwnerOrder } from "@/services/orderService";
+import { activeStore, getOwnerStore } from "@/services/storeService";
 import { useOrderStore } from "@/stores/orderStore";
-import { ref, onMounted, onUnmounted, provide, watch } from "vue";
+import { ref, onMounted, provide, watch, computed, reactive } from "vue";
 import { RouterLink, useRouter, useRoute } from "vue-router";
+import { logout } from "@/services/userService";
+import { useAccountStore } from "@/stores/account";
+
+// 로그아웃 상태 반영
+const account = useAccountStore();
 
 // ref, route, router
 const router = useRouter();
 const route = useRoute();
-const isOpen = ref(true);
 const redDot = ref(false);
 const orderStore = useOrderStore();
 const notifications = ref([]); // 알림배열
@@ -16,37 +22,65 @@ const homeRouter = () => {
   router.push("/");
 };
 
+onMounted(async () => {
+  const res = await getOwnerStore();
+  // console.log("res: ", res.data.resultData)
+  if (res.status !== 200) {
+    alert("에러");
+    return;
+  }
+  state.form = res.data.resultData;
+  isOpen.value = state.form.isActive;
+
+  // id가 준비된 후에 호출
+  if (state.form.id) {
+    await getOwnerOrder(state.form.id);
+    orderStore.fetchOrders(state.form.id);
+  }
+
+  // // 5초마다 반복 호출
+  // setInterval(() => {
+  //   if(state.form.id) {
+  //     orderStore.fetchOrders(state.form.id);
+  //   }
+  // }, 5000);
+});
+
+// 가게 데이터
+const state = reactive({
+  form: {},
+});
+
 const menus = [
   { text: "대시보드", path: "/owner" },
-  { text: "공지·한마디", path: "/owner/store" },
+  { text: "가게 수정", path: "/owner/store" },
   { text: "주문 상세", path: "/owner/orders" },
   { text: "메뉴 상세", path: "/owner/menu" },
   { text: "리뷰 관리", path: "/owner/review" },
-  { text: "배달 관리", path: "/owner/coupons" },
+  { text: "배달 관리", path: "/owner/delivery" },
   { text: "통계 현황", path: "/owner/donations" },
   { text: "고객 관리", path: "/owner/customer" },
   { text: "쿠폰 관리", path: "/owner/coupons" },
   { text: "광고 관리", path: "/owner/ads" },
 ];
 
-// 데이터 한번 뿌리기
+// 데이터 가져오기
+watch(
+  () => state.form.id,
+  (newId) => {
+    if (newId) {
+      console.log("보내는 storeId:", newId);
+      orderStore.fetchOrders(newId);
+    }
+  }
+);
+
+// 알림 갱신
 onMounted(async () => {
-  // 데이터 가져오기
-  orderStore.fetchOrders();
-
-  // 5초마다 가져오기
-  setInterval(() => {
-    orderStore.fetchOrders();
-  }, 5000);
-
   const saved = localStorage.getItem("removedNotification");
   if (saved) {
     removedNotification.value = new Set(JSON.parse(saved));
   }
-});
-
-onUnmounted(() => {
-  clearInterval(interval);
 });
 
 // 알림 갱신 (watch)
@@ -85,25 +119,42 @@ const removeNotification = (id) => {
 };
 
 // 영업 버튼 토글
-const toggleBusiness = () => {
-  if (isOpen.value) {
-    if (confirm("영업을 중단하시겠습니까?")) {
-      isOpen.value = !isOpen.value;
-      return;
+const isOpen = ref();
+
+const toggleBusiness = async () => {
+  console.log("isActive: ", isOpen.value);
+  const storeId = state.form.id;
+  // await activeStore(storeId);
+
+  if (isOpen.value === 0) {
+    if (confirm("가게 영업을 시작하시겠습니까?")) {
+      await activeStore(storeId);
+      await router.push({ path: "/" });
+      await router.push({ path: "/owner" });
     }
   }
 
-  if (!isOpen.value) {
-    if (confirm("영업을 시작하시겠습니까?")) {
-      isOpen.value = !isOpen.value;
-      return;
+  if (isOpen.value === 1) {
+    if (confirm("가게 영업을 중지하겠습니까?")) {
+      await activeStore(storeId);
+      await router.push({ path: "/" });
+      await router.push({ path: "/owner" });
     }
   }
 };
 
-// provide (영업 데이터 옮기기)
+// provide 영업 데이터 옮기기, 가게 사장 이름 옮기기
 provide("isOpen", isOpen);
 provide("toggleBusiness", toggleBusiness);
+const ownerName = computed(() => state.form.ownerName);
+provide("ownerName", ownerName);
+
+// 로그아웃
+const logoutOwner = async () => {
+  await logout();
+  account.setLoggedIn(false);
+  router.push("/");
+};
 </script>
 
 <template>
@@ -119,7 +170,7 @@ provide("toggleBusiness", toggleBusiness);
           style="width: 180px"
         />
       </div>
-      <ul class="nav nav-pills flex-column gap-4 fw-bolder">
+      <ul class="nav nav-pills flex-column gap-4">
         <li class="nav-item" v-for="menu in menus" :key="menu.text">
           <RouterLink
             :to="menu.path"
@@ -138,7 +189,9 @@ provide("toggleBusiness", toggleBusiness);
           </RouterLink>
         </li>
       </ul>
-      <div class="mt-auto text-center small text-muted">© HanIp Corp. 2025</div>
+      <div class="mt-5 text-center small text-muted">
+        All righs Reserved © HanIp Corp. 2025
+      </div>
     </div>
 
     <!-- 오른쪽 화면 -->
@@ -148,9 +201,7 @@ provide("toggleBusiness", toggleBusiness);
     >
       <!-- 검색 + 영업 버튼 -->
 
-      <div
-        class="d-flex align-items-center justify-content-between paddingSearch"
-      >
+      <div class="d-flex align-items-center paddingSearch">
         <div class="d-flex align-items-center" style="gap: 16px">
           <li class="nav-item nav-channel-search-wrapper d-none d-sm-block">
             <form id="" class="position-relative">
@@ -165,14 +216,14 @@ provide("toggleBusiness", toggleBusiness);
           </li>
 
           <button
-            :class="['btn', isOpen ? 'btn-success' : 'btn-danger']"
+            :class="['btn', isOpen === 1 ? 'btn-success' : 'btn-danger']"
             @click="toggleBusiness"
             style="height: 50px"
           >
-            {{ isOpen ? "영업 진행" : "영업 중단" }}
+            {{ isOpen === 1 ? "영업 진행" : "영업 중단" }}
           </button>
 
-          <!-- 팝업 메뉴 -->
+          <!-- 드랍다운 -->
           <div class="relative d-flex">
             <div class="dropdown position-relative">
               <img
@@ -207,10 +258,43 @@ provide("toggleBusiness", toggleBusiness);
             <img src="/src/imgs/owner/icon_config.svg" class="icon" />
           </div>
         </div>
-
+        <!-- 구분선 -->
+        <div class="vertical-line mx-4"></div>
         <!-- 유저 정보 -->
         <div class="d-flex align-items-center">
-          <span class="me-2">홍길동 사장님</span>
+          <div class="dropdown position-relative">
+            <div
+              class="d-flex align-items-center"
+              data-bs-toggle="dropdown"
+              role="button"
+              style="cursor: pointer"
+            >
+              <span class="me-2"
+                ><span style="font-weight: bold; letter-spacing: 1px">{{
+                  state.form.ownerName
+                }}</span>
+                사장님</span
+              >
+              <img
+                src="/src/imgs/owner/owner_profile.png"
+                style="cursor: pointer"
+                role="button"
+              />
+            </div>
+
+            <div class="dropdown-menu dropdown-menu-end">
+              <div class="title px-3 py-2">{{ state.form.ownerName }}</div>
+              <div class="dropdown-divider"></div>
+              <div style="cursor: pointer" class="dropdown-item">설정</div>
+              <div
+                @click="logoutOwner"
+                style="cursor: pointer"
+                class="dropdown-item"
+              >
+                로그아웃
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -276,5 +360,11 @@ img.logo {
   top: 0px;
   right: 4px;
   border: 1px solid white;
+}
+
+.vertical-line {
+  width: 1.5px;
+  height: 45px;
+  background-color: #d1d1d1;
 }
 </style>

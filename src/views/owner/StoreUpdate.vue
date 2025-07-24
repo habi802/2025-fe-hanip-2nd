@@ -1,6 +1,6 @@
 <script setup>
-import { getStore, modify } from "@/services/storeService";
-import { reactive, onMounted, nextTick, ref } from "vue";
+import { getOwnerStore, modify } from "@/services/storeService";
+import { reactive, onMounted, nextTick, ref, inject } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import defaultStoreImage from "@/imgs/default-store.jpg";
 
@@ -15,12 +15,12 @@ const previewImage = ref(defaultStoreImage);
 
 // 화면에 원래 가게 정보 뿌리기
 onMounted(async () => {
-  await getStoreData(1);
+  await getStoreData();
 });
 
 // 가게 정보 가져오기
-const getStoreData = async (id) => {
-  const res = await getStore(id);
+const getStoreData = async () => {
+  const res = await getOwnerStore();
   const data = res.data.resultData;
   console.log("data: ", res.data.resultData);
 
@@ -32,12 +32,12 @@ const getStoreData = async (id) => {
     state.form.email = data.email;
     state.form.comment = data.comment;
     state.form.category = data.category;
+    state.form.id = data.id;
 
     // 가게주소
-    const addressParts = data.address.split(",");
-    state.form.zipcode = addressParts[0] || "";
-    state.form.baseAddress = addressParts[1] || "";
-    state.form.detailAddress = addressParts[2] || "";
+    state.form.zipcode = data.postcode;
+    state.form.baseAddress = data.address;
+    state.form.detailAddress = data.addressDetail;
 
     // 가게번호
     const telParts = data.tel.split("-");
@@ -82,17 +82,18 @@ const submit = async (e) => {
   e.preventDefault();
 
   const formData = new FormData();
-  const address = `${state.form.zipcode},${state.form.baseAddress},${state.form.detailAddress}`;
   const tel = `${state.form.storeTel1}-${state.form.storeTel2}-${state.form.storeTel3}`;
   const phone = `${state.form.mobile1}-${state.form.mobile2}-${state.form.mobile3}`;
 
   // 백엔드에 보낼 데이터
   const payload = {
     data: {
-      storeId: 1,
+      storeId: state.form.id,
       password: state.form.password,
       comment: state.form.comment,
-      address: address,
+      postcode: state.form.zipcode,
+      address: state.form.baseAddress,
+      addressDetail: state.form.detailAddress,
       tel: tel,
       ownerName: state.form.ownerName,
       category: state.form.category,
@@ -118,8 +119,8 @@ const submit = async (e) => {
     alert("에러 발생");
     return;
   }
-
-  alert("수정 성공");
+  state.form.password = "";
+  alert("수정되었습니다!");
 };
 
 // 사진 미리보기
@@ -184,14 +185,18 @@ const searchAddress = () => {
     },
   }).open();
 };
+
+const ownerName = inject("ownerName", "");
 </script>
 
 <template>
-
-  <div class="min-vh-100 pb-5" style="background-color: #e8e8e8;">
+  <div class="min-vh-100 pb-5" style="background-color: #e8e8e8">
     <div>
       <div class="owner-title1">가게 수정</div>
-      <div class="owner-title2">어서오세요! {{ state.form.ownerName }} 사장님, 가게 수정 페이지에 오신 것을 환영합니다!</div>
+      <div class="owner-title2">
+        어서오세요! {{ ownerName }} 사장님, 가게 수정 페이지에 오신 것을
+        환영합니다!
+      </div>
     </div>
     <div class="container-fluid d-flex mb-5">
       <div class="card shadow p-5 w-100" style="max-width: 1100px">
@@ -415,15 +420,13 @@ input::placeholder {
 .owner-title1 {
   font-size: 30px;
   font-weight: bold;
-  padding-left: 12px; 
+  padding-left: 12px;
   padding-bottom: 2px;
 }
 
 .owner-title2 {
-  padding-left: 12px; 
+  padding-left: 12px;
   padding-bottom: 10px;
   color: #686868;
 }
-
-
 </style>
