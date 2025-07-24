@@ -19,3 +19,4 @@ export const useOrderStore = defineStore("order", {
       state.orders.filter((o) => o.status === "PREPARING"),
   },
 });
+
