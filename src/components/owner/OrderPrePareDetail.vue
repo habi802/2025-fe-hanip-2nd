@@ -20,6 +20,7 @@ const dlivery = async () => {
     return;
   }
 
+  // 상태 업데이트
   await orderStore.fetchOrders(props.order.storeId);
 };
 </script>

@@ -1,7 +1,7 @@
 <script setup>
 import { defineProps, reactive, ref } from "vue";
 import defaultMenuImage from "@/imgs/owner/haniplogo_sample.png";
-import { modifyMenu, getMenus } from "@/services/menuService";
+import { modifyMenu, getMenus, deleteMenu } from "@/services/menuService";
 import { useRouter } from "vue-router";
 
 const emit = defineEmits(["menuUpdated"]);
@@ -51,6 +51,24 @@ const editMenu = () => {
 
 // 수정
 const submitMenu = async () => {
+  const formData = new FormData();
+  const payload = {
+    data: {
+      id: props.menu.menuId,
+      storeId: props.menu.storeId,
+      name: newMenu.name,
+      price: newMenu.price,
+      comment: newMenu.comment,
+    },
+    img: newMenu.imagePath,
+  };
+
+  formData.append("img", payload.img);
+  formData.append(
+    "data",
+    new Blob([JSON.stringify(payload.data)], { type: "application/json" })
+  );
+
   const res = await modifyMenu(newMenu);
   if (res.status != 200) {
     alert("에러");
@@ -62,6 +80,16 @@ const submitMenu = async () => {
   const modal = bootstrap.Modal.getInstance(modifyMenuModal.value);
   modal.hide();
 };
+
+// 삭제
+const deleteOneMenu = async () => {
+  const res = await deleteMenu(props.menu.menuId)
+  if (res.status != 200) {
+    alert("에러");
+    return;
+  }
+  router.push({ path: "/owner/menu" });
+}
 </script>
 
 <template>
@@ -92,7 +120,7 @@ const submitMenu = async () => {
         </div>
         <div class="d-flex gap-2 mt-3 justify-content-end">
           <button @click="editMenu" class="accept-btn">수정</button>
-          <button @click="deleteMenu" class="delete-btn">삭제</button>
+          <button @click="deleteOneMenu" class="delete-btn">삭제</button>
         </div>
       </div>
     </div>
