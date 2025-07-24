@@ -4,6 +4,7 @@ import { useRoute, useRouter } from 'vue-router';
 import { getStore } from '@/services/storeService';
 import { getOneMenu } from '@/services/menuService';
 import { getReviewsByStoreId } from '@/services/reviewServices';
+import { addFavorite } from '@/services/favoriteService';
 import { updateQuantity, removeItem, removeCart } from '@/services/cartService';
 import { useAccountStore } from '@/stores/account';
 import { useCartStore } from '@/stores/cart';
@@ -33,7 +34,7 @@ const totalPrice = ref(0);
 const loadStore = async id => {
     const res = await getStore(id);
 
-    if (res === undefined) {
+    if (res === undefined || res.data.resultStatus !== 200) {
         alert('조회 실패');
         router.push({ path: '/' });
         return;
@@ -83,6 +84,10 @@ const loadCarts = async id => {
         return;
     }
     // 수정 예정 수정 예정 수정 예정
+}
+
+const toggleFavorite = async id => {
+
 }
 
 const addCart = item => {
