@@ -9,17 +9,19 @@ const state = reactive({
   form: {
     loginId: '',
     loginPw: '',
-    role:''
+    role: ''
   },
+  saveId: false // 아이디 저장용
 });
 
+// 로그인 여부
 const submit = async () => {
   try {
     const res = await login(state.form);
     console.log("응답 전체확인용:", res);
     console.log("res.data:", res.data);
     console.log("res.data.resultData:", res.data.resultData);
-    
+
     if (res.status === 200) {
       // 서버에서 loginId 같이 내려주는지 확인 필요
       const { role, id } = res.data.resultData;  // 회원 유형 고객 or 가게사장
@@ -33,6 +35,13 @@ const submit = async () => {
       }
 
       console.log("role 값: ", role);
+
+      // 아이디 저장 여부 확인
+      if (state.saveId) {
+        localStorage.setItem('savedLoginId', state.form.loginId);
+      } else {
+        localStorage.removeItem('savedLoginId');
+      }
 
       if (role === "OWNER") {
         router.push('/owner'); // 업주용 메인화면
@@ -50,6 +59,15 @@ const submit = async () => {
   }
 };
 
+// 아이디 저장
+onMounted(() => {
+  const savedId = localStorage.getItem('savedLoginId');
+  if (savedId) {
+    state.form.loginId = savedId;
+    state.saveId = true;
+  }
+});
+
 </script>
 
 <template>
@@ -63,23 +81,13 @@ const submit = async () => {
         <h1 class="title">로그인</h1>
 
         <div class="form-floating">
-          <input
-            type="text"
-            id="loginId"
-            placeholder="아이디 (영문, 숫자 4~16자)"
-            v-model="state.form.loginId"
-          />
+          <input type="text" id="loginId" placeholder="아이디 (영문, 숫자 4~16자)" v-model="state.form.loginId" />
           <label for="loginId"></label>
         </div>
 
         <div class="form-floating">
-          <input
-            type="password"
-            id="loginPw"
-            placeholder="비밀번호 (영문, 숫자, 특수문자 혼합 8~16자)"
-            v-model="state.form.loginPw"
-            autocomplete="off"
-          />
+          <input type="password" id="loginPw" placeholder="비밀번호 (영문, 숫자, 특수문자 혼합 8~16자)" v-model="state.form.loginPw"
+            autocomplete="off" />
           <label for="loginPw"></label>
         </div>
 
@@ -93,7 +101,7 @@ const submit = async () => {
         <button type="submit" class="btn login-btn">로그인</button>
         <button type="button" class="btn signup-btn" @click="router.push('/join')">
           회원가입
-        </button> 
+        </button>
       </form>
     </div>
   </div>
@@ -101,16 +109,18 @@ const submit = async () => {
 
 <style scoped lang="scss">
 @font-face {
-    font-family: 'BMJUA';
-    src: url('https://fastly.jsdelivr.net/gh/projectnoonnu/noonfonts_one@1.0/BMJUA.woff') format('woff');
-    font-weight: normal;
-    font-style: normal;
+  font-family: 'BMJUA';
+  src: url('https://fastly.jsdelivr.net/gh/projectnoonnu/noonfonts_one@1.0/BMJUA.woff') format('woff');
+  font-weight: normal;
+  font-style: normal;
 }
+
 * {
   font-family: 'BMJUA';
   letter-spacing: 1px;
   box-sizing: border-box;
 }
+
 .login {
   display: flex;
   flex-direction: column;
@@ -118,7 +128,7 @@ const submit = async () => {
   justify-content: center;
   margin-bottom: 1rem;
   min-height: 100vh;
-  
+
   img {
     width: 150px;
     height: auto;
@@ -189,31 +199,31 @@ const submit = async () => {
         }
 
         input[type="checkbox"].circle {
-            appearance: none;
-            -webkit-appearance: none;
-            width: 18px;
-            height: 18px;
-            border-radius: 50%;
-            border: 1px solid #7d7d7d;
-            position: relative;
-            cursor: pointer;
-            vertical-align: middle;
-            margin-right: 6px;
+          appearance: none;
+          -webkit-appearance: none;
+          width: 18px;
+          height: 18px;
+          border-radius: 50%;
+          border: 1px solid #7d7d7d;
+          position: relative;
+          cursor: pointer;
+          vertical-align: middle;
+          margin-right: 6px;
 
-            &:checked {
-              background-color: #ff6666;
-              border-color: #ff6666;
-            }
-
-            &:checked::after {
-              content: "v";
-              color: #fff;
-              font-size: 12px;
-              position: absolute;
-              left: 5px;
-              top: -1px;
-            }
+          &:checked {
+            background-color: #ff6666;
+            border-color: #ff6666;
           }
+
+          &:checked::after {
+            content: "v";
+            color: #fff;
+            font-size: 12px;
+            position: absolute;
+            left: 5px;
+            top: -1px;
+          }
+        }
 
 
         .links {
@@ -245,8 +255,10 @@ const submit = async () => {
         font-weight: 500;
         cursor: pointer;
       }
+
       .login-btn {
-        background-color: #ff6666;;
+        background-color: #ff6666;
+        ;
         color: white;
         border: none;
 
@@ -257,12 +269,14 @@ const submit = async () => {
 
       .signup-btn {
         background-color: white;
-        color: #ff6666;;
+        color: #ff6666;
+        ;
         border: 1px solid #ff6666;
 
         &:hover {
           background-color: #ffe5e5;
         }
+
         margin-bottom: 15rem;
       }
     }

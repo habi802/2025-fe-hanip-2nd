@@ -1,7 +1,7 @@
 <script setup>
 import { onMounted, reactive } from 'vue';
 import { useRouter } from 'vue-router';
-import { findByUserId, update } from '@/services/userService';
+//import { findByUserId, update } from '@/services/userService';
 
 const router = useRouter();
 
@@ -24,7 +24,7 @@ const state = reactive({
 // const phone2 = ref('');
 // const phone3 = ref('');
 
-// // 일반 전화번호 조합
+// 전화번호 조합
 // watch([phone1, phone2, phone3], () => {
 //   state.form.phone = `${phone1.value}-${phone2.value}-${phone3.value}`;
 // });
@@ -66,8 +66,8 @@ const submitForm = async (e) => {
 
   try {
     // 수정 요청 전 폼 유효성 체크 등 필요시 추가
-
     const id = localStorage.getItem('id');
+
     if (!id) {
       alert('로그인 정보가 없습니다.');
       router.push('/login');
@@ -75,13 +75,16 @@ const submitForm = async (e) => {
     }
 
     // API 호출: 사용자 정보 수정
-    await update(id, state.form);
-
-    alert('정보가 성공적으로 수정되었습니다.');
-    router.push('/mypage');  // 수정 완료 후 마이페이지로 이동
+    const res = await update(id, state.form);
+    if (res.status === 200) {
+      alert('정보가 성공적으로 수정되었습니다.');
+      router.push('/mypage');
+    } else {
+      alert('정보 수정에 실패했습니다.');
+    }
   } catch (err) {
     console.error('정보 수정 실패:', err);
-    alert('정보 수정에 실패했습니다.');
+    alert('정보 수정 중 오류가 발생했습니다.');
   }
 };
 </script>

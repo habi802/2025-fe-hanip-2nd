@@ -17,11 +17,3 @@ export const check = () => {
 export const logout = () => {
     return axios.post(`${path}/logout`).catch(e => e.response);
 }
-// 사용자 정보 가져오기
-export const findByUserId = (userId) => {
-    return axios.get(`${path}/${userId}`).catch(e => e.response);
-}
-// 사용자 정보 수정
-export const update = (userId, data) => {
-    return axios.put(`${path}/${userId}`, data).catch(e => e.response);
-}
