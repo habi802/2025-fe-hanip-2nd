@@ -1,22 +1,22 @@
 <script setup>
-import { reactive } from 'vue';
+import { reactive } from "vue";
 
 // 컴포넌트 import
-import Account from '@/components/myPage/Account.vue';
+import Account from "@/components/myPage/Account.vue";
 
 //
 const user = reactive({
-  name: '서하빈',
+  name: "서하빈",
   orders: 0,
   cupon: 0,
   point: 0,
 });
 const myAccount = [
-  '주문내역조회',
-  '정보수정',
-  '결제관리',
-  '즐겨찾기',
-  '고객센터',
+  "주문내역조회",
+  "정보수정",
+  "결제관리",
+  "즐겨찾기",
+  "고객센터",
 ];
 </script>
 <template>
@@ -56,9 +56,9 @@ const myAccount = [
 </template>
 <style lang="scss" scoped>
 @font-face {
-  font-family: 'BMJUA';
-  src: url('https://fastly.jsdelivr.net/gh/projectnoonnu/noonfonts_one@1.0/BMJUA.woff')
-    format('woff');
+  font-family: "BMJUA";
+  src: url("https://fastly.jsdelivr.net/gh/projectnoonnu/noonfonts_one@1.0/BMJUA.woff")
+    format("woff");
   font-weight: 600;
   font-style: normal;
 }
@@ -84,7 +84,7 @@ const myAccount = [
         margin-left: 45px;
       }
       .user {
-        font-family: 'BMJUA';
+        font-family: "BMJUA";
         font-size: 1.5em;
         letter-spacing: 1px;
         margin-left: 32px;
@@ -110,7 +110,7 @@ const myAccount = [
     .right {
       align-items: center;
       text-align: center;
-      font-family: 'BMJUA';
+      font-family: "BMJUA";
       font-size: 1.2em;
       margin-top: 20px;
       margin-left: -170px;
