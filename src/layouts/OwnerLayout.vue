@@ -38,7 +38,7 @@ onMounted(async () => {
     orderStore.fetchOrders(state.form.id);
   }
 
-  // 5초마다 반복 호출
+  // 5초마다 반복 호출 서버 로그 방해 되면 아랫줄 주석 처리할것
   if(state.form.id) {
     orderStore.fetchOrders(state.form.id);
   }
