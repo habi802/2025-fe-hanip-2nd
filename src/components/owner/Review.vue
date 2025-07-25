@@ -2,6 +2,7 @@
 import { computed, ref , reactive, onMounted } from 'vue';
 import { useOwnerStore, useUserInfo,  } from '@/stores/account'
 import { useReviewStore } from '@/stores/review';
+import defaultUserProfile from "@/imgs/owner/user_profile.jpg"
 
 //상단 : 어서오세요! OOO사장님~~
 const userInfo = useUserInfo();
@@ -111,14 +112,17 @@ const submitReview = async () => {
     modal.hide();
 };
 
+// 유저 이미지가 없을 시 대체 이미지 나타내기
+const imgSrc = computed(() => {
+  return reviewStore.reviews && reviewStore.reviews.imagePath && reviewStore.reviews.imagePath !== 'null'
+  ? `/pic/store-profile/${reviewStore.reviews.id}/${reviewStore.reviews.imagePath}`
+  : defaultUserProfile;
+})
 
-
+const img = "`/pic/user-profile/${review.id}/${review.imagePath}`";
 </script>
 
 <template>
-
-<span style="z-index: 100px; font-weight: 900; position: absolute; left: 10px;"> 유저아이디 : {{ userId }} 스토어아이디: {{ storeId }}</span>
-
 <div class="wrap" > 
     <div>
         <h2>리뷰 관리</h2>
@@ -175,7 +179,7 @@ const submitReview = async () => {
         <div class="review-box"  v-for="(review, index) in reviewStore.reviews" :key="index">
             <div class="profile">
                 <div class="profile-circle">
-                    <img :src="review.profileImage" alt="프로필"/>
+                    <img :src="imgSrc" @error="e => e.target.src = defaultUserProfile" alt="프로필"/>
                 </div>
                 <div>
                     <span>{{  review.userName }}</span>
@@ -254,9 +258,9 @@ const submitReview = async () => {
 .wrap{
     background-color: #e8e8e8;
     font-family: 'Pretendard', sans-serif;
-    width: 1575px;
+    width: 1400px;
     overflow: auto;
-    padding : 56px;
+    padding : 10px;
     .total-wrap{
         display: flex;
         gap : 30px;
@@ -336,6 +340,12 @@ const submitReview = async () => {
                     border-radius: 100%;
                     width: 48px;
                     height: 48px;
+                }
+                .profile-circle img {
+                    width: 100%;
+                    height: 100%;
+                    object-fit: cover;
+                    border-radius: 50%;
                 }
                 div:nth-of-type(2) {margin-left: 20px;}
                 div:nth-of-type(2) > span{

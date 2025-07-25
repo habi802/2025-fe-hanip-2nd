@@ -40,13 +40,13 @@ const start = async () => {
         <div class="ps-4 pt-5">
           <div class="text-date">{{ today }}</div>
           <div class="pb-5 text">오늘의 영업을 시작하세요!</div>
-           <button class="accept-btn" @click="start">영업 시작</button>
+           <button class="storeAccept-btn" @click="start">영업 시작</button>
         </div>
       </div>
   </div>
 </template>
 
-<style scoped>
+<style>
 .box {
   padding-top: 82px;
   justify-content: center;
@@ -63,7 +63,7 @@ const start = async () => {
   font-size: 65px;
 }
 
-.accept-btn {
+.storeAccept-btn {
   background: #f66463;
   border: none;
   color: white;
@@ -75,10 +75,10 @@ const start = async () => {
   transition: background-color 0.3s, color 0.3s;
 }
 
-.accept-btn:hover {
+.storeAccept-btn:hover {
   background: #d44b4a;
 }
-.accept-btn:active {
+.storeAccept-btn:active {
   background: #b23837;
 }
 

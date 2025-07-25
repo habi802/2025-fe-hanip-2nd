@@ -1,8 +1,9 @@
 <script setup>
-import { defineProps, reactive, ref } from "vue";
+import { defineProps, reactive, ref, computed } from "vue";
 import defaultMenuImage from "@/imgs/owner/haniplogo_sample.png";
 import { modifyMenu, getMenus, deleteMenu } from "@/services/menuService";
 import { useRouter } from "vue-router";
+import defaultImage from "@/imgs/owner/haniplogo_sample.png"
 
 const emit = defineEmits(["menuUpdated"]);
 
@@ -90,6 +91,15 @@ const deleteOneMenu = async () => {
   }
   emit("menuUpdated");
 }
+
+// 메뉴 이미지가 없을 시 대체 이미지 나타내기
+const imgSrc = computed(() => {
+  return props.menu && props.menu.imagePath && props.menu.imagePath !== 'null'
+  ? `/pic/menu-profile/${props.menu.menuId}/${props.menu.imagePath}`
+  : defaultImage;
+})
+
+const img = "`/pic/menu-profile/${props.menu.menuId}/${props.menu.imagePath}`"
 </script>
 
 <template>
@@ -100,13 +110,15 @@ const deleteOneMenu = async () => {
     <div class="row g-0 h-100">
       <div class="col-md-5 d-flex align-items-center justify-content-center">
         <img
-          :src="`/pic/menu-profile/${props.menu.menuId}/${props.menu.imagePath}`"
+          :src="imgSrc" @error="e => e.target.src = defaultImage"
           :alt="`메뉴 사진(${props.menu.name})`"
           style="
             max-width: 100%;
             max-height: 100%;
             object-fit: cover;
             border-radius: 12px;
+            aspect-ratio: 10 / 9; 
+            width: 100%; overflow: hidden;
           "
         />
       </div>

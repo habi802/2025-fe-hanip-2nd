@@ -9,7 +9,9 @@ const orderStore = useOrderStore();
 // ref 더보기
 const visibleCount = ref(4);
 const visibleOrders = computed(() => {
-  return orderStore.preparingList.slice(0, visibleCount.value);
+  return [...orderStore.preparingList]  // 배열 복사
+    .reverse()                          // 최신 순으로 역순 정렬
+    .slice(0, visibleCount.value);      // 앞에서 N개만 보여줌
 });
 
 // 가게 활성화 여부

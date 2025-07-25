@@ -24,6 +24,7 @@ const homeRouter = () => {
 
 onMounted(async () => {
   const res = await getOwnerStore();
+  
   // console.log("res: ", res.data.resultData)
   if (res.status !== 200) {
     alert("에러");
