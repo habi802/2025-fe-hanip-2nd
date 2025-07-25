@@ -71,7 +71,7 @@ const submitMenu = async () => {
   console.log("instanceof File:", newMenu.imagePath instanceof File);
 
   if (!(newMenu.imagePath instanceof File)) {
-    alert("이미지를 선택해 주세요");
+    alert("이미지를 등록해 주세요!");
     return;
   } else if (res.status !== 200) {
     alert("에러 발생");
@@ -86,6 +86,7 @@ const submitMenu = async () => {
   previewImage.value = defaultMenuImage;
 
   alert("등록 성공");
+  fetchMenus();
 
   // 모달 창 닫기
   const modal = bootstrap.Modal.getInstance(addMenuModal.value);
