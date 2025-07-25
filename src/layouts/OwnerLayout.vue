@@ -45,7 +45,9 @@ onMounted(async () => {
   setInterval(() => {
     orderStore.fetchOrders(state.form.id);
   }, 5000);
+   
 });
+
 
 
 
@@ -55,10 +57,10 @@ const state = reactive({
 });
 
 const menus = [
-  { text: "대시보드", path: "/owner" },
+  { text: "대시보드", path: "/owner/dashboard" },
   { text: "가게 수정", path: "/owner/store" },
-  { text: "주문 상세", path: "/owner/orders" },
-  { text: "메뉴 상세", path: "/owner/menu" },
+  { text: "주문 관리", path: "/owner/orders" },
+  { text: "메뉴 관리", path: "/owner/menu" },
   { text: "리뷰 관리", path: "/owner/review" },
   { text: "배달 관리", path: "/owner/delivery" },
   { text: "통계 현황", path: "/owner/donations" },
@@ -133,7 +135,7 @@ const toggleBusiness = async () => {
     if (confirm("가게 영업을 시작하시겠습니까?")) {
       await activeStore(storeId);
       await router.push({ path: "/" });
-      await router.push({ path: "/owner" });
+      await router.push({ path: "/owner/dashboard" });
     }
   }
 
@@ -151,6 +153,11 @@ provide("isOpen", isOpen);
 provide("toggleBusiness", toggleBusiness);
 const ownerName = computed(() => state.form.ownerName);
 provide("ownerName", ownerName);
+const storeId = computed(() => state.form.id);
+provide("storeId", storeId)
+const storeActive = computed(() => state.form.isActive);
+provide("storeActive", storeActive)
+
 
 // 로그아웃
 const logoutOwner = async () => {
@@ -158,6 +165,11 @@ const logoutOwner = async () => {
   account.setLoggedIn(false);
   router.push("/");
 };
+
+// 가게수정
+const storeModify = async() => {
+  router.push("/owner/store");
+}
 </script>
 
 <template>
@@ -288,7 +300,7 @@ const logoutOwner = async () => {
             <div class="dropdown-menu dropdown-menu-end">
               <div class="title px-3 py-2">{{ state.form.ownerName }}</div>
               <div class="dropdown-divider"></div>
-              <div style="cursor: pointer" class="dropdown-item">설정</div>
+              <div @click="storeModify" style="cursor: pointer" class="dropdown-item">가게수정</div>
               <div
                 @click="logoutOwner"
                 style="cursor: pointer"

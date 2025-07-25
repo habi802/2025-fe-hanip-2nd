@@ -28,7 +28,7 @@ const router = createRouter({
     },
     {
       path: '/owner',
-      component: () => import('@/views/owner/Dashboard.vue'),
+      component: () => import('@/views/owner/Home.vue'),
       meta: { layout: OwnerLayout },
     },
     {
@@ -100,6 +100,12 @@ const router = createRouter({
       component: () => import('@/views/owner/ads.vue'),
       meta: { layout: OwnerLayout },
     },
+     {
+      path: '/owner/dashboard',
+      component: () => import('@/views/owner/Dashboard.vue'),
+      meta: { layout: OwnerLayout },
+    },
+    
   ],
 });
 export default router;
