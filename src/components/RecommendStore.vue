@@ -285,21 +285,4 @@
 .footer {
   margin-bottom: 300px;
 }
-
-@media (max-width: 1600px) {
-  .guideBox {
-    justify-content: center;
-    width: 1200px;
-  }
-}
-@media (max-width: 1400px) {
-  .guideBox {
-    width: 800px;
-  }
-}
-@media (max-width: 900px){
-  .guideBox{
-    width: 500px;
-  }
-}
 </style>
