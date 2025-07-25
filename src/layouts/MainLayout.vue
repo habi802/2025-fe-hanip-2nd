@@ -4,9 +4,19 @@ import Footer from "@/components/Footer.vue";
 </script>
 
 <template>
-  <Header />
-  <RouterView />
+  <Header class="header" />
+  <div class="router">
+    <RouterView />
+  </div>
   <Footer />
 </template>
 
-<style scoped></style>
+<style scoped>
+.header {
+  position: fixed;
+  z-index: 9999;
+}
+.router {
+  padding-top: 77px;
+}
+</style>

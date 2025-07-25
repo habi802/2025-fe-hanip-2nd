@@ -35,6 +35,8 @@ const arrow = () => {
 </template>
 
 <style lang="scss" scoped>
+
+
 .allBody {
   position: relative;
   height: 100%;

@@ -1,6 +1,6 @@
 <script setup></script>
 <template>
-  <div class="f_text">한입 추천 가게</div>
+  <div class="f-text">한입 추천 가게</div>
   <div class="guideBox">
     <!--  -->
     <div class="store">
@@ -198,13 +198,13 @@
   font-style: normal;
 }
 
-.f_text {
-  font-family: 'BMJUA';
+.f-text {
+  font-family: "BMJUA";
   letter-spacing: 2px;
   color: #FF6666;
   font-size: 2em;
   text-align: center;
-  padding-top: 50px;
+  padding-top: 105px;
   margin-left: 15px;
 }
 
@@ -221,7 +221,7 @@
 
   .store {
     width: 360px;
-    height: 500px;
+    height: 470px;
     border-radius: 20px;
     -webkit-box-shadow: 6px 7px 5px -2px rgba(0, 0, 0, 0.33);
     box-shadow: 6px 7px 5px -2px rgba(0, 0, 0, 0.33);
@@ -230,7 +230,7 @@
       width: 330px;
       height: 280px;
       overflow: hidden;
-      margin-left: 13px;
+      margin-left: 15px;
       padding-top: 13px;
       border-radius: 20px;
 
@@ -246,20 +246,20 @@
       #smallText {
         font-size: 0.8em;
         color: #6C6C6C;
-        margin-top: 6px;
+        margin-top: 4px;
       }
 
       .sText {
         font-size: 1.3em;
         font-weight: 600;
-        margin-top: 20px;
+        margin-top: 10px;
       }
     }
 
     .icons {
-      font-family: 'BMJUA';
+      font-family: "BMJUA";
       display: flex;
-      margin-top: 10px;
+      margin-top: 5px;
 
       #icon {
         width: 20px;
@@ -279,21 +279,21 @@
   }
 
   .btn {
-    font-family: 'BMJUA';
-    font-size: 1.3em;
+    font-family: "BMJUA";
+    font-size: 1em;
     color: #fff;
     background-color: #FF6666;
     text-align: center;
-    width: 200px;
-    padding: 10px;
+    width: 163px;
+    padding: 7px;
     margin-top: 15px;
-    margin-left: 23%;
+    margin-left: 100px;
     border-radius: 10px;
   }
 }
 
 .footer {
-  margin-bottom: 300px;
+  margin-bottom: 100px;
 }
 
 // 반응형

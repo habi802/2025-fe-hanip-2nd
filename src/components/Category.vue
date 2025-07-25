@@ -136,7 +136,7 @@ const nightLink = () => {
 
     .searchBar {
       justify-content: center;
-      margin-top: 53px;
+      margin-top: 120px;
       font-size: 0.8em;
       border: 3px solid #ff6666;
       border-radius: 50px;
@@ -182,20 +182,29 @@ const nightLink = () => {
   }
 
   .category {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
     .categoryBox {
-      width: 84.3%;
-      margin: 0 auto;
-
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      width: 1500px;
+      margin-top: -40px;
+      margin-bottom: 8px;
+      
       #categoryItems {
-        margin-top: 75px;
-        justify-content: space-around;
-
+        margin-top: 70px;
+        gap: 40px;
         // background-color: antiquewhite;
         #cImg {
           cursor: pointer;
           // width: 220px;
-          width: 91%;
+          width: 210px;
           border-radius: 50%;
+          
 
           &:hover {
             opacity: 80%;
@@ -203,10 +212,11 @@ const nightLink = () => {
         }
 
         #cName {
-          font-size: 1em;
-          padding-top: 25px;
+          font-size: 24px;
+          padding-top: 11px;
           text-align: center;
-          font-weight: 700;
+          margin-left: -5px;
+          font-weight: 400;
         }
       }
     }
