@@ -146,7 +146,6 @@ const favorClick = () => {
 
 .components {
   margin-top: 100px;
-  margin-left: 180px;
 }
 
 footer {
