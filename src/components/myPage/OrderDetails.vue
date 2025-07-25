@@ -45,6 +45,7 @@ const selectStar = (index) => {
 </script>
 
 <template>
+  <div class="all-box">
   <div class="box">
     <div>
       <div>주문 내역</div>
@@ -122,6 +123,7 @@ const selectStar = (index) => {
 
     </div>
   </div>
+</div>
 </template>
 
 <style lang="scss" scoped>
@@ -134,12 +136,23 @@ const selectStar = (index) => {
   src: url('https://fastly.jsdelivr.net/gh/Project-Noonnu/noonfonts_2107@1.1/Pretendard-Regular.woff');
 }
 
+
+.all-box{
+  width: 100%;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+
+}
+
 .box {
+  display: flex;
+  justify-content: center;
   font-family: 'Pretendard-Regular';
 
   font-size: 1.4em;
   letter-spacing: -1.5px;
-  margin-top: -100px;
+  margin-top: 70px;
 
   .solid {
     width: 1100px;

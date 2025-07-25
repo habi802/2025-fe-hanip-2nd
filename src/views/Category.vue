@@ -323,7 +323,7 @@ const arrow = () => {
 
 .text {
   text-align: center;
-  margin-top: 147px;
+  margin-top: 70px;
   font-size: 2.5em;
   color: #ff6666;
 }
