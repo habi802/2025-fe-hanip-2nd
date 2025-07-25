@@ -2,6 +2,7 @@
 import OrderListCard from "./OrderListCard.vue";
 import { computed, ref } from "vue";
 import { useOrderStore } from "@/stores/orderStore";
+import { deleteOrder } from "@/services/orderService";
 
 const orderStore = useOrderStore();
 const nonOrderedOrders = computed(() => orderStore.nonOrderedList);
@@ -46,13 +47,22 @@ const handleSelectOrder = (order) => {
 };
 
 // 삭제
-const deleteOrder = async() => {
-    if (!["COMPLETED", "CANCELED"].includes(selectedOrder?.status)) {
+const deleteOrderOne = async() => {
+    if (!["COMPLETED", "CANCELED"].includes(selectedOrder.value?.status)) {
         alert("진행 중인 주문은 삭제하실 수 없습니다.")
         return;
     }
+    
     // 삭제 로직
-
+    const res = await deleteOrder(selectedOrder.value?.id);
+    console.log("res: ", res.data.resultData)
+    if (res.status !== 200) {
+      alert("에러")
+      return
+    }
+    alert("정상적으로 삭제됐습니다.")
+    await orderStore.fetchOrders;
+    selectedOrder.value = null;
 }
 
 // 배달 상태 치환
@@ -75,7 +85,9 @@ const statusText = computed(() => {
 // 더보기
 const visibleCount = ref(5);
 const visibleOrders = computed(() => {
-  return nonOrderedOrders.value.slice(0, visibleCount.value);
+  return nonOrderedOrders.value
+  .filter(order => order.isDeleted !== 1)
+  .slice(0, visibleCount.value);
 });
 const loadMore = () => {
   visibleCount.value += 5;
@@ -291,12 +303,11 @@ const formatDateTime = (isoStr) => {
             </tr>
           </table>
         </section>
-        <button class="btn">
+        <button class="btn" @click="deleteOrderOne">
           <img
             class="trash-icon"
             src="/src/imgs/owner/Icon_휴지통.svg"
             alt="휴지통"
-            @click="deleteOrder"
           />
         </button>
       </div>

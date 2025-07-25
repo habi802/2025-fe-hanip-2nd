@@ -112,28 +112,52 @@ const submitReview = async () => {
     modal.hide();
 };
 
-// 유저 이미지가 없을 시 대체 이미지 나타내기
+// 유저 프로필 없을 시 대체 이미지 나타내기
 const imgSrc = computed(() => {
   return reviewStore.reviews && reviewStore.reviews.imagePath && reviewStore.reviews.imagePath !== 'null'
   ? `/pic/store-profile/${reviewStore.reviews.id}/${reviewStore.reviews.imagePath}`
   : defaultUserProfile;
 })
 
+// 유저 프로필 경로
 const img = "`/pic/user-profile/${review.id}/${review.imagePath}`";
+
+// 전체 리뷰 수
+const totalReviewCount = computed(() => reviewStore.reviews.length);
+
+// 평균 리뷰
+const avgReview = computed(() => {
+if (!reviewStore.reviews.length) return 0;
+
+const sum = reviewStore.reviews.reduce((acc, review) => acc + review.rating, 0);
+return (sum / reviewStore.reviews.length).toFixed(1);
+});
+
+// 날짜
+const formatDateTime = (isoStr) => {
+  return new Date(isoStr).toLocaleString("ko-KR", {
+    timeZone: "Asia/Seoul",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+};
 </script>
 
 <template>
 <div class="wrap" > 
     <div>
         <h2>리뷰 관리</h2>
-        <span style="color : #838383">어서오세요! 〔 {{ userName }} 〕 사장님, 관리자 페이지에 다시 오신것을 환영합니다</span>
+        <span style="color : #838383">어서오세요! {{ userName }} 사장님, 관리자 페이지에 다시 오신것을 환영합니다</span>
         
         <!-- 전체 토탈 카드 -->
         <div class="total-wrap">
             <div class="total-box">
                 <div class="circle"></div>
                 <div>
-                    <span>{{ 10 }}</span>
+                    <span>{{ totalReviewCount }}</span>
                     <span>전체 리뷰 수</span>
                 </div>
             </div>
@@ -141,7 +165,7 @@ const img = "`/pic/user-profile/${review.id}/${review.imagePath}`";
             <div class="total-box">
                 <div class="circle"></div>
                 <div>
-                    <span>{{ 4.9 }}</span>
+                    <span>{{ avgReview }}</span>
                     <span>평균 별점</span>
                 </div>
             </div>
@@ -183,7 +207,7 @@ const img = "`/pic/user-profile/${review.id}/${review.imagePath}`";
                 </div>
                 <div>
                     <span>{{  review.userName }}</span>
-                    <span>{{  review.created }}</span> 
+                    <span>{{  formatDateTime(review.created) }}</span> 
                 </div>
             </div>
                 <p>{{  review.comment }}</p>    

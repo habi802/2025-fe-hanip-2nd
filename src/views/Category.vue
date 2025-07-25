@@ -63,7 +63,10 @@ const name = reactive({
 
 onMounted(() => {
   nextTick(() => {
-    if (query.value) searchText(query.value)
+    if (query.value) {
+      searchText(query.value)
+      name.text = query.value;
+    }
     const text = router.currentRoute.value.query.section;
       switch (text) {
         case 'korean':
@@ -216,10 +219,25 @@ const arrow = () => {
     behavior: 'smooth',
   });
 };
+
+// 검색
+const search = ref("");
+
+const caLink = async() => {
+  console.log("검색: ", search.value)
+  const res = await getStoreList({ searchText: search.value });
+  console.log("res: ", res.data.resultData)
+  state.stores = res.data.resultData;
+  name.text = search.value;
+}
 </script>
 
 <template>
   <div class="text">{{ name.text }}</div>
+  <div class="searchBar">
+        <input v-model="search" @keyup.enter="caLink" type="text" id="title" class="searchBox" placeholder="찾는 맛집 이름,메뉴가 무엇인가요?" />
+        <img @click="caLink" class="searchImg" src="/src//imgs/fluent_search.png" />
+      </div>
   <div class="categorys">
     <div class="categorySwipe">
       <div class="swiperLeft">
@@ -335,7 +353,7 @@ const arrow = () => {
 .categorys {
   display: flex;
   justify-content: center;
-  margin-top: 90px;
+  margin-top: 60px;
   text-align: center;
 
   .categorySwipe {
@@ -411,4 +429,57 @@ const arrow = () => {
     opacity: 80%;
   }
 }
+
+// 검색
+.searchBar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 50px auto 0;
+  padding: 0 20px;
+  width: 600px;
+  height: 70px;
+  border: 3px solid #ff6666;
+  border-radius: 50px;
+  position: relative;
+  background-color: white;
+      input {
+        padding-left: 43px;
+      }
+
+      input:focus {
+        outline: none;
+        box-shadow: none;
+      }
+
+      .searchImg {
+        width: 30px;
+        position: relative;
+        right: 35px;
+        bottom: 2px;
+        cursor: pointer;
+      }
+
+      .searchBox {
+        flex: 1;
+        height: 100%;
+        border: none;
+        border-radius: 50px;
+        padding-left: 20px;
+        font-size: 1em;
+        color: #333;
+      }
+
+      .searchBox::placeholder {
+        color: #fcaeae;
+      }
+    }
+
+    .searchBar::placeholder {
+      color: #ff6666;
+    }
+    .searchBar::-moz-focus-inner {
+      outline: none; 
+      box-shadow: none;
+    }
 </style>
