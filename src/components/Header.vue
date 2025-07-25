@@ -28,7 +28,7 @@ const cartRouter = () => {
 
 //주문내역 페이지로 이동
 const orderRouter = () => {
-  router.push({ path: "/my-page", query: { section: "order" } });
+  router.push("/orders");
 };
 </script>
 
@@ -36,7 +36,7 @@ const orderRouter = () => {
   <header>
     <div class="navbar">
       <div class="naverBox">
-        <div>
+        <div class="logoBox">
           <img
             @click="homeRouter"
             class="logo"
@@ -44,25 +44,23 @@ const orderRouter = () => {
           />
         </div>
         <div class="searchBar">
-          <input
-            @click="caLink"
-            type="text"
-            id="title"
-            class="searchBox"
-            placeholder="주소를 검색해 주세요"
-            onfocus="this.placeholder=''"
-            onblur="this.placeholder='주소를 검색해 주세요'"
-          />
           <img
             @click="caLink"
             class="searchImg"
             src="/src/imgs/weui_location-filled.png"
           />
+          <div class="addressText">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;주소를 입력해주세요</div>
         </div>
         <div class="containerOne">
           <div class="menus d-flex gap-3">
+
+            
             <template v-if="account.state.loggedIn">
-              <img @click="orderRouter" class="order" src="/src/imgs/order.png" />
+              <img
+                @click="orderRouter"
+                class="order"
+                src="/src/imgs/order.png"
+              />
               <img
                 @click="cartRouter"
                 id="menu"
@@ -91,8 +89,6 @@ const orderRouter = () => {
             </template>
           </div>
         </div>
-
-
       </div>
     </div>
   </header>
@@ -109,14 +105,14 @@ const orderRouter = () => {
   padding: 0 1rem;
   -webkit-box-shadow: 1px 9px 13px -1px rgba(0, 0, 0, 0.12);
   box-shadow: 1px 9px 13px -1px rgba(0, 0, 0, 0.12);
-// 
-position: fixed;
+  //
+  position: fixed;
   top: 0;
   left: 0;
   width: 100%;
-  z-index: 9999; 
+  z-index: 9999;
 }
-.naverBox{
+.naverBox {
   width: 1500px;
   display: flex;
   justify-content: space-between;
@@ -140,14 +136,20 @@ position: fixed;
     cursor: pointer;
   }
 }
-img.logo {
+.logoBox {
+  display: flex;
+  align-items: center;
+}
+.logo {
   width: 190px;
   height: auto;
   object-fit: contain;
 
-  margin-bottom: 8px;
   cursor: pointer;
 }
+
+
+
 .menus {
   color: #ff6666;
   font-weight: 800;
@@ -157,48 +159,21 @@ img.logo {
   align-items: center;
   margin-top: 30px;
 }
+.searchBar {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 400px;
+  .searchImg {
+    width: 20px;
+  }
+}
 
 #menu {
   cursor: pointer;
   text-decoration: none;
   font-weight: 800;
   color: #ff6666;
-}
-
-.searchBar {
-  // margin-bottom: 15px;
-  width: 31.5%;
-  font-size: 0.7em;
-  border: 2px solid #fcaeae;
-  border-radius: 20px;
-  margin-right: -30px;
-  margin-bottom: 15px;
-  input {
-    padding-left: 43px;
-  }
-  input:focus {
-    outline: none;
-    box-shadow: none;
-  }
-  .searchImg {
-    width: 20px;
-    position: relative;
-    right: 35px;
-    bottom: 2px;
-    cursor: pointer;
-  }
-  .searchBox {
-    border: none;
-    width: 96%;
-    // width: 564px;
-    height: 36px;
-    border-radius: 20px;
-  }
-  .searchBox::placeholder {
-    color: #fcaeae;
-    text-align: center;
-    margin-left: 40px;
-  }
 }
 
 @media (max-width: 1650px) {
@@ -217,8 +192,6 @@ img.logo {
     margin-left: 0px;
     img.logo {
       margin-left: 0px;
-
-      //
     }
   }
 }
