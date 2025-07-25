@@ -17,6 +17,6 @@ import Footer from "@/components/Footer.vue";
   z-index: 9999;
 }
 .router {
-  padding-top: 77px;
+  padding-top: 90px;
 }
 </style>

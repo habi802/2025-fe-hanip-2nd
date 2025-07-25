@@ -43,43 +43,55 @@ const orderRouter = () => {
             src="/src/imgs/hanipLogogroup.png"
           />
         </div>
-        <div class="searchBar">
-          <img
-            @click="caLink"
-            class="searchImg"
-            src="/src/imgs/weui_location-filled.png"
-          />
-          <div class="addressText">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;주소를 입력해주세요</div>
-        </div>
+        <template template v-if="account.state.loggedIn">
+          <div class="searchBar">
+            <img
+              @click="caLink"
+              class="searchImg"
+              src="/src/imgs/weui_location-filled.png"
+            />
+            <div class="addressText2">
+              유저 정보에 따른 주소 필요
+            </div>
+          </div>
+        </template>
+        <template template v-else>
+          <div class="searchBar">
+            <img
+              @click="caLink"
+              class="searchImg"
+              src="/src/imgs/weui_location-filled.png"
+            />
+            <div class="addressText">
+              주소를 입력해주세요
+            </div>
+          </div>
+        </template>
         <div class="containerOne">
           <div class="menus d-flex gap-3">
-
-            
             <template v-if="account.state.loggedIn">
+              <img class="faiorites" src="/src/imgs/faivor.png" />
               <img
                 @click="orderRouter"
                 class="order"
-                src="/src/imgs/order.png"
+                src="/src/imgs/orders.png"
               />
               <img
                 @click="cartRouter"
                 id="menu"
                 class="shooping"
-                src="/src/imgs/shopping.png"
-              />
-              <img
-                @click="myPageRouter"
-                class="myPage"
-                src="/src/imgs/myPage.png"
+                src="/src/imgs/shoop.png"
               />
               <div id="menu" @click="logoutIn">로그아웃</div>
+              <div>|</div>
+              <div class="myPage" @click="myPageRouter">마이페이지</div>
             </template>
             <template v-else>
               <img
                 @click="cartRouter"
                 id="menu"
                 class="shooping"
-                src="/src/imgs/shopping.png"
+                src="/src/imgs/shoop.png"
               />
               <div class="login">
                 <router-link id="menu" to="/login">로그인</router-link>
@@ -118,8 +130,9 @@ const orderRouter = () => {
   justify-content: space-between;
 }
 .containerOne {
+  width: 400px;
   margin-bottom: 30px;
-  margin-top: -12px;
+  margin-top: -5px;
   .shooping {
     width: 45px;
     margin-right: 14px;
@@ -127,18 +140,22 @@ const orderRouter = () => {
 
   .order {
     width: 45px;
-    margin-right: 14px;
+
     cursor: pointer;
   }
   .myPage {
-    width: 55px;
     margin-right: 14px;
     cursor: pointer;
+  }
+  .faiorites {
+    width: 34px;
+    margin-right: 2px;
   }
 }
 .logoBox {
   display: flex;
   align-items: center;
+  width: 400px;
 }
 .logo {
   width: 190px;
@@ -148,9 +165,8 @@ const orderRouter = () => {
   cursor: pointer;
 }
 
-
-
 .menus {
+  justify-content: end;
   color: #ff6666;
   font-weight: 800;
   font-size: 13px;
@@ -167,6 +183,15 @@ const orderRouter = () => {
   .searchImg {
     width: 20px;
   }
+}
+.addressText{
+  margin-left: 15px;
+  color: #FDBDBD;
+  font-weight: 800;
+}
+.addressText2{
+  margin-left: 15px;
+  color: #FDBDBD;
 }
 
 #menu {
