@@ -17,18 +17,18 @@ const router = createRouter({
       meta: { layout: MainLayout },
     },
     {
-      path: "/stores/:id/order",
-      component: () => import("@/views/Order.vue"),
+      path: '/stores/:id/order',
+      component: () => import('@/views/Order.vue'),
       meta: { layout: MainLayout },
     },
     {
-      path: "/stores/:id/order/success",
-      component: () => import("@/views/OrderSuccess.vue"),
+      path: '/stores/:id/order/success',
+      component: () => import('@/views/OrderSuccess.vue'),
       meta: { layout: MainLayout },
     },
     {
-      path: "/owner",
-      component: () => import("@/views/owner/Dashboard.vue"),
+      path: '/owner',
+      component: () => import('@/views/owner/Home.vue'),
       meta: { layout: OwnerLayout },
     },
     {
@@ -76,35 +76,36 @@ const router = createRouter({
       meta: { layout: MainLayout },
     },
     {
-      path: "/owner/delivery",
-      component: () => import("@/views/owner/Delivery.vue"),
+      path: '/owner/delivery',
+      component: () => import('@/views/owner/Delivery.vue'),
       meta: { layout: OwnerLayout },
     },
     {
-      path: "/owner/donations",
-      component: () => import("@/views/owner/Donations.vue"),
+      path: '/owner/donations',
+      component: () => import('@/views/owner/Donations.vue'),
       meta: { layout: OwnerLayout },
     },
     {
-      path: "/owner/customer",
-      component: () => import("@/views/owner/Customer.vue"),
+      path: '/owner/customer',
+      component: () => import('@/views/owner/Customer.vue'),
       meta: { layout: OwnerLayout },
     },
     {
-      path: "/owner/coupons",
-      component: () => import("@/views/owner/Coupons.vue"),
+      path: '/owner/coupons',
+      component: () => import('@/views/owner/Coupons.vue'),
       meta: { layout: OwnerLayout },
     },
     {
-      path: "/owner/ads",
-      component: () => import("@/views/owner/ads.vue"),
+      path: '/owner/ads',
+      component: () => import('@/views/owner/ads.vue'),
       meta: { layout: OwnerLayout },
     },
-    {
-      path: "/orders",
-      component: () => import("@/components/myPage/OrderDetails.vue"),
-      meta: { layout: MainLayout },
+     {
+      path: '/owner/dashboard',
+      component: () => import('@/views/owner/Dashboard.vue'),
+      meta: { layout: OwnerLayout },
     },
+    
   ],
 });
 export default router;
