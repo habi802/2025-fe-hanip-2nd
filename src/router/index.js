@@ -113,6 +113,11 @@ const router = createRouter({
       component: () => import("@/components/myPage/OrderDetails.vue"),
       meta: { layout: MainLayout },
     },
+    {
+      path: "/favorites",
+      component: () => import("@/components/myPage/Favorites.vue"),
+      meta: { layout: MainLayout },
+    },
   ],
 });
 export default router;

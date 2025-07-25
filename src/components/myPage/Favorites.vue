@@ -1,94 +1,98 @@
 <script setup></script>
 
 <template>
-  <div class="box">
-    <div>
-      <div>내가 찜한 가게</div>
-      <div class="solid"></div>
-    </div>
+  <div class="all-box">
 
-    <div class="store-list">
-      <!-- 카드 1 -->
-      <div class="store-card">
-        <img src="@/imgs/chicken.png" alt="치킨" class="store-image" />
-        <div class="store-info">
-          <h3 class="store-title">BBC 치킨</h3>
-          <p class="store-sub">배달팁 3,000원 · 최소주문 15,000원</p>
-          <div class="store-meta">
-            <span class="rating">⭐ 4.9 (999+)</span>
-            <span class="likes">❤️ 1120</span>
-          </div>
-          <button class="detail-btn">자세히 보기</button>
-        </div>
+
+    <div class="box">
+      <div>
+        <div>내가 찜한 가게</div>
+        <div class="solid"></div>
       </div>
-
-      <!-- 카드 2 -->
-      <div class="store-card">
-        <img src="@/imgs/hamburger.png" alt="햄버거" class="store-image" />
-        <div class="store-info">
-          <h3 class="store-title">맥도리아</h3>
-          <p class="store-sub">배달팁 2,000원 · 최소주문 12,000원</p>
-          <div class="store-meta">
-            <span class="rating">⭐ 4.7 (998)</span>
-            <span class="likes">❤️ 950</span>
+  
+      <div class="store-list">
+        <!-- 카드 1 -->
+        <div class="store-card">
+          <img src="@/imgs/chicken.png" alt="치킨" class="store-image" />
+          <div class="store-info">
+            <h3 class="store-title">BBC 치킨</h3>
+            <p class="store-sub">배달팁 3,000원 · 최소주문 15,000원</p>
+            <div class="store-meta">
+              <span class="rating">⭐ 4.9 (999+)</span>
+              <span class="likes">❤️ 1120</span>
+            </div>
+            <button class="detail-btn">자세히 보기</button>
           </div>
-          <button class="detail-btn">자세히 보기</button>
         </div>
-      </div>
-
-      <!-- 카드 3 -->
-      <div class="store-card">
-        <img src="@/imgs/pizza.png" alt="피자" class="store-image" />
-        <div class="store-info">
-          <h3 class="store-title">도레미 피자</h3>
-          <p class="store-sub">배달팁 3,500원 · 최소주문 18,000원</p>
-          <div class="store-meta">
-            <span class="rating">⭐ 4.8 (987)</span>
-            <span class="likes">❤️ 888</span>
+  
+        <!-- 카드 2 -->
+        <div class="store-card">
+          <img src="@/imgs/hamburger.png" alt="햄버거" class="store-image" />
+          <div class="store-info">
+            <h3 class="store-title">맥도리아</h3>
+            <p class="store-sub">배달팁 2,000원 · 최소주문 12,000원</p>
+            <div class="store-meta">
+              <span class="rating">⭐ 4.7 (998)</span>
+              <span class="likes">❤️ 950</span>
+            </div>
+            <button class="detail-btn">자세히 보기</button>
           </div>
-          <button class="detail-btn">자세히 보기</button>
         </div>
-      </div>
-
-      <!-- 카드 4 -->
-      <div class="store-card">
-        <img src="@/imgs/dessert.png" alt="디저트" class="store-image" />
-        <div class="store-info">
-          <h3 class="store-title">뉴욕바게트</h3>
-          <p class="store-sub">배달팁 1,500원 · 최소주문 10,000원</p>
-          <div class="store-meta">
-            <span class="rating">⭐ 4.6 (827)</span>
-            <span class="likes">❤️ 648</span>
+  
+        <!-- 카드 3 -->
+        <div class="store-card">
+          <img src="@/imgs/pizza.png" alt="피자" class="store-image" />
+          <div class="store-info">
+            <h3 class="store-title">도레미 피자</h3>
+            <p class="store-sub">배달팁 3,500원 · 최소주문 18,000원</p>
+            <div class="store-meta">
+              <span class="rating">⭐ 4.8 (987)</span>
+              <span class="likes">❤️ 888</span>
+            </div>
+            <button class="detail-btn">자세히 보기</button>
           </div>
-          <button class="detail-btn">자세히 보기</button>
         </div>
-      </div>
-
-      <!-- 카드 5 -->
-      <div class="store-card">
-        <img src="@/imgs/porkcutlet.png" alt="돈까스" class="store-image" />
-        <div class="store-info">
-          <h3 class="store-title">내돈까스</h3>
-          <p class="store-sub">배달팁 2,500원 · 최소주문 13,000원</p>
-          <div class="store-meta">
-            <span class="rating">⭐ 4.9 (999+)</span>
-            <span class="likes">❤️ 770</span>
+  
+        <!-- 카드 4 -->
+        <div class="store-card">
+          <img src="@/imgs/dessert.png" alt="디저트" class="store-image" />
+          <div class="store-info">
+            <h3 class="store-title">뉴욕바게트</h3>
+            <p class="store-sub">배달팁 1,500원 · 최소주문 10,000원</p>
+            <div class="store-meta">
+              <span class="rating">⭐ 4.6 (827)</span>
+              <span class="likes">❤️ 648</span>
+            </div>
+            <button class="detail-btn">자세히 보기</button>
           </div>
-          <button class="detail-btn">자세히 보기</button>
         </div>
-      </div>
-
-      <!-- 카드 6 -->
-      <div class="store-card">
-        <img src="@/imgs/koreanfood.png" alt="한식" class="store-image" />
-        <div class="store-info">
-          <h3 class="store-title">한식당 우리집</h3>
-          <p class="store-sub">배달팁 3,000원 · 최소주문 14,000원</p>
-          <div class="store-meta">
-            <span class="rating">⭐ 4.8 (958)</span>
-            <span class="likes">❤️ 820</span>
+  
+        <!-- 카드 5 -->
+        <div class="store-card">
+          <img src="@/imgs/porkcutlet.png" alt="돈까스" class="store-image" />
+          <div class="store-info">
+            <h3 class="store-title">내돈까스</h3>
+            <p class="store-sub">배달팁 2,500원 · 최소주문 13,000원</p>
+            <div class="store-meta">
+              <span class="rating">⭐ 4.9 (999+)</span>
+              <span class="likes">❤️ 770</span>
+            </div>
+            <button class="detail-btn">자세히 보기</button>
           </div>
-          <button class="detail-btn">자세히 보기</button>
+        </div>
+  
+        <!-- 카드 6 -->
+        <div class="store-card">
+          <img src="@/imgs/koreanfood.png" alt="한식" class="store-image" />
+          <div class="store-info">
+            <h3 class="store-title">한식당 우리집</h3>
+            <p class="store-sub">배달팁 3,000원 · 최소주문 14,000원</p>
+            <div class="store-meta">
+              <span class="rating">⭐ 4.8 (958)</span>
+              <span class="likes">❤️ 820</span>
+            </div>
+            <button class="detail-btn">자세히 보기</button>
+          </div>
         </div>
       </div>
     </div>
@@ -97,17 +101,25 @@
 
 <style lang="scss" scoped>
 @font-face {
-  font-family: 'BMJUA';
-  src: url('https://fastly.jsdelivr.net/gh/projectnoonnu/noonfonts_one@1.0/BMJUA.woff')
-    format('woff');
+  font-family: "BMJUA";
+  src: url("https://fastly.jsdelivr.net/gh/projectnoonnu/noonfonts_one@1.0/BMJUA.woff")
+    format("woff");
   font-weight: normal;
   font-style: normal;
 }
 
+.all-box{
+  display: flex;
+  justify-content: center;
+
+}
 .box {
-  font-family: 'BMJUA';
+
+  font-family: "BMJUA";
   font-size: 1.4em;
   letter-spacing: -1.5px;
+  margin-top: 70px;
+  margin-bottom: 120px;
   .solid {
     width: 1100px;
     border: 1px #000 solid;
@@ -197,4 +209,3 @@
   background-color: #e65c53;
 }
 </style>
-

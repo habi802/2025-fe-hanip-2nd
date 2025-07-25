@@ -126,6 +126,8 @@ console.log("props.order", props.order);
 </template>
 
 <style lang="scss" scoped>
+
+
 .btn {
   font-family: "BMJUA";
   font-size: 1em;
@@ -149,7 +151,7 @@ console.log("props.order", props.order);
 
 .bigBoard {
   width: 1080px;
-  height: 315px;
+  height: 320px;
   border: #6c6c6c 3px solid;
   border-radius: 25px;
   margin-top: 40px;
@@ -158,7 +160,7 @@ console.log("props.order", props.order);
   .board {
     display: flex;
     width: 100%;
-    height: 300px;
+    height: 320px;
     justify-content: space-between;
     overflow: clip;
 

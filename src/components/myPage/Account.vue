@@ -69,47 +69,47 @@ const favorClick = () => {
   inf.value = false;
   // pay.value = false;
   favor.value = true;
-
   main.value = false;
 };
 
 
 
 //
-const myAccount = ['주문내역', '정보수정', '즐겨찾기', '고객센터'];
+// const myAccount = ['주문내역', '정보수정', '즐겨찾기', '고객센터'];
+// const myAccount2 = ['주문내역', '정보수정', '즐겨찾기', '고객센터'];
 </script>
 
 <template>
   <div class="accountBox">
-    <div class="accountBoard">
-      <div class="mainText" @click="mainClick">마이페이지</div>
+    <!-- <div class="accountBoard"> -->
+      <!-- <div class="mainText" @click="mainClick">마이페이지</div>
       <div>
         <div class="smallText" @click="orderClick">{{ myAccount[0] }}</div>
         <div class="smallText" @click="infClick">{{ myAccount[1] }}</div>
-        <!-- <div class="smallText" @click="payClick">{{ myAccount[2] }}</div> -->
+        <div class="smallText" @click="payClick">{{ myAccount[2] }}</div>
         <div class="smallText" @click="favorClick">{{ myAccount[2] }}</div>
         <div class="smallText">{{ myAccount[3] }}</div>
       </div>
-    </div>
+    </div> -->
     <div class="components">
-      <div v-if="OrderDetail">
+      <!-- <div v-if="OrderDetail">
         <order-details></order-details>
-      </div>
-      <div v-if="inf">
+      </div> -->
+      <div>
         <Information></Information>
       </div>
       <!-- <div v-if="pay">
         <Payment></Payment>
       </div> -->
-      <div v-if="favor">
+      <!-- <div v-if="favor">
         <Favorites></Favorites>
-      </div>
+      </div> -->
       <!-- <div v-if="ct">
         <customerCt></customerCt>
       </div> -->
-      <div v-if="main">
+      <!-- <div v-if="main">
         <AccountMain></AccountMain>
-      </div>
+      </div> -->
     </div>
   </div>
   <footer></footer>

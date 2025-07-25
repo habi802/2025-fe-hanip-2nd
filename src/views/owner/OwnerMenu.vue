@@ -128,7 +128,7 @@ const fetchMenus = async () => {
       </div>
     </div>
   </div>
-
+  
   <!-- 부트스트랩 모달 -->
   <div class="modal fade" ref="addMenuModal" tabindex="-1">
     <div class="modal-dialog">
