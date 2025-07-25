@@ -2,12 +2,40 @@
 import { useRouter } from "vue-router";
 import { useAccountStore } from "@/stores/account";
 import { logout } from "@/services/userService";
+import { reactive, ref } from "vue";
+
+import Menu from "@/components/Menu.vue";
 
 const account = useAccountStore();
 
 const router = useRouter();
 const homeRouter = () => {
   router.push("/");
+};
+//
+const state = reactive({
+  // 가게 정보
+  store: {},
+  // 가게 메뉴 정보
+  menus: [],
+  // 가게 리뷰 정보
+  reviews: [],
+  // 고객 장바구니 정보
+  carts: [],
+});
+
+//주문하기로 이동하는 함수
+const toOrder = () => {
+  if (!account.state.loggedIn) {
+    alert("로그인 후 주문이 가능합니다.");
+    return;
+  } else if (state.carts.length < 1) {
+    alert("메뉴를 선택해주세요.");
+    return;
+  }
+
+  carts.state.items = state.carts;
+  router.push({ path: `/stores/${route.params.id}/order` });
 };
 
 // 로그아웃
@@ -30,6 +58,101 @@ const cartRouter = () => {
 const orderRouter = () => {
   router.push("/orders");
 };
+// 주문내역 페이지 on off
+let orderBox = ref(false);
+// 장바구니 추가 함수(Menu.vue 컴포넌트에서 받아옴)
+const addCart = (item) => {
+  item.quantity = 1;
+  state.carts.push(item);
+  calculateTotal();
+};
+
+// 장바구니 메뉴 개수 감소시키는 함수
+const decreaseQuantity = async (idx) => {
+  if (state.carts[idx].quantity > 1) {
+    const params = {
+      cartId: state.carts[idx].id,
+      quantity: state.carts[idx].quantity - 1,
+    };
+
+    // 메뉴 개수 수정하는 API 함수 호출
+    const res = await updateQuantity(params);
+
+    if (res === undefined) {
+      alert("수정 실패");
+      return;
+    } else if (res.data.resultStatus !== 200) {
+      alert(res.data.resultMessage);
+      return;
+    }
+
+    state.carts[idx].quantity--;
+    calculateTotal();
+  }
+};
+
+// 장바구니 메뉴 개수 증가시키는 함수
+const increaseQuantity = async (idx) => {
+  const params = {
+    cartId: state.carts[idx].id,
+    quantity: state.carts[idx].quantity + 1,
+  };
+
+  // 메뉴 개수 수정하는 API 함수 호출
+  const res = await updateQuantity(params);
+
+  if (res === undefined) {
+    alert("수정 실패");
+    return;
+  } else if (res.data.resultStatus !== 200) {
+    alert(res.data.resultMessage);
+    return;
+  }
+
+  state.carts[idx].quantity++;
+  calculateTotal();
+};
+
+// 장바구니 삭제 함수
+const deleteCart = async (cartId) => {
+  const res = await removeItem(cartId);
+
+  if (res === undefined || res.data.resultStatus !== 200) {
+    alert("삭제 실패");
+    return;
+  }
+
+  if (res.data.resultData === 1) {
+    const deleteIdx = state.carts.findIndex((item) => item.id === cartId);
+    if (deleteIdx > -1) {
+      state.carts.splice(deleteIdx, 1);
+      calculateTotal();
+    }
+  }
+};
+
+// 장바구니 총 금액 계산하는 함수
+const calculateTotal = () => {
+  totalPrice.value = 0;
+
+  state.carts.forEach((item) => {
+    const price = item.price * item.quantity;
+    totalPrice.value += price;
+  });
+};
+// 고객 유저 장바구니 조회
+const loadCarts = async (id) => {
+  // 원래 다른 가게 메뉴를 장바구니에 추가했는지 여부까지 조회해야 하지만
+  // 그걸 구현할 시간이 없어 일단 장바구니 데이터 삭제하게 해놨음..
+  const res = await removeCart();
+
+  if (res === undefined || res.data.resultStatus !== 200) {
+    //alert(res.data.resultMessage);
+    return;
+  }
+};
+//
+const totalPrice = ref(0);
 </script>
 
 <template>
@@ -50,9 +173,7 @@ const orderRouter = () => {
               class="searchImg"
               src="/src/imgs/weui_location-filled.png"
             />
-            <div class="addressText2">
-              유저 정보에 따른 주소 필요
-            </div>
+            <div class="addressText2">유저 정보에 따른 주소 필요</div>
           </div>
         </template>
         <template template v-else>
@@ -62,9 +183,7 @@ const orderRouter = () => {
               class="searchImg"
               src="/src/imgs/weui_location-filled.png"
             />
-            <div class="addressText">
-              주소를 입력해주세요
-            </div>
+            <div class="addressText">주소를 입력해주세요</div>
           </div>
         </template>
         <div class="containerOne">
@@ -73,6 +192,8 @@ const orderRouter = () => {
               <img class="faiorites" src="/src/imgs/faivor.png" />
               <img
                 @click="orderRouter"
+                @mouseover="orderBox = true"
+                @mouseleave="orderBox = false"
                 class="order"
                 src="/src/imgs/orders.png"
               />
@@ -99,6 +220,58 @@ const orderRouter = () => {
               <a id="menu">|</a>
               <router-link id="menu" to="/join">회원가입</router-link>
             </template>
+          </div>
+        </div>
+      </div>
+      <!-- 주문표 부분 -->
+      <div v-if="orderBox" class="col-12 col-md-4 d-flex flex-column p-3">
+        <div class="row border rounded p-4 mb-2">
+          <div class="d-flex justify-content-between border-bottom pb-2 mb-2">
+            <span>주문표</span>
+          </div>
+          <div v-if="state.carts.length > 0">
+            <div v-for="(item, idx) in state.carts" :key="item.id">
+              <div class="p-2" :class="{ 'border-top': idx !== 0 }">
+                <div class="d-flex justify-content-between mb-2">
+                  <span>{{ item.name }}</span>
+                  <span
+                    >{{ (item.price * item.quantity).toLocaleString() }}원</span
+                  >
+                </div>
+                <div class="d-flex justify-content-between">
+                  <div>
+                    <button
+                      type="button"
+                      class="btn btn-basic btn-quantity"
+                      @click="decreaseQuantity(idx)"
+                    >
+                      -
+                    </button>
+                    <span class="p-3">{{ item.quantity }}</span>
+                    <button
+                      type="button"
+                      class="btn btn-basic btn-quantity"
+                      @click="increaseQuantity(idx)"
+                    >
+                      +
+                    </button>
+                  </div>
+                  <div>
+                    <button
+                      type="button"
+                      class="btn btn-basic btn-submit"
+                      @click="deleteCart(item.id)"
+                    >
+                      메뉴 취소
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div v-else> 담긴 메뉴가 없습니다 </div>
+          <div class="text-end border-top pt-2 mt-2">
+            {{ totalPrice.toLocaleString() }}원
           </div>
         </div>
       </div>
@@ -184,14 +357,19 @@ const orderRouter = () => {
     width: 20px;
   }
 }
-.addressText{
+.addressText {
   margin-left: 15px;
-  color: #FDBDBD;
+  color: #fdbdbd;
   font-weight: 800;
 }
-.addressText2{
+.addressText2 {
   margin-left: 15px;
-  color: #FDBDBD;
+  color: #fdbdbd;
+}
+.col-12 {
+  background-color: #fff;
+  margin-left: auto;
+  margin-top: -10px;
 }
 
 #menu {
