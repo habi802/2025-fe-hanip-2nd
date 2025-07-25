@@ -20,7 +20,6 @@ const props = defineProps({
 
 // 사진 미리보기
 previewImage.value = defaultMenuImage;
-const MenuImage = `D:/home/download/menu-profile/${props.menu.menuId}/${props.menu.imagePath}`
 
 const handleFileSelected = (e) => {
   const file = e.target.files[0];

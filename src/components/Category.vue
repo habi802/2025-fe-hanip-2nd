@@ -1,10 +1,13 @@
 <script setup>
+import { ref } from 'vue';
 import { useRouter } from 'vue-router';
 
 const router = useRouter();
+const search = ref("");
+
 
 const caLink = () => {
-  router.push('/categoryList');
+  router.push({ path: '/categoryList', query: { search_text: search.value } });
 };
 // 
 const koreanLink = () => {
@@ -50,7 +53,7 @@ const nightLink = () => {
   <div class="all">
     <div class="box d-flex">
       <div class="searchBar">
-        <input @click="caLink" type="text" id="title" class="searchBox" placeholder="찾는 맛집 이름,메뉴가 무엇인가요?" />
+        <input v-model="search" @keyup.enter="caLink" type="text" id="title" class="searchBox" placeholder="찾는 맛집 이름,메뉴가 무엇인가요?" />
         <img @click="caLink" class="searchImg" src="/src//imgs/fluent_search.png" />
       </div>
     </div>

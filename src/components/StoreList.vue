@@ -1,5 +1,7 @@
 <script setup>
 import { useRouter } from 'vue-router';
+import defaultImage from '@/imgs/owner/haniplogo_sample2.png'
+import { computed } from 'vue';
 const router = useRouter();
 const props = defineProps({
   stores: Object,
@@ -7,12 +9,22 @@ const props = defineProps({
 const storeRouter = () => {
   router.push(`/stores/${props.stores.storeId}`);
 };
+
+// 가게 이미지
+const img = `/pic/store-profile/${props.stores.storeId}/${props.stores.imagePath}`
+
+// 가게 이미지가 없을 시 대체 이미지 나타내기
+const imgSrc = computed(() => {
+  return props.stores && props.stores.imagePath && props.stores.imagePath !== 'null'
+  ? `/pic/store-profile/${props.stores.storeId}/${props.stores.imagePath}`
+  : defaultImage;
+})
 </script>
 <template>
   <div @click="storeRouter" class="router">
     <div class="store">
       <div class="storeImgBox">
-        <img class="sImg" src="/src/imgs/recStore_1.png" />
+        <img class="sImg" :src="imgSrc" @error="e => e.target.src = defaultImage" />
       </div>
       <div class="storeTextBox">
         <div class="sTextBox">
@@ -51,7 +63,9 @@ const storeRouter = () => {
     border-radius: 20px 20px 0px 0px;
 
     .sImg {
-      width: 420px;
+      width: 100%;
+      height: 260px;
+      object-fit: contain;
       border-radius: 20px 20px 0px 0px;
     }
   }
