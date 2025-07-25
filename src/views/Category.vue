@@ -56,6 +56,11 @@ const name = reactive({
 //   if (query.value) searchText(query.value)
 // })
 
+// 카테고리 검색창 용
+
+
+//
+
 onMounted(() => {
   nextTick(() => {
     if (query.value) searchText(query.value)
@@ -266,7 +271,6 @@ const arrow = () => {
       </div>
     </div>
   </div>
-  <hr class="line" />
   <div class="guideBox">
 
     <!-- root : 검색 결과가 없을 시 나타내는 이미지 일단 임시로-->
@@ -387,7 +391,7 @@ const arrow = () => {
   width: 1480px;
   height: 100%;
   margin: 0 auto;
-  margin-top: 150px;
+  margin-top: 100px;
   background-color: #fff;
 }
 

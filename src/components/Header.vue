@@ -53,6 +53,10 @@ const myPageRouter = () => {
 const cartRouter = () => {
   router.push("/cart");
 };
+//찜 목록 이동
+const faivorite = () => {
+  router.push("/favorites");
+};
 
 //주문내역 페이지로 이동
 const orderRouter = () => {
@@ -189,16 +193,20 @@ const totalPrice = ref(0);
         <div class="containerOne">
           <div class="menus d-flex gap-3">
             <template v-if="account.state.loggedIn">
-              <img class="faiorites" src="/src/imgs/faivor.png" />
+              <img
+                @click="faivorite"
+                class="faiorites"
+                src="/src/imgs/faivor.png"
+              />
               <img
                 @click="orderRouter"
-                @mouseover="orderBox = true"
-                @mouseleave="orderBox = false"
                 class="order"
                 src="/src/imgs/orders.png"
               />
               <img
                 @click="cartRouter"
+                @mouseover="orderBox = true"
+                @mouseleave="orderBox = false"
                 id="menu"
                 class="shooping"
                 src="/src/imgs/shoop.png"
@@ -269,7 +277,7 @@ const totalPrice = ref(0);
               </div>
             </div>
           </div>
-          <div v-else> 담긴 메뉴가 없습니다 </div>
+          <div v-else>담긴 메뉴가 없습니다</div>
           <div class="text-end border-top pt-2 mt-2">
             {{ totalPrice.toLocaleString() }}원
           </div>
@@ -370,6 +378,9 @@ const totalPrice = ref(0);
   background-color: #fff;
   margin-left: auto;
   margin-top: -10px;
+}
+.faiorites{
+  cursor: pointer;
 }
 
 #menu {
