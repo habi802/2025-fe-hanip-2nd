@@ -47,7 +47,7 @@ const handleSelectOrder = (order) => {
 
 // 삭제
 const deleteOrder = async() => {
-    if(selectedOrder?.status !== "COMPLETED" || selectedOrder?.status !== "CANCELED" ) {
+    if (!["COMPLETED", "CANCELED"].includes(selectedOrder?.status)) {
         alert("진행 중인 주문은 삭제하실 수 없습니다.")
         return;
     }
@@ -79,6 +79,18 @@ const visibleOrders = computed(() => {
 });
 const loadMore = () => {
   visibleCount.value += 5;
+};
+
+// 날짜
+const formatDateTime = (isoStr) => {
+  return new Date(isoStr).toLocaleString("ko-KR", {
+    timeZone: "Asia/Seoul",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
 };
 </script>
 
@@ -147,7 +159,7 @@ const loadMore = () => {
         </div>
 
         <!-- 조회기간설정 카드 -->
-        <div class="date-filter" style="cursor: pointer;" @click="">
+        <div class="date-filter" style="cursor: pointer;" ref="orderDetail">
           <img
             src="/src/imgs/owner/Icon_조회기간설정.svg"
             alt="캘린더아이콘"
@@ -190,7 +202,7 @@ const loadMore = () => {
         더보기
     </button>
       </div>
-      <div class="orders-detail shadow" ref="orderDetail">
+      <div class="orders-detail shadow">
         <!-- 주문정보 -->
         <section>
           <h3>주문 정보</h3>
@@ -263,7 +275,7 @@ const loadMore = () => {
           <table class="info-table">
             <tr>
               <th>결제일시</th>
-              <td>{{ selectedOrder?.updated || "--"}}</td>
+              <td>{{ formatDateTime(selectedOrder?.updated) || "--"}}</td>
             </tr>
             <tr>
               <th>결제수단</th>

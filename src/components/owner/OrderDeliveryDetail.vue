@@ -27,16 +27,14 @@ const orderComplete = async () => {
 
 // 날짜 파싱
 const formatDateTime = (isoStr) => {
-  const date = new Date(isoStr);
-
-  const year = date.getFullYear();
-  const month = date.getMonth() + 1;
-  const day = date.getDate();
-
-  const hour = date.getHours().toString().padStart(2, '0');
-  const min = date.getMinutes().toString().padStart(2, '0');
-
-  return `${year}-${month}-${day} ${hour}:${min}`;
+  return new Date(isoStr).toLocaleString("ko-KR", {
+    timeZone: "Asia/Seoul",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
 };
 </script>
 

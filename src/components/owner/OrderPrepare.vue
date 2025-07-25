@@ -9,9 +9,7 @@ const orderStore = useOrderStore();
 // ref 더보기
 const visibleCount = ref(4);
 const visibleOrders = computed(() => {
-  return [...orderStore.preparingList]  // 배열 복사
-    .reverse()                          // 최신 순으로 역순 정렬
-    .slice(0, visibleCount.value);      // 앞에서 N개만 보여줌
+  return orderStore.preparingList.slice(0, visibleCount.value);
 });
 
 // 가게 활성화 여부
@@ -20,7 +18,7 @@ const isOpen = inject("isOpen");
 
 <template>
   <div class="d-flex mb-5">
-    <div class="card shadow p-5 w-100" style="max-width: 450px">
+    <div class="card shadow p-5 w-100" style="max-width: 450px; border-radius: 15px;">
       <div class="fs-2 fw-bold text-center mb-3">음식준비</div>
 
       <div v-if="!isOpen" class="text-center text-danger fw-bold">

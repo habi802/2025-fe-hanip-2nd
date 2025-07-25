@@ -84,6 +84,7 @@ const submitMenu = async () => {
 
 // 삭제
 const deleteOneMenu = async () => {
+  if(!confirm("해당 메뉴를 삭제하시겠습니까?")) {return;}
   const res = await deleteMenu(props.menu.menuId)
   if (res.status != 200) {
     alert("에러");
@@ -124,7 +125,7 @@ const img = "`/pic/menu-profile/${props.menu.menuId}/${props.menu.imagePath}`"
       </div>
       <div class="col-md-7 d-flex flex-column justify-content-between p-3">
         <div>
-          <h5 class="card-title card-size mb-3">{{ props.menu.name }}</h5>
+          <h5 class="card-title card-size mb-3 pt-2">{{ props.menu.name }}</h5>
           <h6 class="text-muted mb-2">
             {{ props.menu.price.toLocaleString() + "원" }}
           </h6>

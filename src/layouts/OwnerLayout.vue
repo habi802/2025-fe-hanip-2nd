@@ -174,7 +174,7 @@ const storeModify = async() => {
 </script>
 
 <template>
-  <div class="d-flex" style="min-height: 100vh">
+  <div class="d-flex box" style="min-height: 100vh">
     <!-- 사이드바 -->
     <div class="p-4" style="width: 300px; flex-shrink: 0">
       <div class="text-center mb-5">
@@ -323,6 +323,9 @@ const storeModify = async() => {
 </template>
 
 <style lang="scss" scoped>
+.box {
+  font-family: "Pretendard", sans-serif;
+}
 img.logo {
   cursor: pointer;
 }

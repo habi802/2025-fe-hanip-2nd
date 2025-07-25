@@ -46,8 +46,9 @@ const start = async () => {
   </div>
 </template>
 
-<style>
+<style scoped>
 .box {
+  font-family: "Pretendard", sans-serif;
   padding-top: 82px;
   justify-content: center;
 }
@@ -80,9 +81,5 @@ const start = async () => {
 }
 .storeAccept-btn:active {
   background: #b23837;
-}
-
-body {
-  font-family: "Noto Sans KR", sans-serif;
 }
 </style>
