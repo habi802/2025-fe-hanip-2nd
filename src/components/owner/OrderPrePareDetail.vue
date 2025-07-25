@@ -1,15 +1,34 @@
 <script setup>
+import { modifyStatus } from "@/services/orderService";
+import { useOrderStore } from "@/stores/orderStore";
+
+const orderStore = useOrderStore();
 const props = defineProps({
   order: Object,
 });
 
 console.log(props.order);
+
+const dlivery = async () => {
+  const body = {
+    orderId: props.order.id,
+    status: "DELIVERING",
+  };
+  const res = await modifyStatus(body);
+  if (res.status !== 200) {
+    alert("에러");
+    return;
+  }
+
+  // 상태 업데이트
+  await orderStore.fetchOrders(props.order.storeId);
+};
 </script>
 
 <template>
   <div class="order-card shadow">
     <div class="order-info">
-      <div>닉네임: {{ order.name }}</div>
+      <div>닉네임: {{ order.userName }}</div>
       <div>주소: {{ order.address }}</div>
       <div v-for="(menu, index) in order.menus" :key="index">
         메뉴: {{ menu.name }} | 수량: {{ menu.quantity }}
@@ -18,12 +37,12 @@ console.log(props.order);
     </div>
 
     <div class="order-actions justify-content-center">
-      <button class="accept-btn" @click="$emit('accept')">배달 배차</button>
+      <button class="accept-btn" @click="dlivery">배달 배차</button>
     </div>
   </div>
 </template>
 
-<style scoped>
+<style lang="scss" scoped>
 .order-card {
   background: white;
   border-radius: 12px;
@@ -65,5 +84,13 @@ console.log(props.order);
   border-radius: 8px;
   font-size: 14px;
   width: 130px;
+  transition: background-color 0.3s, color 0.3s;
+}
+
+.accept-btn:hover {
+  background: #d44b4a;
+}
+.accept-btn:active {
+  background: #b23837;
 }
 </style>

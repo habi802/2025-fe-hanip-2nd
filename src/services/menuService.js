@@ -4,7 +4,12 @@ const path = '/menu';
 
 // 메뉴 추가
 export const saveMenu = (menuData) => {
-  return axios.post(path, menuData).catch((e) => e.response);
+  const config = {
+    headers: {
+      'Content-Type': 'multipart/form-data',
+    },
+  };
+  return axios.post(path, menuData,config).catch((e) => e.response);
 };
 
 // 가게 메뉴 전체 조회
@@ -23,8 +28,13 @@ export const getStoreIdAndMenus = () => {
 };
 
 // 메뉴 한개 수정
-export const modifyMenu = (menuId, menuData) => {
-  return axios.put(path, menuData, { params: menuId }).catch((e) => e.response);
+export const modifyMenu = (menuData) => {
+  const config = {
+    headers: {
+      'Content-Type': 'multipart/form-data',
+    },
+  };
+  return axios.put(path, menuData,config).catch((e) => e.response);
 };
 
 // 메뉴 삭제

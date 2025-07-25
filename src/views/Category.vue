@@ -17,18 +17,92 @@ import 'swiper/css/scrollbar';
 
 //
 import { getStoreList } from '@/services/storeService';
-import { reactive, onMounted } from 'vue';
+import { reactive, onMounted, nextTick, ref } from 'vue';
 import StoreList from '@/components/StoreList.vue';
-import { getMenus } from '@/services/menuService';
-import Category from '@/components/Category.vue';
+import { useRouter, useRoute } from 'vue-router';
 
+const router = useRouter();
+const route = useRoute();
 const state = reactive({
   stores: [],
 });
 
+// 쿼리에서 검색어 추출
+const query = ref(route.query.search_text || '')
+const result = ref([])
+
+const searchText = async (search_text) => {
+  console.log('searchText 호출, q:', search_text);
+  try {
+    const params = { search_text };
+    console.log('api 파라미터:', params);
+    const res = await getStoreList(params);
+    console.log('api:', res.data.resultData);
+    result.value = res.data.resultData;
+    state.stores = result.value;
+    console.log('state.stores: ', state.stores);
+  } catch (error) {
+    console.error('에러 발생:', error);
+    result.value = [];
+  }
+};
+
 const name = reactive({
   text: '전체',
 });
+
+// 라우터 필터용
+// onMounted(() => {
+//   if (query.value) searchText(query.value)
+// })
+
+onMounted(() => {
+  nextTick(() => {
+    if (query.value) searchText(query.value)
+    const text = router.currentRoute.value.query.section;
+      switch (text) {
+        case 'korean':
+          searchKoreanFood();
+          break;
+        case 'china':
+          searchChina();
+          break;
+        case 'japan':
+          searchJapanese();
+          break;
+        case 'pasta':
+          searchWesternFood();
+          break;
+        case 'cafe':
+          searchDessert();
+          break;
+        case 'snack':
+          searchSnackFood();
+          break;
+        case 'fast':
+          searchFastFood();
+          break;
+        case 'asian':
+          searchAsian();
+          break;
+        case 'chicken':
+          searchChick();
+          break;
+        case 'pizza':
+          searchPizza();
+          break;
+        case 'night':
+          searchLateNight();
+          break;
+        default:
+          if (query.value) {
+            return;
+          }
+          findAll({});
+        }
+  });
+})
+
 
 // 카테고리 필터
 // 전체 찾기
@@ -125,16 +199,11 @@ const searchLateNight = () => {
   findAll(searchCategory);
 };
 
-//
-
 const findAll = async (params) => {
   const res = await getStoreList(params);
   state.stores = res.data.resultData;
 };
 
-onMounted(async () => {
-  findAll({});
-});
 
 const arrow = () => {
   window.scrollTo({
@@ -151,100 +220,46 @@ const arrow = () => {
       <div class="swiperLeft">
         <img class="left" src="/src/imgs/NavigationLeft.png" />
       </div>
-      <swiper
-        :navigation="{
-          nextEl: '.swiperRight',
-          prevEl: '.swiperLeft',
-        }"
-        :slides-per-view="6"
-        :modules="[Navigation, Pagination, Scrollbar, A11y, Autoplay]"
-        :speed="100"
-        :loop="true"
-      >
-        <swiper-slide
-          ><img @click="searchAll" src="/src/imgs/allImg.png" alt="allImg" />
-          <div>전체</div></swiper-slide
-        >
-        <swiper-slide
-          ><img
-            @click="searchKoreanFood"
-            src="/src/imgs/koreanfood.png"
-            alt="koreanImg"
-          />
-          <div>한식</div></swiper-slide
-        >
-        <swiper-slide
-          ><img
-            @click="searchChina"
-            src="/src/imgs/jjajangmyeon.png"
-            alt="ChinaImg"
-          />
-          <div>중식</div></swiper-slide
-        >
-        <swiper-slide
-          ><img
-            @click="searchJapanese"
-            src="/src/imgs/porkcutlet.png"
-            alt="japanese"
-          />
-          <div>일식</div></swiper-slide
-        >
-        <swiper-slide
-          ><img
-            @click="searchWesternFood"
-            src="/src/imgs/pasta.png"
-            alt="westernFood"
-          />
-          <div>양식</div></swiper-slide
-        >
-        <swiper-slide
-          ><img
-            @click="searchDessert"
-            src="/src/imgs/dessert.png"
-            alt="dessert"
-          />
-          <div>카페/디저트</div></swiper-slide
-        >
-        <swiper-slide
-          ><img
-            @click="searchSnackFood"
-            src="/src/imgs/tteokbokki.png"
-            alt="snackFood"
-          />
-          <div>분식</div></swiper-slide
-        >
-        <swiper-slide
-          ><img
-            @click="searchFastFood"
-            src="/src/imgs/hamburger.png"
-            alt="fastFood"
-          />
-          <div>패스트푸드</div></swiper-slide
-        >
-        <swiper-slide
-          ><img
-            @click="searchAsian"
-            src="/src/imgs/ricenoodles.png"
-            alt="asian"
-          />
-          <div>아시안</div></swiper-slide
-        >
-        <swiper-slide
-          ><img @click="searchChick" src="/src/imgs/chicken.png" alt="chick" />
-          <div>치킨</div></swiper-slide
-        >
-        <swiper-slide
-          ><img @click="searchPizza" src="/src/imgs/pizza.png" alt="pizza" />
-          <div>피자</div></swiper-slide
-        >
-        <swiper-slide
-          ><img
-            @click="searchLateNight"
-            src="/src/imgs/pigfeet.png"
-            alt="lateNight"
-          />
-          <div>야식</div></swiper-slide
-        >
+      <swiper :navigation="{
+        nextEl: '.swiperRight',
+        prevEl: '.swiperLeft',
+      }" :slides-per-view="6" :modules="[Navigation, Pagination, Scrollbar, A11y, Autoplay]" :speed="100" :loop="true">
+        <swiper-slide><img @click="searchAll" src="/src/imgs/allImg.png" alt="allImg" />
+          <div>전체</div>
+        </swiper-slide>
+        <swiper-slide><img @click="searchKoreanFood" src="/src/imgs/koreanfood.png" alt="koreanImg" />
+          <div>한식</div>
+        </swiper-slide>
+        <swiper-slide><img @click="searchChina" src="/src/imgs/jjajangmyeon.png" alt="ChinaImg" />
+          <div>중식</div>
+        </swiper-slide>
+        <swiper-slide><img @click="searchJapanese" src="/src/imgs/porkcutlet.png" alt="japanese" />
+          <div>일식</div>
+        </swiper-slide>
+        <swiper-slide><img @click="searchWesternFood" src="/src/imgs/pasta.png" alt="westernFood" />
+          <div>양식</div>
+        </swiper-slide>
+        <swiper-slide><img @click="searchDessert" src="/src/imgs/dessert.png" alt="dessert" />
+          <div>카페/디저트</div>
+        </swiper-slide>
+        <swiper-slide><img @click="searchSnackFood" src="/src/imgs/tteokbokki.png" alt="snackFood" />
+          <div>분식</div>
+        </swiper-slide>
+        <swiper-slide><img @click="searchFastFood" src="/src/imgs/hamburger.png" alt="fastFood" />
+          <div>패스트푸드</div>
+        </swiper-slide>
+        <swiper-slide><img @click="searchAsian" src="/src/imgs/ricenoodles.png" alt="asian" />
+          <div>아시안</div>
+        </swiper-slide>
+        <swiper-slide><img @click="searchChick" src="/src/imgs/chicken.png" alt="chick" />
+          <div>치킨</div>
+        </swiper-slide>
+        <swiper-slide><img @click="searchPizza" src="/src/imgs/pizza.png" alt="pizza" />
+          <div>피자</div>
+        </swiper-slide>
+        <swiper-slide><img @click="searchLateNight" src="/src/imgs/pigfeet.png" alt="lateNight" />
+          <div>야식</div>
+        </swiper-slide>
       </swiper>
       <div class="swiperRight">
         <img class="right" src="/src/imgs/NavigationRight.png" />
@@ -253,7 +268,13 @@ const arrow = () => {
   </div>
   <hr class="line" />
   <div class="guideBox">
-    <div v-for="stores in state.stores">
+
+    <!-- root : 검색 결과가 없을 시 나타내는 이미지 일단 임시로-->
+    <div class="position-relative" v-if="state.stores.length === 0">
+      <img src="/src/imgs/owner/owner-service2.png" 
+      style="position: absolute; transform: translateX(540px);"/>
+    </div>
+    <div v-for="stores in state.stores" :key="stores.id">
       <StoreList :stores="stores" />
     </div>
     <!--  -->
@@ -290,26 +311,29 @@ const arrow = () => {
 <style lang="scss" scoped>
 @font-face {
   font-family: 'BMJUA';
-  src: url('https://fastly.jsdelivr.net/gh/projectnoonnu/noonfonts_one@1.0/BMJUA.woff')
-    format('woff');
+  src: url('https://fastly.jsdelivr.net/gh/projectnoonnu/noonfonts_one@1.0/BMJUA.woff') format('woff');
   font-weight: normal;
   font-style: normal;
 }
+
 * {
   font-family: 'BMJUA';
   letter-spacing: 1px;
 }
+
 .text {
   text-align: center;
-  margin-top: 135px;
+  margin-top: 147px;
   font-size: 2.5em;
   color: #ff6666;
 }
+
 .categorys {
   display: flex;
   justify-content: center;
   margin-top: 90px;
   text-align: center;
+
   .categorySwipe {
     display: flex;
     justify-content: center;
@@ -324,7 +348,12 @@ const arrow = () => {
       height: 125px;
       border-radius: 50%;
       cursor: pointer;
+
+      &:hover {
+        opacity: 80%;
+      }
     }
+
     .left {
       width: 17px;
       height: 28px;
@@ -332,6 +361,7 @@ const arrow = () => {
       margin-right: 50px;
       border-radius: 5px;
     }
+
     .right {
       width: 17px;
       height: 28px;
@@ -341,6 +371,7 @@ const arrow = () => {
     }
   }
 }
+
 .line {
   width: 1280px;
   margin: 0 auto;
@@ -359,9 +390,11 @@ const arrow = () => {
   margin-top: 150px;
   background-color: #fff;
 }
+
 .footer {
   margin-bottom: 300px;
 }
+
 .arrow {
   position: sticky;
   width: 72px;
@@ -369,5 +402,9 @@ const arrow = () => {
   left: 1800px;
   z-index: 999;
   margin-bottom: 100px;
+
+  &:hover {
+    opacity: 80%;
+  }
 }
 </style>

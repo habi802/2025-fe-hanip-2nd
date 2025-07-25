@@ -35,10 +35,13 @@ const arrow = () => {
 </template>
 
 <style lang="scss" scoped>
+
+
 .allBody {
   position: relative;
   height: 100%;
 }
+
 .arrow {
   position: sticky;
   width: 3.8%;
@@ -46,5 +49,15 @@ const arrow = () => {
   left: 93%;
   z-index: 999;
   margin-bottom: 100px;
+}
+
+// 반응형
+@media (max-width:800px) {
+  .arrow {
+    position: relative;
+    width: 40px;
+    bottom: 250px;
+    left: 46.5%;
+  }
 }
 </style>

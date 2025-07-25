@@ -4,8 +4,10 @@ import { useRoute, useRouter } from 'vue-router';
 import { getStore } from '@/services/storeService';
 import { getOneMenu } from '@/services/menuService';
 import { getReviewsByStoreId } from '@/services/reviewServices';
+import { getFavorite, addFavorite, deleteFavorite } from '@/services/favoriteService';
 import { updateQuantity, removeItem, removeCart } from '@/services/cartService';
 import { useAccountStore } from '@/stores/account';
+import { useCartStore } from '@/stores/cart';
 import Menu from '@/components/Menu.vue';
 import Review from '@/components/Review.vue';
 
@@ -13,46 +15,75 @@ const route = useRoute();
 const router = useRouter();
 
 const account = useAccountStore();
-
-const totalPrice = ref(0);
+const carts = useCartStore();
 
 const state = reactive({
-    store: {
-        id: 0,
-        name: '',
-        address: '',
-        imagePath: '',
-    },
+    // 가게 정보
+    store: {},
+    // 가게 메뉴 정보
     menus: [],
+    // 가게 리뷰 정보
     reviews: [],
+    // 고객 장바구니 정보
     carts: [],
 });
 
+// 장바구니 총 금액 표시하기 위한 변수
+const totalPrice = ref(0);
+
+// 가게 상세 조회하는 함수
 const loadStore = async id => {
     const res = await getStore(id);
 
+    // 가게 상세 조회 실패 시(API에 알 수 없는 오류가 발생하거나 가게 테이블에 없는 데이터를 조회하려고 할 경우) 홈으로 돌아감
+    // 주소창에 입력해서 강제로 들어가는 것을 방지하기 위함
     if (res === undefined || res.data.resultStatus !== 200) {
+        alert('조회 실패');
+        router.push({ path: '/' });
+        return;
+    } else if (res.data.resultStatus !== 200) {
         alert(res.data.resultMessage);
         router.push({ path: '/' });
         return;
     }
 
     state.store = res.data.resultData;
-    loadMenus(id);
+
+    // 조회 성공 시 가게 찜 추가 여부 조회 함수 호출
+    loadFavorite(id);
 }
 
-const loadMenus = async id => {
-    const res = await getOneMenu(id);
+// 고객 유저가 가게를 찜 목록에 추가했는지 조회하는 함수
+const loadFavorite = async id => {
+    const res = await getFavorite(id);
 
     if (res === undefined || res.data.resultStatus !== 200) {
-        alert(res.data.resultMessage);
+        alert('조회 실패');
         return;
     }
 
+    state.store.favorite = res.data.resultData !== null ? true : false;
+    // 조회 성공 시 가게 메뉴 조회 함수 호출
+    loadMenus(id);
+}
+
+// 가게 메뉴 조회하는 함수
+const loadMenus = async id => {
+    const res = await getOneMenu(id);
+
+    if (res === undefined) {
+        alert('조회 실패');
+        return;
+    } else if (res.data.resultStatus !== 200) {
+        alert(res.data.resultMessage);
+        return;
+    }
     state.menus = res.data.resultData;
+    // 조회 성공 시 가게 리뷰 조회 함수 호출
     loadReviews(id);
 }
 
+// 가게 리뷰 조회 함수
 const loadReviews = async id => {
     const res = await getReviewsByStoreId(id);
 
@@ -62,26 +93,42 @@ const loadReviews = async id => {
     }
 
     state.reviews = res.data.resultData;
+    // 조회 성공 시 장바구니 조회 함수 호출
     loadCarts(id);
 }
 
+// 고객 유저 장바구니 조회
 const loadCarts = async id => {
-    // 수정 예정 수정 예정 수정 예정
+    // 원래 다른 가게 메뉴를 장바구니에 추가했는지 여부까지 조회해야 하지만
+    // 그걸 구현할 시간이 없어 일단 장바구니 데이터 삭제하게 해놨음..
     const res = await removeCart();
 
     if (res === undefined || res.data.resultStatus !== 200) {
         //alert(res.data.resultMessage);
         return;
     }
-    // 수정 예정 수정 예정 수정 예정
 }
 
+// 찜 목록 추가/삭제 함수
+const toggleFavorite = async id => {
+    const res = state.store.favorite ? await deleteFavorite(id) : await addFavorite({ storeId: id });
+
+    if (res === undefined || res.data.resultStatus !== 200) {
+        alert('수정 실패');
+        return;
+    }
+
+    state.store.favorite = !state.store.favorite;
+}
+
+// 장바구니 추가 함수(Menu.vue 컴포넌트에서 받아옴)
 const addCart = item => {
     item.quantity = 1;
     state.carts.push(item);
     calculateTotal();
 }
 
+// 장바구니 메뉴 개수 감소시키는 함수
 const decreaseQuantity = async idx => {
     if (state.carts[idx].quantity > 1) {
         const params = {
@@ -89,9 +136,13 @@ const decreaseQuantity = async idx => {
             quantity: state.carts[idx].quantity - 1
         }
 
+        // 메뉴 개수 수정하는 API 함수 호출
         const res = await updateQuantity(params);
 
-        if (res === undefined || res.data.resultStatus !== 200) {
+        if (res === undefined) {
+            alert('수정 실패');
+            return;
+        } else if (res.data.resultStatus !== 200) {
             alert(res.data.resultMessage);
             return;
         }
@@ -101,15 +152,20 @@ const decreaseQuantity = async idx => {
     }
 }
 
+// 장바구니 메뉴 개수 증가시키는 함수
 const increaseQuantity = async idx => {
     const params = {
         cartId: state.carts[idx].id,
         quantity: state.carts[idx].quantity + 1
     }
 
+    // 메뉴 개수 수정하는 API 함수 호출
     const res = await updateQuantity(params);
 
-    if (res === undefined || res.data.resultStatus !== 200) {
+    if (res === undefined) {
+        alert('수정 실패');
+        return;
+    } else if (res.data.resultStatus !== 200) {
         alert(res.data.resultMessage);
         return;
     }
@@ -118,6 +174,7 @@ const increaseQuantity = async idx => {
     calculateTotal();
 }
 
+// 장바구니 삭제 함수
 const deleteCart = async cartId => {
     const res = await removeItem(cartId);
 
@@ -135,6 +192,7 @@ const deleteCart = async cartId => {
     }
 }
 
+// 장바구니 총 금액 계산하는 함수
 const calculateTotal = () => {
     totalPrice.value = 0;
 
@@ -144,6 +202,7 @@ const calculateTotal = () => {
     });
 };
 
+// 주문 확인 화면으로 넘어가는 함수
 const toOrder = () => {
     if (!account.state.loggedIn) {
         alert('로그인 후 주문이 가능합니다.');
@@ -153,10 +212,11 @@ const toOrder = () => {
         return;
     }
 
+    carts.state.items = state.carts;
     router.push({ path: `/stores/${route.params.id}/order` });
 }
 
-onMounted(async () => {
+onMounted(() => {
     const storeId = route.params.id;
 
     loadStore(storeId);
@@ -177,7 +237,7 @@ onMounted(async () => {
                         <h3>{{ state.store.name }}</h3>
                         <p>최소 주문 금액 15,000원</p>
                         <p>배달료 0원 ~ 3,000원</p>
-                        <span>★ 4.5(983) ♥ 927</span>
+                        <span>⭐ 4.5(983) <span class="favorite" @click="toggleFavorite(state.store.id)">{{ state.store.favorite ? '❤️' : '♡' }}</span> 927</span>
                     </div>
                     <div class="col-12 col-md-4">
                         <div id="map" class="border rounded mb-2">
@@ -264,6 +324,10 @@ onMounted(async () => {
 
 #map {
     height: 125px;
+}
+
+.favorite {
+    cursor: pointer;
 }
 
 .btn-basic {

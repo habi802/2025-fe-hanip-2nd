@@ -1,7 +1,7 @@
 <script setup>
 import OwnerMenuCard from "@/components/owner/OwnerMenuCard.vue";
-import { getOneMenu, saveMenu } from "@/services/menuService";
-import { onMounted, reactive, ref } from "vue";
+import { getStoreIdAndMenus, saveMenu } from "@/services/menuService";
+import { inject, onMounted, reactive, ref } from "vue";
 import { useRouter } from "vue-router";
 import defaultMenuImage from "@/imgs/owner/haniplogo_sample.png";
 
@@ -9,10 +9,11 @@ import defaultMenuImage from "@/imgs/owner/haniplogo_sample.png";
 const router = useRouter();
 const addMenuModal = ref(null);
 const previewImage = ref(defaultMenuImage);
+const ownerName = inject("ownerName", "");
 
 onMounted(async () => {
   // 사장님 전용 조회 api 필요
-  const res = await getOneMenu(1);
+  const res = await getStoreIdAndMenus();
   if (res.status === 200) {
     state.form = res.data.resultData;
     console.log("res: ", res.data.resultData);
@@ -49,7 +50,8 @@ const submitMenu = async () => {
   const formData = new FormData();
   const payload = {
     data: {
-      storeId: "",
+      id: state.form.menuId,
+      storeId: state.form.storeId,
       name: newMenu.name,
       price: newMenu.price,
       comment: newMenu.comment,
@@ -57,24 +59,31 @@ const submitMenu = async () => {
     img: newMenu.imagePath,
   };
 
-  // 입력값 초기화
-  newMenu.name = "";
-  newMenu.price = "";
-  newMenu.comment = "";
-  newMenu.imagePath = null;
-  previewImage.value = defaultMenuImage;
-
   formData.append("img", payload.img);
   formData.append(
     "data",
     new Blob([JSON.stringify(payload.data)], { type: "application/json" })
   );
 
+
   const res = await saveMenu(formData);
-  if (res.status !== 200) {
+  console.log("imagePath:", newMenu.imagePath);
+  console.log("instanceof File:", newMenu.imagePath instanceof File);
+
+  if (!(newMenu.imagePath instanceof File)) {
+    alert("이미지를 선택해 주세요");
+    return;
+  } else if (res.status !== 200) {
     alert("에러 발생");
     return;
   }
+
+  // 입력값 초기화
+  newMenu.name = "";
+  newMenu.price = "";
+  newMenu.comment = "";
+  newMenu.imagePath = null;
+  previewImage.value = defaultMenuImage;
 
   alert("등록 성공");
 
@@ -91,16 +100,29 @@ const handleFileSelected = (e) => {
     newMenu.imagePath = file;
   }
 };
+
+const fetchMenus = async () => {
+  const res = await getStoreIdAndMenus();
+  if (res.status === 200) {
+    state.form = res.data.resultData;
+  }
+};
 </script>
 
 <template>
   <div class="owner-title1">메뉴상세</div>
   <div class="owner-title2">
-    어서오세요! {{}} 사장님, 관리자 페이지에 다시 오신 것을 환영합니다!
+    어서오세요! {{ ownerName }} 사장님, 관리자 페이지에 다시 오신 것을
+    환영합니다!
   </div>
   <div class="padding pb-5">
     <div class="row gap-3">
-      <OwnerMenuCard v-for="menu in state.form" :key="menu.id" :menu="menu" />
+      <OwnerMenuCard
+        v-for="menu in state.form"
+        :key="menu.id"
+        :menu="menu"
+        @menuUpdated="fetchMenus"
+      />
       <div class="card add-card" @click="openAddMenuModal">
         <div class="add-content">+ 메뉴 추가하기</div>
       </div>
