@@ -1,28 +1,22 @@
 <script setup>
 import { useRouter } from "vue-router";
-import { useAccountStore } from "@/stores/account";
+import { useUserInfo, useAccountStore } from "@/stores/account";
 import { getUser, logout } from "@/services/userService";
-import { reactive, ref } from "vue";
-
+import { reactive, ref, computed , onMounted } from "vue";
 import Menu from "@/components/Menu.vue";
 import { getOrder } from "@/services/storeService";
 
 const account = useAccountStore();
-
+// 유저 정보
+const userInfo = useUserInfo()
 const router = useRouter();
 const homeRouter = () => {
   router.push("/");
 };
-//
+
 const state = reactive({
   user: Object
 });
-
-const res = getUser();
-// console.log("유저 정보", res.data.resultData);
-
-// 주소 확인
-
 
 //주문하기로 이동하는 함수
 const toOrder = () => {
@@ -66,6 +60,20 @@ const orderRouter = () => {
 let orderBox = ref(false);
 
 const totalPrice = ref(0);
+
+
+//유저 정보에 따른 주소표시
+const userAddr = computed(() => userInfo.userAddr);
+
+//유저정보 불러오기 비동기실행
+onMounted(async () => {
+  if (account.state.loggedIn) {
+    await userInfo.fetchStore();
+    //const res = await getUser();
+    //console.log("유저 정보", res?.data?.resultData);
+
+  }
+});
 </script>
 
 <template>
@@ -75,18 +83,33 @@ const totalPrice = ref(0);
         <div class="logoBox">
           <img @click="homeRouter" class="logo" src="/src/imgs/hanipLogogroup.png" />
         </div>
-        <template template v-if="account.state.loggedIn">
+        <!-- <template template v-if="account.state.loggedIn">
           <div class="searchBar">
             <img @click="caLink" class="searchImg" src="/src/imgs/weui_location-filled.png" />
-            <div class="addressText2">유저 정보에 따른 주소 필요</div>
+            <div class="addressText2" >{{ userAddr }} : 유저 정보에 따른 주소 필요</div>
+          </div>
+        </template> -->
+        <!-- 로그인된 경우 -->
+        <template v-if="account.state.loggedIn">
+          <div class="searchBar">
+            <img @click="caLink" class="searchImg" src="/src/imgs/weui_location-filled.png" />
+            <div class="addressText2">{{ userAddr || '주소를 불러오는 중...' }}</div>
           </div>
         </template>
-        <template template v-else>
+
+                <!-- 비로그인 -->
+        <template v-else>
           <div class="searchBar">
             <img @click="caLink" class="searchImg" src="/src/imgs/weui_location-filled.png" />
             <div class="addressText">주소를 입력해주세요</div>
           </div>
         </template>
+        <!-- <template template v-else>
+          <div class="searchBar">
+            <img @click="caLink" class="searchImg" src="/src/imgs/weui_location-filled.png" />
+            <div class="addressText">주소를 입력해주세요</div>
+          </div>
+        </template> -->
         <div class="containerOne">
           <div class="menus d-flex gap-3">
             <template v-if="account.state.loggedIn">

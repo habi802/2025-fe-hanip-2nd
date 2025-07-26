@@ -25,20 +25,29 @@ export const useUserInfo = defineStore('userInfo', {
   state: () => ({
     userId: null,
     userName: null,
+    userAddr: null, 
   }),
   actions: {
-    async fetchStore() {
+  async fetchStore() {
+    try {
       const res = await logined();
-      if (res.status === 200) {
-        this.userId = res.data.resultData.id;
-        this.userName = res.data.resultData.name;
-        console.log("userId: 나오나? ㅇㅇ ",this.userId);
-        } else {
-        console.error('유저 정보 불러오기 실패', res);
-        }
-    },
-  },
-});
+
+      if (res?.status === 200 && res?.data?.resultData) {
+        const data = res.data.resultData;
+        this.userId = data.id;
+        this.userName = data.name;
+        this.userAddr = data.address + (data.address_detail ?? '');
+        console.log("userId: 나오나? ㅇㅇ ", this.userId);
+      } else {
+        console.error('유저 정보 구조가 이상함', res);
+      }
+    } catch (err) {
+      console.error('유저 정보 불러오기 실패 (예외)', err);
+    }
+  }
+}});
+
+
 
 
 
