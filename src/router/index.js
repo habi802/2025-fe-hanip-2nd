@@ -122,7 +122,12 @@ const router = createRouter({
       path: "/reviews-page",
       component: () => import("@/components/myPage/ReviewPage.vue"),
       meta: {layout:MainLayout}
-    }
+    },
+    {
+      path: "/owner/status",
+      component: () => import("@/views/owner/StatusStore.vue"),
+      meta: { layout: OwnerLayout },
+    },
   ],
 });
 export default router;
