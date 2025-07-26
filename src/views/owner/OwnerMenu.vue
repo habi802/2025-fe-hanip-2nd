@@ -11,6 +11,27 @@ const addMenuModal = ref(null);
 const previewImage = ref(defaultMenuImage);
 const ownerName = inject("ownerName", "");
 
+// 부트스트랩 alert
+let alertId = 0;
+
+const alerts = reactive([]);
+
+const showAlert = (message, type = "alert-danger") => {
+  const id = ++alertId;
+  const newAlert = { id, message, type };
+  alerts.push(newAlert);
+
+  // 자동 삭제 (3초 뒤)
+  setTimeout(() => {
+    removeAlert(id);
+  }, 3000);
+};
+
+const removeAlert = (id) => {
+  const index = alerts.findIndex((a) => a.id === id);
+  if (index !== -1) alerts.splice(index, 1);
+};
+
 onMounted(async () => {
   // 사장님 전용 조회 api 필요
   const res = await getStoreIdAndMenus();
@@ -47,6 +68,18 @@ const openAddMenuModal = () => {
 
 // 등록하기
 const submitMenu = async () => {
+  if(newMenu.name.trim() === "") {
+    showAlert("메뉴 이름을 입력해주세요!");
+    return;
+  }
+  if(!newMenu.price || Number(newMenu.price) <= 0) {
+    showAlert("메뉴 가격을 입력해주세요!");
+    return;
+  }
+  if(newMenu.comment.trim() === "") {
+    showAlert("메뉴 설명을 입력해주세요!");
+    return;
+  }
   const formData = new FormData();
   const payload = {
     data: {
@@ -71,10 +104,10 @@ const submitMenu = async () => {
   console.log("instanceof File:", newMenu.imagePath instanceof File);
 
   if (!(newMenu.imagePath instanceof File)) {
-    alert("이미지를 등록해 주세요!");
+    showAlert("메뉴 이미지 등록은 필수입니다!");
     return;
   } else if (res.status !== 200) {
-    alert("에러 발생");
+    showAlert("에러 발생");
     return;
   }
 
@@ -85,7 +118,7 @@ const submitMenu = async () => {
   newMenu.imagePath = null;
   previewImage.value = defaultMenuImage;
 
-  alert("등록 성공");
+  showAlert("성공적으로 메뉴를 등록했습니다!", "alert-success");
   fetchMenus();
 
   // 모달 창 닫기
@@ -111,6 +144,32 @@ const fetchMenus = async () => {
 </script>
 
 <template>
+<!-- alert -->
+  <div
+    style="
+      position: fixed;
+      top: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 2000;
+    "
+  >
+    <div
+      v-for="(alert, index) in alerts"
+      :key="alert.id"
+      :class="['alert', alert.type, 'alert-dismissible', 'fade', 'show']"
+      role="alert"
+      style="margin-bottom: 10px; min-width: 300px; max-width: 600px"
+    >
+      {{ alert.message }}
+      <button
+        type="button"
+        class="btn-close"
+        @click="removeAlert(alert.id)"
+      ></button>
+    </div>
+  </div>
+
   <div class="owner-title1">메뉴상세</div>
   <div class="owner-title2">
     어서오세요! {{ ownerName }} 사장님, 관리자 페이지에 다시 오신 것을
@@ -183,10 +242,10 @@ const fetchMenus = async () => {
           ></textarea>
         </div>
         <div class="modal-footer">
+          <button class="btn btn-primary" @click="submitMenu">등록</button>
           <button class="btn btn-secondary" data-bs-dismiss="modal">
             취소
           </button>
-          <button class="btn btn-primary" @click="submitMenu">등록</button>
         </div>
       </div>
     </div>
@@ -230,6 +289,22 @@ const fetchMenus = async () => {
     font-size: 20px;
     color: #999;
     font-weight: bold;
+  }
+}
+
+/* alert 에니메이션 */
+.fade.show {
+  animation: slideDown 0.5s ease;
+}
+
+@keyframes slideDown {
+  from {
+    transform: translateY(-20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
   }
 }
 </style>

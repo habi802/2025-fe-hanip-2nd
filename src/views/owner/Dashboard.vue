@@ -7,33 +7,41 @@ import { inject, computed } from "vue";
 
 const orderStore = useOrderStore();
 
-// 오늘 주문 수
+// 주문 차트
 const today = new Date();
 
-const formatYMD = (date) => {
-  return date.toISOString().slice(0, 10); // '2025-07-25'
+const isSameDayKST = (date1, date2) => {
+  const d1 = new Date(date1.getTime() + 9 * 60 * 60 * 1000); // UTC → KST
+  const d2 = new Date(date2.getTime() + 9 * 60 * 60 * 1000);
+  return d1.toISOString().slice(0, 10) === d2.toISOString().slice(0, 10);
 };
+
+// 오늘 주문 수
 const totalOrderCount = computed(() => {
-  const todayStr = formatYMD(today);
-  return orderStore.orders
-  .filter(order => formatYMD(new Date(order.created)) === todayStr)
-  .length;
+  return orderStore.orders.filter(order =>
+    isSameDayKST(new Date(order.created), new Date())
+  ).length;
 });
 
 // 오늘 배달 수
 const totalDeliveryCount = computed(() => {
-  const todayStr = formatYMD(today);
-  return orderStore.completedList
-  .filter(order => formatYMD(new Date(order.created)) === todayStr)
-  .length;
+  return orderStore.completedList.filter(order =>
+    isSameDayKST(new Date(order.created), new Date())
+  ).length;
+});
+
+// 오늘 취소된 주문 수
+const totalCanceledCount = computed(() => {
+  return orderStore.canceledList.filter(order =>
+    isSameDayKST(new Date(order.created), new Date())
+  ).length;
 });
 
 // 오늘 매출 수
 const totalPrice = computed(() => {
-  const todayStr = formatYMD(today);
-  return orderStore.completedList
-  .filter(order => formatYMD(new Date(order.created)) === todayStr)
-  .reduce((sum, order) => sum + Math.round((order.amount || 0) / 10000), 0)
+    return orderStore.completedList
+    .filter(order => isSameDayKST(new Date(order.created), new Date()))
+    .reduce((sum, order) => sum + Math.round((order.amount || 0) / 10000), 0)
 });
 
 // 사장 대표자 이름
@@ -59,11 +67,22 @@ const ownerName = inject("ownerName", "");
           </div>
         </div>
 
-        <div class="total-box">
-          <div class="circle"></div>
+          <div class="total-box">
+          <div @click="b" class="circle"></div>
           <div>
             <span>{{ totalDeliveryCount }}</span>
             <span>오늘 배달 수</span>
+            <div class="change-rate">
+              <span class="icon-up">↑</span><span>4%</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="total-box">
+          <div class="circle"></div>
+          <div>
+            <span>{{ totalCanceledCount }}</span>
+            <span>취소된 주문</span>
             <div class="change-rate">
               <span class="icon-up">↑</span><span>4%</span>
             </div>
@@ -127,7 +146,7 @@ const ownerName = inject("ownerName", "");
   font-family: "Pretendard", sans-serif;
     display: flex;
     padding-left: 13px;
-    gap: 85px;
+    gap: 19px;
     margin-top: 5px;
     margin-bottom: 20px;
     .circle {
@@ -144,8 +163,8 @@ const ownerName = inject("ownerName", "");
       border-radius: 15px;
       box-shadow: 2px 2px 5px 1px #c6c6c6;
       display: flex;
-      height: 150px;
-      width: 398px;
+      height: 137px;
+      width: 327px;
       :last-child {
         display: block;
       }

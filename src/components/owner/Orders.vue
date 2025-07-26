@@ -1,8 +1,138 @@
 <script setup>
+import OrderListCard from "./OrderListCard.vue";
+import { computed, ref } from "vue";
+import { useOrderStore } from "@/stores/orderStore";
+import { deleteOrder } from "@/services/orderService";
 
+const orderStore = useOrderStore();
+const nonOrderedOrders = computed(() => orderStore.nonOrderedList);
+const selectedOrder = ref(null);
+
+// 전체 주문 수
+const totalOrderCount = computed(() => nonOrderedOrders.value.length);
+
+// 전체 배달 수
+const totalCompelteOrderCount = computed(() => 
+  nonOrderedOrders.value
+    .filter(order => order.status?.trim().toUpperCase() === "COMPLETED")
+    .length
+);
+
+// 취소된 주문
+const totalCanceledOrderCount = computed(() =>
+  nonOrderedOrders.value
+    .filter(order => order.status === "CANCELED")
+    .length
+);
+
+// 전체 매출
+const totalSales = computed(() =>
+  nonOrderedOrders.value
+    .filter(order => order.status?.trim().toUpperCase() === "COMPLETED")
+    .reduce((sum, order) => sum + Math.round((order.amount || 0) / 10000), 0)
+);
+
+
+// 주문 내역으로 스크롤
+const orderDetail = ref(null);
+
+const handleSelectOrder = (order) => {
+  console.log("선택된 주문:", order);
+  selectedOrder.value = order;
+
+  // 스크롤
+ if(orderDetail.value) {
+    orderDetail.value.scrollIntoView({ behavior: "smooth" });
+  }
+};
+
+// 삭제
+const deleteOrderOne = async() => {
+    if (!["COMPLETED", "CANCELED"].includes(selectedOrder.value?.status)) {
+        alert("진행 중인 주문은 삭제하실 수 없습니다.")
+        return;
+    }
+    
+    // 삭제 로직
+    const res = await deleteOrder(selectedOrder.value?.id);
+    console.log("res: ", res.data.resultData)
+    if (res.status !== 200) {
+      alert("에러")
+      return
+    }
+    alert("정상적으로 삭제됐습니다.")
+    await orderStore.fetchOrders;
+    selectedOrder.value = null;
+}
+
+// 배달 상태 치환
+const statusText = computed(() => {
+  if (!selectedOrder.value || !selectedOrder.value.status) return "상태 없음";
+  switch (selectedOrder.value.status) {
+    case 'PREPARING':
+      return "음식준비중";
+    case 'DELIVERING':
+      return "배달중";
+    case 'CANCELED':
+      return "취소됨";
+    case 'COMPLETED':
+      return "완료됨";
+    default:
+      return "기타 상태";
+  }
+});
+
+// 더보기
+const visibleCount = ref(5);
+const visibleOrders = computed(() => {
+  return nonOrderedOrders.value
+  .filter(order => order.isDeleted !== 1)
+  .slice(0, visibleCount.value);
+});
+const loadMore = () => {
+  visibleCount.value += 5;
+};
+
+// 날짜
+const formatDateTime = (isoStr) => {
+  return new Date(isoStr).toLocaleString("ko-KR", {
+    timeZone: "Asia/Seoul",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+};
 </script>
 
 <template>
+   <!-- alert -->
+  <div
+    style="
+      position: fixed;
+      top: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 1055;
+    "
+  >
+    <div
+      v-for="(alert, index) in alerts"
+      :key="alert.id"
+      :class="['alert', alert.type, 'alert-dismissible', 'fade', 'show']"
+      role="alert"
+      style="margin-bottom: 10px; min-width: 300px; max-width: 600px"
+    >
+      {{ alert.message }}
+      <button
+        type="button"
+        class="btn-close"
+        @click="removeAlert(alert.id)"
+      ></button>
+    </div>
+  </div>
+
   <div class="wrap">
     <div>
         <h2>주문 상세</h2>
@@ -65,7 +195,7 @@
         </div>
 
         <!-- 조회기간설정 카드 -->
-        <div class="date-filter" style="cursor: pointer;" ref="orderDetail">
+        <div class="date-filter" style="cursor: pointer" ref="orderDetail">
           <img
             src="/src/imgs/owner/Icon_조회기간설정.svg"
             alt="캘린더아이콘"
@@ -99,36 +229,42 @@
         />
         <!-- 더보기 -->
         <button
-        class="btn btn-secondary"
-        v-if="visibleCount < nonOrderedOrders.length"
-        @click="loadMore"
-        style="font-size: 1.5rem; padding: 1rem 2rem; justify-content: center;
-        width: 754px;"
+          class="btn btn-secondary"
+          v-if="visibleCount < nonOrderedOrders.length"
+          @click="loadMore"
+          style="
+            font-size: 1.5rem;
+            padding: 1rem 2rem;
+            justify-content: center;
+            width: 754px;
+          "
         >
-        더보기
-    </button>
+          더보기
+        </button>
       </div>
       <div class="orders-detail shadow">
         <!-- 주문정보 -->
         <section>
           <h3>주문 정보</h3>
           <table class="info-table">
-            <tr>
-              <th>고객명</th>
-              <td>{{ selectedOrder?.userName || "--"}}</td>
-            </tr>
-            <tr>
-              <th>전화</th>
-              <td>{{ selectedOrder?.phone || "--"}}</td>
-            </tr>
-            <tr>
-              <th>주소</th>
-              <td>{{ selectedOrder?.address || "--"}}</td>
-            </tr>
-            <tr>
-              <th>특이사항</th>
-              <td>{{ selectedOrder?.storeRequest || "--"}}</td>
-            </tr>
+            <tbody>
+              <tr>
+                <th>고객명</th>
+                <td>{{ selectedOrder?.userName || "--" }}</td>
+              </tr>
+              <tr>
+                <th>전화</th>
+                <td>{{ selectedOrder?.phone || "--" }}</td>
+              </tr>
+              <tr>
+                <th>주소</th>
+                <td>{{ selectedOrder?.address || "--" }}</td>
+              </tr>
+              <tr>
+                <th>특이사항</th>
+                <td>{{ selectedOrder?.storeRequest || "--" }}</td>
+              </tr>
+            </tbody>
           </table>
         </section>
         <!-- 주문상세 -->
@@ -144,57 +280,65 @@
               </tr>
             </thead>
             <tbody>
-                <tr v-if="!selectedOrder?.menus || selectedOrder.menus.length === 0">
-                    <td>--</td>
-                    <td>--</td>
-                    <td>--</td>
-                    <td>--</td>
-                </tr>
-                <tr v-for="(menu, index) in selectedOrder?.menus || []" :key="menu.id || index">
-                    <td>{{ menu.name}}</td>
-                    <td>{{ menu.option || '--' }}</td>
-                    <td>{{ menu.quantity }}</td>
-                    <td>{{ menu.price.toLocaleString() }}원</td>
-                </tr>
+              <tr
+                v-if="!selectedOrder?.menus || selectedOrder.menus.length === 0"
+              >
+                <td>--</td>
+                <td>--</td>
+                <td>--</td>
+                <td>--</td>
+              </tr>
+              <tr
+                v-for="(menu, index) in selectedOrder?.menus || []"
+                :key="menu.id || index"
+              >
+                <td>{{ menu.name }}</td>
+                <td>{{ menu.option || "--" }}</td>
+                <td>{{ menu.quantity }}</td>
+                <td>{{ menu.price.toLocaleString() }}원</td>
+              </tr>
             </tbody>
           </table>
         </section>
         <!-- 주문현황 -->
-         <section>
+        <section>
           <h3>주문 현황</h3>
           <table class="menu-table">
             <thead>
-                <tr>
-                    <th>상태</th>
-                </tr>
+              <tr>
+                <th>상태</th>
+              </tr>
             </thead>
             <tbody>
-                <tr>
-                    <td>{{ statusText }}</td>
-                </tr>
+              <tr>
+                <td>{{ statusText }}</td>
+              </tr>
             </tbody>
-        </table>
-    </section>
+          </table>
+        </section>
         <!-- 결제내역 -->
         <section>
           <h3>결제 내역</h3>
+
           <table class="info-table">
-            <tr>
-              <th>결제일시</th>
-              <td>{{ formatDateTime(selectedOrder?.updated) || "--"}}</td>
-            </tr>
-            <tr>
-              <th>결제수단</th>
-              <td>{{ selectedOrder?.payment || "--"}}</td>
-            </tr>
-            <tr>
-              <th>결제금액</th>
-              <td>{{ selectedOrder?.amount.toLocaleString() || "--"}}원</td>
-            </tr>
-            <tr>
-              <th>할인내역</th>
-              <td>없음</td>
-            </tr>
+            <tbody>
+              <tr>
+                <th>결제일시</th>
+                <td>{{ formatDateTime(selectedOrder?.updated) || "--" }}</td>
+              </tr>
+              <tr>
+                <th>결제수단</th>
+                <td>{{ selectedOrder?.payment || "--" }}</td>
+              </tr>
+              <tr>
+                <th>결제금액</th>
+                <td>{{ selectedOrder?.amount.toLocaleString() || "--" }}원</td>
+              </tr>
+              <tr>
+                <th>할인내역</th>
+                <td>없음</td>
+              </tr>
+            </tbody>
           </table>
         </section>
         <button class="btn" @click="deleteOrderOne">
@@ -460,5 +604,21 @@
     }
   }
   //주문내역 끝
+}
+
+/* alert 에니메이션 */
+.fade.show {
+  animation: slideDown 0.5s ease;
+}
+
+@keyframes slideDown {
+  from {
+    transform: translateY(-20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
 }
 </style>

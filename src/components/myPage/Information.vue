@@ -110,10 +110,17 @@ const submitForm = async (e) => {
           </div>
           <div class="sevLine"></div>
 
-          <!-- 비밀번호 확인 -->
+          <!-- 새 비밀번호 -->
           <div class="form-group">
-            <label> ✪ 비밀번호 확인</label>
+            <label>새 비밀번호</label>
             <input type="password" class="form-input" v-model="state.form.loginPw" placeholder="현재 비밀번호를 입력해주세요." />
+          </div>
+          <div class="sevLine"></div>
+
+          <!-- 새 비밀번호 -->
+          <div class="form-group">
+            <label>새 비밀번호 확인</label>
+            <input type="password" class="form-input" v-model="confirmPw" placeholder="현재 비밀번호를 입력해주세요." />
           </div>
           <div class="sevLine"></div>
 
@@ -224,34 +231,40 @@ const submitForm = async (e) => {
 </template>
 
 <style lang="scss" scoped>
-@font-face {
+@font-face { // 주아체
   font-family: 'BMJUA';
   src: url('https://fastly.jsdelivr.net/gh/projectnoonnu/noonfonts_one@1.0/BMJUA.woff') format('woff');
   font-weight: normal;
   font-style: normal;
 }
+@font-face { // 프리텐다드
+  font-family: 'Pretendard-Regular';
+  src: url('https://fastly.jsdelivr.net/gh/Project-Noonnu/noonfonts_2107@1.1/Pretendard-Regular.woff') format('woff');
+  font-weight: 400;
+  font-style: normal;
+}
 
-.box {
+.box { // 주소 검색 박스
   font-family: 'BMJUA';
-  font-size: 1.4em;
+  font-size: 25px;
   letter-spacing: -1.5px;
 
-  .solid {
-    width: 1100px;
+  .solid { // 정보 수정 메인 선
+    width: 1110px;
     border: 1px #000 solid;
     margin-top: 15px;
-    margin-bottom: 5rem;
+    margin-bottom: 20px;
   }
 }
 
 // 서브 라인
 .sevLine {
   border-bottom: 0.5px solid #c8c8c8;
-  margin: 0.5rem 0px;
   width: 1110px;
 }
 
 .container {
+  font-family: 'Pretendard-Regular';
   font-size: 16px;
   display: inline;
 
@@ -283,15 +296,15 @@ input[type='email'] {
 
 // form-group 기본 정렬 및 간격 정비
 .form-group {
-  display: flex; // ← label과 input을 같은 라인에 정렬
-  align-items: center; // ← 수직 가운데 정렬
-  gap: 1.5rem; // ← label과 input 간 간격
-  margin-bottom: 1.5rem;
+  display: flex; // label과 input을 같은 라인에 정렬
+  align-items: center; // 수직 가운데 정렬
+  gap: 1.5rem; // label과 input 간 간격
+  margin-bottom: 15px;
 
   label {
     width: 150px; // ← 고정 너비로 정렬 맞추기
     font-size: 16px;
-    margin-left: 10px;
+    margin-left: 50px;
   }
 
   // 입력창 공통 사이즈 (아이디, 비번, 이메일 ) 
@@ -315,7 +328,7 @@ input[type='email'] {
     display: inline-block;
     width: 235px; // label 고정 폭
     text-align: left;
-    margin-left: 10px;
+    margin-left: 50px;
     vertical-align: middle;
   }
 
@@ -324,11 +337,10 @@ input[type='email'] {
     display: inline-block;
     width: 495px;
     height: 50px;
-    padding: 0.5rem;
     font-size: 1rem;
     border: 1px solid #c8c8c8;
     border-radius: 8px;
-    margin-left: -65px;
+    margin-left: 20px;// 중앙정렬
     vertical-align: middle;
   }
 }
@@ -356,6 +368,7 @@ input[type='email'] {
     .address-row {
       display: flex;
       gap: 0.5rem;
+      margin-left: 80px;// 중앙정렬
 
       input[type='text'] {
         margin-top: 1rem;
@@ -386,6 +399,7 @@ input[type='email'] {
 
     // 2~3줄: 기본주소 / 상세주소
     .address-input-row input[type='text'] {
+      margin-left: 80px;// 중앙정렬
       width: 495px;
       height: 45px;
       padding: 0 1rem;
@@ -399,9 +413,10 @@ input[type='email'] {
 // 전화번호 입력 박스 정렬
 .phone-input-wrap {
   .phone-input {
+    margin-left: 80px;// 중앙정렬
     display: inline-flex;
     max-width: 495px;
-    gap: 0.5rem;
+    gap: 10px;
     align-items: center;
 
     select {
@@ -410,13 +425,11 @@ input[type='email'] {
       height: 45px;
       border-radius: 8px;
       border: 1px solid #ccc;
-      margin-left: 100;
-
+      padding-left: 10px;
     }
-
     input {
       flex: 1;
-      margin-top: 1rem;
+      margin-top: 15px;
     }
   }
 }
@@ -424,9 +437,10 @@ input[type='email'] {
 
 // 수정 버튼 css
 .form-submit {
+  text-align: center;
 
   button {
-    width: 1110px;
+    width: 500px;
     height: 55px;
     background-color: #fff;
     color: #ff6666;
