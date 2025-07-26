@@ -1,28 +1,24 @@
 <script setup>
 import { useRouter } from "vue-router";
-import { useAccountStore } from "@/stores/account";
+import { useUserInfo, useAccountStore } from "@/stores/account";
 import { getUser, logout } from "@/services/userService";
-import { reactive, ref } from "vue";
-
+import { reactive, ref, computed , onMounted , watch } from "vue";
+import { storeToRefs } from 'pinia';
 import Menu from "@/components/Menu.vue";
 import { getOrder } from "@/services/storeService";
 
 const account = useAccountStore();
-
+// 유저 정보
+const userInfo = useUserInfo()
 const router = useRouter();
 const homeRouter = () => {
   router.push("/");
 };
-//
+
+
 const state = reactive({
   user: Object
 });
-
-const res = getUser();
-// console.log("유저 정보", res.data.resultData);
-
-// 주소 확인
-
 
 //주문하기로 이동하는 함수
 const toOrder = () => {
@@ -66,6 +62,42 @@ const orderRouter = () => {
 let orderBox = ref(false);
 
 const totalPrice = ref(0);
+
+
+//유저 정보에 따른 주소표시
+// const userAddr = computed(() => {
+//   return (userInfo.userAddr ?? '') + (userInfo.userAddrDetail ?? '');
+// });
+//const userAddr = computed(() => userInfo.userAddr ?? '주소 없음');
+const { userAddr } = storeToRefs(userInfo);
+
+
+//유저정보 불러오기 비동기실행
+onMounted(async () => {
+  console.log("🟡 onMounted 진입");
+
+  if (account.state.loggedIn) {
+    console.log("🟢 로그인 상태, fetchStore 실행");
+    userInfo.fetchStore();
+  }
+});
+
+// 로그인 상태가 바뀌면 자동으로 fetchStore 실행
+watch(
+  () => account.state.loggedIn,
+  (val) => {
+    if (val) {
+      console.log("👀 로그인 감지됨 → fetchStore 실행");
+      userInfo.fetchStore();
+    }
+  }
+);
+
+
+//userAddr.value = userInfo.userAddr ?? '';
+//피니아에서 실행되기때문에 아래 두 코드는필요없지만 일반 보류!
+//const res = await getUser();
+//console.log("유저 정보", res?.data?.resultData);
 </script>
 
 <template>
@@ -75,13 +107,16 @@ const totalPrice = ref(0);
         <div class="logoBox">
           <img @click="homeRouter" class="logo" src="/src/imgs/hanipLogogroup.png" />
         </div>
-        <template template v-if="account.state.loggedIn">
+        <!-- 로그인된 경우 -->
+        <template v-if="account.state.loggedIn">
           <div class="searchBar">
             <img @click="caLink" class="searchImg" src="/src/imgs/weui_location-filled.png" />
-            <div class="addressText2">유저 정보에 따른 주소 필요</div>
+            <div class="addressText2" >{{  userAddr || '주소 없음' }}</div>
           </div>
         </template>
-        <template template v-else>
+
+                <!-- 비로그인 -->
+        <template v-else>
           <div class="searchBar">
             <img @click="caLink" class="searchImg" src="/src/imgs/weui_location-filled.png" />
             <div class="addressText">주소를 입력해주세요</div>
