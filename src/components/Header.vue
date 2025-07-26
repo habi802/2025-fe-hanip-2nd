@@ -1,10 +1,11 @@
 <script setup>
 import { useRouter } from "vue-router";
 import { useAccountStore } from "@/stores/account";
-import { logout } from "@/services/userService";
+import { getUser, logout } from "@/services/userService";
 import { reactive, ref } from "vue";
 
 import Menu from "@/components/Menu.vue";
+import { getOrder } from "@/services/storeService";
 
 const account = useAccountStore();
 
@@ -14,15 +15,14 @@ const homeRouter = () => {
 };
 //
 const state = reactive({
-  // 가게 정보
-  store: {},
-  // 가게 메뉴 정보
-  menus: [],
-  // 가게 리뷰 정보
-  reviews: [],
-  // 고객 장바구니 정보
-  carts: [],
+  user: Object
 });
+
+const res = getUser();
+// console.log("유저 정보", res.data.resultData);
+
+// 주소 확인
+
 
 //주문하기로 이동하는 함수
 const toOrder = () => {
@@ -64,98 +64,7 @@ const orderRouter = () => {
 };
 // 주문내역 페이지 on off
 let orderBox = ref(false);
-// 장바구니 추가 함수(Menu.vue 컴포넌트에서 받아옴)
-const addCart = (item) => {
-  item.quantity = 1;
-  state.carts.push(item);
-  calculateTotal();
-};
 
-// 장바구니 메뉴 개수 감소시키는 함수
-const decreaseQuantity = async (idx) => {
-  if (state.carts[idx].quantity > 1) {
-    const params = {
-      cartId: state.carts[idx].id,
-      quantity: state.carts[idx].quantity - 1,
-    };
-
-    // 메뉴 개수 수정하는 API 함수 호출
-    const res = await updateQuantity(params);
-
-    if (res === undefined) {
-      alert("수정 실패");
-      return;
-    } else if (res.data.resultStatus !== 200) {
-      alert(res.data.resultMessage);
-      return;
-    }
-
-    state.carts[idx].quantity--;
-    calculateTotal();
-  }
-};
-
-// 장바구니 메뉴 개수 증가시키는 함수
-const increaseQuantity = async (idx) => {
-  const params = {
-    cartId: state.carts[idx].id,
-    quantity: state.carts[idx].quantity + 1,
-  };
-
-  // 메뉴 개수 수정하는 API 함수 호출
-  const res = await updateQuantity(params);
-
-  if (res === undefined) {
-    alert("수정 실패");
-    return;
-  } else if (res.data.resultStatus !== 200) {
-    alert(res.data.resultMessage);
-    return;
-  }
-
-  state.carts[idx].quantity++;
-  calculateTotal();
-};
-
-// 장바구니 삭제 함수
-const deleteCart = async (cartId) => {
-  const res = await removeItem(cartId);
-
-  if (res === undefined || res.data.resultStatus !== 200) {
-    alert("삭제 실패");
-    return;
-  }
-
-  if (res.data.resultData === 1) {
-    const deleteIdx = state.carts.findIndex((item) => item.id === cartId);
-    if (deleteIdx > -1) {
-      state.carts.splice(deleteIdx, 1);
-      calculateTotal();
-    }
-  }
-};
-
-// 장바구니 총 금액 계산하는 함수
-const calculateTotal = () => {
-  totalPrice.value = 0;
-
-  state.carts.forEach((item) => {
-    const price = item.price * item.quantity;
-    totalPrice.value += price;
-  });
-};
-// 고객 유저 장바구니 조회
-const loadCarts = async (id) => {
-  // 원래 다른 가게 메뉴를 장바구니에 추가했는지 여부까지 조회해야 하지만
-  // 그걸 구현할 시간이 없어 일단 장바구니 데이터 삭제하게 해놨음..
-  const res = await removeCart();
-
-  if (res === undefined || res.data.resultStatus !== 200) {
-    //alert(res.data.resultMessage);
-    return;
-  }
-};
-//
 const totalPrice = ref(0);
 </script>
 
@@ -164,64 +73,33 @@ const totalPrice = ref(0);
     <div class="navbar">
       <div class="naverBox">
         <div class="logoBox">
-          <img
-            @click="homeRouter"
-            class="logo"
-            src="/src/imgs/hanipLogogroup.png"
-          />
+          <img @click="homeRouter" class="logo" src="/src/imgs/hanipLogogroup.png" />
         </div>
         <template template v-if="account.state.loggedIn">
           <div class="searchBar">
-            <img
-              @click="caLink"
-              class="searchImg"
-              src="/src/imgs/weui_location-filled.png"
-            />
+            <img @click="caLink" class="searchImg" src="/src/imgs/weui_location-filled.png" />
             <div class="addressText2">유저 정보에 따른 주소 필요</div>
           </div>
         </template>
         <template template v-else>
           <div class="searchBar">
-            <img
-              @click="caLink"
-              class="searchImg"
-              src="/src/imgs/weui_location-filled.png"
-            />
+            <img @click="caLink" class="searchImg" src="/src/imgs/weui_location-filled.png" />
             <div class="addressText">주소를 입력해주세요</div>
           </div>
         </template>
         <div class="containerOne">
           <div class="menus d-flex gap-3">
             <template v-if="account.state.loggedIn">
-              <img
-                @click="faivorite"
-                class="faiorites"
-                src="/src/imgs/faivor.png"
-              />
-              <img
-                @click="orderRouter"
-                class="order"
-                src="/src/imgs/orders.png"
-              />
-              <img
-                @click="cartRouter"
-                @mouseover="orderBox = true"
-                @mouseleave="orderBox = false"
-                id="menu"
-                class="shooping"
-                src="/src/imgs/shoop.png"
-              />
+              <img @click="faivorite" class="faiorites" src="/src/imgs/faivor.png" />
+              <img @click="orderRouter" class="order" src="/src/imgs/orders.png" />
+              <img @click="cartRouter" @mouseover="orderBox = true" @mouseleave="orderBox = false" id="menu"
+                class="shooping" src="/src/imgs/shoop.png" />
               <div id="menu" @click="logoutIn">로그아웃</div>
               <div>|</div>
               <div class="myPage" @click="myPageRouter">마이페이지</div>
             </template>
             <template v-else>
-              <img
-                @click="cartRouter"
-                id="menu"
-                class="shooping"
-                src="/src/imgs/shoop.png"
-              />
+              <img @click="cartRouter" id="menu" class="shooping" src="/src/imgs/shoop.png" />
               <div class="login">
                 <router-link id="menu" to="/login">로그인</router-link>
               </div>
@@ -242,34 +120,20 @@ const totalPrice = ref(0);
               <div class="p-2" :class="{ 'border-top': idx !== 0 }">
                 <div class="d-flex justify-content-between mb-2">
                   <span>{{ item.name }}</span>
-                  <span
-                    >{{ (item.price * item.quantity).toLocaleString() }}원</span
-                  >
+                  <span>{{ (item.price * item.quantity).toLocaleString() }}원</span>
                 </div>
                 <div class="d-flex justify-content-between">
                   <div>
-                    <button
-                      type="button"
-                      class="btn btn-basic btn-quantity"
-                      @click="decreaseQuantity(idx)"
-                    >
+                    <button type="button" class="btn btn-basic btn-quantity" @click="decreaseQuantity(idx)">
                       -
                     </button>
                     <span class="p-3">{{ item.quantity }}</span>
-                    <button
-                      type="button"
-                      class="btn btn-basic btn-quantity"
-                      @click="increaseQuantity(idx)"
-                    >
+                    <button type="button" class="btn btn-basic btn-quantity" @click="increaseQuantity(idx)">
                       +
                     </button>
                   </div>
                   <div>
-                    <button
-                      type="button"
-                      class="btn btn-basic btn-submit"
-                      @click="deleteCart(item.id)"
-                    >
+                    <button type="button" class="btn btn-basic btn-submit" @click="deleteCart(item.id)">
                       메뉴 취소
                     </button>
                   </div>
@@ -305,15 +169,18 @@ const totalPrice = ref(0);
   width: 100%;
   z-index: 9999;
 }
+
 .naverBox {
   width: 1500px;
   display: flex;
   justify-content: space-between;
 }
+
 .containerOne {
   width: 400px;
   margin-bottom: 30px;
   margin-top: -5px;
+
   .shooping {
     width: 45px;
     margin-right: 14px;
@@ -324,20 +191,24 @@ const totalPrice = ref(0);
 
     cursor: pointer;
   }
+
   .myPage {
     margin-right: 14px;
     cursor: pointer;
   }
+
   .faiorites {
     width: 34px;
     margin-right: 2px;
   }
 }
+
 .logoBox {
   display: flex;
   align-items: center;
   width: 400px;
 }
+
 .logo {
   width: 190px;
   height: auto;
@@ -356,30 +227,36 @@ const totalPrice = ref(0);
   align-items: center;
   margin-top: 30px;
 }
+
 .searchBar {
   display: flex;
   justify-content: center;
   align-items: center;
   width: 400px;
+
   .searchImg {
     width: 20px;
   }
 }
+
 .addressText {
   margin-left: 15px;
   color: #fdbdbd;
   font-weight: 800;
 }
+
 .addressText2 {
   margin-left: 15px;
   color: #fdbdbd;
 }
+
 .col-12 {
   background-color: #fff;
   margin-left: auto;
   margin-top: -10px;
 }
-.faiorites{
+
+.faiorites {
   cursor: pointer;
 }
 
@@ -395,15 +272,18 @@ const totalPrice = ref(0);
     display: none;
   }
 }
+
 @media (max-width: 1200px) {
   .containerOne {
     display: none;
   }
+
   .navbar {
     display: flex;
     justify-content: center;
     position: fixed;
     margin-left: 0px;
+
     img.logo {
       margin-left: 0px;
     }
