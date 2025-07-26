@@ -14,6 +14,9 @@ import { useAccountStore } from "@/stores/account";
 import { useCartStore } from "@/stores/cart";
 import Menu from "@/components/Menu.vue";
 import Review from "@/components/Review.vue";
+import { useFavoriteStore } from '@/stores/favoriteStore';
+
+const favoriteStore = useFavoriteStore();
 
 const route = useRoute();
 const router = useRouter();
@@ -115,16 +118,24 @@ const loadCarts = async (id) => {
 
 // 찜 목록 추가/삭제 함수
 const toggleFavorite = async (id) => {
+  const storeId = Number(id);
+
+  console.log('[찜 토글 시도]', storeId);
+
   const res = state.store.favorite
-    ? await deleteFavorite(id)
-    : await addFavorite({ storeId: id });
+    ? await deleteFavorite(storeId)
+    : await addFavorite({ storeId });
 
   if (res === undefined || res.data.resultStatus !== 200) {
-    alert("수정 실패");
+    alert("찜 상태 변경 실패");
     return;
   }
 
   state.store.favorite = !state.store.favorite;
+
+  // Pinia store에도 업데이트
+  favoriteStore.toggleFavorite(storeId);
+  console.log('찜 상태 저장됨:', favoriteStore.state.storeIds);
 };
 
 // 장바구니 추가 함수(Menu.vue 컴포넌트에서 받아옴)
