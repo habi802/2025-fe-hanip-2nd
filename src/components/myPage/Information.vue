@@ -299,7 +299,7 @@ input[type='email'] {
   display: flex; // label과 input을 같은 라인에 정렬
   align-items: center; // 수직 가운데 정렬
   gap: 1.5rem; // label과 input 간 간격
-  margin-bottom: 1.5rem;
+  margin-bottom: 15px;
 
   label {
     width: 150px; // ← 고정 너비로 정렬 맞추기
@@ -337,7 +337,6 @@ input[type='email'] {
     display: inline-block;
     width: 495px;
     height: 50px;
-    padding: 0.5rem;
     font-size: 1rem;
     border: 1px solid #c8c8c8;
     border-radius: 8px;
@@ -426,6 +425,7 @@ input[type='email'] {
       height: 45px;
       border-radius: 8px;
       border: 1px solid #ccc;
+      padding-left: 10px;
     }
     input {
       flex: 1;
