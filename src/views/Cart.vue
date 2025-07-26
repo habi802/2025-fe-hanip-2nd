@@ -1,8 +1,8 @@
 <script setup>
-import { reactive, onMounted, computed } from 'vue';
-import { useRouter } from 'vue-router';
-import { getItem, removeCart, removeItem } from '@/services/cartService';
-import { useAccountStore } from '@/stores/account';
+import { reactive, onMounted, computed } from "vue";
+import { useRouter } from "vue-router";
+import { getItem, removeCart, removeItem } from "@/services/cartService";
+import { useAccountStore } from "@/stores/account";
 
 const router = useRouter();
 const account = useAccountStore();
@@ -45,12 +45,12 @@ const totalPrice = computed(() =>
   state.items.reduce((sum, item) => sum + item.price * item.quantity, 0)
 );
 
-const goToLogin = () => router.push('/login');
-const goToMain = () => router.push('/');
+const goToLogin = () => router.push("/login");
+const goToMain = () => router.push("/");
 
 const goToOrder = (group) => {
   if (!group || !group.items || group.items.length === 0) {
-    alert('주문할 메뉴가 없습니다.');
+    alert("주문할 메뉴가 없습니다.");
     return;
   }
 
@@ -63,7 +63,7 @@ const goToOrder = (group) => {
     imagePath: item.image_path,
   }));
 
-  localStorage.setItem('orderItems', JSON.stringify(orderItems));
+  localStorage.setItem("orderItems", JSON.stringify(orderItems));
   router.push(`/stores/${group.items[0].storeId}/order`);
 };
 
@@ -180,26 +180,47 @@ const groupedItems = computed(() => {
   </div>
 </template>
 
-<style scoped>
-.cart-empty-wrapper {
-  max-width: 1024px;
-  margin: 50px auto;
-  padding: 20px;
-  display: flex;
-  flex-direction: column;
-  margin-bottom: 2px;
+<style lang="scss" scoped>
+@font-face {
+  // 배민 주아체
+  font-family: "BMJUA";
+  src: url("https://fastly.jsdelivr.net/gh/projectnoonnu/noonfonts_one@1.0/BMJUA.woff")
+    format("woff");
+  font-weight: normal;
+  font-style: normal;
 }
 
-.title-wrap {
+* {
+  font-family: "BMJUA";
+}
+.cart-empty-wrapper {
+  max-width: 1497px;
+  margin: 50px auto;
+  display: flex;
+  flex-direction: column;
+  margin-top: 80px;
+}
+
+.title-wrap { // < 장바구니
   display: flex;
   align-items: center;
+
+  .back-icon { // <
+    width: 50px;
+    height: 50px;
+    margin-right: 10px;
+  }
+  
+  .div29 { // 장바구니
+    font-size: 50px;
+  }
 }
 
 .top-row {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 40px;
+  margin-bottom: 80px;
 }
 
 .header-row {
@@ -209,29 +230,18 @@ const groupedItems = computed(() => {
   gap: 20px;
 }
 
-.back-icon {
-  width: 24px;
-  height: 24px;
-  margin-right: 10px;
-}
 
-.div29 {
-  font-size: 28px;
-  font-weight: bold;
-}
-
-.step-horizontal {
+.step-horizontal { // 01 음식선택 > 02 장바구니 > 03 주문/결제 > 04 주문 완료
   display: flex;
   align-items: center;
   gap: 8px;
-  font-size: 14px;
-  font-weight: bold;
+  font-size: 20px;
+  
+  .step-text.current { // 02 장바구니
+    color: #ff6666;
+  }
 }
 
-.step-text.current {
-  color: #ff6666;
-  font-size: 16px;
-}
 
 .arrow img {
   width: 12px;
@@ -246,10 +256,24 @@ const groupedItems = computed(() => {
 }
 
 .div18 {
-  font-size: 16px;
+  // 장바구니에 담은 음식이 없습니다.
+  font-size: 32px;
   margin-bottom: 50px;
   text-align: center;
   color: #555;
+  // 텍스트를 수평 및 수직 중앙 정렬
+  display: flex; // 내부 정렬을 위한 flex 사용
+  justify-content: center; // 가로 중앙 정렬
+  align-items: center; // 세로 중앙 정렬
+
+  // 박스 형태 추가
+  border: 1px solid #d7d7d7;
+  background-color: #fff;
+  padding: 40px;
+  border-radius: 25px;
+  width: 1250px;
+  height: 400px;
+  margin: 0 auto 40px auto; // 가운데 정렬 및 여백
 }
 
 .groupContainer {
@@ -270,18 +294,30 @@ const groupedItems = computed(() => {
   margin-bottom: 40px;
 }
 
-.div19 {
+.div19 { // 음식 담으러 가기 버튼
+  width: 400px;
+  height: 80px;
   border: 2px solid #ff6666;
   color: #ff6666;
   background-color: #fff;
-  padding: 10px 20px;
   border-radius: 8px;
-  font-weight: bold;
+  font-size: 32px;
+  margin-bottom: 80px;
+  margin-top: 80px;
   cursor: pointer;
-  margin-bottom: 91px;
+
+  // 글자 수직 정렬
+  display: flex; 
+  justify-content: center; 
+  align-items: center; 
+  text-align: center; 
+
+  &:hover {
+    background-color: #ffe5e5;
+  }
 }
 
-/*  중앙 카드 형태의 store-box 스타일 */
+// 중앙 카드 형태의 store-box 스타일 
 .store-box {
   max-width: 900px;
   margin: 0 auto 40px auto;
@@ -378,6 +414,4 @@ const groupedItems = computed(() => {
   font-weight: bold;
   margin-bottom: 20px;
 }
-
 </style>
-
