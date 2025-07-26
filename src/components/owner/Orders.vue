@@ -1,18 +1,33 @@
 <script setup>
 import OrderListCard from "./OrderListCard.vue";
-import { computed, ref, onMounted } from "vue";
+import { computed, ref, reactive } from "vue";
 import { useOrderStore } from "@/stores/orderStore";
 import { deleteOrder } from "@/services/orderService";
 
 const orderStore = useOrderStore();
 const nonOrderedOrders = computed(() => orderStore.nonOrderedList);
 const selectedOrder = ref(null);
-const isLoading = ref(true);
 
-onMounted(async () => {
-  await orderStore.fetchOrders();
-  isLoading.value = false;
-});
+// 부트스트랩 alert
+let alertId = 0;
+
+const alerts = reactive([]);
+
+const showAlert = (message, type = "alert-danger") => {
+  const id = ++alertId;
+  const newAlert = { id, message, type };
+  alerts.push(newAlert);
+
+  // 자동 삭제 (3초 뒤)
+  setTimeout(() => {
+    removeAlert(id);
+  }, 3000);
+};
+
+const removeAlert = (id) => {
+  const index = alerts.findIndex((a) => a.id === id);
+  if (index !== -1) alerts.splice(index, 1);
+};
 
 // 전체 주문 수
 const totalOrderCount = computed(() => nonOrderedOrders.value.length);
@@ -54,7 +69,7 @@ const handleSelectOrder = (order) => {
 // 삭제
 const deleteOrderOne = async () => {
   if (!["COMPLETED", "CANCELED"].includes(selectedOrder.value?.status)) {
-    alert("진행 중인 주문은 삭제하실 수 없습니다.");
+    showAlert("진행 중인 주문은 삭제하실 수 없습니다.");
     return;
   }
 
@@ -62,11 +77,11 @@ const deleteOrderOne = async () => {
   const res = await deleteOrder(selectedOrder.value?.id);
   console.log("res: ", res.data.resultData);
   if (res.status !== 200) {
-    alert("에러");
+    showAlert("에러");
     return;
   }
-  alert("정상적으로 삭제됐습니다.");
-  await orderStore.fetchOrders();
+  showAlert("정상적으로 삭제됐습니다.", "alert-success");
+  await orderStore.fetchOrders;
   selectedOrder.value = null;
 };
 
@@ -142,8 +157,7 @@ const formatDateTime = (isoStr) => {
     <div>
       <h2>주문 상세</h2>
       <span style="color: #838383"
-        >어서오세요! {{ ownerName }}사장님 관리자 페이지에 다시 오신것을
-        환영합니다!</span
+        >어서오세요! {{}}사장님 관리자 페이지에 다시 오신것을 환영합니다!</span
       >
 
       <!-- 상단 집계 카드 -->
@@ -151,7 +165,7 @@ const formatDateTime = (isoStr) => {
         <div class="total-box">
           <div class="circle"></div>
           <div>
-            <span>{{ totalOrderCount }}</span>
+            <span>{{ totalOrderCount || "--" }}</span>
             <span>전체 주문 수</span>
             <div class="change-rate">
               <span class="icon-up">↑</span><span>4% (최근 30일)</span>
@@ -162,7 +176,7 @@ const formatDateTime = (isoStr) => {
         <div class="total-box">
           <div class="circle"></div>
           <div>
-            <span>{{ totalCompelteOrderCount }}</span>
+            <span>{{ totalCompelteOrderCount || "--" }}</span>
             <span>전체 배달 수</span>
             <div class="change-rate">
               <span class="icon-up">↑</span><span>4% (최근 30일)</span>
@@ -226,20 +240,8 @@ const formatDateTime = (isoStr) => {
 
     <div class="orders-wrap">
       <!-- 주문 리스트 -->
-      <div v-if="isLoading" class="loading"></div>
-
-      <template v-else>
-        <div
-          v-if="visibleOrders.length === 0"
-          class="d-flex flex-column justify-content-center gap-3"
-          style="padding-left: 100px; padding-bottom: 500px"
-        >
-          <img src="/src/imgs/owner/owner-service3.png" alt="주문 없음" />
-          <p style="text-align: center; color: #777; font-size: 30px">
-            최근 주문이 없습니다.
-          </p>
-        </div>
-
+      <div v-if="orderStore.orders.length === 0" class="loading"></div>
+      <div class="justify-content-center">
         <order-list-card
           v-for="order in visibleOrders"
           :key="order.id"
@@ -247,7 +249,6 @@ const formatDateTime = (isoStr) => {
           style="cursor: pointer"
           @selectOrder="handleSelectOrder(order)"
         />
-
         <!-- 더보기 -->
         <button
           class="btn btn-secondary"
@@ -262,7 +263,7 @@ const formatDateTime = (isoStr) => {
         >
           더보기
         </button>
-      </template>
+      </div>
       <div class="orders-detail shadow">
         <!-- 주문정보 -->
         <section>
