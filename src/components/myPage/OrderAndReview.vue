@@ -7,7 +7,7 @@ const props = defineProps({
 })
 
 
-//
+// 버튼 
 let on = ref(true);
 const boardBtn = () => {
     on.value = !on.value;
@@ -26,6 +26,7 @@ console.log('props.order', props.order);
 </script>
 
 <template>
+    <!-- on.value 값에 따라 보드 크기 조절 -->
     <div :style="{ height: on ? '315px' : '750px' }" class="bigBoard">
         <div class="board">
             <div class="boardLeft">
@@ -59,7 +60,7 @@ console.log('props.order', props.order);
                         <div class="amountNum">1,190,000원</div>
                     </div>
                 </div>
-                <div @click="boardBtn" class="btn btn-primary">
+                <div v-if="on.value" @click="boardBtn" class="btn btn-primary">
                     {{ on ? '리뷰 남기기' : '리뷰 저장하기' }}
                 </div>
             </div>
