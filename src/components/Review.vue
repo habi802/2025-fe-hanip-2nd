@@ -18,35 +18,35 @@ const props = defineProps({
     <div class="border-top">
       <!-- 이미지 -->
       <div class="p-2">
-        
         <div>
-            <!-- 주문 목록 텍스트 -->
-            <div class="mb-2">
-              <span>{{
-                props.item.menuName +
-                (props.item.menuCount > 1
-                  ? " 외 " + (props.item.menuCount - 1) + "개"
-                  : "")
-              }}</span>
-            </div>
-            <!-- 이미지 -->
-            <div class="review-image border">
-                <!-- 이미지 필요 -->
-                <div></div>
-            </div>
+          <!-- 주문 목록 텍스트 -->
+          <div class="mb-2">
+            <span>{{
+              props.item.menuName +
+              (props.item.menuCount > 1
+                ? " 외 " + (props.item.menuCount - 1) + "개"
+                : "")
+            }}</span>
+          </div>
+          <!-- 이미지 -->
+          <div class="review-image border">
+            <!-- 이미지 필요 -->
+            <div></div>
           </div>
         </div>
+      </div>
 
       <div class="user-box">
-<!-- 유저 이름/별점 -->
+        <!-- 유저 이름/별점 -->
         <div class="user-top">
-            <div class="mb-2">
-              <span  id="name" class="pe-2">{{ props.item.userName }}</span>
-            </div>
-            <div class="mb-2">
-                <span class="star">★★★★★</span>
-                <span class="created">{{ props.item.created }}</span>
-            </div>
+
+          <div id="name-box">
+            <span id="name">{{ props.item.userName }}</span>
+            <span class="star">★★★★★</span>
+          </div>
+          <div id="name-left-box">
+            <span class="created">{{ props.item.created }}</span>
+          </div>
         </div>
         <!-- 유저 코멘트 -->
         <div id="u-comment" class="mb-2">
@@ -75,14 +75,14 @@ const props = defineProps({
   padding: 25px;
 }
 .border {
-
 }
 .border-top {
   display: flex;
   border: none !important;
 }
 .owner-comment {
-  background-color: #797979;
+  //   background-color: #ff6666;
+  border: 2px #ff6666 solid !important;
   margin-top: 20px;
 }
 
@@ -92,28 +92,32 @@ const props = defineProps({
   border-radius: 10px;
   overflow: hidden;
 }
-#big-box{
-    padding: 20px !important;
-    margin-top: 50px;
-    border: #797979 1px solid !important;
+#big-box {
+  padding: 20px !important;
+  margin-top: 50px;
+  border: #797979 1px solid !important;
 }
-.user-box{
-    margin-top: 7px;
-    margin-left: 30px;
+.user-box {
+  margin-top: 7px;
+  margin-left: 30px;
+}
+.user-top {
+  display: flex;
+  align-items: center;
+    justify-content: space-between;
+  width: 100%;
+  align-items: center;
+}
+.created {
+  font-size: 13px;
+}
 
+#name {
+  font-size: 20px;
+  margin-right: 10px;
 }
-.user-top{
-display: flex;
-align-items: center;
-}
-.created{
-    font-size: 13px;
-    margin-left: 220px;
-}
-#name{
-    font-size: 20px;
-}
-.star{
-    font-size: 20px;
+
+.star {
+  font-size: 20px;
 }
 </style>
