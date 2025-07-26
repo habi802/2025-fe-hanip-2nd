@@ -1,9 +1,10 @@
 <!-- 주문 내역 화면에 뿌릴 카드 컴포넌트 -->
 
 <script setup>
-import { ref, computed } from "vue";
+import { getStore } from "@/services/storeService";
+import { ref, computed, onMounted, reactive } from "vue";
 import { useRouter } from "vue-router";
-
+import defaultImage from "@/imgs/owner/haniplogo_sample.png"
 
 // 라우터
 const router = useRouter();
@@ -11,7 +12,7 @@ const router = useRouter();
 
 //리뷰 페이지 이동
 const reviewButton = () => {
-    router.push('/reviews-page');
+    router.push(`/reviews-page/${props.order?.id}`);
 }
 
 
@@ -81,19 +82,25 @@ const statusText = computed(() => {
   }
 });
 
-// 메뉴 이미지가 없을 시 대체 이미지 나타내기
-// const imgSrc = computed(() => {
-//   return props.menu && props.order.imagePath && props.menu.imagePath !== 'null'
-//   ? `/pic/menu-profile/${props.menu.menuId}/${props.menu.imagePath}`
-//   : defaultImage;
-// })
 
+// 가게 이미지
+const img = `/pic/store-profile/${props.order?.storeId}/${props.order?.imagePath}`
+
+// 가게 이미지가 없을 시 대체 이미지 나타내기
+const imgSrc = computed(() => {
+  return props.order && props.order?.imagePath && props.order?.imagePath !== 'null'
+  ? `/pic/store-profile/${props.order?.storeId}/${props.order?.imagePath}`
+  : defaultImage;
+})
+
+// 주문내역 삭제
+const emit = defineEmits(['delete-order', 'reorder']);
 </script>
 
 <template>
     <!-- 버튼들 -->
     <div class="btns">
-        <div class="btn">재주문 하기</div>
+        <div class="btn" @click="$emit('reorder', props.order.orderGetList)">재주문 하기</div>
         <div @click="reviewButton" class="btn btn-primary">
             리뷰등록
         </div>
@@ -108,7 +115,7 @@ const statusText = computed(() => {
             <div class="boardLeft">
                 <div class="created">{{ formatDateTime(props.order.created) }}</div>
                 <div class="imgBox">
-                    <img class="img" src="/src/imgs/recStore_1.png" />
+                    <img class="img" :src="imgSrc" @error="e => e.target.src = defaultImage" />
                 </div>
                 <div class="textBox">
                     <div>{{ props.order?.storeName || 'null' }}</div>
@@ -140,7 +147,7 @@ const statusText = computed(() => {
                 </div>
             </div>
             <!-- 메뉴 삭제하기 버튼 -->
-            <div class="remove">
+            <div class="remove" @click="$emit('delete-order', props.order.id)">
                 <img class="removeImg" src="/src/imgs/remove.png" />
             </div>
         </div>
@@ -211,7 +218,7 @@ const statusText = computed(() => {
     height: 320px;
     border: #6c6c6c 3px solid;
     border-radius: 25px;
-    margin-top: 40px;
+    margin-bottom: 20px;
     overflow: clip;
 
     .board {
@@ -233,7 +240,9 @@ const statusText = computed(() => {
                 overflow: hidden;
 
                 .img {
-                    width: 300px;
+                    width: 100%;
+                    height: 100%;
+                    object-fit: cover;
                 }
 
             }

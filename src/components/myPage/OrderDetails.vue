@@ -1,17 +1,20 @@
 <!-- 주문내역 전체 화면 -->
 
 <script setup>
-import { reactive, ref, onMounted } from 'vue';
+import { reactive, ref, onMounted, computed } from 'vue';
 import OrderAndReview from './OrderAndReview.vue';
-import { getOrder } from '@/services/orderService'
+import { getOrder, deleteOrder } from '@/services/orderService'
 import { getReviewsByStoreId } from '@/services/reviewServices';
 import { useRouter } from 'vue-router';
+import { getStore } from '@/services/storeService';
+import { useCartStore } from '@/stores/cart';
+
 //라우터
 const router = useRouter();
 
 // state
 const state = reactive({
-  orders: []
+  orders: [],
 })
 //
 const user = reactive({
@@ -22,8 +25,8 @@ const user = reactive({
 });
 
 // onMounted
-onMounted(() => {
-  findorder();
+onMounted(async() => {
+  await findorder();
 })
 
 // 주문 목록 조회
@@ -38,8 +41,6 @@ const findReview = async (storeId) => {
   const res = await getReviewsByStoreId(storeId);
   console.log("review", res.data.resultData);
 }
-
-
 
 //
 let on = ref(true);
@@ -57,7 +58,34 @@ const selectStar = (index) => {
   selected.value = index + 1;
 }
 
+// 주문 삭제
+const deleteOrderOne = async (orderId) => {
+  try {
+    await deleteOrder(orderId);
+    state.orders = state.orders.filter(order => order.id !== orderId);
+  } catch (e) {
+    console.error("삭제 실패", e);
+  }
+}
 
+// 주문 목록
+const filteredOrders = computed(() => state.orders.filter(order => order.isdeleted !== 0));
+
+// 재주문
+const cartStore = useCartStore();
+
+const reorder = (menus) => {
+  const addMenus = menus.map(menu => ({
+    id: menu.menuId,
+    name: menu.name,
+    price: menu.price,
+    quantity: menu.quantity,
+  }));
+
+  cartStore.addMenus(addMenus);
+  console.log("CartStore 상태:", cartStore.state.items);
+  router.push("/cart");
+}
 </script>
 
 <template>
@@ -106,8 +134,8 @@ const selectStar = (index) => {
           <div class="solid"></div>
         </div>
       </div>
-      <div v-for="order in state.orders">
-        <order-and-review :order="order" />
+      <div v-for="order in filteredOrders" :key="order.id" style="margin-bottom: 10px;">
+        <order-and-review :order="order" @delete-order="deleteOrderOne" @reorder="reorder"/>
       </div>
     </div>
 
