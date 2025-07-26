@@ -1,7 +1,7 @@
 <!-- 주문 내역 화면에 뿌릴 카드 컴포넌트 -->
 
 <script setup>
-import { ref } from "vue";
+import { ref, computed } from "vue";
 import { useRouter } from "vue-router";
 
 
@@ -49,6 +49,45 @@ const selectStar = (index) => {
     selected.value = index + 1;
 };
 console.log("props.order", props.order);
+
+  // 날짜 파싱
+const formatDateTime = (isoStr) => {
+  return new Date(isoStr).toLocaleString("ko-KR", {
+    timeZone: "Asia/Seoul",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+};
+
+// 배달상태 파싱
+const statusText = computed(() => {
+  if (!props.order || !props.order.status) return "상태 없음";
+  switch (props.order.status) {
+    case "ORDERED":
+        return "주문 대기중"
+    case "PREPARING":
+        return "음식준비중";
+    case "DELIVERING":
+        return "배달중";
+    case "CANCELED":
+        return "취소됨";
+    case "COMPLETED":
+        return "완료됨";
+    default:
+        return "기타 상태";
+  }
+});
+
+// 메뉴 이미지가 없을 시 대체 이미지 나타내기
+// const imgSrc = computed(() => {
+//   return props.menu && props.order.imagePath && props.menu.imagePath !== 'null'
+//   ? `/pic/menu-profile/${props.menu.menuId}/${props.menu.imagePath}`
+//   : defaultImage;
+// })
+
 </script>
 
 <template>
@@ -67,7 +106,7 @@ console.log("props.order", props.order);
         <div class="board">
             <!-- 카드 왼쪽 [ 주문 시간 , 이미지 , 가게 이름 ] -->
             <div class="boardLeft">
-                <div class="created">00년 0월 0일 00:00 주문</div>
+                <div class="created">{{ formatDateTime(props.order.created) }}</div>
                 <div class="imgBox">
                     <img class="img" src="/src/imgs/recStore_1.png" />
                 </div>
@@ -77,21 +116,11 @@ console.log("props.order", props.order);
             </div>
             <!-- 카드 중앙 [ 메뉴 이름, 갯수, 가격 ] -->
             <div class="boardRight">
-                <div class="menuBox">
-                    <div class="menu" v-for="(menu, index) in props.order.menuList" :key="menu.id || index">
-                        <div class="name">{{ menu.menuName || 'null' }}</div>
+                <div class="menuBox pt-4">
+                    <div class="menu" v-for="(menu, index) in props.order.orderGetList" :key="menu.id || index">
+                        <div class="name">{{ menu.name || 'null' }}</div>
                         <div class="num">{{ menu.quantity || 0 }}개</div>
                         <div class="price">{{ menu.price * menu.quantity }}원</div>
-                    </div>
-                    <div class="menu">
-                        <div class="name">메뉴가 아무리 길어도 문제 없다</div>
-                        <div class="num">1개</div>
-                        <div class="price">1,150,000원</div>
-                    </div>
-                    <div class="menu">
-                        <div class="name">뿌링클</div>
-                        <div class="num">1개</div>
-                        <div class="price">25,000원</div>
                     </div>
                     <!-- 메뉴가 많으면 필요함,  -->
                     <div class="more">
@@ -103,11 +132,11 @@ console.log("props.order", props.order);
             <div class="boardLastRigth">
                 <div class="amount">
                     <div class="amountText">총 결제 금액</div>
-                    <div class="amountNum">1,190,000원</div>
+                    <div class="amountNum">{{props.order.amount.toLocaleString()}}원</div>
                 </div>
                 <div>
                     <div class="amountText">배달상태</div>
-                    <div class="amountNum">배달중</div>
+                    <div class="amountNum">{{ statusText }}</div>
                 </div>
             </div>
             <!-- 메뉴 삭제하기 버튼 -->
