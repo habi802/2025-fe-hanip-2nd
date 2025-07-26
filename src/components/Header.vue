@@ -2,7 +2,8 @@
 import { useRouter } from "vue-router";
 import { useUserInfo, useAccountStore } from "@/stores/account";
 import { getUser, logout } from "@/services/userService";
-import { reactive, ref, computed , onMounted } from "vue";
+import { reactive, ref, computed , onMounted , watch } from "vue";
+import { storeToRefs } from 'pinia';
 import Menu from "@/components/Menu.vue";
 import { getOrder } from "@/services/storeService";
 
@@ -13,6 +14,7 @@ const router = useRouter();
 const homeRouter = () => {
   router.push("/");
 };
+
 
 const state = reactive({
   user: Object
@@ -63,17 +65,39 @@ const totalPrice = ref(0);
 
 
 //유저 정보에 따른 주소표시
-const userAddr = computed(() => userInfo.userAddr);
+// const userAddr = computed(() => {
+//   return (userInfo.userAddr ?? '') + (userInfo.userAddrDetail ?? '');
+// });
+//const userAddr = computed(() => userInfo.userAddr ?? '주소 없음');
+const { userAddr } = storeToRefs(userInfo);
+
 
 //유저정보 불러오기 비동기실행
 onMounted(async () => {
-  if (account.state.loggedIn) {
-    await userInfo.fetchStore();
-    //const res = await getUser();
-    //console.log("유저 정보", res?.data?.resultData);
+  console.log("🟡 onMounted 진입");
 
+  if (account.state.loggedIn) {
+    console.log("🟢 로그인 상태, fetchStore 실행");
+    userInfo.fetchStore();
   }
 });
+
+// 로그인 상태가 바뀌면 자동으로 fetchStore 실행
+watch(
+  () => account.state.loggedIn,
+  (val) => {
+    if (val) {
+      console.log("👀 로그인 감지됨 → fetchStore 실행");
+      userInfo.fetchStore();
+    }
+  }
+);
+
+
+//userAddr.value = userInfo.userAddr ?? '';
+//피니아에서 실행되기때문에 아래 두 코드는필요없지만 일반 보류!
+//const res = await getUser();
+//console.log("유저 정보", res?.data?.resultData);
 </script>
 
 <template>
@@ -83,17 +107,11 @@ onMounted(async () => {
         <div class="logoBox">
           <img @click="homeRouter" class="logo" src="/src/imgs/hanipLogogroup.png" />
         </div>
-        <!-- <template template v-if="account.state.loggedIn">
-          <div class="searchBar">
-            <img @click="caLink" class="searchImg" src="/src/imgs/weui_location-filled.png" />
-            <div class="addressText2" >{{ userAddr }} : 유저 정보에 따른 주소 필요</div>
-          </div>
-        </template> -->
         <!-- 로그인된 경우 -->
         <template v-if="account.state.loggedIn">
           <div class="searchBar">
             <img @click="caLink" class="searchImg" src="/src/imgs/weui_location-filled.png" />
-            <div class="addressText2">{{ userAddr || '주소를 불러오는 중...' }}</div>
+            <div class="addressText2" >{{  userAddr || '주소 없음' }}</div>
           </div>
         </template>
 
@@ -104,12 +122,6 @@ onMounted(async () => {
             <div class="addressText">주소를 입력해주세요</div>
           </div>
         </template>
-        <!-- <template template v-else>
-          <div class="searchBar">
-            <img @click="caLink" class="searchImg" src="/src/imgs/weui_location-filled.png" />
-            <div class="addressText">주소를 입력해주세요</div>
-          </div>
-        </template> -->
         <div class="containerOne">
           <div class="menus d-flex gap-3">
             <template v-if="account.state.loggedIn">
