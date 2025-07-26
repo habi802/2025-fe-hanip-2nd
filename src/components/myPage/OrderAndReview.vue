@@ -9,10 +9,7 @@ import { useRouter } from "vue-router";
 const router = useRouter();
 
 
-//리뷰 페이지 이동
-const reviewButton = () => {
-    router.push('/reviews-page');
-}
+
 
 
 //
@@ -33,6 +30,8 @@ const onImageChange = (event) => {
 const props = defineProps({
     order: Object,
 });
+
+console.log("props",props.order);
 
 // 버튼 
 let on = ref(true);
