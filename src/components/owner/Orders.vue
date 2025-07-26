@@ -1,6 +1,6 @@
 <script setup>
 import OrderListCard from "./OrderListCard.vue";
-import { computed, ref, reactive } from "vue";
+import { computed, ref } from "vue";
 import { useOrderStore } from "@/stores/orderStore";
 import { deleteOrder } from "@/services/orderService";
 
@@ -8,50 +8,30 @@ const orderStore = useOrderStore();
 const nonOrderedOrders = computed(() => orderStore.nonOrderedList);
 const selectedOrder = ref(null);
 
-// 부트스트랩 alert
-let alertId = 0;
-
-const alerts = reactive([]);
-
-const showAlert = (message, type = "alert-danger") => {
-  const id = ++alertId;
-  const newAlert = { id, message, type };
-  alerts.push(newAlert);
-
-  // 자동 삭제 (3초 뒤)
-  setTimeout(() => {
-    removeAlert(id);
-  }, 3000);
-};
-
-const removeAlert = (id) => {
-  const index = alerts.findIndex((a) => a.id === id);
-  if (index !== -1) alerts.splice(index, 1);
-};
-
 // 전체 주문 수
 const totalOrderCount = computed(() => nonOrderedOrders.value.length);
 
 // 전체 배달 수
-const totalCompelteOrderCount = computed(
-  () =>
-    nonOrderedOrders.value.filter(
-      (order) => order.status?.trim().toUpperCase() === "COMPLETED"
-    ).length
+const totalCompelteOrderCount = computed(() => 
+  nonOrderedOrders.value
+    .filter(order => order.status?.trim().toUpperCase() === "COMPLETED")
+    .length
 );
 
 // 취소된 주문
-const totalCanceledOrderCount = computed(
-  () =>
-    nonOrderedOrders.value.filter((order) => order.status === "CANCELED").length
+const totalCanceledOrderCount = computed(() =>
+  nonOrderedOrders.value
+    .filter(order => order.status === "CANCELED")
+    .length
 );
 
 // 전체 매출
 const totalSales = computed(() =>
   nonOrderedOrders.value
-    .filter((order) => order.status?.trim().toUpperCase() === "COMPLETED")
+    .filter(order => order.status?.trim().toUpperCase() === "COMPLETED")
     .reduce((sum, order) => sum + Math.round((order.amount || 0) / 10000), 0)
 );
+
 
 // 주문 내역으로 스크롤
 const orderDetail = ref(null);
@@ -61,41 +41,41 @@ const handleSelectOrder = (order) => {
   selectedOrder.value = order;
 
   // 스크롤
-  if (orderDetail.value) {
+ if(orderDetail.value) {
     orderDetail.value.scrollIntoView({ behavior: "smooth" });
   }
 };
 
 // 삭제
-const deleteOrderOne = async () => {
-  if (!["COMPLETED", "CANCELED"].includes(selectedOrder.value?.status)) {
-    showAlert("진행 중인 주문은 삭제하실 수 없습니다.");
-    return;
-  }
-
-  // 삭제 로직
-  const res = await deleteOrder(selectedOrder.value?.id);
-  console.log("res: ", res.data.resultData);
-  if (res.status !== 200) {
-    showAlert("에러");
-    return;
-  }
-  showAlert("정상적으로 삭제됐습니다.", "alert-success");
-  await orderStore.fetchOrders;
-  selectedOrder.value = null;
-};
+const deleteOrderOne = async() => {
+    if (!["COMPLETED", "CANCELED"].includes(selectedOrder.value?.status)) {
+        alert("진행 중인 주문은 삭제하실 수 없습니다.")
+        return;
+    }
+    
+    // 삭제 로직
+    const res = await deleteOrder(selectedOrder.value?.id);
+    console.log("res: ", res.data.resultData)
+    if (res.status !== 200) {
+      alert("에러")
+      return
+    }
+    alert("정상적으로 삭제됐습니다.")
+    await orderStore.fetchOrders;
+    selectedOrder.value = null;
+}
 
 // 배달 상태 치환
 const statusText = computed(() => {
   if (!selectedOrder.value || !selectedOrder.value.status) return "상태 없음";
   switch (selectedOrder.value.status) {
-    case "PREPARING":
+    case 'PREPARING':
       return "음식준비중";
-    case "DELIVERING":
+    case 'DELIVERING':
       return "배달중";
-    case "CANCELED":
+    case 'CANCELED':
       return "취소됨";
-    case "COMPLETED":
+    case 'COMPLETED':
       return "완료됨";
     default:
       return "기타 상태";
@@ -106,8 +86,8 @@ const statusText = computed(() => {
 const visibleCount = ref(5);
 const visibleOrders = computed(() => {
   return nonOrderedOrders.value
-    .filter((order) => order.isDeleted !== 1)
-    .slice(0, visibleCount.value);
+  .filter(order => order.isDeleted !== 1)
+  .slice(0, visibleCount.value);
 });
 const loadMore = () => {
   visibleCount.value += 5;
@@ -155,34 +135,32 @@ const formatDateTime = (isoStr) => {
 
   <div class="wrap">
     <div>
-      <h2>주문 상세</h2>
-      <span style="color: #838383"
-        >어서오세요! {{}}사장님 관리자 페이지에 다시 오신것을 환영합니다!</span
-      >
-
-      <!-- 상단 집계 카드 -->
-      <div class="total-wrap">
-        <div class="total-box">
-          <div class="circle"></div>
-          <div>
-            <span>{{ totalOrderCount || "--" }}</span>
-            <span>전체 주문 수</span>
-            <div class="change-rate">
-              <span class="icon-up">↑</span><span>4% (최근 30일)</span>
+        <h2>주문 상세</h2>
+        <span style="color : #838383">어서오세요! {{ ownerName }}사장님 관리자 페이지에 다시 오신것을 환영합니다!</span>
+        
+        <!-- 상단 집계 카드 -->
+        <div class="total-wrap">
+            <div class="total-box">
+                <div class="circle"></div>
+                <div>
+                    <span>{{ 10 }}</span>
+                    <span>전체 주문 수</span>
+                    <div class="change-rate">
+                        <span class="icon-up">↑</span><span>4% (최근 30일)</span>
+                    </div>
+                </div>
             </div>
-          </div>
-        </div>
-
-        <div class="total-box">
-          <div class="circle"></div>
-          <div>
-            <span>{{ totalCompelteOrderCount || "--" }}</span>
-            <span>전체 배달 수</span>
-            <div class="change-rate">
-              <span class="icon-up">↑</span><span>4% (최근 30일)</span>
+            
+            <div class="total-box">
+                <div class="circle"></div>
+                <div>
+                    <span>{{ 10 }}</span>
+                    <span>전체 배달 수</span>
+                    <div class="change-rate">
+                        <span class="icon-up">↑</span><span>4% (최근 30일)</span>
+                    </div>
+                </div>
             </div>
-          </div>
-        </div>
 
         <div class="total-box">
           <div class="circle"></div>
