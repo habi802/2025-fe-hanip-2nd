@@ -2,6 +2,7 @@
 import { computed, ref , reactive, onMounted } from 'vue';
 import { useOwnerStore, useUserInfo,  } from '@/stores/account'
 import { useReviewStore } from '@/stores/review';
+import defaultUserProfile from "@/imgs/owner/user_profile.jpg"
 
 //상단 : 어서오세요! OOO사장님~~
 const userInfo = useUserInfo();
@@ -111,25 +112,52 @@ const submitReview = async () => {
     modal.hide();
 };
 
+// 유저 프로필 없을 시 대체 이미지 나타내기
+const imgSrc = computed(() => {
+  return reviewStore.reviews && reviewStore.reviews.imagePath && reviewStore.reviews.imagePath !== 'null'
+  ? `/pic/store-profile/${reviewStore.reviews.id}/${reviewStore.reviews.imagePath}`
+  : defaultUserProfile;
+})
 
+// 유저 프로필 경로
+const img = "`/pic/user-profile/${review.id}/${review.imagePath}`";
 
+// 전체 리뷰 수
+const totalReviewCount = computed(() => reviewStore.reviews.length);
+
+// 평균 리뷰
+const avgReview = computed(() => {
+if (!reviewStore.reviews.length) return 0;
+
+const sum = reviewStore.reviews.reduce((acc, review) => acc + review.rating, 0);
+return (sum / reviewStore.reviews.length).toFixed(1);
+});
+
+// 날짜
+const formatDateTime = (isoStr) => {
+  return new Date(isoStr).toLocaleString("ko-KR", {
+    timeZone: "Asia/Seoul",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+};
 </script>
 
 <template>
-
-<span style="z-index: 100px; font-weight: 900; position: absolute; left: 10px;"> 유저아이디 : {{ userId }} 스토어아이디: {{ storeId }}</span>
-
 <div class="wrap" > 
     <div>
         <h2>리뷰 관리</h2>
-        <span style="color : #838383">어서오세요! 〔 {{ userName }} 〕 사장님, 관리자 페이지에 다시 오신것을 환영합니다</span>
+        <span style="color : #838383">어서오세요! {{ userName }} 사장님, 관리자 페이지에 다시 오신것을 환영합니다</span>
         
         <!-- 전체 토탈 카드 -->
         <div class="total-wrap">
             <div class="total-box">
                 <div class="circle"></div>
                 <div>
-                    <span>{{ 10 }}</span>
+                    <span>{{ totalReviewCount }}</span>
                     <span>전체 리뷰 수</span>
                 </div>
             </div>
@@ -137,7 +165,7 @@ const submitReview = async () => {
             <div class="total-box">
                 <div class="circle"></div>
                 <div>
-                    <span>{{ 4.9 }}</span>
+                    <span>{{ avgReview }}</span>
                     <span>평균 별점</span>
                 </div>
             </div>
@@ -175,11 +203,11 @@ const submitReview = async () => {
         <div class="review-box"  v-for="(review, index) in reviewStore.reviews" :key="index">
             <div class="profile">
                 <div class="profile-circle">
-                    <img :src="review.profileImage" alt="프로필"/>
+                    <img :src="imgSrc" @error="e => e.target.src = defaultUserProfile" alt="프로필"/>
                 </div>
                 <div>
                     <span>{{  review.userName }}</span>
-                    <span>{{  review.created }}</span> 
+                    <span>{{  formatDateTime(review.created) }}</span> 
                 </div>
             </div>
                 <p>{{  review.comment }}</p>    
@@ -254,9 +282,9 @@ const submitReview = async () => {
 .wrap{
     background-color: #e8e8e8;
     font-family: 'Pretendard', sans-serif;
-    width: 1575px;
+    width: 1400px;
     overflow: auto;
-    padding : 56px;
+    padding : 10px;
     .total-wrap{
         display: flex;
         gap : 30px;
@@ -336,6 +364,12 @@ const submitReview = async () => {
                     border-radius: 100%;
                     width: 48px;
                     height: 48px;
+                }
+                .profile-circle img {
+                    width: 100%;
+                    height: 100%;
+                    object-fit: cover;
+                    border-radius: 50%;
                 }
                 div:nth-of-type(2) {margin-left: 20px;}
                 div:nth-of-type(2) > span{

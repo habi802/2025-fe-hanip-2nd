@@ -33,13 +33,6 @@ const remove = async (cartId) => {
   load();
 };
 
-const clear = async () => {
-  const res = await removeCart();
-  if (res.status !== 200) return;
-
-  load();
-};
-
 const increaseQty = (item) => {
   item.quantity++;
 };
@@ -103,7 +96,6 @@ const groupedItems = computed(() => {
           />
           <div class="div29">장바구니</div>
         </div>
-        <div class="clear" @click="clear">장바구니 삭제</div>
       </div>
       <div class="step-horizontal">
         <span class="step-text">01 음식선택</span>
@@ -195,6 +187,7 @@ const groupedItems = computed(() => {
   padding: 20px;
   display: flex;
   flex-direction: column;
+  margin-bottom: 2px;
 }
 
 .title-wrap {
@@ -252,7 +245,6 @@ const groupedItems = computed(() => {
   color: #555;
 }
 
-/* 로그인 상태 안내 */
 .div18 {
   font-size: 16px;
   margin-bottom: 50px;
@@ -265,16 +257,6 @@ const groupedItems = computed(() => {
   justify-content: center;
   margin-top: 20px;
   gap: 20px;
-}
-
-.clear {
-  color: #fff;
-  background-color: #ff6666;
-  padding: 10px 20px;
-  border-radius: 8px;
-  font-weight: bold;
-  cursor: pointer;
-  margin-left: 14\px;
 }
 
 .div-login {
@@ -299,11 +281,15 @@ const groupedItems = computed(() => {
   margin-bottom: 91px;
 }
 
+/*  중앙 카드 형태의 store-box 스타일 */
 .store-box {
-  border: 1px solid #ccc;
+  max-width: 900px;
+  margin: 0 auto 40px auto;
+  padding: 24px;
+  border: 1px solid #e0e0e0;
   border-radius: 16px;
-  padding: 20px;
-  margin-bottom: 30px;
+  background-color: #fff;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
 }
 
 .store-info {
@@ -392,4 +378,6 @@ const groupedItems = computed(() => {
   font-weight: bold;
   margin-bottom: 20px;
 }
+
 </style>
+

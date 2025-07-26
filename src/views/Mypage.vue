@@ -6,7 +6,7 @@ import Account from "@/components/myPage/Account.vue";
 
 //
 const user = reactive({
-  name: "서하빈",
+  name: "데이터 연동 필요",
   orders: 0,
   cupon: 0,
   point: 0,
@@ -65,7 +65,6 @@ const myAccount = [
 .box {
   display: flex;
   justify-content: center;
-  width: 100%;
   height: 500px;
   .userboard {
     align-items: center;

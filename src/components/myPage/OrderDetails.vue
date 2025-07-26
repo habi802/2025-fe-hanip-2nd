@@ -1,12 +1,25 @@
+<!-- 주문내역 전체 화면 -->
+
 <script setup>
 import { reactive, ref, onMounted } from 'vue';
 import OrderAndReview from './OrderAndReview.vue';
 import { getOrder } from '@/services/orderService'
 import { getReviewsByStoreId } from '@/services/reviewServices';
+import { useRouter } from 'vue-router';
+//라우터
+const router = useRouter();
+
 // state
 const state = reactive({
   orders: []
 })
+//
+const user = reactive({
+  name: "하드 코딩 ",
+  orders: 0,
+  cupon: 0,
+  point: 0,
+});
 
 // onMounted
 onMounted(() => {
@@ -14,11 +27,14 @@ onMounted(() => {
 
 })
 
+// 주문 목록 조회
 const findorder = async () => {
   const res = await getOrder();
   console.log(res.data.resultData);
-  state.orders= res.data.resultData;
+  state.orders = res.data.resultData;
 }
+
+// 리뷰 목록 조회
 const findReview = async (storeId) => {
   const res = await getReviewsByStoreId(storeId);
   console.log("review", res.data.resultData);
@@ -42,61 +58,106 @@ const selectStar = (index) => {
   selected.value = index + 1;
 }
 
+
 </script>
 
 <template>
-  <div class="box">
-    <div>
-      <div>주문 내역</div>
-      <div class="solid"></div>
+  <div class="all-box">
+    <div class="box">
+      <!-- 상단 페이지 -->
+      <!-- <div class="userboard">
+        <div class="userLeft">
+          <img class="userImg" src="/src/imgs/userImg.png" />
+          <div class="user">
+            <div>{{ user.name }}님 &nbsp; 반가워요!</div>
+            <div class="smalluser">
+              <span class="ip">한입</span>
+              <span class="rank">등급</span>
+            </div>
+          </div>
+        </div> -->
+      <!-- 보더 오른쪽 -->
+      <!-- <div class="userright">
+          <div class="right">
+            <div>총 주문 수</div>
+            <div class="num">{{ user.orders }}</div>
+          </div>
+          <div class="right">
+            <div>쿠폰</div>
+            <div class="num">{{ user.cupon }}</div>
+          </div>
+          <div class="right">
+            <div>포인트</div>
+            <div class="num">{{ user.point }}</div>
+          </div>
+        </div>
+      </div> -->
     </div>
-  </div>
-  <div v-for="order in state.orders">
-    <order-and-review :order="order" />
-  </div>
-  <order-and-review></order-and-review>
-  <div :style="{ height: on ? '315px' : '750px' }" class="bigBoard">
-    <div class="board">
-      <div class="boardLeft">
-        <div class="imgBox">
-          <img class="img" src="/src/imgs/recStore_1.png" />
-        </div>
-        <div class="textBox">
-          <div>오십계</div>
-        </div>
-      </div>
-      <div class="boardRight">
-        <div class="title">주문내역</div>
-        <div class="menuBox">
-          <div class="menu">
-            <div class="name">간장치킨</div>
-            <div class="num">1개</div>
-            <div class="price">15,000원</div>
-          </div>
-          <div class="menu">
-            <div class="name">메뉴가 아무리 길어도 문제 없다</div>
-            <div class="num">1개</div>
-            <div class="price">1,150,000원</div>
-          </div>
-          <div class="menu">
-            <div class="name">뿌링클</div>
-            <div class="num">1개</div>
-            <div class="price">25,000원</div>
-          </div>
-          <div class="amount">
-            <div class="amountText">총 결제 금액</div>
-            <div class="amountNum">1,190,000원</div>
-          </div>
-        </div>
-        <div @click="boardBtn" class="btn btn-primary">
-          {{ on ? '리뷰 남기기' : '리뷰 저장하기' }}
+    <div class="board-box">
+
+
+
+
+
+      <!-- 하단 주문 내역 -->
+
+      <div class="orderList">
+        <div>
+          <div class="ordertext">주문 내역</div>
+          <div class="solid"></div>
         </div>
       </div>
-      <div class="remove">
-        <img class="removeImg" src="/src/imgs/remove.png" />
+      <div v-for="order in state.orders">
+        <order-and-review :order="order" />
       </div>
     </div>
-    <div class="reviewBigBox">
+
+    <!-- 미리보기 용 -->
+    <!-- <order-and-review></order-and-review>
+    <div :style="{ height: on ? '315px' : '750px' }" class="bigBoard">
+      <div class="board">
+        <div class="boardLeft">
+          <div class="imgBox">
+            <img class="img" src="/src/imgs/recStore_1.png" />
+          </div>
+          <div class="textBox">
+            <div>오십계</div>
+          </div>
+        </div>
+        <div class="boardRight">
+          <div class="title">주문내역</div>
+          <div class="menuBox">
+            <div class="menu">
+              <div class="name">간장치킨</div>
+              <div class="num">1개</div>
+              <div class="price">15,000원</div>
+            </div>
+            <div class="menu">
+              <div class="name">메뉴가 아무리 길어도 문제 없다</div>
+              <div class="num">1개</div>
+              <div class="price">1,150,000원</div>
+            </div>
+            <div class="menu">
+              <div class="name">뿌링클</div>
+              <div class="num">1개</div>
+              <div class="price">25,000원</div>
+            </div>
+            <div class="amount">
+              <div class="amountText">총 결제 금액</div>
+              <div class="amountNum">1,190,000원</div>
+            </div>
+          </div>
+          <div @click="reviewButton" class="btn btn-primary">
+            {{ on ? '리뷰 남기기' : '리뷰 저장하기' }}
+          </div>
+        </div>
+        <div class="remove">
+          <img class="removeImg" src="/src/imgs/remove.png" />
+        </div>
+      </div> -->
+
+    <!-- 리뷰 박스 -->
+    <!-- <div class="reviewBigBox">
       <div class="reviewBox">
         <div class="reviewimgBox">
           <img class="reviewImg" src="/src/imgs/chicken.png" />
@@ -120,7 +181,8 @@ const selectStar = (index) => {
         </div>
       </div>
 
-    </div>
+    </div> 
+    </div> -->
   </div>
 </template>
 
@@ -134,18 +196,48 @@ const selectStar = (index) => {
   src: url('https://fastly.jsdelivr.net/gh/Project-Noonnu/noonfonts_2107@1.1/Pretendard-Regular.woff');
 }
 
+* {
+  font-family: 'BMJUA';
+}
+
+
+.all-box {
+  display: flex;
+  flex-wrap: wrap;
+  width: 100%;
+  justify-content: center;
+  font-family: 'BMJUA';
+
+  // 
+  .orderList {
+
+    font-weight: 800;
+    text-align: center;
+
+    .ordertext {
+      font-size: 23px;
+    }
+
+
+    .solid {
+      width: 1470px;
+      border: 1px #000 solid;
+      margin-top: 15px;
+    }
+  }
+
+}
+
 .box {
+  display: flex;
+  justify-content: center;
   font-family: 'Pretendard-Regular';
+  width: 1400px;
 
   font-size: 1.4em;
   letter-spacing: -1.5px;
-  margin-top: -100px;
+  margin-top: 70px;
 
-  .solid {
-    width: 1100px;
-    border: 1px #000 solid;
-    margin-top: 15px;
-  }
 }
 
 .btn {
@@ -351,5 +443,82 @@ const selectStar = (index) => {
   font-size: 0.6em;
   margin-left: 10px;
   margin-bottom: 10px;
+}
+
+.board-box {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  width: 1500px;
+}
+
+
+// 상단 유저 보더
+
+
+.userboard {
+  display: flex;
+  align-items: center;
+  //
+  justify-content: space-around;
+  width: 1120px;
+  height: 228px;
+  border-radius: 25px;
+  border: #000 solid 1px;
+
+  .userLeft {
+    display: flex;
+    align-items: center;
+    font-size: 15px;
+    margin-left: 30px;
+
+    .userImg {
+      width: 20%;
+      height: 20%;
+      margin-left: 60px;
+    }
+
+    .user {
+      font-family: "BMJUA";
+      font-size: 1.5em;
+      letter-spacing: 1px;
+      margin-left: 32px;
+      margin-top: 14px;
+
+      .smalluser {
+        font-size: 0.7em;
+        letter-spacing: 1px;
+
+        .ip {
+          margin-left: 5px;
+          color: #ff6666;
+        }
+
+        .rank {
+          margin-left: 5px;
+        }
+      }
+    }
+  }
+
+  .userright {
+    display: flex;
+    gap: 150px;
+    margin-left: 150px;
+  }
+
+  .right {
+    text-align: center;
+    font-family: "BMJUA";
+    font-size: 20px;
+    margin-top: 20px;
+    margin-left: -170px;
+    width: 250px;
+
+    .num {
+      margin-top: 10px;
+      font-size: 1.3em;
+    }
+  }
 }
 </style>
