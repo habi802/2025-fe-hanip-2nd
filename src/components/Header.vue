@@ -19,7 +19,7 @@ const state = reactive({
 });
 
 const res = getUser();
-console.log("유저 정보", res.data.resultData);
+// console.log("유저 정보", res.data.resultData);
 
 // 주소 확인
 
