@@ -1,15 +1,19 @@
 <!-- 주문 내역 화면에 뿌릴 카드 컴포넌트 -->
 
 <script setup>
-import { ref } from "vue";
+import { getStore } from "@/services/storeService";
+import { ref, computed, onMounted, reactive } from "vue";
 import { useRouter } from "vue-router";
-
+import defaultImage from "@/imgs/owner/haniplogo_sample.png"
 
 // 라우터
 const router = useRouter();
 
 
-
+//리뷰 페이지 이동
+const reviewButton = () => {
+    router.push(`/reviews-page/${props.order?.id}`);
+}
 
 
 //
@@ -48,12 +52,57 @@ const selectStar = (index) => {
     selected.value = index + 1;
 };
 console.log("props.order", props.order);
+
+  // 날짜 파싱
+const formatDateTime = (isoStr) => {
+  return new Date(isoStr).toLocaleString("ko-KR", {
+    timeZone: "Asia/Seoul",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+};
+
+// 배달상태 파싱
+const statusText = computed(() => {
+  if (!props.order || !props.order.status) return "상태 없음";
+  switch (props.order.status) {
+    case "ORDERED":
+        return "주문 대기중"
+    case "PREPARING":
+        return "음식준비중";
+    case "DELIVERING":
+        return "배달중";
+    case "CANCELED":
+        return "취소됨";
+    case "COMPLETED":
+        return "완료됨";
+    default:
+        return "기타 상태";
+  }
+});
+
+
+// 가게 이미지
+const img = `/pic/store-profile/${props.order?.storeId}/${props.order?.imagePath}`
+
+// 가게 이미지가 없을 시 대체 이미지 나타내기
+const imgSrc = computed(() => {
+  return props.order && props.order?.imagePath && props.order?.imagePath !== 'null'
+  ? `/pic/store-profile/${props.order?.storeId}/${props.order?.imagePath}`
+  : defaultImage;
+})
+
+// 주문내역 삭제
+const emit = defineEmits(['delete-order', 'reorder']);
 </script>
 
 <template>
     <!-- 버튼들 -->
     <div class="btns">
-        <div class="btn">재주문 하기</div>
+        <div class="btn" @click="$emit('reorder', props.order.orderGetList)">재주문 하기</div>
         <div @click="reviewButton" class="btn btn-primary">
             리뷰등록
         </div>
@@ -66,9 +115,9 @@ console.log("props.order", props.order);
         <div class="board">
             <!-- 카드 왼쪽 [ 주문 시간 , 이미지 , 가게 이름 ] -->
             <div class="boardLeft">
-                <div class="created">00년 0월 0일 00:00 주문</div>
+                <div class="created">{{ formatDateTime(props.order.created) }}</div>
                 <div class="imgBox">
-                    <img class="img" src="/src/imgs/recStore_1.png" />
+                    <img class="img" :src="imgSrc" @error="e => e.target.src = defaultImage" />
                 </div>
                 <div class="textBox">
                     <div>{{ props.order?.storeName || 'null' }}</div>
@@ -76,25 +125,15 @@ console.log("props.order", props.order);
             </div>
             <!-- 카드 중앙 [ 메뉴 이름, 갯수, 가격 ] -->
             <div class="boardRight">
-                <div class="menuBox">
-                    <div class="menu">
-                        <div class="name">{{ props.order?.menuName || 'null' }}</div>
-                        <div class="num">{{ props.order?.quantity || 0 }}개</div>
-                        <div class="price">{{ props.order?.price * props.order?.quantity }}원</div>
-                    </div>
-                    <div class="menu">
-                        <div class="name">메뉴가 아무리 길어도 문제 없다</div>
-                        <div class="num">1개</div>
-                        <div class="price">1,150,000원</div>
-                    </div>
-                    <div class="menu">
-                        <div class="name">뿌링클</div>
-                        <div class="num">1개</div>
-                        <div class="price">25,000원</div>
+                <div class="menuBox pt-4">
+                    <div class="menu" v-for="(menu, index) in props.order.orderGetList.slice(0, 3)" :key="menu.id || index">
+                        <div class="name">{{ menu.name || "ㅎㅇ" }}</div>
+                        <div class="num">{{ menu.quantity || 0 }}개</div>
+                        <div class="price">{{ menu.price * menu.quantity }}원</div>
                     </div>
                     <!-- 메뉴가 많으면 필요함,  -->
-                    <div class="more">
-                        <div class="moreText">... 외 2건</div>
+                    <div v-if="props.order.orderGetList.length > 3" class="more">
+                        <div class="moreText"> ... 외 {{ props.order.orderGetList.length - 3 }}건</div>
                     </div>
                 </div>
             </div>
@@ -102,15 +141,15 @@ console.log("props.order", props.order);
             <div class="boardLastRigth">
                 <div class="amount">
                     <div class="amountText">총 결제 금액</div>
-                    <div class="amountNum">1,190,000원</div>
+                    <div class="amountNum">{{props.order.amount.toLocaleString()}}원</div>
                 </div>
                 <div>
                     <div class="amountText">배달상태</div>
-                    <div class="amountNum">배달중</div>
+                    <div class="amountNum">{{ statusText }}</div>
                 </div>
             </div>
             <!-- 메뉴 삭제하기 버튼 -->
-            <div class="remove">
+            <div class="remove" @click="$emit('delete-order', props.order.id)">
                 <img class="removeImg" src="/src/imgs/remove.png" />
             </div>
         </div>
@@ -181,7 +220,7 @@ console.log("props.order", props.order);
     height: 320px;
     border: #6c6c6c 3px solid;
     border-radius: 25px;
-    margin-top: 40px;
+    margin-bottom: 20px;
     overflow: clip;
 
     .board {
@@ -203,7 +242,9 @@ console.log("props.order", props.order);
                 overflow: hidden;
 
                 .img {
-                    width: 300px;
+                    width: 100%;
+                    height: 100%;
+                    object-fit: cover;
                 }
 
             }

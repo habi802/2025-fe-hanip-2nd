@@ -10,6 +10,7 @@ const router = useRouter();
 const addMenuModal = ref(null);
 const previewImage = ref(defaultMenuImage);
 const ownerName = inject("ownerName", "");
+const storeId = inject("storeId", "")
 
 // 부트스트랩 alert
 let alertId = 0;
@@ -83,8 +84,7 @@ const submitMenu = async () => {
   const formData = new FormData();
   const payload = {
     data: {
-      id: state.form.menuId,
-      storeId: state.form.storeId,
+      storeId: storeId.value,
       name: newMenu.name,
       price: newMenu.price,
       comment: newMenu.comment,

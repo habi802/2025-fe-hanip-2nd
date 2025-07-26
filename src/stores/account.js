@@ -1,6 +1,6 @@
 import { reactive, computed } from 'vue';
 import { defineStore } from 'pinia';
-import { logined } from '@/services/userService'
+import { getUser, logined } from '@/services/userService'
 import { getOwnerStore } from '@/services/storeService';
 
 
@@ -25,21 +25,28 @@ export const useUserInfo = defineStore('userInfo', {
   state: () => ({
     userId: null,
     userName: null,
+    userAddr: '', 
   }),
   actions: {
     async fetchStore() {
-      const res = await logined();
-      if (res.status === 200) {
-        this.userId = res.data.resultData.id;
-        this.userName = res.data.resultData.name;
-        console.log("userId: 나오나? ㅇㅇ ",this.userId);
-        } else {
-        console.error('유저 정보 불러오기 실패', res);
+      console.log("📣 fetchStore 호출됨");
+      try {
+        const res = await getUser();
+        console.log("🤢유저 정보", res);
+        if (res?.status === 200 && res?.data?.resultData) {
+          const data = res.data.resultData;
+          const address = (data.address ?? '') + (data.address_detail ?? '');
+          this.userId = data.id;
+          this.userName = data.name;
+          this.userAddr = address;
         }
-    },
-  },
+                console.log("🟢 저장된 주소:", this.userAddr);
+      } catch (err) {
+        console.error('유저 정보 불러오기 실패', err);
+      }
+    }
+  }
 });
-
 
 
 
