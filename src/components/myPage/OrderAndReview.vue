@@ -117,14 +117,14 @@ const statusText = computed(() => {
             <!-- 카드 중앙 [ 메뉴 이름, 갯수, 가격 ] -->
             <div class="boardRight">
                 <div class="menuBox pt-4">
-                    <div class="menu" v-for="(menu, index) in props.order.orderGetList" :key="menu.id || index">
-                        <div class="name">{{ menu.name || 'null' }}</div>
+                    <div class="menu" v-for="(menu, index) in props.order.orderGetList.slice(0, 3)" :key="menu.id || index">
+                        <div class="name">{{ menu.name || "ㅎㅇ" }}</div>
                         <div class="num">{{ menu.quantity || 0 }}개</div>
                         <div class="price">{{ menu.price * menu.quantity }}원</div>
                     </div>
                     <!-- 메뉴가 많으면 필요함,  -->
-                    <div class="more">
-                        <div class="moreText">... 외 2건</div>
+                    <div v-if="props.order.orderGetList.length > 3" class="more">
+                        <div class="moreText"> ... 외 {{ props.order.orderGetList.length - 3 }}건</div>
                     </div>
                 </div>
             </div>

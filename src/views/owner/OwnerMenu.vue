@@ -83,8 +83,7 @@ const submitMenu = async () => {
   const formData = new FormData();
   const payload = {
     data: {
-      id: state.form.menuId,
-      storeId: state.form.storeId,
+      storeId: state.form[1].storeId,
       name: newMenu.name,
       price: newMenu.price,
       comment: newMenu.comment,
