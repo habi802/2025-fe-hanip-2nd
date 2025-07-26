@@ -52,20 +52,20 @@ export const useReviewStore = defineStore('review', {
     async saveOwnerComment({ reviewId, ownerComment }) {
       try {
         const res = await patchOwnerComment(reviewId, ownerComment);
-        if (res && res.status === 200 && res.data?.success) {
-          // 저장 성공 시 로컬 상태 갱신
-          const target = this.reviews.find(r => r.id === reviewId);
-          if (target) {
-            target.ownerComment = ownerComment;
-          }
-          return true;
-        } else {
-          console.error('답글 저장 실패', res);
-          return false;
-        }
-      } catch (error) {
-        console.error('답글 저장 에러', error);
-        return false;
+        if (res && res.status === 200 && res.data?.resultStatus === 200) {
+              // 저장 성공 시 로컬 상태 갱신
+              const target = this.reviews.find(r => r.id === reviewId);
+              if (target) {
+                target.ownerComment = ownerComment;
+              }
+              return true;
+            } else {
+              console.error('답글 저장 실패', res);
+              return false;
+            }
+          } catch (error) {
+            console.error('답글 저장 에러', error);
+            return false;
       }
     }
   }

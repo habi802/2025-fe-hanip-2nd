@@ -76,44 +76,43 @@ const toggleDatePicker = () => {
 };
 
 
-// 사장 댓글 반응형
-// const oWnerComment = reactive({
-//     comment : null,
-// })
-
-// console.log("사장코멘트", reviewStore.reviews.ownerComment );
-// const ownerComment = ref({ comment: reviewStore.reviews.ownerComment });
-
-
-
+//----------사장 댓글 다는 부분------------
 // 선택된 리뷰 저장용
 const selectedReview = ref(null);
 
-// 댓글 상태
+//댓글 상태
 const ownerComment = ref(""); 
 
-
-
-// -----------모달-------------
+//-댓글 달 모달창-
 const addReviewModal = ref(null);
 const newdReview = reactive({
     comment: "",
 });
 
-
-
 // 모달 창 열기
-// const openAddReviewModal = () => {
-//     newdReview.comment = "";
-//     const modal = new bootstrap.Modal(addReviewModal.value);
-//     modal.show();
-// };
-
 const openAddReviewModal = (review) => {
   selectedReview.value = review;
   ownerComment.value = review.ownerComment || "";  // 기존 댓글 있으면 세팅
   const modal = new bootstrap.Modal(addReviewModal.value);
   modal.show();
+};
+
+// 사장이 단 댓글 삭제
+const ownerReviewDelete = async (review) => {
+    const confirmed = confirm("정말 사장 댓글을 삭제하시겠습니까?");
+    if (!confirmed) return;
+
+    const success = await reviewStore.saveOwnerComment({
+        reviewId: review.id,
+        ownerComment: ""
+    });
+
+    if (!success) {
+        alert("삭제 실패!");
+        return;
+    }
+
+    alert("삭제되었습니다!");
 };
 
 // 등록하기
@@ -134,35 +133,17 @@ const submitReview = async () => {
 
     const modal = bootstrap.Modal.getInstance(addReviewModal.value);
     modal.hide();
-  } catch (e) {
+    } catch (e) {
     console.error("댓글 저장 실패", e);
-  }
+    }
 };
 
-/*
-const submitReview = async () => {
-
-    const payload = {
-    data: {
-        storeId: "",
-        name: newMenu.name,
-        price: newMenu.price,
-        comment: newMenu.comment,
-    },
-    img: newMenu.imagePath,
-    };
-    
-    // 모달 창 닫기
-    const modal = bootstrap.Modal.getInstance(addReviewModal.value);
-    modal.hide();
-};
-*/
 
 // 유저 프로필 없을 시 대체 이미지 나타내기
 const imgSrc = computed(() => {
-  return reviewStore.reviews && reviewStore.reviews.imagePath && reviewStore.reviews.imagePath !== 'null'
-  ? `/pic/store-profile/${reviewStore.reviews.id}/${reviewStore.reviews.imagePath}`
-  : defaultUserProfile;
+    return reviewStore.reviews && reviewStore.reviews.imagePath && reviewStore.reviews.imagePath !== 'null'
+    ? `/pic/store-profile/${reviewStore.reviews.id}/${reviewStore.reviews.imagePath}`
+    : defaultUserProfile;
 })
 
 // 유저 프로필 경로
@@ -181,14 +162,14 @@ return (sum / reviewStore.reviews.length).toFixed(1);
 
 // 날짜
 const formatDateTime = (isoStr) => {
-  return new Date(isoStr).toLocaleString("ko-KR", {
+    return new Date(isoStr).toLocaleString("ko-KR", {
     timeZone: "Asia/Seoul",
     year: "numeric",
     month: "2-digit",
     day: "2-digit",
     hour: "2-digit",
     minute: "2-digit",
-  });
+    });
 };
 </script>
 
@@ -286,8 +267,8 @@ const formatDateTime = (isoStr) => {
             </div>
 
             <div class="btn-wrap">
-                <button class="btn btn-delete">리뷰 삭제</button>
-                <button class="btn btn-comment" @click="openAddReviewModal">댓글 작성</button>
+                <button class="btn btn-delete" @click = "ownerReviewDelete(review)" >리뷰 삭제</button>
+                <button class="btn btn-comment" @click="openAddReviewModal(review)">댓글 작성</button>
             </div>
         </div>
     </div>
@@ -306,19 +287,11 @@ const formatDateTime = (isoStr) => {
             ></button>
             </div>
             <div class="modal-body">
-            <!-- <textarea class="form-control" v-model="ownerComment.comment" placeholder="답글을 입력하세요. 고객과의 소통은 매출상승의 지름길입니다!" > {{ ownerComment.comment }} </textarea> -->
-            <textarea
-  class="form-control"
-  v-model="ownerComment"
-  placeholder="답글을 입력하세요. 고객과의 소통은 매출상승의 지름길입니다!"
-></textarea>
+            <textarea class="form-control"   v-model="ownerComment"  placeholder="답글을 입력하세요. 고객과의 소통은 매출상승의 지름길입니다!"  ></textarea>
             </div>
             <div class="modal-footer">
-            <button class="btn btn-secondary" data-bs-dismiss="modal">
-                취소
-            </button>
-            <!-- <button class="btn btn-primary" @click="submitReview">등록</button> -->
-            <button class="btn btn-comment" @click="openAddReviewModal(review)">댓글 작성</button>
+            <button class="btn btn-secondary" data-bs-dismiss="modal"> 취소</button>
+            <button class="btn btn-comment" @click="submitReview">등록</button>
             </div>
         </div>
         </div>
