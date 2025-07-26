@@ -14,7 +14,7 @@ let OrderDetail = ref(false);
 let inf = ref(false);
 // let pay = ref(false);
 let favor = ref(false);
-let ct = ref(false);
+
 
 // 주문내역, 마이페이지 라우터 확인
 onMounted(() => {
@@ -34,7 +34,7 @@ const mainClick = () => {
   inf.value = false;
   // pay.value = false;
   favor.value = false;
-  ct.value = false;
+
   main.value = true;
 };
 
@@ -43,7 +43,7 @@ const orderClick = () => {
   inf.value = false;
   // pay.value = false;
   favor.value = false;
-  ct.value = false;
+
   main.value = false;
 };
 
@@ -52,7 +52,7 @@ const infClick = () => {
   inf.value = true;
   // pay.value = false;
   favor.value = false;
-  ct.value = false;
+
   main.value = false;
 };
 const payClick = () => {
@@ -60,7 +60,7 @@ const payClick = () => {
   inf.value = false;
   // pay.value = true;
   favor.value = false;
-  ct.value = false;
+
   main.value = false;
 };
 
@@ -69,54 +69,47 @@ const favorClick = () => {
   inf.value = false;
   // pay.value = false;
   favor.value = true;
-  ct.value = false;
   main.value = false;
 };
 
-const ctClick = () => {
-  OrderDetail.value = false;
-  inf.value = false;
-  // pay.value = false;
-  favor.value = false;
-  ct.value = true;
-  main.value = false;
-};
+
 
 //
-const myAccount = ['주문내역', '정보수정', '즐겨찾기', '고객센터'];
+// const myAccount = ['주문내역', '정보수정', '즐겨찾기', '고객센터'];
+// const myAccount2 = ['주문내역', '정보수정', '즐겨찾기', '고객센터'];
 </script>
 
 <template>
   <div class="accountBox">
-    <div class="accountBoard">
-      <div class="mainText" @click="mainClick">마이페이지</div>
+    <!-- <div class="accountBoard"> -->
+      <!-- <div class="mainText" @click="mainClick">마이페이지</div>
       <div>
         <div class="smallText" @click="orderClick">{{ myAccount[0] }}</div>
         <div class="smallText" @click="infClick">{{ myAccount[1] }}</div>
-        <!-- <div class="smallText" @click="payClick">{{ myAccount[2] }}</div> -->
+        <div class="smallText" @click="payClick">{{ myAccount[2] }}</div>
         <div class="smallText" @click="favorClick">{{ myAccount[2] }}</div>
         <div class="smallText">{{ myAccount[3] }}</div>
       </div>
-    </div>
+    </div> -->
     <div class="components">
-      <div v-if="OrderDetail">
+      <!-- <div v-if="OrderDetail">
         <order-details></order-details>
-      </div>
-      <div v-if="inf">
+      </div> -->
+      <div>
         <Information></Information>
       </div>
       <!-- <div v-if="pay">
         <Payment></Payment>
       </div> -->
-      <div v-if="favor">
+      <!-- <div v-if="favor">
         <Favorites></Favorites>
-      </div>
-      <div v-if="ct">
+      </div> -->
+      <!-- <div v-if="ct">
         <customerCt></customerCt>
-      </div>
-      <div v-if="main">
+      </div> -->
+      <!-- <div v-if="main">
         <AccountMain></AccountMain>
-      </div>
+      </div> -->
     </div>
   </div>
   <footer></footer>
@@ -153,7 +146,6 @@ const myAccount = ['주문내역', '정보수정', '즐겨찾기', '고객센터
 
 .components {
   margin-top: 100px;
-  margin-left: 180px;
 }
 
 footer {

@@ -50,6 +50,7 @@ const submitMenu = async () => {
   const formData = new FormData();
   const payload = {
     data: {
+      id: state.form.menuId,
       storeId: state.form.storeId,
       name: newMenu.name,
       price: newMenu.price,
@@ -58,6 +59,25 @@ const submitMenu = async () => {
     img: newMenu.imagePath,
   };
 
+  formData.append("img", payload.img);
+  formData.append(
+    "data",
+    new Blob([JSON.stringify(payload.data)], { type: "application/json" })
+  );
+
+
+  const res = await saveMenu(formData);
+  console.log("imagePath:", newMenu.imagePath);
+  console.log("instanceof File:", newMenu.imagePath instanceof File);
+
+  if (!(newMenu.imagePath instanceof File)) {
+    alert("이미지를 등록해 주세요!");
+    return;
+  } else if (res.status !== 200) {
+    alert("에러 발생");
+    return;
+  }
+
   // 입력값 초기화
   newMenu.name = "";
   newMenu.price = "";
@@ -65,19 +85,8 @@ const submitMenu = async () => {
   newMenu.imagePath = null;
   previewImage.value = defaultMenuImage;
 
-  formData.append("img", payload.img);
-  formData.append(
-    "data",
-    new Blob([JSON.stringify(payload.data)], { type: "application/json" })
-  );
-
-  const res = await saveMenu(formData);
-  if (res.status !== 200) {
-    alert("에러 발생");
-    return;
-  }
-
   alert("등록 성공");
+  fetchMenus();
 
   // 모달 창 닫기
   const modal = bootstrap.Modal.getInstance(addMenuModal.value);
@@ -120,7 +129,7 @@ const fetchMenus = async () => {
       </div>
     </div>
   </div>
-
+  
   <!-- 부트스트랩 모달 -->
   <div class="modal fade" ref="addMenuModal" tabindex="-1">
     <div class="modal-dialog">

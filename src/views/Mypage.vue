@@ -65,7 +65,6 @@ const myAccount = [
 .box {
   display: flex;
   justify-content: center;
-  width: 100%;
   height: 500px;
   .userboard {
     align-items: center;

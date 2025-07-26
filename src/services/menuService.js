@@ -29,7 +29,12 @@ export const getStoreIdAndMenus = () => {
 
 // 메뉴 한개 수정
 export const modifyMenu = (menuData) => {
-  return axios.put(path, menuData).catch((e) => e.response);
+  const config = {
+    headers: {
+      'Content-Type': 'multipart/form-data',
+    },
+  };
+  return axios.put(path, menuData,config).catch((e) => e.response);
 };
 
 // 메뉴 삭제

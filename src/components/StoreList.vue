@@ -1,22 +1,30 @@
 <script setup>
 import { useRouter } from 'vue-router';
-
+import defaultImage from '@/imgs/owner/haniplogo_sample2.png'
+import { computed } from 'vue';
 const router = useRouter();
-
 const props = defineProps({
   stores: Object,
 });
-
 const storeRouter = () => {
   router.push(`/stores/${props.stores.storeId}`);
 };
-</script>
 
+// 가게 이미지
+const img = `/pic/store-profile/${props.stores.storeId}/${props.stores.imagePath}`
+
+// 가게 이미지가 없을 시 대체 이미지 나타내기
+const imgSrc = computed(() => {
+  return props.stores && props.stores.imagePath && props.stores.imagePath !== 'null'
+  ? `/pic/store-profile/${props.stores.storeId}/${props.stores.imagePath}`
+  : defaultImage;
+})
+</script>
 <template>
   <div @click="storeRouter" class="router">
     <div class="store">
       <div class="storeImgBox">
-        <img class="sImg" src="/src/imgs/recStore_1.png" />
+        <img class="sImg" :src="imgSrc" @error="e => e.target.src = defaultImage" />
       </div>
       <div class="storeTextBox">
         <div class="sTextBox">
@@ -40,28 +48,33 @@ const storeRouter = () => {
     </div>
   </div>
 </template>
-
 <style lang="scss" scoped>
 .store {
   width: 420px;
   height: 371px;
   border-radius: 20px;
-  border: #6b6b6b solid 1px;
+  border: #6B6B6B solid 1px;
   overflow: hidden;
+
   .storeImgBox {
     width: 420px;
     height: 250px;
     overflow: hidden;
     border-radius: 20px 20px 0px 0px;
+
     .sImg {
-      width: 420px;
+      width: 100%;
+      height: 260px;
+      object-fit: contain;
       border-radius: 20px 20px 0px 0px;
     }
   }
+
   .storeTextBox {
     position: relative;
     display: flex;
     margin-left: 15px;
+
     #smallText {
       font-size: 12px;
       font-family: sans-serif;
@@ -69,6 +82,7 @@ const storeRouter = () => {
       margin-top: 4px;
       letter-spacing: 0.5px;
     }
+
     .sText {
       font-family: sans-serif;
       font-size: 1.2em;
@@ -76,6 +90,7 @@ const storeRouter = () => {
       margin-top: 17px;
     }
   }
+
   .icons {
     font-family: 'BMJUA';
     display: flex;
@@ -83,27 +98,31 @@ const storeRouter = () => {
     font-size: 13px;
     flex-direction: column;
     margin-left: 25px;
+
     #icon {
       width: 15px;
     }
+
     .star {
       .starNum {
         font-size: 10px;
         letter-spacing: 0.5px;
       }
     }
+
     .love {
       font-size: 13px;
       letter-spacing: 0.5px;
     }
   }
 }
+
 .btn {
   position: absolute;
   font-family: 'BMJUA';
   font-size: 0.8em;
   color: #fff;
-  background-color: #ff6666;
+  background-color: #FF6666;
   text-align: center;
   width: 94px;
   height: 36px;

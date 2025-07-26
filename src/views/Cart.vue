@@ -33,16 +33,8 @@ const remove = async (cartId) => {
   load();
 };
 
-const clear = async () => {
-  const res = await removeCart();
-  if (res.status !== 200) return;
-
-  load();
-};
-
 const increaseQty = (item) => {
   item.quantity++;
-  // 서버에도 수량 변경 요청 추가 가능
 };
 
 const decreaseQty = (item) => {
@@ -55,13 +47,32 @@ const totalPrice = computed(() =>
 
 const goToLogin = () => router.push('/login');
 const goToMain = () => router.push('/');
-const goToOrder = () => router.push('/order');
+
+const goToOrder = (group) => {
+  if (!group || !group.items || group.items.length === 0) {
+    alert('주문할 메뉴가 없습니다.');
+    return;
+  }
+
+  const orderItems = group.items.map((item) => ({
+    id: item.id,
+    menuId: item.menuId || item.menu_id || item.id,
+    quantity: item.quantity,
+    price: item.price,
+    name: item.name,
+    imagePath: item.image_path,
+  }));
+
+  localStorage.setItem('orderItems', JSON.stringify(orderItems));
+  router.push(`/stores/${group.items[0].storeId}/order`);
+};
 
 const groupedItems = computed(() => {
   const groups = {};
   for (const item of state.items) {
     if (!groups[item.storeName]) {
       groups[item.storeName] = {
+        storeId: item.storeId,
         storeName: item.storeName,
         storeNotice: item.storeNotice,
         items: [],
@@ -85,7 +96,6 @@ const groupedItems = computed(() => {
           />
           <div class="div29">장바구니</div>
         </div>
-        <div class="clear" @click="clear">장바구니 삭제</div>
       </div>
       <div class="step-horizontal">
         <span class="step-text">01 음식선택</span>
@@ -151,25 +161,33 @@ const groupedItems = computed(() => {
           <button @click="remove(item.id)">X</button>
         </div>
       </div>
-    </div>
 
-    <div class="cart-footer">
-      <p class="total">총 금액: {{ totalPrice.toLocaleString() }}원</p>
-      <div class="groupContainer">
-        <div class="div19" @click="goToOrder">주문하기</div>
+      <!-- 각 그룹마다 주문 버튼 배치 -->
+      <div class="cart-footer">
+        <p class="total">
+          총 금액:
+          {{
+            group.items
+              .reduce((sum, item) => sum + item.price * item.quantity, 0)
+              .toLocaleString()
+          }}원
+        </p>
+        <div class="groupContainer">
+          <div class="div19" @click="goToOrder(group)">주문하기</div>
+        </div>
       </div>
     </div>
   </div>
 </template>
 
 <style scoped>
-
 .cart-empty-wrapper {
   max-width: 1024px;
   margin: 50px auto;
   padding: 20px;
   display: flex;
   flex-direction: column;
+  margin-bottom: 2px;
 }
 
 .title-wrap {
@@ -188,7 +206,7 @@ const groupedItems = computed(() => {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 20px
+  gap: 20px;
 }
 
 .back-icon {
@@ -221,13 +239,12 @@ const groupedItems = computed(() => {
 }
 
 .login-cart {
-    font-size: 16px;
+  font-size: 16px;
   margin-bottom: 50px;
   text-align: center;
   color: #555;
 }
 
-/* 로그인 상태 안내 */
 .div18 {
   font-size: 16px;
   margin-bottom: 50px;
@@ -242,18 +259,8 @@ const groupedItems = computed(() => {
   gap: 20px;
 }
 
-.clear {
-  color: #fff;
-  background-color: #ff6666;
-  padding: 10px 20px;
-  border-radius: 8px;
-  font-weight: bold;
-  cursor: pointer;
-  margin-left: 14px;
-}
-
 .div-login {
-    border: 2px solid #ff6666;
+  border: 2px solid #ff6666;
   color: #ff6666;
   background-color: #fff;
   padding: 10px 20px;
@@ -274,11 +281,15 @@ const groupedItems = computed(() => {
   margin-bottom: 91px;
 }
 
+/*  중앙 카드 형태의 store-box 스타일 */
 .store-box {
-  border: 1px solid #ccc;
+  max-width: 900px;
+  margin: 0 auto 40px auto;
+  padding: 24px;
+  border: 1px solid #e0e0e0;
   border-radius: 16px;
-  padding: 20px;
-  margin-bottom: 30px;
+  background-color: #fff;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
 }
 
 .store-info {
@@ -367,4 +378,6 @@ const groupedItems = computed(() => {
   font-weight: bold;
   margin-bottom: 20px;
 }
+
 </style>
+

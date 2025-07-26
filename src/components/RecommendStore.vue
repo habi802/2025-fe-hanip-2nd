@@ -1,7 +1,6 @@
 <script setup></script>
-
 <template>
-  <div class="f_text">한입 추천 가게</div>
+  <div class="f-text">한입 추천 가게</div>
   <div class="guideBox">
     <!--  -->
     <div class="store">
@@ -191,24 +190,24 @@
   </div>
   <div class="footer"></div>
 </template>
-
 <style lang="scss" scoped>
 @font-face {
   font-family: 'BMJUA';
-  src: url('https://fastly.jsdelivr.net/gh/projectnoonnu/noonfonts_one@1.0/BMJUA.woff')
-    format('woff');
+  src: url('https://fastly.jsdelivr.net/gh/projectnoonnu/noonfonts_one@1.0/BMJUA.woff') format('woff');
   font-weight: 600;
   font-style: normal;
 }
-.f_text {
-  font-family: 'BMJUA';
+
+.f-text {
+  font-family: "BMJUA";
   letter-spacing: 2px;
-  color: #ff6666;
+  color: #FF6666;
   font-size: 2em;
   text-align: center;
-  padding-top: 50px;
+  padding-top: 105px;
   margin-left: 15px;
 }
+
 .guideBox {
   display: flex;
   flex-wrap: wrap;
@@ -222,67 +221,134 @@
 
   .store {
     width: 360px;
-    height: 500px;
+    height: 470px;
     border-radius: 20px;
     -webkit-box-shadow: 6px 7px 5px -2px rgba(0, 0, 0, 0.33);
     box-shadow: 6px 7px 5px -2px rgba(0, 0, 0, 0.33);
+
     .storeImgBox {
       width: 330px;
       height: 280px;
       overflow: hidden;
-      margin-left: 13px;
+      margin-left: 15px;
       padding-top: 13px;
       border-radius: 20px;
+
       .sImg {
         width: 330px;
         border-radius: 20px;
       }
     }
+
     .storeTextBox {
       margin-left: 25px;
+
       #smallText {
         font-size: 0.8em;
-        color: #6c6c6c;
-        margin-top: 6px;
+        color: #6C6C6C;
+        margin-top: 4px;
       }
+
       .sText {
         font-size: 1.3em;
         font-weight: 600;
-        margin-top: 20px;
+        margin-top: 10px;
       }
     }
+
     .icons {
-      font-family: 'BMJUA';
+      font-family: "BMJUA";
       display: flex;
-      margin-top: 10px;
+      margin-top: 5px;
+
       #icon {
         width: 20px;
       }
+
       .star {
         .starNum {
           font-size: 14px;
         }
       }
+
       .love {
         margin-left: 10px;
         font-size: 18px;
       }
     }
   }
+
   .btn {
-    font-family: 'BMJUA';
-    font-size: 1.3em;
+    font-family: "BMJUA";
+    font-size: 1em;
     color: #fff;
-    background-color: #ff6666;
+    background-color: #FF6666;
     text-align: center;
-    width: 200px;
-    padding: 10px;
+    width: 163px;
+    padding: 7px;
     margin-top: 15px;
-    margin-left: 23%;
+    margin-left: 100px;
     border-radius: 10px;
   }
 }
+
 .footer {
-  margin-bottom: 300px;
+  margin-bottom: 100px;
+}
+
+// 반응형
+@media (max-width: 1800px) {
+  .guideBox {
+    justify-content: center;
+    width: 1200px;
+  }
+}
+
+@media (max-width: 1400px) {
+  .guideBox {
+    width: 900px;
+
+    .store {
+      width: 200px;
+      height: 300px;
+
+      .storeImgBox {
+        width: 150px;
+        height: 130px;
+        margin-left: 25px;
+        margin-top: 2px;
+
+        .sImg {
+          width: 150px;
+
+        }
+      }
+
+      .storeTextBox {
+        margin-top: -10px;
+        font-size: 0.8em;
+      }
+
+      .btn {
+        width: 100px;
+        font-size: 0.6em;
+        margin-top: 3px;
+        margin-left: 50px;
+      }
+
+    }
+  }
+}
+
+@media (max-width: 1030px) {
+  .guideBox {
+    width: 800px;
+  }
+}
+
+@media (max-width:800px) {
+  .guideBox {
+    width: 450px;
+  }
 }
 </style>

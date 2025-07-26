@@ -17,62 +17,98 @@ import 'swiper/css/scrollbar';
 
 //
 import { getStoreList } from '@/services/storeService';
-import { reactive, onMounted, nextTick } from 'vue';
+import { reactive, onMounted, nextTick, ref } from 'vue';
 import StoreList from '@/components/StoreList.vue';
-import { useRouter } from 'vue-router';
+import { useRouter, useRoute } from 'vue-router';
 
 const router = useRouter();
-
+const route = useRoute();
 const state = reactive({
   stores: [],
 });
 
+// 쿼리에서 검색어 추출
+const query = ref(route.query.search_text || '')
+const result = ref([])
+
+const searchText = async (search_text) => {
+  console.log('searchText 호출, q:', search_text);
+  try {
+    const params = { search_text };
+    console.log('api 파라미터:', params);
+    const res = await getStoreList(params);
+    console.log('api:', res.data.resultData);
+    result.value = res.data.resultData;
+    state.stores = result.value;
+    console.log('state.stores: ', state.stores);
+  } catch (error) {
+    console.error('에러 발생:', error);
+    result.value = [];
+  }
+};
+
 const name = reactive({
   text: '전체',
 });
+
 // 라우터 필터용
+// onMounted(() => {
+//   if (query.value) searchText(query.value)
+// })
+
+// 카테고리 검색창 용
+
+
+//
 
 onMounted(() => {
   nextTick(() => {
-    const text = router.currentRoute.value.query.section;
-    switch (text) {
-      case 'korean':
-        searchKoreanFood();
-        break;
-      case 'china':
-        searchChina();
-        break;
-      case 'japan':
-        searchJapanese();
-        break;
-      case 'pasta':
-        searchWesternFood();
-        break;
-      case 'cafe':
-        searchDessert();
-        break;
-      case 'snack':
-        searchSnackFood();
-        break;
-      case 'fast':
-        searchFastFood();
-        break;
-      case 'asian':
-        searchAsian();
-        break;
-      case 'chicken':
-        searchChick();
-        break;
-      case 'pizza':
-        searchPizza();
-        break;
-      case 'night':
-        searchLateNight();
-        break;
-      default:
-        findAll({});
+    if (query.value) {
+      searchText(query.value)
+      name.text = query.value;
     }
-  })
+    const text = router.currentRoute.value.query.section;
+      switch (text) {
+        case 'korean':
+          searchKoreanFood();
+          break;
+        case 'china':
+          searchChina();
+          break;
+        case 'japan':
+          searchJapanese();
+          break;
+        case 'pasta':
+          searchWesternFood();
+          break;
+        case 'cafe':
+          searchDessert();
+          break;
+        case 'snack':
+          searchSnackFood();
+          break;
+        case 'fast':
+          searchFastFood();
+          break;
+        case 'asian':
+          searchAsian();
+          break;
+        case 'chicken':
+          searchChick();
+          break;
+        case 'pizza':
+          searchPizza();
+          break;
+        case 'night':
+          searchLateNight();
+          break;
+        default:
+          if (query.value) {
+            return;
+          }
+          findAll({});
+        }
+  });
 })
 
 
@@ -171,8 +207,6 @@ const searchLateNight = () => {
   findAll(searchCategory);
 };
 
-//
-
 const findAll = async (params) => {
   const res = await getStoreList(params);
   state.stores = res.data.resultData;
@@ -185,10 +219,25 @@ const arrow = () => {
     behavior: 'smooth',
   });
 };
+
+// 검색
+const search = ref("");
+
+const caLink = async() => {
+  console.log("검색: ", search.value)
+  const res = await getStoreList({ searchText: search.value });
+  console.log("res: ", res.data.resultData)
+  state.stores = res.data.resultData;
+  name.text = search.value;
+}
 </script>
 
 <template>
   <div class="text">{{ name.text }}</div>
+  <div class="searchBar">
+        <input v-model="search" @keyup.enter="caLink" type="text" id="title" class="searchBox" placeholder="찾는 맛집 이름,메뉴가 무엇인가요?" />
+        <img @click="caLink" class="searchImg" src="/src//imgs/fluent_search.png" />
+      </div>
   <div class="categorys">
     <div class="categorySwipe">
       <div class="swiperLeft">
@@ -240,9 +289,14 @@ const arrow = () => {
       </div>
     </div>
   </div>
-  <hr class="line" />
   <div class="guideBox">
-    <div v-for="stores in state.stores">
+
+    <!-- root : 검색 결과가 없을 시 나타내는 이미지 일단 임시로-->
+    <div class="position-relative" v-if="state.stores.length === 0">
+      <img src="/src/imgs/owner/owner-service2.png" 
+      style="position: absolute; transform: translateX(540px);"/>
+    </div>
+    <div v-for="stores in state.stores" :key="stores.id">
       <StoreList :stores="stores" />
     </div>
     <!--  -->
@@ -291,7 +345,7 @@ const arrow = () => {
 
 .text {
   text-align: center;
-  margin-top: 135px;
+  margin-top: 70px;
   font-size: 2.5em;
   color: #ff6666;
 }
@@ -299,7 +353,7 @@ const arrow = () => {
 .categorys {
   display: flex;
   justify-content: center;
-  margin-top: 90px;
+  margin-top: 60px;
   text-align: center;
 
   .categorySwipe {
@@ -355,7 +409,7 @@ const arrow = () => {
   width: 1480px;
   height: 100%;
   margin: 0 auto;
-  margin-top: 150px;
+  margin-top: 100px;
   background-color: #fff;
 }
 
@@ -375,4 +429,57 @@ const arrow = () => {
     opacity: 80%;
   }
 }
+
+// 검색
+.searchBar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 50px auto 0;
+  padding: 0 20px;
+  width: 600px;
+  height: 70px;
+  border: 3px solid #ff6666;
+  border-radius: 50px;
+  position: relative;
+  background-color: white;
+      input {
+        padding-left: 43px;
+      }
+
+      input:focus {
+        outline: none;
+        box-shadow: none;
+      }
+
+      .searchImg {
+        width: 30px;
+        position: relative;
+        right: 35px;
+        bottom: 2px;
+        cursor: pointer;
+      }
+
+      .searchBox {
+        flex: 1;
+        height: 100%;
+        border: none;
+        border-radius: 50px;
+        padding-left: 20px;
+        font-size: 1em;
+        color: #333;
+      }
+
+      .searchBox::placeholder {
+        color: #fcaeae;
+      }
+    }
+
+    .searchBar::placeholder {
+      color: #ff6666;
+    }
+    .searchBar::-moz-focus-inner {
+      outline: none; 
+      box-shadow: none;
+    }
 </style>

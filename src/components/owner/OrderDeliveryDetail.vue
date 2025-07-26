@@ -1,9 +1,41 @@
 <script setup>
+import { modifyStatus } from "@/services/orderService";
+import { useOrderStore } from "@/stores/orderStore";
+
+const orderStore = useOrderStore();
+
 const props = defineProps({
   order: Object,
 });
 
-console.log(props.order);
+console.log("deliveryRes", props.order);
+
+const orderComplete = async () => {
+  const body = {
+    orderId: props.order.id,
+    status: "COMPLETED",
+  };
+  const res = await modifyStatus(body);
+  if (res.status !== 200) {
+    alert("에러");
+    return;
+  }
+
+  // 상태 업데이트
+  await orderStore.fetchOrders(props.order.storeId);
+};
+
+// 날짜 파싱
+const formatDateTime = (isoStr) => {
+  return new Date(isoStr).toLocaleString("ko-KR", {
+    timeZone: "Asia/Seoul",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+};
 </script>
 
 <template>
@@ -15,6 +47,11 @@ console.log(props.order);
         메뉴: {{ menu.name }} | 수량: {{ menu.quantity }}
       </div>
       <div>총 가격: {{ order.amount.toLocaleString() }}원</div>
+      <div class="text-black-50">{{ formatDateTime(order.updated) }}</div>
+    </div>
+    <!-- 임시 완료 버튼 -->
+    <div class="d-flex justify-content-center mt-3">
+      <button class="complete-btn" @click="orderComplete">완료</button>
     </div>
   </div>
 </template>
@@ -51,5 +88,23 @@ console.log(props.order);
   margin-top: 20px;
   display: flex;
   justify-content: space-between;
+}
+
+.complete-btn {
+  background: #3978ff;
+  border: none;
+  color: white;
+  padding: 6px 16px;
+  border-radius: 8px;
+  font-size: 14px;
+  width: 130px;
+  transition: background-color 0.3s, color 0.3s;
+}
+
+.complete-btn:hover {
+  background: #3d57c7;
+}
+.acomplete-btn:active {
+  background: #b23837;
 }
 </style>

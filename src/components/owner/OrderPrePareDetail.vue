@@ -20,7 +20,20 @@ const dlivery = async () => {
     return;
   }
 
+  // 상태 업데이트
   await orderStore.fetchOrders(props.order.storeId);
+};
+
+// 날짜 파싱
+const formatDateTime = (isoStr) => {
+  return new Date(isoStr).toLocaleString("ko-KR", {
+    timeZone: "Asia/Seoul",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
 };
 </script>
 
@@ -33,6 +46,7 @@ const dlivery = async () => {
         메뉴: {{ menu.name }} | 수량: {{ menu.quantity }}
       </div>
       <div>총 가격: {{ order.amount.toLocaleString() }}원</div>
+      <div class="text-black-50">{{ formatDateTime(order.updated) }}</div>
     </div>
 
     <div class="order-actions justify-content-center">
