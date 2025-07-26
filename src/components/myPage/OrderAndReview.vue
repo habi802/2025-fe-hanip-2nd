@@ -78,10 +78,10 @@ console.log("props.order", props.order);
             <!-- 카드 중앙 [ 메뉴 이름, 갯수, 가격 ] -->
             <div class="boardRight">
                 <div class="menuBox">
-                    <div class="menu">
-                        <div class="name">{{ props.order?.menuName || 'null' }}</div>
-                        <div class="num">{{ props.order?.quantity || 0 }}개</div>
-                        <div class="price">{{ props.order?.price * props.order?.quantity }}원</div>
+                    <div class="menu" v-for="(menu, index) in props.order.menuList" :key="menu.id || index">
+                        <div class="name">{{ menu.menuName || 'null' }}</div>
+                        <div class="num">{{ menu.quantity || 0 }}개</div>
+                        <div class="price">{{ menu.price * menu.quantity }}원</div>
                     </div>
                     <div class="menu">
                         <div class="name">메뉴가 아무리 길어도 문제 없다</div>

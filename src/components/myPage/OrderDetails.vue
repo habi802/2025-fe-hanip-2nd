@@ -15,7 +15,7 @@ const state = reactive({
 })
 //
 const user = reactive({
-  name: "하드 코딩 ",
+  name: "하드 코딩",
   orders: 0,
   cupon: 0,
   point: 0,
@@ -24,7 +24,6 @@ const user = reactive({
 // onMounted
 onMounted(() => {
   findorder();
-
 })
 
 // 주문 목록 조회
