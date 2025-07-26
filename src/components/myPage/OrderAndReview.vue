@@ -12,7 +12,7 @@ const router = useRouter();
 
 //리뷰 페이지 이동
 const reviewButton = () => {
-    router.push('/reviews-page');
+    router.push(`/reviews-page/${props.order?.id}`);
 }
 
 
