@@ -3,6 +3,10 @@ import { reactive, onMounted, computed } from 'vue';
 import { useRouter } from 'vue-router';
 import { getItem, removeCart, removeItem } from '@/services/cartService';
 import { useAccountStore } from '@/stores/account';
+import { useCartStore } from '@/stores/cart';
+
+const cartStore = useCartStore();
+const items = computed(() => cartStore.state.items);
 
 // 라우터 및 스토어 인스턴스 생성
 const router = useRouter();
@@ -18,7 +22,11 @@ const loggedIn = computed(() => account.state.loggedIn);
 
 // 페이지 진입 시 장바구니 데이터 불러오기
 onMounted(() => {
-  load();
+  console.log("CartStore 상태:", items.value);
+  if(loggedIn.value) {
+    load();
+    state.items = items.value
+  }
 });
 
 // 장바구니 데이터 API 요청

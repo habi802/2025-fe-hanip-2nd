@@ -94,13 +94,13 @@ const imgSrc = computed(() => {
 })
 
 // 주문내역 삭제
-const emit = defineEmits(['delete-order']);
+const emit = defineEmits(['delete-order', 'reorder']);
 </script>
 
 <template>
     <!-- 버튼들 -->
     <div class="btns">
-        <div class="btn">재주문 하기</div>
+        <div class="btn" @click="$emit('reorder', props.order.orderGetList)">재주문 하기</div>
         <div @click="reviewButton" class="btn btn-primary">
             리뷰등록
         </div>
@@ -218,7 +218,7 @@ const emit = defineEmits(['delete-order']);
     height: 320px;
     border: #6c6c6c 3px solid;
     border-radius: 25px;
-    margin-top: 40px;
+    margin-bottom: 20px;
     overflow: clip;
 
     .board {

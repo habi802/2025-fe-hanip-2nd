@@ -7,6 +7,7 @@ import { getOrder, deleteOrder } from '@/services/orderService'
 import { getReviewsByStoreId } from '@/services/reviewServices';
 import { useRouter } from 'vue-router';
 import { getStore } from '@/services/storeService';
+import { useCartStore } from '@/stores/cart';
 
 //라우터
 const router = useRouter();
@@ -69,6 +70,22 @@ const deleteOrderOne = async (orderId) => {
 
 // 주문 목록
 const filteredOrders = computed(() => state.orders.filter(order => order.isdeleted !== 0));
+
+// 재주문
+const cartStore = useCartStore();
+
+const reorder = (menus) => {
+  const addMenus = menus.map(menu => ({
+    id: menu.menuId,
+    name: menu.name,
+    price: menu.price,
+    quantity: menu.quantity,
+  }));
+
+  cartStore.addMenus(addMenus);
+  console.log("CartStore 상태:", cartStore.state.items);
+  router.push("/cart");
+}
 </script>
 
 <template>
@@ -117,8 +134,8 @@ const filteredOrders = computed(() => state.orders.filter(order => order.isdelet
           <div class="solid"></div>
         </div>
       </div>
-      <div v-for="order in filteredOrders" :key="order.id">
-        <order-and-review :order="order" @delete-order="deleteOrderOne"/>
+      <div v-for="order in filteredOrders" :key="order.id" style="margin-bottom: 10px;">
+        <order-and-review :order="order" @delete-order="deleteOrderOne" @reorder="reorder"/>
       </div>
     </div>
 
