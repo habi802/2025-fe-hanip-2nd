@@ -178,10 +178,24 @@ const grandTotalPrice = computed(() => {
             <p class="item-name">{{ item.name }}</p>
             <p class="item-comment"></p>
             <div class="qty-box">
-              <button @click="decreaseQty(item)">-</button>
+              <!-- ❌ 수량이 1일 때는 X버튼으로 삭제 -->
+              <button
+                v-if="item.quantity === 1"
+                @click="remove(item.id)"
+                :class="{ 'delete-button': true, danger: true }"
+              >
+                x
+              </button>
+
+              <!-- ➖ 수량이 2 이상일 때는 수량 감소 -->
+              <button v-else @click="decreaseQty(item)" class="qty-button">
+                -
+              </button>
+
               <span>{{ item.quantity }}</span>
               <button @click="increaseQty(item)">+</button>
             </div>
+            >
             <p class="item-price">
               {{ (item.price * item.quantity).toLocaleString() }}원
             </p>
@@ -260,10 +274,24 @@ const grandTotalPrice = computed(() => {
             <p class="item-name">{{ item.name }}</p>
             <p class="item-comment"></p>
             <div class="qty-box">
-              <button @click="decreaseQty(item)">-</button>
+              <!-- 수량이 1일 때는 X버튼으로 삭제 -->
+              <button
+                v-if="item.quantity === 1"
+                @click="remove(item.id)"
+                :class="{ 'delete-button': true, danger: true }"
+              >
+                x
+              </button>
+
+              <!-- ➖ 수량이 2 이상일 때는 수량 감소 -->
+              <button v-else @click="decreaseQty(item)" class="qty-button">
+                -
+              </button>
+
               <span>{{ item.quantity }}</span>
               <button @click="increaseQty(item)">+</button>
             </div>
+
             <p class="item-price">
               {{ (item.price * item.quantity).toLocaleString() }}원
             </p>
@@ -618,6 +646,7 @@ const grandTotalPrice = computed(() => {
   align-items: center;
   gap: 10px;
   text-align: center;
+  justify-content: center;
 
   button {
     // 수량버튼
@@ -647,6 +676,22 @@ const grandTotalPrice = computed(() => {
     line-height: 32px;
     font-size: 16px;
     font-weight: bold;
+  }
+}
+.delete-button {
+  cursor: pointer;
+  border: none;
+  background-color: #fff; // 기본 색
+  border-radius: 4px;
+  color: #000;
+
+  &:hover {
+    background-color: #ffe5e5;
+  }
+
+  &.danger {
+    color: #ff6666;
+    border: 1px solid #ff6666;
   }
 }
 </style>
