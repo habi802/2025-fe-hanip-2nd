@@ -2,6 +2,7 @@
 import { computed, ref , reactive, onMounted } from 'vue';
 import { useOwnerStore, useUserInfo,  } from '@/stores/account'
 import { useReviewStore } from '@/stores/review';
+import defaultUserProfile from "@/imgs/owner/user_profile.jpg"
 
 //상단 : 어서오세요! OOO사장님~~
 const userInfo = useUserInfo();
@@ -16,12 +17,10 @@ const userId = computed(() => userInfo.userId);
 const storeId = computed(() => ownerStore.storeId);
 
 onMounted(async () => {
-    console.log("유저정보: ", userId.value);
     
-    ownerStore.fetchStoreInfo();
-
     // 1. 유저 정보 먼저 불러오기
     await userInfo.fetchStore();
+    console.log("유저정보: ", userId.value);
 
     // storeId가 존재하는 경우에만 리뷰를 가져오기
     await ownerStore.fetchStoreInfo();
@@ -77,59 +76,115 @@ const toggleDatePicker = () => {
 };
 
 
+//----------사장 댓글 다는 부분------------
+// 선택된 리뷰 저장용
+const selectedReview = ref(null);
 
-// -----------모달-------------
+//댓글 상태
+const ownerComment = ref(""); 
+
+//-댓글 달 모달창-
 const addReviewModal = ref(null);
 const newdReview = reactive({
     comment: "",
 });
 
 // 모달 창 열기
-const openAddReviewModal = () => {
-    newdReview.comment = "";
-    const modal = new bootstrap.Modal(addReviewModal.value);
-    modal.show();
+const openAddReviewModal = (review) => {
+  selectedReview.value = review;
+  ownerComment.value = review.ownerComment || "";  // 기존 댓글 있으면 세팅
+  const modal = new bootstrap.Modal(addReviewModal.value);
+  modal.show();
+};
+
+// 사장이 단 댓글 삭제
+const ownerReviewDelete = async (review) => {
+    const confirmed = confirm("정말 사장 댓글을 삭제하시겠습니까?");
+    if (!confirmed) return;
+
+    const success = await reviewStore.saveOwnerComment({
+        reviewId: review.id,
+        ownerComment: ""
+    });
+
+    if (!success) {
+        alert("삭제 실패!");
+        return;
+    }
+
+    alert("삭제되었습니다!");
 };
 
 // 등록하기
 const submitReview = async () => {
+  if (!selectedReview.value) return;
 
-    /*
-    const payload = {
-    data: {
-        storeId: "",
-        name: newMenu.name,
-        price: newMenu.price,
-        comment: newMenu.comment,
-    },
-    img: newMenu.imagePath,
-    };
-  */
+  const payload = {
+    reviewId: selectedReview.value.id,
+    ownerComment: ownerComment.value,
+  };
 
-  // 모달 창 닫기
+  try {
+    // 백엔드에 PATCH 또는 POST 요청 보내기
+    await reviewStore.saveOwnerComment(payload);
+
+    // 로컬 상태도 업데이트
+    selectedReview.value.ownerComment = ownerComment.value;
+
     const modal = bootstrap.Modal.getInstance(addReviewModal.value);
     modal.hide();
+    } catch (e) {
+    console.error("댓글 저장 실패", e);
+    }
 };
 
 
+// 유저 프로필 없을 시 대체 이미지 나타내기
+const imgSrc = computed(() => {
+    return reviewStore.reviews && reviewStore.reviews.imagePath && reviewStore.reviews.imagePath !== 'null'
+    ? `/pic/store-profile/${reviewStore.reviews.id}/${reviewStore.reviews.imagePath}`
+    : defaultUserProfile;
+})
 
+// 유저 프로필 경로
+const img = "`/pic/user-profile/${review.id}/${review.imagePath}`";
+
+// 전체 리뷰 수
+const totalReviewCount = computed(() => reviewStore.reviews.length);
+
+// 평균 리뷰
+const avgReview = computed(() => {
+if (!reviewStore.reviews.length) return 0;
+
+const sum = reviewStore.reviews.reduce((acc, review) => acc + review.rating, 0);
+return (sum / reviewStore.reviews.length).toFixed(1);
+});
+
+// 날짜
+const formatDateTime = (isoStr) => {
+    return new Date(isoStr).toLocaleString("ko-KR", {
+    timeZone: "Asia/Seoul",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    });
+};
 </script>
 
 <template>
-
-<span style="z-index: 100px; font-weight: 900; position: absolute; left: 10px;"> 유저아이디 : {{ userId }} 스토어아이디: {{ storeId }}</span>
-
 <div class="wrap" > 
     <div>
         <h2>리뷰 관리</h2>
-        <span style="color : #838383">어서오세요! 〔 {{ userName }} 〕 사장님, 관리자 페이지에 다시 오신것을 환영합니다</span>
+        <span style="color : #838383">어서오세요! {{ userName }} 사장님, 관리자 페이지에 다시 오신것을 환영합니다</span>
         
         <!-- 전체 토탈 카드 -->
         <div class="total-wrap">
             <div class="total-box">
                 <div class="circle"></div>
                 <div>
-                    <span>{{ 10 }}</span>
+                    <span>{{ totalReviewCount }}</span>
                     <span>전체 리뷰 수</span>
                 </div>
             </div>
@@ -137,7 +192,7 @@ const submitReview = async () => {
             <div class="total-box">
                 <div class="circle"></div>
                 <div>
-                    <span>{{ 4.9 }}</span>
+                    <span>{{ avgReview }}</span>
                     <span>평균 별점</span>
                 </div>
             </div>
@@ -175,11 +230,11 @@ const submitReview = async () => {
         <div class="review-box"  v-for="(review, index) in reviewStore.reviews" :key="index">
             <div class="profile">
                 <div class="profile-circle">
-                    <img :src="review.profileImage" alt="프로필"/>
+                    <img :src="imgSrc" @error="e => e.target.src = defaultUserProfile" alt="프로필"/>
                 </div>
                 <div>
                     <span>{{  review.userName }}</span>
-                    <span>{{  review.created }}</span> 
+                    <span>{{  formatDateTime(review.created) }}</span> 
                 </div>
             </div>
                 <p>{{  review.comment }}</p>    
@@ -212,8 +267,8 @@ const submitReview = async () => {
             </div>
 
             <div class="btn-wrap">
-                <button class="btn btn-delete">리뷰 삭제</button>
-                <button class="btn btn-comment" @click="openAddReviewModal">댓글 작성</button>
+                <button class="btn btn-delete" @click = "ownerReviewDelete(review)" >리뷰 삭제</button>
+                <button class="btn btn-comment" @click="openAddReviewModal(review)">댓글 작성</button>
             </div>
         </div>
     </div>
@@ -232,14 +287,11 @@ const submitReview = async () => {
             ></button>
             </div>
             <div class="modal-body">
-                <!-- v-model="newReview.comment" -->
-            <textarea class="form-control" placeholder="설명" ></textarea>
+            <textarea class="form-control"   v-model="ownerComment"  placeholder="답글을 입력하세요. 고객과의 소통은 매출상승의 지름길입니다!"  ></textarea>
             </div>
             <div class="modal-footer">
-            <button class="btn btn-secondary" data-bs-dismiss="modal">
-                취소
-            </button>
-            <button class="btn btn-primary" @click="submitReview">등록</button>
+            <button class="btn btn-secondary" data-bs-dismiss="modal"> 취소</button>
+            <button class="btn btn-comment" @click="submitReview">등록</button>
             </div>
         </div>
         </div>
@@ -254,9 +306,9 @@ const submitReview = async () => {
 .wrap{
     background-color: #e8e8e8;
     font-family: 'Pretendard', sans-serif;
-    width: 1575px;
+    width: 1400px;
     overflow: auto;
-    padding : 56px;
+    padding : 10px;
     .total-wrap{
         display: flex;
         gap : 30px;
@@ -337,12 +389,18 @@ const submitReview = async () => {
                     width: 48px;
                     height: 48px;
                 }
+                .profile-circle img {
+                    width: 100%;
+                    height: 100%;
+                    object-fit: cover;
+                    border-radius: 50%;
+                }
                 div:nth-of-type(2) {margin-left: 20px;}
                 div:nth-of-type(2) > span{
                     display: block;
                     align-items: center;
                 }
-                span:nth-of-type(1){font-size: 25px;}
+                span:nth-of-type(1){font-size: 24px;}
                     span:nth-of-type(2){
                         font-size: 15px;
                         color: #a3a3a3;
@@ -443,6 +501,12 @@ const submitReview = async () => {
       border-radius: 6px;
     }
   }
+
+//   부트스트랩 모달 커스텀
+.modal-header {
+
+}
+
 }
 
 </style>

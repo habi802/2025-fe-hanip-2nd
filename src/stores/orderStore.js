@@ -13,10 +13,12 @@ export const useOrderStore = defineStore("order", {
   },
   getters: {
     orderedList: (state) => state.orders.filter((o) => o.status === "ORDERED"),
-    deliveringList: (state) =>
-      state.orders.filter((o) => o.status === "DELIVERING"),
-    preparingList: (state) =>
-      state.orders.filter((o) => o.status === "PREPARING"),
+    deliveringList: (state) => state.orders.filter((o) => o.status === "DELIVERING"),
+    preparingList: (state) => state.orders.filter((o) => o.status === "PREPARING"),
+    canceledList: (state) => state.orders.filter((o) => o.status === "CANCELED"),
+    completedList: (state) => state.orders.filter((o) => o.status === "COMPLETED"),
+    nonOrderedList: (state) => state.orders.filter((o) => o.status !== "ORDERED"),
   },
 });
+
 

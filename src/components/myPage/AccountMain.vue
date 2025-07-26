@@ -1,5 +1,16 @@
 <script setup></script>
 
+
+
+
+<!-- 현재 사용하지 않는 페이지 -->
+<!--  -->
+<!--  -->
+<!--  -->
+<!--  -->
+<!--  -->
+<!--  -->
+<!--  -->
 <template>
   <div class="box">
     <div class="favoritesBox">
