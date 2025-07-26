@@ -89,27 +89,17 @@ const groupedItems = computed(() => {
     <div class="top-row">
       <div class="header-row">
         <div class="title-wrap">
-          <img
-            class="back-icon"
-            alt="뒤로가기"
-            src="/src/imgs/cartimgs/arrowios.svg"
-          />
+          <img class="back-icon" alt="뒤로가기" src="/src/imgs/cartimgs/arrowios.svg" />
           <div class="div29">장바구니</div>
         </div>
       </div>
       <div class="step-horizontal">
         <span class="step-text">01 음식선택</span>
-        <span class="arrow"
-          ><img src="/src/imgs/cartimgs/arrow-back.png"
-        /></span>
+        <span class="arrow"><img src="/src/imgs/cartimgs/arrow-back.png" /></span>
         <span class="step-text current">02 장바구니</span>
-        <span class="arrow"
-          ><img src="/src/imgs/cartimgs/arrow-back.png"
-        /></span>
+        <span class="arrow"><img src="/src/imgs/cartimgs/arrow-back.png" /></span>
         <span class="step-text">03 주문/결제</span>
-        <span class="arrow"
-          ><img src="/src/imgs/cartimgs/arrow-back.png"
-        /></span>
+        <span class="arrow"><img src="/src/imgs/cartimgs/arrow-back.png" /></span>
         <span class="step-text">04 주문완료</span>
       </div>
     </div>
@@ -125,7 +115,9 @@ const groupedItems = computed(() => {
 
   <!-- 2. 로그인했지만 장바구니 비어있음 -->
   <div v-else-if="state.items.length === 0">
-    <div class="div18">장바구니에 담은 음식이 없습니다.</div>
+    <div class="cart-box">
+      <div class="div18">장바구니에 담은 음식이 없습니다.</div>
+    </div>
     <div class="groupContainer">
       <div class="rectangleWrapper">
         <div class="groupItem" />
@@ -143,11 +135,7 @@ const groupedItems = computed(() => {
       </div>
 
       <div v-for="item in group.items" :key="item.id" class="cart-item">
-        <img
-          :src="item.image_path"
-          alt="음식 이미지"
-          style="width: 60px; height: 60px"
-        />
+        <img :src="item.image_path" alt="음식 이미지" style="width: 60px; height: 60px" />
         <div class="item-content">
           <p class="item-name">{{ item.name }}</p>
           <div class="qty-box">
@@ -180,26 +168,39 @@ const groupedItems = computed(() => {
   </div>
 </template>
 
-<style scoped>
+<style lang="scss" scoped>
+@font-face {
+  // 배민 주아체
+  font-family: 'BMJUA';
+  src: url('https://fastly.jsdelivr.net/gh/projectnoonnu/noonfonts_one@1.0/BMJUA.woff') format('woff');
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  // 프리텐다드 
+  font-family: 'Pretendard-Regular';
+  src: url('https://fastly.jsdelivr.net/gh/Project-Noonnu/noonfonts_2107@1.1/Pretendard-Regular.woff') format('woff');
+  font-weight: 400;
+  font-style: normal;
+}
+
 .cart-empty-wrapper {
   max-width: 1024px;
-  margin: 50px auto;
+  margin: 80px auto 0px auto; // 상단, 좌우 auto로 가운데 정렬
   padding: 20px;
   display: flex;
   flex-direction: column;
   margin-bottom: 2px;
 }
 
-.title-wrap {
-  display: flex;
-  align-items: center;
-}
-
 .top-row {
+  width: 1295px;             // 전체 너비 지정
+  margin: 0 auto;            // 수평 가운데 정렬
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 40px;
+  margin-bottom: 80px;
 }
 
 .header-row {
@@ -209,29 +210,48 @@ const groupedItems = computed(() => {
   gap: 20px;
 }
 
-.back-icon {
-  width: 24px;
-  height: 24px;
-  margin-right: 10px;
+.title-wrap {
+  display: flex;
+  align-items: center;
+  justify-content: center; // 가로 가운데 정렬
+
+  .top-row {
+  width: 1295px;             // 전체 너비 지정
+  margin: 0 auto;            // 수평 가운데 정렬
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 80px;
 }
 
-.div29 {
-  font-size: 28px;
-  font-weight: bold;
+  // <장바구니
+  .back-icon {
+    width: 50px;
+    height: 50%;
+    margin-right: 10px;
+  }
+
+  .div29 {
+    // 장바구니
+    font-family: 'BMJUA';
+    font-size: 50px;
+  }
 }
 
 .step-horizontal {
+  font-family: 'BMJUA';
   display: flex;
   align-items: center;
   gap: 8px;
-  font-size: 14px;
-  font-weight: bold;
+  font-size: 20px;
+
+  .step-text.current {
+    // 강조
+    color: #ff6666;
+    font-size: 16px;
+  }
 }
 
-.step-text.current {
-  color: #ff6666;
-  font-size: 16px;
-}
 
 .arrow img {
   width: 12px;
@@ -245,11 +265,28 @@ const groupedItems = computed(() => {
   color: #555;
 }
 
-.div18 {
-  font-size: 16px;
-  margin-bottom: 50px;
-  text-align: center;
-  color: #555;
+.cart-box {
+  width: 1295px;  // top-row 너비와 동일하게 맞춤
+  margin: 0 auto; // 가운데 정렬
+  display: flex;
+  justify-content: center;
+
+  .div18 {
+    // 장바구니에 담은 음식이 없습니다.
+    width: 1250px;
+    height: 400px;
+    border-radius: 25px;
+    font-family: 'BMJUA';
+    font-size: 32px;
+    margin-bottom: 50px;
+    text-align: center;
+    color: #555;
+    display: flex;
+    flex-direction: column;
+    justify-content: center; // 수직 가운데
+    align-items: center; // 수평 가운데
+    border: 2px solid #d7d7d7;
+  }
 }
 
 .groupContainer {
@@ -378,6 +415,4 @@ const groupedItems = computed(() => {
   font-weight: bold;
   margin-bottom: 20px;
 }
-
 </style>
-
