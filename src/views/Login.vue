@@ -58,7 +58,7 @@ const submit = async () => {
   }
 };
 
-// 아이디 저장
+// 아이디 저장 (저장되긴하는데 마지막 사용자 기준으로 하는건지.. 의문)
 onMounted(() => {
   const savedId = localStorage.getItem('savedLoginId');
   if (savedId) {
@@ -74,10 +74,19 @@ onMounted(() => {
 
     <div class="container">
       <form class="login-form" @submit.prevent="submit">
+
+        <!-- 로고 이미지 -->
         <div class="logo">
           <img src="@/imgs/symbollogo.png" alt="한입 심볼 로고">
         </div>
         <h1 class="title">로그인</h1>
+
+        <!-- 회원 구분 -->
+        <div class="radio-group">
+          <label id="radio"><input type="radio" class="circle" name="memberType" value="customer"
+              v-model="memberType" /> 일반</label>
+          <label><input type="radio" class="circle" name="memberType" value="owner" v-model="memberType" /> 업주</label>
+        </div>
 
         <div class="form-floating">
           <input type="text" id="loginId" placeholder="아이디 (영문, 숫자 4~16자)" v-model="state.form.loginId" />
@@ -140,6 +149,51 @@ onMounted(() => {
     width: 440px;
     padding: 2rem;
 
+    .radio-group {
+      width: 100%;
+      display: flex;
+      justify-content: flex-start;
+      gap: 2rem;
+      margin-bottom: -0.5rem;
+      margin-top: -0.5rem;
+
+      label {
+        font-weight: 400;
+      }
+
+      input[type="radio"].circle {
+        appearance: none;
+        -webkit-appearance: none;
+        width: 18px;
+        height: 18px;
+        border-radius: 50%;
+        border: 1px solid #7d7d7d;
+        position: relative;
+        cursor: pointer;
+        vertical-align: middle;
+        margin-right: 8px;
+        background-color: white;
+      }
+
+      input[type="radio"].circle:checked {
+        background-color: #fff;
+        border-color: #ff6666;
+      }
+
+      input[type="radio"].circle:checked::after {
+        content: "";
+        content: "";
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        width: 10px;
+        height: 10px;
+        background-color: #ff6666;
+        border-radius: 50%;
+        transform: translate(-50%, -50%);
+      }
+    }
+
     .login-form {
       width: 440px;
       display: flex;
@@ -152,13 +206,11 @@ onMounted(() => {
         font-weight: bold;
         color: #ff6666;
         text-align: center;
-        margin-bottom: 1rem;
       }
 
       .title {
         font-size: 2.5rem;
         text-align: center;
-        margin-bottom: 1.5rem;
         font-weight: 400;
       }
 
