@@ -39,26 +39,25 @@ const addCart = async () => {
 </script>
 
 <template>
-    <div class="menu border rounded p-3 mb-2" @click="addCart()">
-        <div class="row">
-            <div class="col-8 col-md-10">
-                <h5>{{ props.item.name }}</h5>
+    <div class="menu border rounded-4 p-3 mb-2" @click="addCart()">
+        <div class="d-flex justify-content-between align-items-center">
+            <div class="col-8 col-md-5">
+                <h4>{{ props.item.name }}</h4>
                 <p>{{ props.item.comment }}</p>
-                <div class="bottom-box">
-                    <span>{{ props.item.price.toLocaleString() }}원</span>
+                <!-- <div class="bottom-box"> -->
                     <!-- 수량 증가 박스 -->
-                    <span class="check">
+                    <!-- <span class="check"> -->
                         <!-- 0이 되면 스타일 바뀌게 해야함 -->
-                        <div class="check-box"> - </div>
+                        <!-- <div class="check-box"> - </div> -->
                         <!-- 갯수 -->
-                        <div> 0 </div>
-                        <div class="check-box"> + </div>
-
-                    </span>
-                </div>
+                        <!-- <div> 0 </div> -->
+                        <!-- <div class="check-box"> + </div> -->
+                    <!-- </span> -->
+                <!-- </div> -->
             </div>
-            <div id="menuImg" class="col-4 col-md-2 border rounded">
-                이것은 메뉴의 이미지다
+            <span class="d-block ps-4 pe-4">{{ props.item.price.toLocaleString() }}원</span>
+            <div id="menuImg" style="padding: 70px 50px; border: solid #797979 1px; border-radius: 15px;">
+                이것은 메뉴의 이미지다(추후 css수정예정)
             </div>
         </div>
     </div>
