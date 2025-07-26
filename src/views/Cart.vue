@@ -124,9 +124,15 @@ const grandTotalPrice = computed(() => {
       </div>
     </div>
   </div>
-
-  <!-- 1. 비로그인 상태  -->
-  <div v-if="!loggedIn" class="unlogin">
+  <!-- 1. 로그인 안 했고 장바구니 비었을 때 -->
+  <div v-if="!loggedIn && state.items.length === 0">
+    <div class="div18">장바구니에 담은 음식이 없습니다.</div>
+    <div class="groupContainer">
+      <div class="div19" @click="goToMain">음식 담으러 가기</div>
+    </div>
+  </div>
+  <!-- 2. 비로그인 상태로 장바구니 담겼을떄  -->
+  <div v-else-if="!loggedIn" class="unlogin">
     <div class="store-layout">
       <div class="store-card">
         <img class="thumbnail" src="@/imgs/chicken.png" alt="도리신 닭도리탕" />
@@ -195,7 +201,7 @@ const grandTotalPrice = computed(() => {
     </div>
   </div>
 
-  <!-- 2. 빈 장바구니 -->
+  <!-- 3. 로그인 했고 장바구니 비었을 때 -->
   <div v-else-if="state.items.length === 0">
     <div class="div18">장바구니에 담은 음식이 없습니다.</div>
     <div class="groupContainer">
@@ -206,7 +212,7 @@ const grandTotalPrice = computed(() => {
     </div>
   </div>
 
-  <!-- 3. 장바구니에 음식 있음 -->
+  <!-- 4. 로그인 후 장바구니에 음식 있음 -->
   <div v-else>
     <!-- 음식점 가게 카드 -->
     <div class="store-layout">
