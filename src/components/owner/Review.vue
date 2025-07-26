@@ -16,12 +16,10 @@ const userId = computed(() => userInfo.userId);
 const storeId = computed(() => ownerStore.storeId);
 
 onMounted(async () => {
-    console.log("유저정보: ", userId.value);
     
-    ownerStore.fetchStoreInfo();
-
     // 1. 유저 정보 먼저 불러오기
     await userInfo.fetchStore();
+    console.log("유저정보: ", userId.value);
 
     // storeId가 존재하는 경우에만 리뷰를 가져오기
     await ownerStore.fetchStoreInfo();

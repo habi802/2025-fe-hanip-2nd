@@ -1,4 +1,27 @@
 <script setup>
+import { computed, ref , reactive, onMounted } from 'vue';
+import { useOwnerStore, useUserInfo,  } from '@/stores/account'
+
+
+//상단 : 어서오세요! OOO사장님~~
+const userInfo = useUserInfo();
+const ownerStore = useOwnerStore();
+const userName = computed(() => userInfo.userName);
+const userId = computed(() => userInfo.userId);
+const storeId = computed(() => ownerStore.storeId);
+
+
+onMounted(async () => {
+    //피니아 action 메소드 사용
+    await userInfo.fetchStore();
+    await ownerStore.fetchStoreInfo();
+    console.log("유저정보: ", userId.value);
+    console.log("스토어 아이디:", storeId.value);
+
+
+});
+
+
 
 </script>
 
@@ -7,7 +30,7 @@
 
     <div>
         <h2>주문 상세</h2>
-        <span style="color : #838383">어서오세요! {{ ownerName }}사장님 관리자 페이지에 다시 오신것을 환영합니다!</span>
+        <span style="color : #838383">어서오세요! 〔 {{ userName }} 〕사장님 관리자 페이지에 다시 오신것을 환영합니다!</span>
         
         <!-- 상단 집계 카드 -->
         <div class="total-wrap">

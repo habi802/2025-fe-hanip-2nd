@@ -7,7 +7,7 @@ export const useReviewStore = defineStore('review', {
     ownerComment : null,
   }),
   actions: {
-    // 리뷰 데이터 불러오기
+    // 사장관점 리뷰 데이터 불러오기
     async fetchReviews(storeId) {
       try {
         const res = await getReviewsByStoreId(storeId);
