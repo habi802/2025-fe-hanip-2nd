@@ -1,103 +1,103 @@
-<script setup></script>
+<script setup>
+import { useFavoriteStore } from '@/stores/favoriteStore';
+import { ref, onMounted, computed, onActivated } from 'vue';
+import { getStoreList } from '@/services/storeService';
+import { getFavorite } from '@/services/favoriteService';
+import { useRouter, useRoute } from 'vue-router';
+
+const router = useRouter();
+const route = useRoute();
+
+const favoriteStore = useFavoriteStore();
+
+const isFavorite = (storeId) => {
+  return favoriteStore.state.storeIds.includes(storeId);
+};
+
+const allStores = ref([]);
+
+const fetchFavorites = async () => {
+  const storeListRes = await getStoreList();
+  if (storeListRes?.data?.resultData) {
+    allStores.value = storeListRes.data.resultData;
+
+    // 여기서 모든 store에 대해 찜 상태 확인
+    for (const store of allStores.value) {
+  const storeId = store.id || store.storeId; // 둘 중 하나라도 있으면 사용
+  if (!storeId) continue; // 없으면 스킵
+
+  const res = await getFavorite(storeId);
+  if (res?.data?.resultData !== null) {
+    favoriteStore.toggleFavorite(storeId);
+  }
+}
+  }
+};
+
+
+onMounted(fetchFavorites);
+onActivated(fetchFavorites);
+
+const favoriteStores = computed(() => {
+  console.log('찜한 storeIds:', favoriteStore.state.storeIds);
+  console.log('전체 매장 목록:', allStores.value);
+
+  return allStores.value.filter(store => 
+    favoriteStore.state.storeIds.includes(store.id || store.storeId)
+  );
+});
+
+const goToDetail = (storeId) => {
+  if (!storeId) {
+    console.warn("storeId가 없습니다.");
+    return;
+  }
+  router.push(`/stores/${storeId}`);
+};
+
+const storeId = route.params.id;
+console.log('라우터로 받은 storeId:', storeId);
+
+</script>
 
 <template>
   <div class="all-box">
-
-
     <div class="box">
       <div>
         <div>내가 찜한 가게</div>
         <div class="solid"></div>
       </div>
-  
+
       <div class="store-list">
-        <!-- 카드 1 -->
-        <div class="store-card">
-          <img src="@/imgs/chicken.png" alt="치킨" class="store-image" />
+        <div
+          class="store-card"
+          v-for="store in favoriteStores"
+          :key="store.id"
+        >
+          <img
+            :src="`/imgs/${store.image}`"
+            alt="가게 이미지"
+            class="store-image"
+          />
           <div class="store-info">
-            <h3 class="store-title">BBC 치킨</h3>
-            <p class="store-sub">배달팁 3,000원 · 최소주문 15,000원</p>
+            <h3 class="store-title">{{ store.name }}</h3>
+            <p class="store-sub">
+              배달팁 {{ store.deliveryFee }}원 · 최소주문 {{ store.minOrderAmount }}원
+            </p>
             <div class="store-meta">
-              <span class="rating">⭐ 4.9 (999+)</span>
-              <span class="likes">❤️ 1120</span>
+              <span class="rating">⭐ {{ store.rating }}</span>
+              <span class="likes" @click="toggleFavorite(store.id)">
+                {{ isFavorite(store.id) ? '❤️' : '🤍' }} {{ store.likeCount || 0 }}
+              </span>
             </div>
-            <button class="detail-btn">자세히 보기</button>
-          </div>
-        </div>
-  
-        <!-- 카드 2 -->
-        <div class="store-card">
-          <img src="@/imgs/hamburger.png" alt="햄버거" class="store-image" />
-          <div class="store-info">
-            <h3 class="store-title">맥도리아</h3>
-            <p class="store-sub">배달팁 2,000원 · 최소주문 12,000원</p>
-            <div class="store-meta">
-              <span class="rating">⭐ 4.7 (998)</span>
-              <span class="likes">❤️ 950</span>
-            </div>
-            <button class="detail-btn">자세히 보기</button>
-          </div>
-        </div>
-  
-        <!-- 카드 3 -->
-        <div class="store-card">
-          <img src="@/imgs/pizza.png" alt="피자" class="store-image" />
-          <div class="store-info">
-            <h3 class="store-title">도레미 피자</h3>
-            <p class="store-sub">배달팁 3,500원 · 최소주문 18,000원</p>
-            <div class="store-meta">
-              <span class="rating">⭐ 4.8 (987)</span>
-              <span class="likes">❤️ 888</span>
-            </div>
-            <button class="detail-btn">자세히 보기</button>
-          </div>
-        </div>
-  
-        <!-- 카드 4 -->
-        <div class="store-card">
-          <img src="@/imgs/dessert.png" alt="디저트" class="store-image" />
-          <div class="store-info">
-            <h3 class="store-title">뉴욕바게트</h3>
-            <p class="store-sub">배달팁 1,500원 · 최소주문 10,000원</p>
-            <div class="store-meta">
-              <span class="rating">⭐ 4.6 (827)</span>
-              <span class="likes">❤️ 648</span>
-            </div>
-            <button class="detail-btn">자세히 보기</button>
-          </div>
-        </div>
-  
-        <!-- 카드 5 -->
-        <div class="store-card">
-          <img src="@/imgs/porkcutlet.png" alt="돈까스" class="store-image" />
-          <div class="store-info">
-            <h3 class="store-title">내돈까스</h3>
-            <p class="store-sub">배달팁 2,500원 · 최소주문 13,000원</p>
-            <div class="store-meta">
-              <span class="rating">⭐ 4.9 (999+)</span>
-              <span class="likes">❤️ 770</span>
-            </div>
-            <button class="detail-btn">자세히 보기</button>
-          </div>
-        </div>
-  
-        <!-- 카드 6 -->
-        <div class="store-card">
-          <img src="@/imgs/koreanfood.png" alt="한식" class="store-image" />
-          <div class="store-info">
-            <h3 class="store-title">한식당 우리집</h3>
-            <p class="store-sub">배달팁 3,000원 · 최소주문 14,000원</p>
-            <div class="store-meta">
-              <span class="rating">⭐ 4.8 (958)</span>
-              <span class="likes">❤️ 820</span>
-            </div>
-            <button class="detail-btn">자세히 보기</button>
+            <button class="detail-btn" @click="() => goToDetail(store.id ?? store.storeId)">자세히 보기</button>
           </div>
         </div>
       </div>
     </div>
   </div>
 </template>
+
 
 <style lang="scss" scoped>
 @font-face {
@@ -108,18 +108,18 @@
   font-style: normal;
 }
 
-.all-box{
+.all-box {
   display: flex;
   justify-content: center;
-
 }
-.box {
 
+.box {
   font-family: "BMJUA";
   font-size: 1.4em;
   letter-spacing: -1.5px;
   margin-top: 70px;
   margin-bottom: 120px;
+
   .solid {
     width: 1100px;
     border: 1px #000 solid;
@@ -130,8 +130,8 @@
 
 .store-list {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 24px;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 32px;
   width: 1100px;
 }
 
@@ -143,20 +143,21 @@
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
   border: 2px solid #666;
   overflow: hidden;
-  padding: 12px;
+  padding: 20px 16px; // 세로 패딩 ↑
   transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
+
 .store-card:hover {
   transform: translateY(-4px);
   box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
 }
 
 .store-image {
-  width: 100px;
-  height: 100px;
+  width: 110px;
+  height: 110px;
   border-radius: 12px;
   object-fit: cover;
-  margin-right: 12px;
+  margin-right: 14px;
 }
 
 .store-info {
@@ -175,14 +176,14 @@
 .store-sub {
   font-size: 13px;
   color: #666;
-  margin-bottom: 10px;
+  margin-bottom: 12px;
 }
 
 .store-meta {
   display: flex;
   gap: 12px;
   font-size: 14px;
-  margin-bottom: 10px;
+  margin-bottom: 12px;
 }
 
 .rating {
@@ -208,4 +209,5 @@
 .detail-btn:hover {
   background-color: #e65c53;
 }
+
 </style>
