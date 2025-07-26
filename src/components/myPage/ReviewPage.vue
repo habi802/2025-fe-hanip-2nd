@@ -30,8 +30,8 @@ onMounted(async () => {
   state.review.orderId = id;
   const res = await getOwnerOrder2(id);
 
-  //   console.log("orderId: ", state.review.orderId);
-  //   console.log("res", res.data.resultData);
+    console.log("orderId: ", state.review.orderId);
+    console.log("res", res.data.resultData);
   const storeId = res.data.resultData.storeId;
   const ress = await getStore(storeId);
   //   console.log("ress :", ress.data);

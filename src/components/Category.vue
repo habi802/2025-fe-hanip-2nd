@@ -1,60 +1,69 @@
 <script setup>
-import { ref } from 'vue';
-import { useRouter } from 'vue-router';
+import { ref } from "vue";
+import { useRouter } from "vue-router";
 
 const router = useRouter();
 const search = ref("");
 
-
 const caLink = () => {
-  router.push({ path: '/categoryList', query: { search_text: search.value } });
+  router.push({ path: "/categoryList", query: { search_text: search.value } });
 };
-// 
+//
 const koreanLink = () => {
-  router.push({ path: '/categoryList', query: { section: 'korean' } })
-}
+  router.push({ path: "/categoryList", query: { section: "korean" } });
+};
 
 const chinaLink = () => {
-  router.push({ path: '/categoryList', query: { section: 'china' } })
-}
+  router.push({ path: "/categoryList", query: { section: "china" } });
+};
 const japanLink = () => {
-  router.push({ path: '/categoryList', query: { section: 'japan' } })
-}
+  router.push({ path: "/categoryList", query: { section: "japan" } });
+};
 
 const pastaLink = () => {
-  router.push({ path: '/categoryList', query: { section: 'pasta' } })
-}
+  router.push({ path: "/categoryList", query: { section: "pasta" } });
+};
 
 const cafeLink = () => {
-  router.push({ path: '/categoryList', query: { section: 'cafe' } })
-}
+  router.push({ path: "/categoryList", query: { section: "cafe" } });
+};
 const snackLink = () => {
-  router.push({ path: '/categoryList', query: { section: 'snack' } })
-}
+  router.push({ path: "/categoryList", query: { section: "snack" } });
+};
 const fastFoodLink = () => {
-  router.push({ path: '/categoryList', query: { section: 'fast' } })
-}
+  router.push({ path: "/categoryList", query: { section: "fast" } });
+};
 const asianLink = () => {
-  router.push({ path: '/categoryList', query: { section: 'asian' } })
-}
+  router.push({ path: "/categoryList", query: { section: "asian" } });
+};
 const chickenLink = () => {
-  router.push({ path: '/categoryList', query: { section: 'chicken' } })
-}
+  router.push({ path: "/categoryList", query: { section: "chicken" } });
+};
 const pizzaLink = () => {
-  router.push({ path: '/categoryList', query: { section: 'pizza' } })
-}
+  router.push({ path: "/categoryList", query: { section: "pizza" } });
+};
 const nightLink = () => {
-  router.push({ path: '/categoryList', query: { section: 'night' } })
-}
-
+  router.push({ path: "/categoryList", query: { section: "night" } });
+};
 </script>
 <!--           class="form-control p-3 me-3" -->
 <template>
   <div class="all">
     <div class="box d-flex">
       <div class="searchBar">
-        <input v-model="search" @keyup.enter="caLink" type="text" id="title" class="searchBox" placeholder="찾는 맛집 이름,메뉴가 무엇인가요?" />
-        <img @click="caLink" class="searchImg" src="/src//imgs/fluent_search.png" />
+        <input
+          v-model="search"
+          @keyup.enter="caLink"
+          type="text"
+          id="title"
+          class="searchBox"
+          placeholder="찾는 맛집 이름,메뉴가 무엇인가요?"
+        />
+        <img
+          @click="caLink"
+          class="searchImg"
+          src="/src//imgs/fluent_search.png"
+        />
       </div>
     </div>
     <div class="textBox"></div>
@@ -62,53 +71,103 @@ const nightLink = () => {
       <div class="categoryBox">
         <div id="categoryItems" class="categoryItem1 d-flex">
           <div class="hamburger">
-            <img @click="caLink" id="cImg" src="/src/imgs/allImg.png" />
+            <div class="imgBox">
+              <img @click="caLink" id="cImg" src="/src/imgs/allImg.png" />
+            </div>
             <div id="cName">전체</div>
           </div>
           <div class="koreanfood">
-            <img @click="koreanLink" id="cImg" src="/src/imgs/koreanfood.png" />
+            <div class="imgBox">
+              <img
+                @click="koreanLink"
+                id="cImg"
+                src="/src/imgs/koreanfood.png"
+              />
+            </div>
             <div id="cName">한식</div>
           </div>
           <div class="jjajangmyeon">
-            <img @click="chinaLink" id="cImg" src="/src/imgs/jjajangmyeon.png" />
+            <div class="imgBox">
+              <img
+                @click="chinaLink"
+                id="cImg"
+                src="/src/imgs/jjajangmyeon.png"
+              />
+            </div>
             <div id="cName">중식</div>
           </div>
           <div class="porkcutlet">
-            <img @click="japanLink" id="cImg" src="/src/imgs/porkcutlet.png" />
+            <div class="imgBox">
+              <img
+                @click="japanLink"
+                id="cImg"
+                src="/src/imgs/porkcutlet.png"
+              />
+            </div>
             <div id="cName">일식</div>
           </div>
           <div class="pasta">
-            <img @click="pastaLink" id="cImg" src="/src/imgs/pasta.png" />
+            <div class="imgBox">
+              <img @click="pastaLink" id="cImg" src="/src/imgs/pasta.png" />
+            </div>
             <div id="cName">양식</div>
           </div>
           <div class="dessert">
-            <img @click="cafeLink" id="cImg" src="/src/imgs/dessert.png" />
+            <div class="imgBox">
+              <img @click="cafeLink" id="cImg" src="/src/imgs/dessert.png" />
+            </div>
             <div id="cName">카페/디저트</div>
           </div>
         </div>
         <div id="categoryItems" class="categoryItem2 d-flex">
           <div class="tteokbokki">
-            <img @click="snackLink" id="cImg" src="/src/imgs/tteokbokki.png" />
+            <div class="imgBox">
+              <img
+                @click="snackLink"
+                id="cImg"
+                src="/src/imgs/tteokbokki.png"
+              />
+            </div>
             <div id="cName">분식</div>
           </div>
           <div class="hamburger">
-            <img @click="fastFoodLink" id="cImg" src="/src/imgs/hamburger.png" />
+            <div class="imgBox">
+              <img
+                @click="fastFoodLink"
+                id="cImg"
+                src="/src/imgs/hamburger.png"
+              />
+            </div>
             <div id="cName">패스트푸드</div>
           </div>
           <div class="ricenoodles">
-            <img @click="asianLink" id="cImg" src="/src/imgs/ricenoodles.png" />
+            <div class="imgBox">
+              <img
+                @click="asianLink"
+                id="cImg"
+                class="asia"
+                src="/src/imgs/nd.png"
+              />
+            </div>
             <div id="cName">아시안</div>
           </div>
+          
           <div class="chicken">
-            <img @click="chickenLink" id="cImg" src="/src/imgs/chicken.png" />
+            <div class="imgBox">
+              <img @click="chickenLink" id="cImg" src="/src/imgs/chicken.png" />
+            </div>
             <div id="cName">치킨</div>
           </div>
           <div class="pizza">
-            <img @click="pizzaLink" id="cImg" src="/src/imgs/pizza.png" />
+            <div class="imgBox">
+              <img @click="pizzaLink" id="cImg" src="/src/imgs/pizza.png" />
+            </div>
             <div id="cName">피자</div>
           </div>
           <div class="pigfeet">
-            <img @click="nightLink" id="cImg" src="/src/imgs/pigfeet.png" />
+            <div class="imgBox">
+              <img @click="nightLink" id="cImg" src="/src/imgs/pigfeet.png" />
+            </div>
             <div id="cName">야식</div>
           </div>
         </div>
@@ -119,8 +178,9 @@ const nightLink = () => {
 
 <style lang="scss" scoped>
 @font-face {
-  font-family: 'BMJUA';
-  src: url('https://fastly.jsdelivr.net/gh/projectnoonnu/noonfonts_one@1.0/BMJUA.woff') format('woff');
+  font-family: "BMJUA";
+  src: url("https://fastly.jsdelivr.net/gh/projectnoonnu/noonfonts_one@1.0/BMJUA.woff")
+    format("woff");
   font-weight: normal;
   font-style: normal;
 }
@@ -194,20 +254,26 @@ const nightLink = () => {
       width: 1500px;
       margin-top: -40px;
       margin-bottom: 8px;
-      
+
       #categoryItems {
         margin-top: 70px;
         gap: 40px;
         // background-color: antiquewhite;
+
+        .imgBox{
+          width: 210px ;
+          border-radius: 50%;
+          overflow: hidden;
+        }
+
         #cImg {
           cursor: pointer;
           // width: 220px;
           width: 210px;
           border-radius: 50%;
-          
-
+          transition: transform 0.3s ease-in-out;
           &:hover {
-            opacity: 80%;
+            transform: scale(1.2);
           }
         }
 
@@ -222,6 +288,8 @@ const nightLink = () => {
     }
   }
 }
+
+
 
 @media (max-width: 650px) {
   .searchBar {

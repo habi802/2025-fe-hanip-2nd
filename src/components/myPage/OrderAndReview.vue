@@ -9,12 +9,10 @@ import defaultImage from "@/imgs/owner/haniplogo_sample.png"
 // 라우터
 const router = useRouter();
 
-
 //리뷰 페이지 이동
 const reviewButton = () => {
     router.push(`/reviews-page/${props.order?.id}`);
 }
-
 
 //
 const previewUrl = ref(""); //이미지 경로 저장용
