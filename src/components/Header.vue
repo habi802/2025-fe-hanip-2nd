@@ -1,13 +1,41 @@
 <script setup>
-import { useRouter } from 'vue-router';
-import { useAccountStore } from '@/stores/account';
-import { logout } from '@/services/userService';
+import { useRouter } from "vue-router";
+import { useAccountStore } from "@/stores/account";
+import { logout } from "@/services/userService";
+import { reactive, ref } from "vue";
+
+import Menu from "@/components/Menu.vue";
 
 const account = useAccountStore();
 
 const router = useRouter();
 const homeRouter = () => {
-  router.push('/');
+  router.push("/");
+};
+//
+const state = reactive({
+  // 가게 정보
+  store: {},
+  // 가게 메뉴 정보
+  menus: [],
+  // 가게 리뷰 정보
+  reviews: [],
+  // 고객 장바구니 정보
+  carts: [],
+});
+
+//주문하기로 이동하는 함수
+const toOrder = () => {
+  if (!account.state.loggedIn) {
+    alert("로그인 후 주문이 가능합니다.");
+    return;
+  } else if (state.carts.length < 1) {
+    alert("메뉴를 선택해주세요.");
+    return;
+  }
+
+  carts.state.items = state.carts;
+  router.push({ path: `/stores/${route.params.id}/order` });
 };
 
 // 로그아웃
@@ -18,76 +46,241 @@ const logoutIn = async () => {
 
 // 마이 페이지 이동
 const myPageRouter = () => {
-  router.push('/my-page');
+  router.push("/my-page");
 };
 
 //카트 페이지로 이동
 const cartRouter = () => {
-  router.push('/cart');
+  router.push("/cart");
+};
+//찜 목록 이동
+const faivorite = () => {
+  router.push("/favorites");
 };
 
 //주문내역 페이지로 이동
 const orderRouter = () => {
-  router.push({ path: '/my-page', query: { section: 'order' } });
+  router.push("/orders");
 };
+// 주문내역 페이지 on off
+let orderBox = ref(false);
+// 장바구니 추가 함수(Menu.vue 컴포넌트에서 받아옴)
+const addCart = (item) => {
+  item.quantity = 1;
+  state.carts.push(item);
+  calculateTotal();
+};
+
+// 장바구니 메뉴 개수 감소시키는 함수
+const decreaseQuantity = async (idx) => {
+  if (state.carts[idx].quantity > 1) {
+    const params = {
+      cartId: state.carts[idx].id,
+      quantity: state.carts[idx].quantity - 1,
+    };
+
+    // 메뉴 개수 수정하는 API 함수 호출
+    const res = await updateQuantity(params);
+
+    if (res === undefined) {
+      alert("수정 실패");
+      return;
+    } else if (res.data.resultStatus !== 200) {
+      alert(res.data.resultMessage);
+      return;
+    }
+
+    state.carts[idx].quantity--;
+    calculateTotal();
+  }
+};
+
+// 장바구니 메뉴 개수 증가시키는 함수
+const increaseQuantity = async (idx) => {
+  const params = {
+    cartId: state.carts[idx].id,
+    quantity: state.carts[idx].quantity + 1,
+  };
+
+  // 메뉴 개수 수정하는 API 함수 호출
+  const res = await updateQuantity(params);
+
+  if (res === undefined) {
+    alert("수정 실패");
+    return;
+  } else if (res.data.resultStatus !== 200) {
+    alert(res.data.resultMessage);
+    return;
+  }
+
+  state.carts[idx].quantity++;
+  calculateTotal();
+};
+
+// 장바구니 삭제 함수
+const deleteCart = async (cartId) => {
+  const res = await removeItem(cartId);
+
+  if (res === undefined || res.data.resultStatus !== 200) {
+    alert("삭제 실패");
+    return;
+  }
+
+  if (res.data.resultData === 1) {
+    const deleteIdx = state.carts.findIndex((item) => item.id === cartId);
+    if (deleteIdx > -1) {
+      state.carts.splice(deleteIdx, 1);
+      calculateTotal();
+    }
+  }
+};
+
+// 장바구니 총 금액 계산하는 함수
+const calculateTotal = () => {
+  totalPrice.value = 0;
+
+  state.carts.forEach((item) => {
+    const price = item.price * item.quantity;
+    totalPrice.value += price;
+  });
+};
+// 고객 유저 장바구니 조회
+const loadCarts = async (id) => {
+  // 원래 다른 가게 메뉴를 장바구니에 추가했는지 여부까지 조회해야 하지만
+  // 그걸 구현할 시간이 없어 일단 장바구니 데이터 삭제하게 해놨음..
+  const res = await removeCart();
+
+  if (res === undefined || res.data.resultStatus !== 200) {
+    //alert(res.data.resultMessage);
+    return;
+  }
+};
+//
+const totalPrice = ref(0);
 </script>
 
 <template>
   <header>
     <div class="navbar">
-      <div>
-        <img
-          @click="homeRouter"
-          class="logo"
-          src="/src/imgs/hanipLogogroup.png"
-        />
+      <div class="naverBox">
+        <div class="logoBox">
+          <img
+            @click="homeRouter"
+            class="logo"
+            src="/src/imgs/hanipLogogroup.png"
+          />
+        </div>
+        <template template v-if="account.state.loggedIn">
+          <div class="searchBar">
+            <img
+              @click="caLink"
+              class="searchImg"
+              src="/src/imgs/weui_location-filled.png"
+            />
+            <div class="addressText2">유저 정보에 따른 주소 필요</div>
+          </div>
+        </template>
+        <template template v-else>
+          <div class="searchBar">
+            <img
+              @click="caLink"
+              class="searchImg"
+              src="/src/imgs/weui_location-filled.png"
+            />
+            <div class="addressText">주소를 입력해주세요</div>
+          </div>
+        </template>
+        <div class="containerOne">
+          <div class="menus d-flex gap-3">
+            <template v-if="account.state.loggedIn">
+              <img
+                @click="faivorite"
+                class="faiorites"
+                src="/src/imgs/faivor.png"
+              />
+              <img
+                @click="orderRouter"
+                class="order"
+                src="/src/imgs/orders.png"
+              />
+              <img
+                @click="cartRouter"
+                @mouseover="orderBox = true"
+                @mouseleave="orderBox = false"
+                id="menu"
+                class="shooping"
+                src="/src/imgs/shoop.png"
+              />
+              <div id="menu" @click="logoutIn">로그아웃</div>
+              <div>|</div>
+              <div class="myPage" @click="myPageRouter">마이페이지</div>
+            </template>
+            <template v-else>
+              <img
+                @click="cartRouter"
+                id="menu"
+                class="shooping"
+                src="/src/imgs/shoop.png"
+              />
+              <div class="login">
+                <router-link id="menu" to="/login">로그인</router-link>
+              </div>
+              <a id="menu">|</a>
+              <router-link id="menu" to="/join">회원가입</router-link>
+            </template>
+          </div>
+        </div>
       </div>
-      <div class="searchBar">
-        <input
-          @click="caLink"
-          type="text"
-          id="title"
-          class="searchBox"
-          placeholder="주소를 검색해 주세요"
-          onfocus="this.placeholder=''"
-          onblur="this.placeholder='주소를 검색해 주세요'"
-        />
-        <img
-          @click="caLink"
-          class="searchImg"
-          src="/src/imgs/weui_location-filled.png"
-        />
-      </div>
-      <div class="containerOne">
-        <div class="menus d-flex gap-3">
-          <template v-if="account.state.loggedIn">
-            <img @click="orderRouter" class="order" src="/src/imgs/order.png" />
-            <img
-              @click="cartRouter"
-              id="menu"
-              class="shooping"
-              src="/src/imgs/shopping.png"
-            />
-            <img
-              @click="myPageRouter"
-              class="myPage"
-              src="/src/imgs/myPage.png"
-            />
-            <div id="menu" @click="logoutIn">로그아웃</div>
-          </template>
-          <template v-else>
-            <img
-              @click="cartRouter"
-              id="menu"
-              class="shooping"
-              src="/src/imgs/shopping.png"
-            />
-            <div class="login">
-              <router-link id="menu" to="/login">로그인</router-link>
+      <!-- 주문표 부분 -->
+      <div v-if="orderBox" class="col-12 col-md-4 d-flex flex-column p-3">
+        <div class="row border rounded p-4 mb-2">
+          <div class="d-flex justify-content-between border-bottom pb-2 mb-2">
+            <span>주문표</span>
+          </div>
+          <div v-if="state.carts.length > 0">
+            <div v-for="(item, idx) in state.carts" :key="item.id">
+              <div class="p-2" :class="{ 'border-top': idx !== 0 }">
+                <div class="d-flex justify-content-between mb-2">
+                  <span>{{ item.name }}</span>
+                  <span
+                    >{{ (item.price * item.quantity).toLocaleString() }}원</span
+                  >
+                </div>
+                <div class="d-flex justify-content-between">
+                  <div>
+                    <button
+                      type="button"
+                      class="btn btn-basic btn-quantity"
+                      @click="decreaseQuantity(idx)"
+                    >
+                      -
+                    </button>
+                    <span class="p-3">{{ item.quantity }}</span>
+                    <button
+                      type="button"
+                      class="btn btn-basic btn-quantity"
+                      @click="increaseQuantity(idx)"
+                    >
+                      +
+                    </button>
+                  </div>
+                  <div>
+                    <button
+                      type="button"
+                      class="btn btn-basic btn-submit"
+                      @click="deleteCart(item.id)"
+                    >
+                      메뉴 취소
+                    </button>
+                  </div>
+                </div>
+              </div>
             </div>
-            <a id="menu">|</a>
-            <router-link id="menu" to="/join">회원가입</router-link>
-          </template>
+          </div>
+          <div v-else>담긴 메뉴가 없습니다</div>
+          <div class="text-end border-top pt-2 mt-2">
+            {{ totalPrice.toLocaleString() }}원
+          </div>
         </div>
       </div>
     </div>
@@ -96,45 +289,65 @@ const orderRouter = () => {
 
 <style lang="scss" scoped>
 .navbar {
-  height: 77px;
+  height: 90px;
   background-color: #fff;
   color: #000;
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: center;
   padding: 0 1rem;
   -webkit-box-shadow: 1px 9px 13px -1px rgba(0, 0, 0, 0.12);
   box-shadow: 1px 9px 13px -1px rgba(0, 0, 0, 0.12);
+  //
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  z-index: 9999;
+}
+.naverBox {
+  width: 1500px;
+  display: flex;
+  justify-content: space-between;
 }
 .containerOne {
+  width: 400px;
   margin-bottom: 30px;
-  margin-right: 100px;
-  margin-top: -12px;
+  margin-top: -5px;
   .shooping {
     width: 45px;
     margin-right: 14px;
   }
-  margin-right: 215px;
+
   .order {
     width: 45px;
-    margin-right: 14px;
+
     cursor: pointer;
   }
   .myPage {
-    width: 55px;
     margin-right: 14px;
     cursor: pointer;
   }
+  .faiorites {
+    width: 34px;
+    margin-right: 2px;
+  }
 }
-img.logo {
+.logoBox {
+  display: flex;
+  align-items: center;
+  width: 400px;
+}
+.logo {
   width: 190px;
   height: auto;
   object-fit: contain;
-  margin-left: 210px;
-  margin-bottom: 8px;
+
   cursor: pointer;
 }
+
 .menus {
+  justify-content: end;
   color: #ff6666;
   font-weight: 800;
   font-size: 13px;
@@ -143,48 +356,38 @@ img.logo {
   align-items: center;
   margin-top: 30px;
 }
+.searchBar {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 400px;
+  .searchImg {
+    width: 20px;
+  }
+}
+.addressText {
+  margin-left: 15px;
+  color: #fdbdbd;
+  font-weight: 800;
+}
+.addressText2 {
+  margin-left: 15px;
+  color: #fdbdbd;
+}
+.col-12 {
+  background-color: #fff;
+  margin-left: auto;
+  margin-top: -10px;
+}
+.faiorites{
+  cursor: pointer;
+}
 
 #menu {
   cursor: pointer;
   text-decoration: none;
   font-weight: 800;
   color: #ff6666;
-}
-
-.searchBar {
-  // margin-bottom: 15px;
-  width: 31.5%;
-  font-size: 0.7em;
-  border: 2px solid #fcaeae;
-  border-radius: 20px;
-  margin-right: -30px;
-  margin-bottom: 15px;
-  input {
-    padding-left: 43px;
-  }
-  input:focus {
-    outline: none;
-    box-shadow: none;
-  }
-  .searchImg {
-    width: 20px;
-    position: relative;
-    right: 35px;
-    bottom: 2px;
-    cursor: pointer;
-  }
-  .searchBox {
-    border: none;
-    width: 96%;
-    // width: 564px;
-    height: 36px;
-    border-radius: 20px;
-  }
-  .searchBox::placeholder {
-    color: #fcaeae;
-    text-align: center;
-    margin-left: 40px;
-  }
 }
 
 @media (max-width: 1650px) {
@@ -199,6 +402,8 @@ img.logo {
   .navbar {
     display: flex;
     justify-content: center;
+    position: fixed;
+    margin-left: 0px;
     img.logo {
       margin-left: 0px;
     }
