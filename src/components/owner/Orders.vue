@@ -1,37 +1,42 @@
 <script setup>
 import OrderListCard from "./OrderListCard.vue";
-import { computed, ref } from "vue";
+import { computed, ref, onMounted } from "vue";
 import { useOrderStore } from "@/stores/orderStore";
 import { deleteOrder } from "@/services/orderService";
 
 const orderStore = useOrderStore();
 const nonOrderedOrders = computed(() => orderStore.nonOrderedList);
 const selectedOrder = ref(null);
+const isLoading = ref(true);
+
+onMounted(async () => {
+  await orderStore.fetchOrders();
+  isLoading.value = false;
+});
 
 // 전체 주문 수
 const totalOrderCount = computed(() => nonOrderedOrders.value.length);
 
 // 전체 배달 수
-const totalCompelteOrderCount = computed(() => 
-  nonOrderedOrders.value
-    .filter(order => order.status?.trim().toUpperCase() === "COMPLETED")
-    .length
+const totalCompelteOrderCount = computed(
+  () =>
+    nonOrderedOrders.value.filter(
+      (order) => order.status?.trim().toUpperCase() === "COMPLETED"
+    ).length
 );
 
 // 취소된 주문
-const totalCanceledOrderCount = computed(() =>
-  nonOrderedOrders.value
-    .filter(order => order.status === "CANCELED")
-    .length
+const totalCanceledOrderCount = computed(
+  () =>
+    nonOrderedOrders.value.filter((order) => order.status === "CANCELED").length
 );
 
 // 전체 매출
 const totalSales = computed(() =>
   nonOrderedOrders.value
-    .filter(order => order.status?.trim().toUpperCase() === "COMPLETED")
+    .filter((order) => order.status?.trim().toUpperCase() === "COMPLETED")
     .reduce((sum, order) => sum + Math.round((order.amount || 0) / 10000), 0)
 );
-
 
 // 주문 내역으로 스크롤
 const orderDetail = ref(null);
@@ -41,41 +46,41 @@ const handleSelectOrder = (order) => {
   selectedOrder.value = order;
 
   // 스크롤
- if(orderDetail.value) {
+  if (orderDetail.value) {
     orderDetail.value.scrollIntoView({ behavior: "smooth" });
   }
 };
 
 // 삭제
-const deleteOrderOne = async() => {
-    if (!["COMPLETED", "CANCELED"].includes(selectedOrder.value?.status)) {
-        alert("진행 중인 주문은 삭제하실 수 없습니다.")
-        return;
-    }
-    
-    // 삭제 로직
-    const res = await deleteOrder(selectedOrder.value?.id);
-    console.log("res: ", res.data.resultData)
-    if (res.status !== 200) {
-      alert("에러")
-      return
-    }
-    alert("정상적으로 삭제됐습니다.")
-    await orderStore.fetchOrders;
-    selectedOrder.value = null;
-}
+const deleteOrderOne = async () => {
+  if (!["COMPLETED", "CANCELED"].includes(selectedOrder.value?.status)) {
+    alert("진행 중인 주문은 삭제하실 수 없습니다.");
+    return;
+  }
+
+  // 삭제 로직
+  const res = await deleteOrder(selectedOrder.value?.id);
+  console.log("res: ", res.data.resultData);
+  if (res.status !== 200) {
+    alert("에러");
+    return;
+  }
+  alert("정상적으로 삭제됐습니다.");
+  await orderStore.fetchOrders();
+  selectedOrder.value = null;
+};
 
 // 배달 상태 치환
 const statusText = computed(() => {
   if (!selectedOrder.value || !selectedOrder.value.status) return "상태 없음";
   switch (selectedOrder.value.status) {
-    case 'PREPARING':
+    case "PREPARING":
       return "음식준비중";
-    case 'DELIVERING':
+    case "DELIVERING":
       return "배달중";
-    case 'CANCELED':
+    case "CANCELED":
       return "취소됨";
-    case 'COMPLETED':
+    case "COMPLETED":
       return "완료됨";
     default:
       return "기타 상태";
@@ -86,8 +91,8 @@ const statusText = computed(() => {
 const visibleCount = ref(5);
 const visibleOrders = computed(() => {
   return nonOrderedOrders.value
-  .filter(order => order.isDeleted !== 1)
-  .slice(0, visibleCount.value);
+    .filter((order) => order.isDeleted !== 1)
+    .slice(0, visibleCount.value);
 });
 const loadMore = () => {
   visibleCount.value += 5;
@@ -107,7 +112,7 @@ const formatDateTime = (isoStr) => {
 </script>
 
 <template>
-   <!-- alert -->
+  <!-- alert -->
   <div
     style="
       position: fixed;
@@ -135,32 +140,35 @@ const formatDateTime = (isoStr) => {
 
   <div class="wrap">
     <div>
-        <h2>주문 상세</h2>
-        <span style="color : #838383">어서오세요! {{ ownerName }}사장님 관리자 페이지에 다시 오신것을 환영합니다!</span>
-        
-        <!-- 상단 집계 카드 -->
-        <div class="total-wrap">
-            <div class="total-box">
-                <div class="circle"></div>
-                <div>
-                    <span>{{ 10 }}</span>
-                    <span>전체 주문 수</span>
-                    <div class="change-rate">
-                        <span class="icon-up">↑</span><span>4% (최근 30일)</span>
-                    </div>
-                </div>
+      <h2>주문 상세</h2>
+      <span style="color: #838383"
+        >어서오세요! {{ ownerName }}사장님 관리자 페이지에 다시 오신것을
+        환영합니다!</span
+      >
+
+      <!-- 상단 집계 카드 -->
+      <div class="total-wrap">
+        <div class="total-box">
+          <div class="circle"></div>
+          <div>
+            <span>{{ totalOrderCount }}</span>
+            <span>전체 주문 수</span>
+            <div class="change-rate">
+              <span class="icon-up">↑</span><span>4% (최근 30일)</span>
             </div>
-            
-            <div class="total-box">
-                <div class="circle"></div>
-                <div>
-                    <span>{{ 10 }}</span>
-                    <span>전체 배달 수</span>
-                    <div class="change-rate">
-                        <span class="icon-up">↑</span><span>4% (최근 30일)</span>
-                    </div>
-                </div>
+          </div>
+        </div>
+
+        <div class="total-box">
+          <div class="circle"></div>
+          <div>
+            <span>{{ totalCompelteOrderCount }}</span>
+            <span>전체 배달 수</span>
+            <div class="change-rate">
+              <span class="icon-up">↑</span><span>4% (최근 30일)</span>
             </div>
+          </div>
+        </div>
 
         <div class="total-box">
           <div class="circle"></div>
@@ -218,8 +226,20 @@ const formatDateTime = (isoStr) => {
 
     <div class="orders-wrap">
       <!-- 주문 리스트 -->
-      <div v-if="orderStore.orders.length === 0" class="loading"></div>
-      <div class="justify-content-center">
+      <div v-if="isLoading" class="loading"></div>
+
+      <template v-else>
+        <div
+          v-if="visibleOrders.length === 0"
+          class="d-flex flex-column justify-content-center gap-3"
+          style="padding-left: 100px; padding-bottom: 500px"
+        >
+          <img src="/src/imgs/owner/owner-service3.png" alt="주문 없음" />
+          <p style="text-align: center; color: #777; font-size: 30px">
+            최근 주문이 없습니다.
+          </p>
+        </div>
+
         <order-list-card
           v-for="order in visibleOrders"
           :key="order.id"
@@ -227,6 +247,7 @@ const formatDateTime = (isoStr) => {
           style="cursor: pointer"
           @selectOrder="handleSelectOrder(order)"
         />
+
         <!-- 더보기 -->
         <button
           class="btn btn-secondary"
@@ -241,7 +262,7 @@ const formatDateTime = (isoStr) => {
         >
           더보기
         </button>
-      </div>
+      </template>
       <div class="orders-detail shadow">
         <!-- 주문정보 -->
         <section>

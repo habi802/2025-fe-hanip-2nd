@@ -49,9 +49,6 @@ onMounted(async () => {
    
 });
 
-
-
-
 // 가게 데이터
 const state = reactive({
   form: {},
