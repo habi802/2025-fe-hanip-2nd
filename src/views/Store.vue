@@ -451,6 +451,9 @@ const reviewbutton = () => {
   font-weight: normal;
   font-style: normal;
 }
+.container {
+    margin-top: 70px;
+}
 
 #map {
   height: 125px;
