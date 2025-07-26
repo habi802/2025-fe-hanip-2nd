@@ -7,7 +7,7 @@ const ownerName = inject("ownerName", "");
 <template>
   <div class="min-vh-100 pb-5" style="background-color: #e8e8e8">
     <div>
-      <div class="owner-title1">고객 관리</div>
+      <div class="owner-title1">가게 상태 관리</div>
       <div class="owner-title2">
         어서오세요! {{ ownerName }} 사장님, 관리자 페이지에 다시 오신 것을
         환영합니다!

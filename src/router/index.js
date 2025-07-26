@@ -118,6 +118,11 @@ const router = createRouter({
       component: () => import("@/components/myPage/Favorites.vue"),
       meta: { layout: MainLayout },
     },
+     {
+      path: "/owner/status",
+      component: () => import("@/views/owner/StatusStore.vue"),
+      meta: { layout: OwnerLayout },
+    },
   ],
 });
 export default router;

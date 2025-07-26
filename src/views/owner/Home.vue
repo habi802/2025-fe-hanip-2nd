@@ -1,12 +1,33 @@
 <script setup>
-import { inject, ref } from "vue";
-import { activeStore } from "@/services/storeService";
+import { inject, ref, reactive } from "vue";
+import { activeStore, getOwnerStore } from "@/services/storeService";
 import { useRouter } from "vue-router";
 
 const router = useRouter();
 const storeId = inject("storeId", ref(""));
 const storeActive = inject("storeActive", ref(""));
+const isOpen = inject("isOpen");
 
+// 부트스트랩 alert
+let alertId = 0;
+
+const alerts = reactive([]);
+
+const showAlert = (message, type = "alert-danger") => {
+  const id = ++alertId;
+  const newAlert = { id, message, type };
+  alerts.push(newAlert);
+
+  // 자동 삭제 (3초 뒤)
+  setTimeout(() => {
+    removeAlert(id);
+  }, 3000);
+};
+
+const removeAlert = (id) => {
+  const index = alerts.findIndex((a) => a.id === id);
+  if (index !== -1) alerts.splice(index, 1);
+};
 
 // 오늘 날짜
 const formData = date => {
@@ -21,20 +42,54 @@ const today = ref(formData(new Date()))
 // 영업시작
 const start = async () => {
   if(storeActive.value) {
-    alert("이미 가게가 영업 중입니다!")
+    showAlert("이미 가게가 영업 중입니다!")
     return;
   }
-  const res = activeStore(storeId.value);
+  const res = await activeStore(storeId.value);
   console.log("가게 아이디: ", storeId.value)
-  if(res.status === 401 || res.status === 200) {
-    alert("에러")
-  } 
-  await router.push("/")
-  router.push("/owner/dashboard")
+  if(res.status === 401 || res.status === 500) {
+    showAlert("에러")
+  }
+
+  const updated = await getOwnerStore();
+  if (updated.status === 200) {
+    const newForm = updated.data.resultData;
+    storeActive.value = newForm.isActive;
+    if (isOpen) isOpen.value = newForm.isActive;
+  }
+
+  router.push("/owner/dashboard");
 }
 </script>
 
 <template>
+<!-- alert -->
+  <div
+    style="
+      position: fixed;
+      top: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 2000;
+    "
+  >
+    <div
+      v-for="(alert, index) in alerts"
+      :key="alert.id"
+      :class="['alert', alert.type, 'alert-dismissible', 'fade', 'show']"
+      role="alert"
+      style="margin-bottom: 10px; min-width: 300px; max-width: 600px"
+    >
+      {{ alert.message }}
+      <button
+        type="button"
+        class="btn-close"
+        @click="removeAlert(alert.id)"
+      ></button>
+    </div>
+  </div>
+
+  <!-- 메인 -->
     <div class="container-fluid d-flex mb-5" style="height: 700px; padding-top: 81px;">
       <div class="card shadow p-5 w-100 text-center" style="max-width: 1300px;">
         <div class="ps-4 pt-5">
@@ -81,5 +136,21 @@ const start = async () => {
 }
 .storeAccept-btn:active {
   background: #b23837;
+}
+
+/* alert 에니메이션 */
+.fade.show {
+  animation: slideDown 0.5s ease;
+}
+
+@keyframes slideDown {
+  from {
+    transform: translateY(-20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
 }
 </style>
