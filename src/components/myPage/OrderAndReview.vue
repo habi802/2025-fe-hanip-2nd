@@ -255,6 +255,7 @@ const idCheck = async () => {
     justify-content: space-between;
     align-items: center;
     overflow: clip;
+    
 
     .boardLeft {
       .imgBox {
