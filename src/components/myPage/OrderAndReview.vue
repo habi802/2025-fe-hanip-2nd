@@ -113,18 +113,10 @@ const idCheck = async () => {
 </script>
 
 <template>
-  <!-- 버튼들 -->
-  <div class="btns">
-    <div class="btn" @click="$emit('reorder', props.order.orderGetList)">
-      재주문 하기
-    </div>
-    <div @click="reviewButton" class="btn btn-primary">
-      {{ revCheck !== null ? "리뷰 수정" : "리뷰 등록" }}
-    </div>
-    <div class="btn">주문상세</div>
-  </div>
+
   <!-- 신경 x 2차때 사용 예정 -->
-  <div :style="{ height: on ? '315px' : '750px' }" class="bigBoard">
+  <div :style= " { Height: on ? '315px' : '750px' }" class="bigBoard">
+  <!-- <div class="bigBoard"> -->
     <!-- 내부 -->
     <div class="board">
       <!-- 카드 왼쪽 [ 주문 시간 , 이미지 , 가게 이름 ] -->
@@ -142,8 +134,8 @@ const idCheck = async () => {
         </div>
       </div>
       <!-- 카드 중앙 [ 메뉴 이름, 갯수, 가격 ] -->
-      <div class="boardRight">
-        <div class="menuBox pt-4">
+      <div class="boardMiddle">
+        <div class="menuBox">
           <div
             class="menu"
             v-for="(menu, index) in props.order.orderGetList.slice(0, 3)"
@@ -162,14 +154,15 @@ const idCheck = async () => {
         </div>
       </div>
       <!-- 카드 오른쪽 [ 총 결제금액, 배달상태 ] -->
-      <div class="boardLastRigth">
+      <div class="boardRigth">
         <div class="amount">
-          <div class="amountText">총 결제 금액</div>
+          <div class="amountText">총 결제 금액
+          </div>
           <div class="amountNum">
             {{ props.order.amount.toLocaleString() }}원
           </div>
         </div>
-        <div>
+        <div class="orderStatus">
           <div class="amountText">배달상태</div>
           <div class="amountNum">{{ statusText }}</div>
         </div>
@@ -177,6 +170,17 @@ const idCheck = async () => {
       <!-- 메뉴 삭제하기 버튼 -->
       <div class="remove" @click="$emit('delete-order', props.order.id)">
         <img class="removeImg" src="/src/imgs/remove.png" />
+      </div>
+    </div>
+    <!-- 버튼들 -->
+    <div class="btns">
+      <div class="btn" @click="$emit('reorder', props.order.orderGetList)">
+        재주문 하기
+      </div>
+      <div @click="reviewButton" class="btn btn-primary">
+        {{ revCheck !== null ? "리뷰 수정" : "리뷰 등록" }}
+      </div>
+      <div class="btn">주문상세
       </div>
     </div>
 
@@ -204,64 +208,36 @@ const idCheck = async () => {
                     </div>
                 </div>
             </div>
-
         </div> -->
-  </div>
+</div>
 </template>
 
 <style lang="scss" scoped>
-.btns {
-  display: flex;
-  position: relative;
-  width: 500px;
-  gap: 16px;
-  right: -800px;
-  bottom: -300px;
-}
-
-.btn {
-  // position: absolute;
-  font-family: "BMJUA";
-  font-size: 1em;
-  text-align: center;
-  background-color: #fff;
-  color: #ff6666;
-  width: 172px;
-  height: 40px;
-  outline: none;
-  box-shadow: none;
-  border: #ff6666 2px solid;
-  margin-top: 10px;
-  border-radius: 8px;
-
-  &:active {
-    background-color: #ff6666;
-    border: #ff6666 2px solid;
+:hover.bigBoard{
+    border:  #ff6666 2px solid;
   }
-}
-
-.bigBoard {
-  width: 1439px !important;
-  height: 320px;
-  border: #6c6c6c 3px solid;
-  border-radius: 25px;
-  margin-bottom: 20px;
-  overflow: clip;
+  .bigBoard {
+    width: 1440px !important;
+    min-height: 330px; // 최소 높이
+    border: #cbcbcb 2px solid;
+    border-radius: 25px;
+    margin-bottom: 20px;
+    //overflow: clip;
+    display: flex;
+    flex-direction: column;
+    padding: 20px;
 
   .board {
     display: flex;
     width: 100%;
-    height: 320px;
-    justify-content: space-between;
+    justify-content: space-around;
     align-items: center;
-    overflow: clip;
+    //overflow: clip;
     
-
     .boardLeft {
       .imgBox {
         width: 260px;
         height: 170px;
-        margin-left: 40px;
         margin-top: 10px;
         border: #6c6c6c 1px solid;
         border-radius: 20px;
@@ -276,23 +252,21 @@ const idCheck = async () => {
 
       .created {
         font-size: 20px;
-        margin-left: 40px;
         margin-top: -10px;
+        margin-left: 10px;
       }
 
       .textBox {
         font-family: "BMJUA";
         font-size: 1.5em;
-        margin-left: 40px;
+        margin-left: 10px;
         margin-top: 10px;
       }
     }
 
-    .boardRight {
-      width: 600px;
-      height: 300px;
+    .boardMiddle {
+      width: 500px;
       margin-top: 20px;
-      margin-left: -85px;
       font-family: "BMJUA";
       font-size: 1.3em;
 
@@ -303,36 +277,56 @@ const idCheck = async () => {
         margin-right: 50px;
       }
 
-      .menu {
-        display: flex;
-        justify-content: space-between;
-        font-family: "BMJUA";
-        margin-top: 10px;
-
-        .name {
-          width: 300px;
-          text-align: left;
-        }
-
-        .num {
-          width: 50px;
-          margin-left: 10px;
-          text-align: right;
-        }
-
-        .price {
-          width: 120px;
-          margin-right: 50px;
-          text-align: right;
+      .menuBox{
+        margin-right: 50px;
+        .menu {
+          display: flex;
+          justify-content: space-between;
+          font-family: "BMJUA";
+          margin-top: 10px;
+          .name {
+            width: 200px;
+            text-align: left;
+          }
+          .num {
+            width: 50px;
+            margin-left: 10px;
+            text-align: right;
+          }
+          .price {
+            width: 120px;
+            text-align: right;
+          }
         }
       }
     }
+    .boardRigth {
+      display: flex;
+      gap: 80px;
+      text-align: center;
+
+      .amountNum {
+        margin-top: 10px;
+        font-size: 20px;
+        color: #ff6666;
+      }
+
+      .amountText {
+        font-size: 20px;
+      }
+    }
+
+    position:relative
   }
 
   .removeImg {
+    position:absolute;
+    top:45%;
+    right: 30px;
     width: 20px;
-    margin-right: 35px;
-    margin-top: 20px;
+    //margin-right: 35px;
+    //margin-top: 20px;
+    margin: 30px;
     cursor: pointer;
   }
 
@@ -410,23 +404,30 @@ const idCheck = async () => {
       }
     }
   }
-}
-
-.boardLastRigth {
-  display: flex;
-  gap: 80px;
-  text-align: center;
-  margin-left: -100px;
-  margin-bottom: 100px;
-
-  .amountNum {
-    margin-top: 10px;
-    font-size: 20px;
-    color: #ff6666;
-  }
-
-  .amountText {
-    font-size: 20px;
+  .btns {
+    display: flex;
+    width: 100%;
+    gap: 20px;
+    justify-content: right;
+    padding-right: 120px;
+  
+    .btn {
+      font-family: "BMJUA";
+      font-size: 1em;
+      text-align: center;
+      background-color: #fff;
+      color: #ff6666;
+      width: 172px;
+      height: 40px;
+      outline: none;
+      box-shadow: none;
+      border: #ff6666 2px solid;
+      border-radius: 8px;
+    }
+    &:active {
+      background-color: #ff6666;
+      border: #ff6666 2px solid;
+    }
   }
 }
 
