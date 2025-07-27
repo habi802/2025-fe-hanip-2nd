@@ -79,9 +79,9 @@ watch([ownerTel1, ownerTel2, ownerTel3], () => {
 });
 
 // 업주용 대표자 휴대폰 조합
-watch([ownerPhone1, ownerPhone2, ownerPhone3], () => {
-  state.owner.businessNumber = `${ownerPhone1.value}-${ownerPhone2.value}-${ownerPhone3.value}`;
-});
+// watch([ownerPhone1, ownerPhone2, ownerPhone3], () => {
+//   state.owner.businessNumber = `${ownerPhone1.value}-${ownerPhone2.value}-${ownerPhone3.value}`;
+// });
 
 // 전체 약관 동의 시 세부 항목도 일괄 변경
 const toggleAllAgree = () => {
@@ -456,7 +456,7 @@ const termsText = {
               <span>*</span>
               <p>사업자 등록번호</p>
               <div class="upload-row owner-sigin">
-                <input type="text" v-model="state.owner.licenesPath" class="upload-box" />
+                <input type="text" v-model="state.owner.businessNumber" class="upload-box" />
                 <button type="button">조회</button>
               </div>
             </div>
