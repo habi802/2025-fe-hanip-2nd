@@ -3,6 +3,7 @@ import OrderListCard from "./OrderListCard.vue";
 import { computed, ref, reactive, onMounted } from "vue";
 import { useOrderStore } from "@/stores/orderStore";
 import { deleteOrder } from "@/services/orderService";
+import { useOwnerStore } from "@/stores/account";
 
 const orderStore = useOrderStore();
 const nonOrderedOrders = computed(() => orderStore.nonOrderedList);
@@ -81,7 +82,12 @@ const deleteOrderOne = async () => {
     return;
   }
   showAlert("정상적으로 삭제됐습니다.", "alert-success");
-  await orderStore.fetchOrders();
+  const owner = useOwnerStore();
+  if (!owner.storeId) {
+    await owner.fetchStoreInfo();
+  }
+  await orderStore.fetchOrders(owner.storeId);
+
   selectedOrder.value = null;
 };
 
@@ -165,7 +171,7 @@ const formatDateTime = (isoStr) => {
         <div class="total-box">
           <div class="circle"></div>
           <div>
-            <span>{{ totalOrderCount || "--" }}</span>
+            <span>{{ totalOrderCount || "0" }}</span>
             <span>전체 주문 수</span>
             <div class="change-rate">
               <span class="icon-up">↑</span><span>4% (최근 30일)</span>
@@ -176,7 +182,7 @@ const formatDateTime = (isoStr) => {
         <div class="total-box">
           <div class="circle"></div>
           <div>
-            <span>{{ totalCompelteOrderCount || "--" }}</span>
+            <span>{{ totalCompelteOrderCount || "0" }}</span>
             <span>전체 배달 수</span>
             <div class="change-rate">
               <span class="icon-up">↑</span><span>4% (최근 30일)</span>
@@ -187,7 +193,7 @@ const formatDateTime = (isoStr) => {
         <div class="total-box">
           <div class="circle"></div>
           <div>
-            <span>{{ totalCanceledOrderCount || "--" }}</span>
+            <span>{{ totalCanceledOrderCount || "0" }}</span>
             <span>취소된 주문</span>
             <div class="change-rate">
               <span class="icon-down">↓</span><span>25% (최근 30일)</span>
