@@ -27,7 +27,7 @@ const addCart = async () => {
         alert('등록 실패');
         return;
     } else if (res.status === 500) {
-        alert('이미 등록된 메뉴입니다.')
+        emit('addCart', props.item);
     } else {
         props.item.id = res.data.resultData;
         emit('addCart', props.item);
@@ -49,10 +49,10 @@ const addCart = async () => {
                     <!-- 수량 증가 박스 -->
                     <span class="check">
                         <!-- 0이 되면 스타일 바뀌게 해야함 -->
-                        <div class="check-box"> - </div>
+                        <!-- <div class="check-box"> - </div> -->
                         <!-- 갯수 -->
-                        <div> 0 </div>
-                        <div class="check-box"> + </div>
+                        <!-- <div> 0 </div> -->
+                        <!-- <div class="check-box"> + </div> -->
 
                     </span>
                 </div>

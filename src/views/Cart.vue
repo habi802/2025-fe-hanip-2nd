@@ -3,20 +3,33 @@ import { reactive, onMounted, computed } from "vue";
 import { useRouter } from "vue-router";
 import { getItem, removeCart, removeItem } from "@/services/cartService";
 import { useAccountStore } from "@/stores/account";
+import { useCartStore } from "@/stores/cart";
 
+const cartStore = useCartStore();
+const items = computed(() => cartStore.state.items);
+
+// 라우터 및 스토어 인스턴스 생성
 const router = useRouter();
 const account = useAccountStore();
 
+// 장바구니 아이템 상태
 const state = reactive({
   items: [],
 });
 
+// 로그인 여부 계산
 const loggedIn = computed(() => account.state.loggedIn);
 
+// 페이지 진입 시 장바구니 데이터 불러오기
 onMounted(() => {
-  load();
+  console.log("CartStore 상태:", items.value);
+  if (loggedIn.value) {
+    load();
+    state.items = items.value;
+  }
 });
 
+// 장바구니 데이터 API 요청
 const load = async () => {
   if (!loggedIn.value) return;
   const res = await getItem();
@@ -26,6 +39,7 @@ const load = async () => {
   state.items = res.data.resultData || [];
 };
 
+// 장바구니 항목 개별 삭제
 const remove = async (cartId) => {
   const res = await removeItem(cartId);
   if (res === undefined || res.status !== 200) return;
@@ -33,21 +47,26 @@ const remove = async (cartId) => {
   load();
 };
 
+// 수량 증가
 const increaseQty = (item) => {
   item.quantity++;
 };
 
+// 수량 감소 (1 미만으로 내려가지 않도록 제한)
 const decreaseQty = (item) => {
   if (item.quantity > 1) item.quantity--;
 };
 
+// 전체 금액 계산
 const totalPrice = computed(() =>
   state.items.reduce((sum, item) => sum + item.price * item.quantity, 0)
 );
 
+// 페이지 이동 처리
 const goToLogin = () => router.push("/login");
 const goToMain = () => router.push("/");
 
+// 주문 페이지로 이동하면서 orderItems 저장
 const goToOrder = (group) => {
   if (!group || !group.items || group.items.length === 0) {
     alert("주문할 메뉴가 없습니다.");
@@ -67,6 +86,7 @@ const goToOrder = (group) => {
   router.push(`/stores/${group.items[0].storeId}/order`);
 };
 
+// 매장별로 장바구니 아이템 그룹화
 const groupedItems = computed(() => {
   const groups = {};
   for (const item of state.items) {
@@ -137,7 +157,7 @@ const grandTotalPrice = computed(() => {
   <div v-else-if="!loggedIn" class="unlogin">
     <div class="store-layout">
       <div class="store-card">
-        <img class="thumbnail" src="@/imgs/chicken.png"/>
+        <img class="thumbnail" src="@/imgs/chicken.png" />
         <div class="store-content">
           <h3 class="store-name">가게이름</h3>
 
@@ -180,7 +200,7 @@ const grandTotalPrice = computed(() => {
             <p class="item-name">{{ item.name }}</p>
             <p class="item-comment"></p>
             <div class="qty-box">
-              <!-- ❌ 수량이 1일 때는 X버튼으로 삭제 -->
+              <!-- 수량이 1일 때는 X버튼으로 삭제 -->
               <button
                 v-if="item.quantity === 1"
                 @click="remove(item.id)"

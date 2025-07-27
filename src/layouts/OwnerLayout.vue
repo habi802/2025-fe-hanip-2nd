@@ -18,10 +18,6 @@ const orderStore = useOrderStore();
 const notifications = ref([]); // 알림배열
 const removedNotification = ref(new Set());
 
-const homeRouter = () => {
-  router.push("/");
-};
-
 onMounted(async () => {
   const res = await getOwnerStore();
   
@@ -48,9 +44,6 @@ onMounted(async () => {
   }, 5000);
    
 });
-
-
-
 
 // 가게 데이터
 const state = reactive({
@@ -210,7 +203,6 @@ onUnmounted(() => {
       <div class="text-center mb-5">
         <img
           class="logo"
-          @click="homeRouter"
           src="/src/imgs/haniplogo3.png"
           alt="logo"
           style="width: 180px"
@@ -357,9 +349,6 @@ onUnmounted(() => {
 <style lang="scss" scoped>
 .box {
   font-family: "Pretendard", sans-serif;
-}
-img.logo {
-  cursor: pointer;
 }
 
 .padding {

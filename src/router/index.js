@@ -119,7 +119,7 @@ const router = createRouter({
       meta: { layout: MainLayout },
     },
     {
-      path: "/reviews-page",
+      path: "/reviews-page/:id",
       component: () => import("@/components/myPage/ReviewPage.vue"),
       meta: {layout:MainLayout}
     },

@@ -14,6 +14,9 @@ import { useAccountStore } from "@/stores/account";
 import { useCartStore } from "@/stores/cart";
 import Menu from "@/components/Menu.vue";
 import Review from "@/components/Review.vue";
+import { useFavoriteStore } from '@/stores/favoriteStore';
+
+const favoriteStore = useFavoriteStore();
 
 const route = useRoute();
 const router = useRouter();
@@ -59,16 +62,21 @@ const loadStore = async (id) => {
 
 // 고객 유저가 가게를 찜 목록에 추가했는지 조회하는 함수
 const loadFavorite = async (id) => {
-  const res = await getFavorite(id);
-
-  if (res === undefined || res.data.resultStatus !== 200) {
-    alert("조회 실패");
+  if (!account.state.loggedIn) {
+    state.store.favorite = true;
+    loadMenus(id);
     return;
   }
+    const res = await getFavorite(id);
 
-  state.store.favorite = res.data.resultData !== null ? true : false;
-  // 조회 성공 시 가게 메뉴 조회 함수 호출
-  loadMenus(id);
+    if (res === undefined || res.data.resultStatus !== 200) {
+      alert("조회 실패");
+      return;
+    }
+
+    state.store.favorite = res.data.resultData !== null ? true : false;
+    // 조회 성공 시 가게 메뉴 조회 함수 호출
+    loadMenus(id);
 };
 
 // 가게 메뉴 조회하는 함수
@@ -115,23 +123,39 @@ const loadCarts = async (id) => {
 
 // 찜 목록 추가/삭제 함수
 const toggleFavorite = async (id) => {
-  const res = state.store.favorite
-    ? await deleteFavorite(id)
-    : await addFavorite({ storeId: id });
+  if (account.state.loggedIn) {
+    const storeId = Number(id);
 
-  if (res === undefined || res.data.resultStatus !== 200) {
-    alert("수정 실패");
-    return;
+    console.log('[찜 토글 시도]', storeId);
+
+    const res = state.store.favorite
+      ? await deleteFavorite(storeId)
+      : await addFavorite({ storeId });
+
+    if (res === undefined || res.data.resultStatus !== 200) {
+      alert("찜 상태 변경 실패");
+      return;
+    }
+
+    state.store.favorite = !state.store.favorite;
+
+    // Pinia store에도 업데이트
+    favoriteStore.toggleFavorite(storeId);
+    console.log('찜 상태 저장됨:', favoriteStore.state.storeIds);
   }
-
-  state.store.favorite = !state.store.favorite;
 };
 
 // 장바구니 추가 함수(Menu.vue 컴포넌트에서 받아옴)
-const addCart = (item) => {
-  item.quantity = 1;
-  state.carts.push(item);
-  calculateTotal();
+const addCart = (newItem) => {
+  const existIdx = state.carts.findIndex(item => item.menuId === newItem.menuId);
+
+  if (existIdx !== -1) {
+    increaseQuantity(existIdx);
+  } else {
+    newItem.quantity = 1;
+    state.carts.push(newItem);
+    calculateTotal();
+  }
 };
 
 // 장바구니 메뉴 개수 감소시키는 함수
@@ -155,6 +179,8 @@ const decreaseQuantity = async (idx) => {
 
     state.carts[idx].quantity--;
     calculateTotal();
+  } else if (state.carts[idx].quantity == 1) {
+    deleteItem(state.carts[idx].id);
   }
 };
 
@@ -181,7 +207,7 @@ const increaseQuantity = async (idx) => {
 };
 
 // 장바구니 삭제 함수
-const deleteCart = async (cartId) => {
+const deleteItem = async (cartId) => {
   const res = await removeItem(cartId);
 
   if (res === undefined || res.data.resultStatus !== 200) {
@@ -196,6 +222,24 @@ const deleteCart = async (cartId) => {
       calculateTotal();
     }
   }
+};
+
+// 장바구니 전체 삭제 함수
+const deleteCart = async () => {
+    if (state.carts.length > 0) {
+        const res = await removeCart();
+
+        if (res === undefined) {
+            alert('삭제 실패');
+            return;
+        } else if (res.data.resultStatus === 401) {
+            alert(res.data.resultMessage);
+            return;
+        }
+
+        state.carts = [];
+        calculateTotal();
+    }
 };
 
 // 장바구니 총 금액 계산하는 함수
@@ -301,7 +345,9 @@ const reviewbutton = () => {
               <div
                 class="d-flex justify-content-between border-bottom pb-2 mb-2"
               >
-                <div class="delete-order">삭제</div>
+                <div class="delete-order">
+                  <img class="removeImg" src="/src/imgs/remove.png" @click="deleteCart()" />
+                </div>
               </div>
               <div v-if="state.carts.length > 0">
                 <div v-for="(item, idx) in state.carts" :key="item.id">
@@ -336,7 +382,7 @@ const reviewbutton = () => {
                         <button
                           type="button"
                           class="btn btn-basic btn-submit"
-                          @click="deleteCart(item.id)"
+                          @click="deleteItem(item.id)"
                         >
                           메뉴 취소
                         </button>
@@ -440,6 +486,9 @@ const reviewbutton = () => {
   font-weight: normal;
   font-style: normal;
 }
+.container {
+    margin-top: 70px;
+}
 
 #map {
   height: 125px;
@@ -488,6 +537,11 @@ const reviewbutton = () => {
   h3 {
     // color: #ff6666;
   }
+}
+
+.removeImg {
+    width: 20px;
+    cursor: pointer;
 }
 
 .review-title {

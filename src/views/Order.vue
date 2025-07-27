@@ -97,6 +97,8 @@ const decreaseQuantity = async idx => {
 
         state.carts[idx].quantity--;
         calculateTotal();
+    } else if (state.carts[idx].quantity == 1) {
+        deleteItem(state.carts[idx].id);
     }
 }
 
@@ -117,7 +119,7 @@ const increaseQuantity = async idx => {
     calculateTotal();
 }
 
-const deleteCart = async cartId => {
+const deleteItem = async cartId => {
     const res = await removeItem(cartId);
 
     if (res === undefined || res.data.resultStatus !== 200) {
@@ -305,7 +307,7 @@ const submit = async () => {
                                             <button type="button" class="btn btn-basic btn-quantity" @click="increaseQuantity(idx)">+</button>
                                         </div>
                                         <div>
-                                            <button type="button" class="btn btn-basic btn-submit" @click="deleteCart(item.id)">X</button>
+                                            <button type="button" class="btn btn-basic btn-submit" @click="deleteItem(item.id)">X</button>
                                         </div>
                                     </div>
                                 </div>
