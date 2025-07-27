@@ -3,6 +3,104 @@ import router from '@/router/index';
 import { reactive, ref, watch } from 'vue';
 import { join } from '@/services/userService';
 
+// 유효성 검사 함수
+const validateForm = () => {
+  const idRegex = /^[a-z0-9]{4,16}$/; // 아이디: 영문소문자+숫자 4~16자
+  const pwRegex = /^(?=.*[A-Za-z])(?=.*\d)(?=.*[!@#$%^&*])[A-Za-z\d!@#$%^&*]{8,16}$/; // 비밀번호
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/; // 이메일 형식
+  const numberRegex = /^\d{3,4}$/; // 전화번호 각 항목
+  const businessNumRegex = /^\d{10}$/; // 사업자등록번호 10자리
+
+  // 아이디
+  if (!idRegex.test(state.form.loginId)) {
+    alert('아이디는 영문 소문자+숫자 조합으로 4~16자여야 합니다.');
+    return false;
+  }
+
+  // 비밀번호
+  if (!pwRegex.test(state.form.loginPw)) {
+    alert('비밀번호는 영문 대/소문자, 숫자, 특수문자를 포함해 8~16자여야 합니다.');
+    return false;
+  }
+
+  // 비밀번호 확인
+  if (state.form.loginPw !== confirmPw.value) {
+    alert('비밀번호 확인이 일치하지 않습니다.');
+    return false;
+  }
+
+  // 이메일
+  if (!emailRegex.test(state.form.email)) {
+    alert('유효한 이메일 주소를 입력해주세요.');
+    return false;
+  }
+
+  if (memberType.value === 'customer') {
+    // 이름
+    if (!state.form.name) {
+      alert('이름은 필수입니다.');
+      return false;
+    }
+
+    // 주소
+    if (!state.form.postcode || !state.form.address) {
+      alert('주소를 입력해주세요.');
+      return false;
+    }
+
+    // 전화번호
+    if (!numberRegex.test(phone2.value) || !numberRegex.test(phone3.value)) {
+      alert('전화번호를 정확히 입력해주세요.');
+      return false;
+    }
+
+  } else if (memberType.value === 'owner') {
+    // 대표자 이름
+    if (!state.form.name) {
+      alert('대표자 이름을 입력해주세요.');
+      return false;
+    }
+
+    // 가게 상호명
+    if (!state.owner.name) {
+      alert('가게 상호명을 입력해주세요.');
+      return false;
+    }
+
+    // 카테고리
+    if (!state.owner.category || state.owner.category === '카테고리') {
+      alert('가게 카테고리를 선택해주세요.');
+      return false;
+    }
+
+    // 가게 주소
+    if (!state.form.postcode || !state.form.address) {
+      alert('가게 주소를 입력해주세요.');
+      return false;
+    }
+
+    // 가게 전화번호
+    if (!numberRegex.test(ownerTel2.value) || !numberRegex.test(ownerTel3.value)) {
+      alert('가게 전화번호를 정확히 입력해주세요.');
+      return false;
+    }
+
+    // 대표자 휴대전화
+    if (!numberRegex.test(ownerPhone2.value) || !numberRegex.test(ownerPhone3.value)) {
+      alert('대표자 전화번호를 정확히 입력해주세요.');
+      return false;
+    }
+
+    // 사업자 등록번호
+    if (!businessNumRegex.test(state.owner.businessNumber)) {
+      alert('사업자 등록번호는 숫자 10자리여야 합니다.');
+      return false;
+    }
+  }
+
+  return true;
+};
+
 // 회원 타입 구분: 일반고객(customer) 또는 업주(owner)
 const memberType = ref('customer');
 
@@ -96,6 +194,7 @@ const toggleAllAgree = () => {
 
 // 회원가입 처리 함수
 const submit = async () => {
+  if (!validateForm()) return; // 유효성 검사 실패 여부
   state.form.role = memberType.value;
   console.log('submit 시작, memberType:', memberType.value);
   console.log('가입 요청 데이터 확인:', JSON.stringify(state.form, null, 2));
