@@ -150,7 +150,7 @@ watch(
           <div class="d-flex justify-content-between border-bottom pb-2 mb-2">
             <span>주문표</span>
           </div>
-          <div v-if="state.carts.length > 0">
+          <div v-if="state.carts !== undefined && state.carts.length > 0">
             <div v-for="(item, idx) in state.carts" :key="item.id">
               <div class="p-2" :class="{ 'border-top': idx !== 0 }">
                 <div class="d-flex justify-content-between mb-2">
