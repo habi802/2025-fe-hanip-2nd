@@ -1,7 +1,7 @@
 <script setup>
 import { reactive, ref, onMounted } from "vue";
-import { saveReview } from "@/services/reviewServices";
-import { useRoute,useRouter } from "vue-router";
+import { saveReview, getReviewOne, putReview } from "@/services/reviewServices";
+import { useRoute, useRouter } from "vue-router";
 import { getStore } from "@/services/storeService";
 import { getOrder, getOwnerOrder2 } from "@/services/orderService";
 
@@ -13,6 +13,7 @@ const state = reactive({
     orderId: "",
     rating: 0,
     comment: "",
+    imagePath: "",
   },
   img: null,
   store: {
@@ -23,10 +24,17 @@ const state = reactive({
     menuLength: 0,
   },
 });
+// 지금 겹치는 필드가 많은데 시간 날 때 정리하겠습니다.
 
-//
 
-onMounted(async () => {
+// 리뷰 있는지 찾기 경로
+let reviewId = 0;
+// 이미지 경로
+let img = "";
+
+// 들어왔을 때 리뷰를 적었는지 안 적었는지 에 따라 입력값이 달라지는 함수
+const join = async () => {
+  // 오더 아이디 가져오기
   const id = route.params.id;
   //   console.log("id: ", id);
   state.review.orderId = id;
@@ -43,6 +51,26 @@ onMounted(async () => {
   //   console.log(state.store.name);
   state.menu.menuLength = state.menu.length;
   // console.log(state.menu.menuLength)
+  //
+  //
+
+  // 리뷰 불러오기
+  const revId = await getReviewOne(id);
+  // 리뷰 아이디 저장
+  reviewId = revId.data.resultData.id;
+
+  if (revId.data.resultData.id > 0) {
+    console.log("revId:", revId.data);
+    state.review = revId.data.resultData;
+    selected.value = revId.data.resultData.rating;
+    img = `/pic/review-profile/${revId.data.resultData.id}/${state.review.imagePath}`;
+
+    state.review.img = state.review.imagePath ? img : null;
+  }
+};
+
+onMounted(async () => {
+  join();
 });
 
 //
@@ -69,9 +97,21 @@ const selectStar = (index) => {
 
 // 리뷰 등록
 const addReview = async () => {
+  //오더 아이디 찾기
+  const id = route.params.id;
+  // 리뷰 아이디 있는지 찾기
+  const revId = await getReviewOne(id);
+  // 이미지가 null일때
+  if (previewUrl.value === "" || previewUrl.value === null) {
+    const modal = new bootstrap.Modal(document.getElementById("testModal"));
+    modal.show();
+    return;
+  }
+
   // 코멘트가 비어있거나 null일 때
   if (state.review.comment === "" || state.review.comment === null) {
-    alert('리뷰를 입력해주세요');
+    const modal = new bootstrap.Modal(document.getElementById("commentModal"));
+    modal.show();
     return;
   } else {
     console.log("star", selected.value);
@@ -85,9 +125,44 @@ const addReview = async () => {
       new Blob([JSON.stringify(state.review)], { type: "application/json" })
     );
     const res = await saveReview(formData);
-    router.push('/orders');
+    router.push("/orders");
+  }
+  // 수정하기용, 작성한 리뷰가 있다면
+  if (revId.data.resultData.id > 0) {
+    // 이미지가 null일때
+    if (previewUrl.value === "" || previewUrl.value === null) {
+      const modal = new bootstrap.Modal(document.getElementById("testModal"));
+      modal.show();
+      return;
+    }
+    // 코멘트가 null일떄
+    if (state.review.comment === "" || state.review.comment === null) {
+      const modal = new bootstrap.Modal(document.getElementById("commentModal"));
+      modal.show();
+      return;
+    } else {
+      console.log("star", selected.value);
+      state.review.rating = selected.value;
+      console.log(state.review);
+
+      const formData = new FormData();
+      //사진이 있을때만 추가하는 용도
+      //기존 이미지 경로 저장하기
+      formData.append("img", state.review.img);
+
+      formData.append(
+        "req",
+        new Blob([JSON.stringify(state.review)], { type: "application/json" })
+      );
+
+      const res = await putReview(formData);
+      router.push("/orders");
+    }
   }
 };
+
+// 모달 테스트
+
 </script>
 
 <template>
@@ -153,7 +228,15 @@ const addReview = async () => {
 
           <div v-else>
             <div class="reviewimgBox">
-              <img class="reviewImg" src="/src/imgs/owner/owner-service2.png" />
+              <div v-if="reviewId > 0">
+                <img class="reviewImg" :src="img" />
+              </div>
+              <div v-else>
+                <img
+                  class="reviewImg"
+                  src="/src/imgs/owner/owner-service2.png"
+                />
+              </div>
             </div>
             <div class="img-under-text">
               <div class="img-under-text">
@@ -201,14 +284,44 @@ const addReview = async () => {
               />
             </div>
             <div class="btns">
-              <router-link to="/orders" class="cancell btn">등록 취소</router-link>
-              <div @click="addReview" class="signUp btn">리뷰 등록</div>
+              <router-link to="/orders" class="cancell btn"
+                >등록 취소</router-link
+              >
+              <div @click="addReview" class="signUp btn">{{ reviewId > 0 ? "리뷰 수정":"리뷰 등록"}}</div>
             </div>
           </div>
         </div>
       </div>
     </div>
   </div>
+<!-- 모달 테스트용 -->
+	<div class="modal fade" id="testModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+		<div class="modal-dialog" role="document">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h5 class="modal-title" id="exampleModalLabel">경고</h5>
+				</div>
+				<div class="modal-body">이미지를 넣어주세요</div>
+				<div class="modal-footer">
+          <a class="btn" id="modalY" href="#" data-bs-dismiss="modal">닫기</a>
+				</div>
+			</div>
+		</div>
+	</div>
+  <!-- 코멘트가 null일때 모달 -->
+  <div class="modal fade" id="commentModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+		<div class="modal-dialog" role="document">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h5 class="modal-title" id="exampleModalLabel">경고</h5>
+				</div>
+				<div class="modal-body">리뷰를 작성해주세요</div>
+				<div class="modal-footer">
+          <a class="btn" id="modalY" href="#" data-bs-dismiss="modal">닫기</a>
+				</div>
+			</div>
+		</div>
+	</div>
 </template>
 
 <style lang="scss" scoped>
@@ -222,6 +335,11 @@ const addReview = async () => {
   font-family: "Pretendard-Regular";
   src: url("https://fastly.jsdelivr.net/gh/Project-Noonnu/noonfonts_2107@1.1/Pretendard-Regular.woff");
 }
+// 모달
+.modal{
+  top: 7%
+}
+
 
 * {
   font-family: "BMJUA";
@@ -351,18 +469,22 @@ const addReview = async () => {
   }
 
   .reviewimgBox {
+    display: flex;
+    justify-content: center;
+    align-items: center;
     width: 297px;
     height: 197px;
-    overflow: hidden;
+    overflow: clip;
     border-radius: 20px;
     margin-top: 50px;
     margin-left: -15px;
 
     .reviewImg {
+      
       width: 300px;
-      height: 300px;
-      object-fit: cover;
-      display: block;
+
+    
+  
     }
   }
 
