@@ -125,7 +125,6 @@ const reorder = (menus) => {
 
 
 
-
       <!-- 하단 주문 내역 -->
 
       <div class="orderList">
@@ -134,10 +133,17 @@ const reorder = (menus) => {
           <div class="solid"></div>
         </div>
       </div>
-      <div v-for="order in filteredOrders" :key="order.id" style="margin-bottom: 10px;">
-        <order-and-review :order="order" @delete-order="deleteOrderOne" @reorder="reorder"/>
+      <div v-if="filteredOrders.length === 0" class="noList">
+        주문 내역이 없습니다.
+      </div>
+      
+      <div v-else>
+        <div v-for="order in filteredOrders" :key="order.id" style="margin-bottom: 10px;">
+          <order-and-review :order="order" @delete-order="deleteOrderOne" @reorder="reorder"/>
+        </div>
       </div>
     </div>
+
 
     <!-- 미리보기 용 -->
     <!-- <order-and-review></order-and-review>
@@ -214,13 +220,26 @@ const reorder = (menus) => {
 </template>
 
 <style lang="scss" scoped>
+.noList {
+  text-align: center;
+  margin-top: 100px;
+  margin-bottom: 30px;
+  font-size: 40px;
+  height: 300px;
+}
+
 @font-face {
   font-family: 'BMJUA';
   src: url('https://fastly.jsdelivr.net/gh/projectnoonnu/noonfonts_one@1.0/BMJUA.woff') format('woff');
   font-weight: normal;
   font-style: normal;
+}
+
+@font-face {
   font-family: 'Pretendard-Regular';
-  src: url('https://fastly.jsdelivr.net/gh/Project-Noonnu/noonfonts_2107@1.1/Pretendard-Regular.woff');
+  src: url('https://fastly.jsdelivr.net/gh/Project-Noonnu/noonfonts_2107@1.1/Pretendard-Regular.woff') format('woff');
+  font-weight: normal;
+  font-style: normal;
 }
 
 * {
