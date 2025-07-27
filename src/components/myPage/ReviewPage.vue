@@ -1,11 +1,12 @@
 <script setup>
 import { reactive, ref, onMounted } from "vue";
 import { saveReview } from "@/services/reviewServices";
-import { useRoute } from "vue-router";
+import { useRoute,useRouter } from "vue-router";
 import { getStore } from "@/services/storeService";
-import { getOwnerOrder2 } from "@/services/orderService";
+import { getOrder, getOwnerOrder2 } from "@/services/orderService";
 
 const route = useRoute();
+const router = useRouter();
 
 const state = reactive({
   review: {
@@ -18,7 +19,8 @@ const state = reactive({
     name: "",
   },
   menu: {
-    menuName: "",
+    menuName: [],
+    menuLength: 0,
   },
 });
 
@@ -30,14 +32,17 @@ onMounted(async () => {
   state.review.orderId = id;
   const res = await getOwnerOrder2(id);
 
-    console.log("orderId: ", state.review.orderId);
-    console.log("res", res.data.resultData);
-  const storeId = res.data.resultData.storeId;
+  console.log("orderId: ", state.review.orderId);
+  console.log("res", res.data);
+  const storeId = res.data.resultData[0].storeId;
   const ress = await getStore(storeId);
+  console.log("storeId :", storeId);
   //   console.log("ress :", ress.data);
   state.store = ress.data.resultData;
   state.menu = res.data.resultData;
   //   console.log(state.store.name);
+  state.menu.menuLength = state.menu.length;
+  // console.log(state.menu.menuLength)
 });
 
 //
@@ -64,17 +69,24 @@ const selectStar = (index) => {
 
 // 리뷰 등록
 const addReview = async () => {
-  console.log("star", selected.value);
-  state.review.rating = selected.value;
-  console.log(state.review);
+  // 코멘트가 비어있거나 null일 때
+  if (state.review.comment === "" || state.review.comment === null) {
+    alert('리뷰를 입력해주세요');
+    return;
+  } else {
+    console.log("star", selected.value);
+    state.review.rating = selected.value;
+    console.log(state.review);
 
-  const formData = new FormData();
-  formData.append("img", state.review.img);
-  formData.append(
-    "req",
-    new Blob([JSON.stringify(state.review)], { type: "application/json" })
-  );
-  const res = await saveReview(formData);
+    const formData = new FormData();
+    formData.append("img", state.review.img);
+    formData.append(
+      "req",
+      new Blob([JSON.stringify(state.review)], { type: "application/json" })
+    );
+    const res = await saveReview(formData);
+    router.push('/orders');
+  }
 };
 </script>
 
@@ -126,7 +138,15 @@ const addReview = async () => {
             <div class="img-under-text">
               <div class="img-under-text">
                 <div>{{ state.store.name }}</div>
-                <div class="small-text">{{ state.menu.menuName }}</div>
+                <div v-if="state.menu.menuLength > 1">
+                  <div class="small-text">
+                    {{ state.menu[0]?.menuName }}외
+                    {{ state.menu.menuLength - 1 }} 건
+                  </div>
+                </div>
+                <div v-else>
+                  <div class="small-text">{{ state.menu[0]?.menuName }}</div>
+                </div>
               </div>
             </div>
           </div>
@@ -138,7 +158,15 @@ const addReview = async () => {
             <div class="img-under-text">
               <div class="img-under-text">
                 <div>{{ state.store.name }}</div>
-                <div class="small-text">{{ state.menu.menuName }}</div>
+                <div v-if="state.menu.menuLength > 1">
+                  <div class="small-text">
+                    {{ state.menu[0]?.menuName }}외
+                    {{ state.menu.menuLength - 1 }} 건
+                  </div>
+                </div>
+                <div v-else>
+                  <div class="small-text">{{ state.menu[0]?.menuName }}</div>
+                </div>
               </div>
             </div>
           </div>
@@ -173,7 +201,7 @@ const addReview = async () => {
               />
             </div>
             <div class="btns">
-              <div class="cancell btn">등록 취소</div>
+              <router-link to="/orders" class="cancell btn">등록 취소</router-link>
               <div @click="addReview" class="signUp btn">리뷰 등록</div>
             </div>
           </div>

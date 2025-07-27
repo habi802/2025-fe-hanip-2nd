@@ -271,7 +271,7 @@ const caLink = async() => {
         <swiper-slide><img @click="searchFastFood" src="/src/imgs/hamburger.png" alt="fastFood" />
           <div>패스트푸드</div>
         </swiper-slide>
-        <swiper-slide><img @click="searchAsian" src="/src/imgs/ricenoodles.png" alt="asian" />
+        <swiper-slide><img @click="searchAsian" src="/src/imgs/nd.png" alt="asian" />
           <div>아시안</div>
         </swiper-slide>
         <swiper-slide><img @click="searchChick" src="/src/imgs/chicken.png" alt="chick" />
