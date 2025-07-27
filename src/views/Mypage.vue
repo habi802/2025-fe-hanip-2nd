@@ -1,12 +1,13 @@
 <script setup>
-import { reactive } from "vue";
+import { reactive, onMounted } from "vue";
+import { getUser } from "@/services/userService";
 
 // 컴포넌트 import
 import Account from "@/components/myPage/Account.vue";
 
 //
 const user = reactive({
-  name: "데이터 연동 필요",
+  name: "데이터 연동 필요", // 데이터 연동 필요함
   orders: 0,
   cupon: 0,
   point: 0,
@@ -18,6 +19,26 @@ const myAccount = [
   "즐겨찾기",
   "고객센터",
 ];
+
+onMounted ( () => {
+  getUser()
+    .then(res => {
+      if (res.status === 200) {
+        console.log("user data:", res.data); // 확인용
+        const data = res.data.resultData;
+        user.name = data.name;
+        // user.orders = data.orders;
+        // user.cupon = data.cupon;
+        // user.point = data.point;
+      } else {
+        console.warn("사용자 정보를 가져올 수 없음", res);
+      }
+    })
+    .catch(err => {
+      console.error("사용자 정보 요청 실패", err);
+    });
+});
+
 </script>
 <template>
   <div class="allBox">
