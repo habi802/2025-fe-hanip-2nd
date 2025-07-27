@@ -45,11 +45,14 @@ const loadStore = async (id) => {
   // 가게 상세 조회 실패 시(API에 알 수 없는 오류가 발생하거나 가게 테이블에 없는 데이터를 조회하려고 할 경우) 홈으로 돌아감
   // 주소창에 입력해서 강제로 들어가는 것을 방지하기 위함
   if (res === undefined || res.data.resultStatus !== 200) {
-    alert("조회 실패");
+    const modal = new bootstrap.Modal(document.getElementById("storeF"));
+    modal.show();
     router.push({ path: "/" });
     return;
   } else if (res.data.resultStatus !== 200) {
-    alert(res.data.resultMessage);
+    // alert(res.data.resultMessage);
+    const modal = new bootstrap.Modal(document.getElementById("storeF"));
+    modal.show();
     router.push({ path: "/" });
     return;
   }
@@ -62,16 +65,22 @@ const loadStore = async (id) => {
 
 // 고객 유저가 가게를 찜 목록에 추가했는지 조회하는 함수
 const loadFavorite = async (id) => {
-  const res = await getFavorite(id);
-
-  if (res === undefined || res.data.resultStatus !== 200) {
-    alert("조회 실패");
+  if (!account.state.loggedIn) {
+    state.store.favorite = true;
+    loadMenus(id);
     return;
   }
+    const res = await getFavorite(id);
 
-  state.store.favorite = res.data.resultData !== null ? true : false;
-  // 조회 성공 시 가게 메뉴 조회 함수 호출
-  loadMenus(id);
+    if (res === undefined || res.data.resultStatus !== 200) {
+      const modal = new bootstrap.Modal(document.getElementById("storeF"));
+      modal.show();
+      return;
+    }
+
+    state.store.favorite = res.data.resultData !== null ? true : false;
+    // 조회 성공 시 가게 메뉴 조회 함수 호출
+    loadMenus(id);
 };
 
 // 가게 메뉴 조회하는 함수
@@ -79,10 +88,13 @@ const loadMenus = async (id) => {
   const res = await getOneMenu(id);
 
   if (res === undefined) {
-    alert("조회 실패");
+    const modal = new bootstrap.Modal(document.getElementById("storeF"));
+    modal.show();
     return;
   } else if (res.data.resultStatus !== 200) {
-    alert(res.data.resultMessage);
+    // alert(res.data.resultMessage);
+    const modal = new bootstrap.Modal(document.getElementById("storeF"));
+    modal.show();
     return;
   }
   state.menus = res.data.resultData;
@@ -95,7 +107,8 @@ const loadReviews = async (id) => {
   const res = await getReviewsByStoreId(id);
 
   if (res === undefined || res.data.resultStatus !== 200) {
-    alert("조회 실패");
+    const modal = new bootstrap.Modal(document.getElementById("storeF"));
+    modal.show();
     return;
   }
 
@@ -118,31 +131,41 @@ const loadCarts = async (id) => {
 
 // 찜 목록 추가/삭제 함수
 const toggleFavorite = async (id) => {
-  const storeId = Number(id);
+  if (account.state.loggedIn) {
+    const storeId = Number(id);
 
-  console.log('[찜 토글 시도]', storeId);
+    console.log('[찜 토글 시도]', storeId);
 
-  const res = state.store.favorite
-    ? await deleteFavorite(storeId)
-    : await addFavorite({ storeId });
+    const res = state.store.favorite
+      ? await deleteFavorite(storeId)
+      : await addFavorite({ storeId });
 
-  if (res === undefined || res.data.resultStatus !== 200) {
-    alert("찜 상태 변경 실패");
-    return;
+    if (res === undefined || res.data.resultStatus !== 200) {
+      // alert("찜 상태 변경 실패");
+      const modal = new bootstrap.Modal(document.getElementById("faiF"));
+      modal.show();
+      return;
+    }
+
+    state.store.favorite = !state.store.favorite;
+
+    // Pinia store에도 업데이트
+    favoriteStore.toggleFavorite(storeId);
+    console.log('찜 상태 저장됨:', favoriteStore.state.storeIds);
   }
-
-  state.store.favorite = !state.store.favorite;
-
-  // Pinia store에도 업데이트
-  favoriteStore.toggleFavorite(storeId);
-  console.log('찜 상태 저장됨:', favoriteStore.state.storeIds);
 };
 
 // 장바구니 추가 함수(Menu.vue 컴포넌트에서 받아옴)
-const addCart = (item) => {
-  item.quantity = 1;
-  state.carts.push(item);
-  calculateTotal();
+const addCart = (newItem) => {
+  const existIdx = state.carts.findIndex(item => item.menuId === newItem.menuId);
+
+  if (existIdx !== -1) {
+    increaseQuantity(existIdx);
+  } else {
+    newItem.quantity = 1;
+    state.carts.push(newItem);
+    calculateTotal();
+  }
 };
 
 // 장바구니 메뉴 개수 감소시키는 함수
@@ -157,15 +180,20 @@ const decreaseQuantity = async (idx) => {
     const res = await updateQuantity(params);
 
     if (res === undefined) {
-      alert("수정 실패");
+      const modal = new bootstrap.Modal(document.getElementById("putF"));
+      modal.show();
       return;
     } else if (res.data.resultStatus !== 200) {
-      alert(res.data.resultMessage);
+      // alert(res.data.resultMessage);
+      const modal = new bootstrap.Modal(document.getElementById("putF"));
+      modal.show();
       return;
     }
 
     state.carts[idx].quantity--;
     calculateTotal();
+  } else if (state.carts[idx].quantity == 1) {
+    deleteItem(state.carts[idx].id);
   }
 };
 
@@ -180,10 +208,13 @@ const increaseQuantity = async (idx) => {
   const res = await updateQuantity(params);
 
   if (res === undefined) {
-    alert("수정 실패");
+    const modal = new bootstrap.Modal(document.getElementById("putF"));
+    modal.show();
     return;
   } else if (res.data.resultStatus !== 200) {
-    alert(res.data.resultMessage);
+    // alert(res.data.resultMessage);
+    const modal = new bootstrap.Modal(document.getElementById("putF"));
+    modal.show();
     return;
   }
 
@@ -192,11 +223,12 @@ const increaseQuantity = async (idx) => {
 };
 
 // 장바구니 삭제 함수
-const deleteCart = async (cartId) => {
+const deleteItem = async (cartId) => {
   const res = await removeItem(cartId);
 
   if (res === undefined || res.data.resultStatus !== 200) {
-    alert("삭제 실패");
+    const modal = new bootstrap.Modal(document.getElementById("delF"));
+    modal.show();
     return;
   }
 
@@ -207,6 +239,27 @@ const deleteCart = async (cartId) => {
       calculateTotal();
     }
   }
+};
+
+// 장바구니 전체 삭제 함수
+const deleteCart = async () => {
+    if (state.carts.length > 0) {
+        const res = await removeCart();
+
+        if (res === undefined) {
+          const modal = new bootstrap.Modal(document.getElementById("delF"));
+          modal.show();
+            return;
+        } else if (res.data.resultStatus === 401) {
+            // alert(res.data.resultMessage);
+            const modal = new bootstrap.Modal(document.getElementById("delF"));
+            modal.show();
+            return;
+        }
+
+        state.carts = [];
+        calculateTotal();
+    }
 };
 
 // 장바구니 총 금액 계산하는 함수
@@ -222,10 +275,12 @@ const calculateTotal = () => {
 // 주문 확인 화면으로 넘어가는 함수
 const toOrder = () => {
   if (!account.state.loggedIn) {
-    alert("로그인 후 주문이 가능합니다.");
+    const modal = new bootstrap.Modal(document.getElementById("loginF"));
+    modal.show();
     return;
   } else if (state.carts.length < 1) {
-    alert("메뉴를 선택해주세요.");
+    const modal = new bootstrap.Modal(document.getElementById("orderF"));
+    modal.show();
     return;
   }
 
@@ -312,7 +367,7 @@ const reviewbutton = () => {
               <div
                 class="d-flex justify-content-between border-bottom pb-2 mb-2"
               >
-                <!-- <div class="delete-order">삭제</div> -->
+                <div class="delete-order">삭제</div>
               </div>
               <div v-if="state.carts.length > 0">
                 <div v-for="(item, idx) in state.carts" :key="item.id">
@@ -327,10 +382,33 @@ const reviewbutton = () => {
                         </div>
                       <span class="ps-5 p-1">{{(item.price * item.quantity).toLocaleString() }}원</span>
                     </div>
-                      <!-- <div>
-                        <button type="button" class="btn btn-basic btn-submit" @click="deleteCart(item.id)"> 메뉴 취소 </button>
-                      </div> -->
-                      
+                    <div class="d-flex justify-content-between">
+                      <div>
+                        <button
+                          type="button"
+                          class="btn btn-basic btn-quantity"
+                          @click="decreaseQuantity(idx)"
+                        >
+                          -
+                        </button>
+                        <span class="p-3">{{ item.quantity }}</span>
+                        <button
+                          type="button"
+                          class="btn btn-basic btn-quantity"
+                          @click="increaseQuantity(idx)"
+                        >
+                          +
+                        </button>
+                      </div>
+                      <div>
+                        <button
+                          type="button"
+                          class="btn btn-basic btn-submit"
+                          @click="deleteCart(item.id)"
+                        >
+                          메뉴 취소
+                        </button>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -414,6 +492,94 @@ const reviewbutton = () => {
       </div>
     </div>
   </div>
+  <!-- 메뉴 없이 주문하면.. -->
+  <div class="modal fade" id="orderF" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+		<div class="modal-dialog" role="document">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h5 class="modal-title" id="exampleModalLabel">경고</h5>
+				</div>
+				<div class="modal-body">메뉴를 추가해주세요</div>
+				<div class="modal-footer">
+          <a class="btn" id="modalY" href="#" data-bs-dismiss="modal">닫기</a>
+				</div>
+			</div>
+		</div>
+	</div>
+
+
+   <!-- 로그인이 안 되어 있으면.. -->
+   <div class="modal fade" id="loginF" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+		<div class="modal-dialog" role="document">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h5 class="modal-title" id="exampleModalLabel">경고</h5>
+				</div>
+				<div class="modal-body">로그인이 필요합니다</div>
+				<div class="modal-footer">
+          <a class="btn" id="modalY" href="#" data-bs-dismiss="modal">닫기</a>
+				</div>
+			</div>
+		</div>
+	</div>
+  <!-- 조회 실패 -->
+  <div class="modal fade" id="storeF" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+		<div class="modal-dialog" role="document">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h5 class="modal-title" id="exampleModalLabel">경고</h5>
+				</div>
+				<div class="modal-body">조회에 실패하였습니다</div>
+				<div class="modal-footer">
+          <a class="btn" id="modalY" href="#" data-bs-dismiss="modal">닫기</a>
+				</div>
+			</div>
+		</div>
+	</div>
+    <!--  수정 실패 -->
+    <div class="modal fade" id="putF" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+		<div class="modal-dialog" role="document">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h5 class="modal-title" id="exampleModalLabel">경고</h5>
+				</div>
+				<div class="modal-body">수정에 실패하였습니다</div>
+				<div class="modal-footer">
+          <a class="btn" id="modalY" href="#" data-bs-dismiss="modal">닫기</a>
+				</div>
+			</div>
+		</div>
+	</div>
+      <!-- 삭제 실패 -->
+      <div class="modal fade" id="delF" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+		<div class="modal-dialog" role="document">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h5 class="modal-title" id="exampleModalLabel">경고</h5>
+				</div>
+				<div class="modal-body">삭제에 실패하였습니다</div>
+				<div class="modal-footer">
+          <a class="btn" id="modalY" href="#" data-bs-dismiss="modal">닫기</a>
+				</div>
+			</div>
+		</div>
+	</div>
+       <!-- 찜 실패 -->
+       <div class="modal fade" id="faiF" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+		<div class="modal-dialog" role="document">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h5 class="modal-title" id="exampleModalLabel">경고</h5>
+				</div>
+				<div class="modal-body"> 찜 하기에 실패하였습니다</div>
+				<div class="modal-footer">
+          <a class="btn" id="modalY" href="#" data-bs-dismiss="modal">닫기</a>
+				</div>
+			</div>
+		</div>
+	</div>
+
+        <!--  -->
 </template>
 
 <style lang="scss" scoped>
@@ -423,9 +589,6 @@ const reviewbutton = () => {
     format("woff");
   font-weight: normal;
   font-style: normal;
-}
-span{
-  text-align: center;
 }
 
 #map {
@@ -475,6 +638,11 @@ span{
   h3 {
     // color: #ff6666;
   }
+}
+
+.removeImg {
+    width: 20px;
+    cursor: pointer;
 }
 
 .review-title {
@@ -567,11 +735,5 @@ span{
     text-align: start;
     font-size: 19px;
     margin-bottom: 10px;
-}
-.cartMenuWrap{
-  display: flex;
-  justify-content: space-between;
-  margin-top: 20px auto;
-  gap: 60px;
 }
 </style>

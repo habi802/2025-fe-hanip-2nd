@@ -12,6 +12,10 @@ export const getOwnerOrder = (id) => {
   return axios.get(`/order/owner/${id}`).catch((e) => e.response);
 }
 
+export const getOwnerOrder2 = (id) => {
+  return axios.get(`/order/${id}`).catch((e) => e.response);
+}
+
 export const addOrder = args => {
   return axios.post('/order', args).catch(e => e.response);
 }
@@ -19,6 +23,5 @@ export const addOrder = args => {
 export const deleteOrder = (id) => {
   return axios.patch(`/order/owner/${id}`).catch(e => e.response);
 }
-
 
 export default axios;

@@ -155,11 +155,8 @@ const submit = async () => {
       if (res.data.resultData) {
         localStorage.setItem('user', JSON.stringify(res.data.resultData));
       }
-      if (memberType.value === 'owner') {
-        router.push('/owner'); // 업주면 /owner 페이지로
-      } else {
-        router.push('/');
-      }
+      
+      router.push('/');
     } else {
       alert('입력 정보를 다시 확인해 주세요.');
     }

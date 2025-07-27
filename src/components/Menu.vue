@@ -27,7 +27,7 @@ const addCart = async () => {
         alert('등록 실패');
         return;
     } else if (res.status === 500) {
-        alert('이미 등록된 메뉴입니다.')
+        emit('addCart', props.item);
     } else {
         props.item.id = res.data.resultData;
         emit('addCart', props.item);
@@ -52,8 +52,8 @@ const addCart = async () => {
                         <!-- 갯수 -->
                         <!-- <div> 0 </div> -->
                         <!-- <div class="check-box"> + </div> -->
-                    <!-- </span> -->
-                <!-- </div> -->
+                    <!-- </span>
+                </div> -->
             </div>
             <span class="d-block ps-4 pe-4">{{ props.item.price.toLocaleString() }}원</span>
             <div id="menuImg" style="padding: 70px 50px; border: solid #797979 1px; border-radius: 15px;">
