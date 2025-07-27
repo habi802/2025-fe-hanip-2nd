@@ -245,100 +245,100 @@ const grandTotalPrice = computed(() => {
   </div>
 
   <!-- 4. 로그인 후 장바구니에 음식 있음 -->
-  <div v-else>
-    <!-- 음식점 가게 카드 -->
-    <div class="store-layout">
-  <div class="store-card" v-if="groupedItems.length > 0">
-    <img
-      class="thumbnail"
-      :src="storeMap[groupedItems[0].storeId]?.imagePath || '/src/imgs/chicken.png'"
-    />
-    <div class="store-content">
-      <h3 class="store-name">
-        {{ storeMap[groupedItems[0].storeId]?.name || groupedItems[0].storeName }}
-      </h3>
+<div v-else>
+  <!-- 음식점 가게 카드 -->
+  <div class="store-layout">
+    <!-- 가게 대표 카드 -->
+    <div class="store-card" v-if="groupedItems.length > 0">
+      <img
+        class="thumbnail"
+        :src="storeMap[groupedItems[0].storeId]?.imagePath || '/src/imgs/chicken.png'"
+      />
+      <div class="store-content">
+        <h3 class="store-name">
+          {{ storeMap[groupedItems[0].storeId]?.name || groupedItems[0].storeName }}
+        </h3>
 
-      <div class="store-meta">
-        <div class="rating">
-          <img id="icon" src="/src/imgs/star.png" alt="별점" />
-          <span class="score">{{ storeMap[groupedItems[0].storeId]?.rating ?? '0.0' }}</span>
-          <span class="count">({{ storeMap[groupedItems[0].storeId]?.reviewCount ?? 0 }})</span>
-        </div>
-        <div class="likes">
-          <img id="icon" src="/src/imgs/love.png" alt="찜" />
-          <span class="like-count">{{ storeMap[groupedItems[0].storeId]?.likeCount ?? 0 }}</span>
-        </div>
-      </div>
-
-      <div class="store-info">
-        <p>
-          최소 주문 금액
-          {{ storeMap[groupedItems[0].storeId]?.minOrderAmount?.toLocaleString() || '10,000' }}원
-        </p>
-        <p>
-          배달료
-          {{ storeMap[groupedItems[0].storeId]?.deliveryFeeRange || '0원 ~ 3,000원' }}
-        </p>
-      </div>
-    </div>
-  </div>
-      <div
-        v-for="group in groupedItems"
-        :key="group.storeName"
-        class="store-box"
-      >
-        <!-- 가게 음식 정보 -->
-        <div class="store-info">
-          <p class="store-name">{{ group.storeName }}</p>
-          <p class="store-sub">{{ group.storeNotice }}</p>
-        </div>
-        <!-- 장바구니 음식 리스트 -->
-        <div v-for="item in group.items" :key="item.id" class="cart-item">
-          <img
-            :src="item.image_path"
-            alt="음식 이미지"
-            style="width: 60px; height: 60px"
-          />
-          <div class="item-content">
-            <p class="item-name">{{ item.name }}</p>
-            <p class="item-comment"></p>
-            <div class="qty-box">
-              <!-- 수량이 1일 때는 X버튼으로 삭제 -->
-              <button
-                v-if="item.quantity === 1"
-                @click="remove(item.id)"
-                :class="{ 'delete-button': true, danger: true }"
-              >
-                x
-              </button>
-
-              <!-- ➖ 수량이 2 이상일 때는 수량 감소 -->
-              <button v-else @click="decreaseQty(item)" class="qty-button">
-                -
-              </button>
-
-              <span>{{ item.quantity }}</span>
-              <button @click="increaseQty(item)">+</button>
-            </div>
-
-            <p class="item-price">
-              {{ (item.price * item.quantity).toLocaleString() }}원
-            </p>
-            <!-- <button @click="remove(item.id)">X</button> -->
+        <div class="store-meta">
+          <div class="rating">
+            <img id="icon" src="/src/imgs/star.png" alt="별점" />
+            <span class="score">{{ storeMap[groupedItems[0].storeId]?.rating ?? '0.0' }}</span>
+            <span class="count">({{ storeMap[groupedItems[0].storeId]?.reviewCount ?? 0 }})</span>
+          </div>
+          <div class="likes">
+            <img id="icon" src="/src/imgs/love.png" alt="찜" />
+            <span class="like-count">{{ storeMap[groupedItems[0].storeId]?.likeCount ?? 0 }}</span>
           </div>
         </div>
-        <!-- 각 그룹마다 주문 버튼 배치 -->
-        <div class="cart-footer">
-          <p class="total">총 결제 금액:</p>
-          <p class="total">{{ grandTotalPrice.toLocaleString() }}원</p>
+
+        <div class="store-info">
+          <p>
+            최소 주문 금액
+            {{ storeMap[groupedItems[0].storeId]?.minOrderAmount?.toLocaleString() || '10,000' }}원
+          </p>
+          <p>
+            배달료
+            {{ storeMap[groupedItems[0].storeId]?.deliveryFeeRange || '0원 ~ 3,000원' }}
+          </p>
         </div>
       </div>
     </div>
-    <!-- 주문하기 버튼 -->
-    <div class="groupContainer">
-      <div class="div19" @click="goToOrder(group)">주문하기</div>
+
+    <!-- 그룹 반복 렌더링 -->
+    <div
+      v-for="group in groupedItems"
+      :key="group.storeName"
+      class="store-box"
+    >
+      <!-- 가게 음식 정보 -->
+      <div class="store-info">
+        <p class="store-name">{{ group.storeName }}</p>
+        <p class="store-sub">{{ group.storeNotice }}</p>
+      </div>
+
+      <!-- 장바구니 음식 리스트 -->
+      <div v-for="item in group.items" :key="item.id" class="cart-item">
+        <img
+          :src="item.image_path"
+          alt="음식 이미지"
+          style="width: 60px; height: 60px"
+        />
+        <div class="item-content">
+          <p class="item-name">{{ item.name }}</p>
+          <p class="item-comment"></p>
+          <div class="qty-box">
+            <button
+              v-if="item.quantity === 1"
+              @click="remove(item.id)"
+              :class="{ 'delete-button': true, danger: true }"
+            >
+              x
+            </button>
+            <button v-else @click="decreaseQty(item)" class="qty-button">-</button>
+            <span>{{ item.quantity }}</span>
+            <button @click="increaseQty(item)">+</button>
+          </div>
+          <p class="item-price">
+            {{ (item.price * item.quantity).toLocaleString() }}원
+          </p>
+        </div>
+      </div>
+
+      <!-- 총 금액 표시만 -->
+      <div class="cart-footer">
+        <p class="total">총 결제 금액:</p>
+        <p class="total">
+          {{ group.items.reduce((sum, item) => sum + item.price * item.quantity, 0).toLocaleString() }}원
+        </p>
+      </div>
     </div>
   </div>
+  
+  <div class="groupContainer">
+    <div class="div19" @click="goToOrder(groupedItems[0])">주문하기</div>
+  </div>
+</div>
+
 </template>
 
 <style lang="scss" scoped>
