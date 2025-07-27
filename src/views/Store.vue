@@ -328,16 +328,16 @@ const reviewbutton = () => {
     <!-- 상단 컨테이너용 -->
     <div class="top">
       <div class="row">
-        <div id="store" class="col-12 col-md-8 p-3">
-          <div id="store-box" class="row border rounded-4 p-3 mb-3">
-            <div class="col-6 col-md-4 mb-4">
-              <div class="store-image border rounded h-100">
+        <div id="store" class=" col-12 col-md-8 p-3">
+          <div id="store-box" class="d-flex align-items-center row border rounded-4 p-3 mb-3 ">
+            <div class="col-6 col-md-4">
+              <div class="store-image border rounded h-100 align-items-center">
                 <div class="img-one">
                   <!-- <img class="sImg" :src="imgSrc" @error="e => e.target.src = defaultImage" /> -->
                 </div>
               </div>
             </div>
-            <div class="col-6 col-md-4 mb-4">
+            <div class="col-6 col-md-4">
               <h3>{{ state.store.name }}</h3>
               <p>최소 주문 금액 15,000원</p>
               <p>배달료 0원 ~ 3,000원</p>
@@ -360,27 +360,27 @@ const reviewbutton = () => {
           </div>
 
           <!-- 주문표 부분 -->
-          <div id="order" class="col-12 col-md-4 d-flex flex-column p-3">
-            <div class="row border rounded p-4 mb-2">
+          <div id="order" class="col-12 col-md-4 d-flex flex-column align-items-center ">
+            <div class="row border rounded-4 p-4 mb-2">
               <div class="order-title">장바구니</div>
               <div class="store-name">{{ state.store.name }}</div>
               <div
                 class="d-flex justify-content-between border-bottom pb-2 mb-2"
               >
-                <div class="delete-order">삭제</div>
+                <div class="delete-order">
+                  <img class="removeImg" src="/src/imgs/remove.png" @click="deleteCart()" />
+                </div>
               </div>
               <div v-if="state.carts.length > 0">
                 <div v-for="(item, idx) in state.carts" :key="item.id">
                   <div class="p-2" :class="{ 'border-top': idx !== 0 }">
-                    <div class="cartMenuWrap">
-                      <span class="p-1" >{{ item.name }}</span>
-                      <div class="d-flex justify-content-between ">
-                        <div class="d-flex justify-conten-center">
-                          <button type="button" class="btn btn-basic btn-quantity " @click="decreaseQuantity(idx)" > - </button>
-                          <span class="pe-4 ps-4">{{ item.quantity }}</span>
-                          <button type="button" class="btn btn-basic btn-quantity " @click="increaseQuantity(idx)" > + </button>
-                        </div>
-                      <span class="ps-5 p-1">{{(item.price * item.quantity).toLocaleString() }}원</span>
+                    <div class="d-flex justify-content-between mb-2">
+                      <span>{{ item.name }}</span>
+                      <span
+                        >{{
+                          (item.price * item.quantity).toLocaleString()
+                        }}원</span
+                      >
                     </div>
                     <div class="d-flex justify-content-between">
                       <div>
@@ -404,7 +404,7 @@ const reviewbutton = () => {
                         <button
                           type="button"
                           class="btn btn-basic btn-submit"
-                          @click="deleteCart(item.id)"
+                          @click="deleteItem(item.id)"
                         >
                           메뉴 취소
                         </button>
@@ -418,7 +418,13 @@ const reviewbutton = () => {
                 {{ totalPrice.toLocaleString() }}원
               </div>
             </div>
-            <button type="button" @click="toOrder()" class="btn btn-basic btn-submit p-3" > 주문하기 </button>
+            <button
+              type="button"
+              @click="toOrder()"
+              class="btn btn-basic  p-3 rounded-4 mt-4 btn-submit"
+            >
+              주문하기
+            </button>
           </div>
         </div>
 
@@ -590,6 +596,9 @@ const reviewbutton = () => {
   font-weight: normal;
   font-style: normal;
 }
+.container {
+    margin-top: 70px;
+}
 
 #map {
   height: 125px;
@@ -610,6 +619,7 @@ const reviewbutton = () => {
   &.btn-submit {
     border-color: #ff6666;
     color: #ff6666;
+    width: 105%;
   }
 
   &.btn-quantity {
@@ -618,7 +628,8 @@ const reviewbutton = () => {
   }
 
   &:hover {
-    background-color: #ffe5e5;
+    background-color: #ff6666;
+    color : white;
   }
 }
 
@@ -682,6 +693,7 @@ const reviewbutton = () => {
   width: 246px !important;
   height: 183px !important;
   overflow: hidden;
+  background-color: #f5f5f5;
   .img-one {
     width: 250px;
   }
@@ -693,7 +705,7 @@ const reviewbutton = () => {
 .store-name {
   font-family: "BMJUA";
   font-size: 24px;
-  font-weight: 800;
+  font-weight: 500;
   color: #ff6666;
 }
 .delete-order {
@@ -735,5 +747,8 @@ const reviewbutton = () => {
     text-align: start;
     font-size: 19px;
     margin-bottom: 10px;
+}
+.modal{
+  top:7%;
 }
 </style>
