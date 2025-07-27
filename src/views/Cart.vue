@@ -5,6 +5,7 @@ import { getItem, removeCart, removeItem } from "@/services/cartService";
 import { useAccountStore } from "@/stores/account";
 import { useCartStore } from "@/stores/cart";
 
+
 const cartStore = useCartStore();
 const items = computed(() => cartStore.state.items);
 
@@ -255,7 +256,7 @@ const grandTotalPrice = computed(() => {
       <div class="store-card">
         <img class="thumbnail" src="@/imgs/chicken.png" />
         <div class="store-content">
-          <h3 class="store-name">가게이름</h3>
+          <h3 class="store-name">{{ group.storeName }}</h3>
 
           <div class="store-meta">
             <div class="rating">
@@ -398,7 +399,7 @@ const grandTotalPrice = computed(() => {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 30px;
+  margin-bottom: 80px;
 }
 
 .header-row {
