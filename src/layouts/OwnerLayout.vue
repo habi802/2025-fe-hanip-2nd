@@ -20,30 +20,23 @@ const removedNotification = ref(new Set());
 
 onMounted(async () => {
   const res = await getOwnerStore();
-  
-  // console.log("res: ", res.data.resultData)
   if (res.status !== 200) {
     alert("에러");
     return;
   }
+
   state.form = res.data.resultData;
   isOpen.value = state.form.isActive;
 
-  // id가 준비된 후에 호출
   if (state.form.id) {
-    await getOwnerOrder(state.form.id);
-    orderStore.fetchOrders(state.form.id);
+    await orderStore.fetchOrders(state.form.id); 
+    // pollingInterval = setInterval(() => {
+    //   orderStore.fetchOrders(state.form.id);
+    // }, 5000);
   }
-
-  // 5초마다 반복 호출 서버 로그 방해 되면 아랫줄 주석 처리할것
-  if(state.form.id) {
-    orderStore.fetchOrders(state.form.id);
-  }
-  setInterval(() => {
-    orderStore.fetchOrders(state.form.id);
-  }, 5000);
-   
 });
+
+
 
 // 가게 데이터
 const state = reactive({
@@ -63,16 +56,6 @@ const menus = [
   { text: "광고 관리", path: "/owner/ads" },
 ];
 
-// 데이터 가져오기
-watch(
-  () => state.form.id,
-  (newId) => {
-    if (newId) {
-      console.log("보내는 storeId:", newId);
-      orderStore.fetchOrders(newId);
-    }
-  }
-);
 
 // 알림 갱신
 onMounted(async () => {

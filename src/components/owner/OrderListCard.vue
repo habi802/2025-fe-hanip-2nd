@@ -15,7 +15,7 @@ const formatDate = (dateStr) => {
 
 <template>
     <div class="orders-list-wrap pb-4">
-                <div class="orders-list shadow" @click="emit('selectOrder', order)">
+                <div class="orders-list shadow" v-if="order" @click="emit('selectOrder', order)">
                     <div>
                         <span>주문번호</span>
                         <span class="order-num">01-00-0-{{ order.id }}</span>
