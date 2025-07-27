@@ -34,13 +34,13 @@ const props = defineProps({
   order: Object,
 });
 
-console.log("props", props.order);
+// console.log("props", props.order);
 
 // 버튼
 let on = ref(true);
 const boardBtn = () => {
   on.value = !on.value;
-  console.log(on.value);
+//   console.log(on.value);
 };
 
 // 리뷰 별점
@@ -50,7 +50,7 @@ const stars = [1, 2, 3, 4, 5];
 const selectStar = (index) => {
   selected.value = index + 1;
 };
-console.log("props.order", props.order);
+// console.log("props.order", props.order);
 
 // 날짜 파싱
 const formatDateTime = (isoStr) => {
@@ -255,6 +255,7 @@ const idCheck = async () => {
     justify-content: space-between;
     align-items: center;
     overflow: clip;
+    
 
     .boardLeft {
       .imgBox {

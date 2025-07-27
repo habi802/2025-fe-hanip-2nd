@@ -1,9 +1,9 @@
 <script setup>
-import { useFavoriteStore } from '@/stores/favoriteStore';
-import { ref, onMounted, computed, onActivated } from 'vue';
-import { getStoreList } from '@/services/storeService';
-import { getFavorite } from '@/services/favoriteService';
-import { useRouter, useRoute } from 'vue-router';
+import { useFavoriteStore } from "@/stores/favoriteStore";
+import { ref, onMounted, computed, onActivated } from "vue";
+import { getStoreList } from "@/services/storeService";
+import { getFavorite } from "@/services/favoriteService";
+import { useRouter, useRoute } from "vue-router";
 
 const router = useRouter();
 const route = useRoute();
@@ -23,26 +23,25 @@ const fetchFavorites = async () => {
 
     // 여기서 모든 store에 대해 찜 상태 확인
     for (const store of allStores.value) {
-  const storeId = store.id || store.storeId; // 둘 중 하나라도 있으면 사용
-  if (!storeId) continue; // 없으면 스킵
+      const storeId = store.id || store.storeId; // 둘 중 하나라도 있으면 사용
+      if (!storeId) continue; // 없으면 스킵
 
-  const res = await getFavorite(storeId);
-  if (res?.data?.resultData !== null) {
-    favoriteStore.toggleFavorite(storeId);
-  }
-}
+      const res = await getFavorite(storeId);
+      if (res?.data?.resultData !== null) {
+        favoriteStore.toggleFavorite(storeId);
+      }
+    }
   }
 };
-
 
 onMounted(fetchFavorites);
 onActivated(fetchFavorites);
 
 const favoriteStores = computed(() => {
-  console.log('찜한 storeIds:', favoriteStore.state.storeIds);
-  console.log('전체 매장 목록:', allStores.value);
+  console.log("찜한 storeIds:", favoriteStore.state.storeIds);
+  console.log("전체 매장 목록:", allStores.value);
 
-  return allStores.value.filter(store => 
+  return allStores.value.filter((store) =>
     favoriteStore.state.storeIds.includes(store.id || store.storeId)
   );
 });
@@ -56,48 +55,66 @@ const goToDetail = (storeId) => {
 };
 
 const storeId = route.params.id;
-console.log('라우터로 받은 storeId:', storeId);
-
+console.log("라우터로 받은 storeId:", storeId);
 </script>
 
 <template>
   <div class="all-box">
     <div class="box">
       <div>
-        <div>내가 찜한 가게</div>
+        <div class="text-top">내가 찜한 가게</div>
         <div class="solid"></div>
       </div>
 
-      <div class="store-list">
-        <div
-          class="store-card"
-          v-for="store in favoriteStores"
-          :key="store.id"
-        >
-          <img
-            :src="`/imgs/${store.image}`"
-            alt="가게 이미지"
-            class="store-image"
-          />
-          <div class="store-info">
-            <h3 class="store-title">{{ store.name }}</h3>
-            <p class="store-sub">
-              배달팁 {{ store.deliveryFee }}원 · 최소주문 {{ store.minOrderAmount }}원
-            </p>
-            <div class="store-meta">
-              <span class="rating">⭐ {{ store.rating }}</span>
-              <span class="likes" @click="toggleFavorite(store.id)">
-                {{ isFavorite(store.id) ? '❤️' : '🤍' }} {{ store.likeCount || 0 }}
-              </span>
+      <div v-if="sotreIds !== null">
+        <!-- 구역 구분용 찜하기가 있으면 -->
+        <div class="store-list">
+          <div
+            class="store-card"
+            v-for="store in favoriteStores"
+            :key="store.id"
+          >
+            <img
+              :src="`/imgs/${store.image}`"
+              alt="가게 이미지"
+              class="store-image"
+            />
+            <div class="store-info">
+              <h3 class="store-title">{{ store.name }}</h3>
+              <p class="store-sub">
+                배달팁 {{ store.deliveryFee }}원 · 최소주문
+                {{ store.minOrderAmount }}원
+              </p>
+              <div class="store-meta">
+                <span class="rating">⭐ {{ store.rating }}</span>
+                <span class="likes" @click="toggleFavorite(store.id)">
+                  {{ isFavorite(store.id) ? "❤️" : "🤍" }}
+                  {{ store.likeCount || 0 }}
+                </span>
+              </div>
+              <button
+                class="detail-btn"
+                @click="() => goToDetail(store.id ?? store.storeId)"
+              >
+                자세히 보기
+              </button>
             </div>
-            <button class="detail-btn" @click="() => goToDetail(store.id ?? store.storeId)">자세히 보기</button>
+          </div>
+        </div>
+      </div>
+
+      <div v-else>
+        <!-- 장바구니가 비었을 때  -->
+        <div class="container">
+          <div class="text-no">찜한 가게가 없습니다</div>
+          <div class="img-box">
+            <img src="/src/imgs/owner/owner-service2.png" />
           </div>
         </div>
       </div>
     </div>
   </div>
 </template>
-
 
 <style lang="scss" scoped>
 @font-face {
@@ -117,14 +134,14 @@ console.log('라우터로 받은 storeId:', storeId);
   font-family: "BMJUA";
   font-size: 1.4em;
   letter-spacing: -1.5px;
-  margin-top: 70px;
+  margin-top: 90px;
   margin-bottom: 120px;
 
   .solid {
-    width: 1100px;
+    width: 1120px;
     border: 1px #000 solid;
     margin-top: 15px;
-    margin-bottom: 30px;
+    margin-bottom: 50px;
   }
 }
 
@@ -133,6 +150,7 @@ console.log('라우터로 받은 storeId:', storeId);
   grid-template-columns: repeat(3, 1fr);
   gap: 32px;
   width: 1100px;
+  
 }
 
 .store-card {
@@ -209,5 +227,25 @@ console.log('라우터로 받은 storeId:', storeId);
 .detail-btn:hover {
   background-color: #e65c53;
 }
-
+.container {
+  margin-bottom: 120px;
+}
+.img-box {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  
+}
+.text-no {
+  text-align: center;
+  font-size: 30px;
+  margin-top: 90px;
+  color: #5f5f5f;
+  margin-bottom: 20px;
+}
+.text-top {
+  font-size: 25px;
+  text-align: center;
+  margin-bottom: 50px;
+}
 </style>
