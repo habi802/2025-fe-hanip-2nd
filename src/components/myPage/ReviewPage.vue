@@ -125,7 +125,7 @@ const addReview = async () => {
       new Blob([JSON.stringify(state.review)], { type: "application/json" })
     );
     const res = await saveReview(formData);
-    router.push("/orders");
+    router.push("/review/ok");
   }
   // 수정하기용, 작성한 리뷰가 있다면
   if (revId.data.resultData.id > 0) {
@@ -156,7 +156,7 @@ const addReview = async () => {
       );
 
       const res = await putReview(formData);
-      router.push("/orders");
+      router.push("/review/ok");
     }
   }
 };
