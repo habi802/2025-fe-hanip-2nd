@@ -63,7 +63,7 @@ const imgSrc = computed(() => {
     border-radius: 20px 20px 0px 0px;
 
     .sImg {
-      width: 100%;
+      width: 500px auto;
       height: 260px;
       object-fit: contain;
       border-radius: 20px 20px 0px 0px;
