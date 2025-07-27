@@ -1,6 +1,6 @@
 <script setup>
 import OrderListCard from "./OrderListCard.vue";
-import { computed, ref, reactive } from "vue";
+import { computed, ref, reactive, onMounted } from "vue";
 import { useOrderStore } from "@/stores/orderStore";
 import { deleteOrder } from "@/services/orderService";
 
@@ -81,7 +81,7 @@ const deleteOrderOne = async () => {
     return;
   }
   showAlert("정상적으로 삭제됐습니다.", "alert-success");
-  await orderStore.fetchOrders;
+  await orderStore.fetchOrders();
   selectedOrder.value = null;
 };
 
