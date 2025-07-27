@@ -1,36 +1,38 @@
 <script setup>
 import { reactive, onMounted, computed } from "vue";
 import { useRouter } from "vue-router";
-import { getItem, removeCart, removeItem } from "@/services/cartService";
+import { getItem, removeItem } from "@/services/cartService";
 import { useAccountStore } from "@/stores/account";
-import { useCartStore } from "@/stores/cart";
+import { getStore } from "@/services/storeService";
 
-
-const cartStore = useCartStore();
-const items = computed(() => cartStore.state.items);
-
-// 라우터 및 스토어 인스턴스 생성
 const router = useRouter();
 const account = useAccountStore();
 
-// 장바구니 아이템 상태
 const state = reactive({
   items: [],
 });
 
-// 로그인 여부 계산
+const storeMap = reactive({});
+
+const fetchStoreDetails = async () => {
+  const storeIds = [...new Set(state.items.map(item => item.storeId))];
+  for (const storeId of storeIds) {
+    if (!storeMap[storeId]) {
+      const res = await getStore(storeId);
+      if (res?.status === 200 && res.data?.resultStatus === 200) {
+        storeMap[storeId] = res.data.resultData;
+      }
+    }
+  }
+};
+
 const loggedIn = computed(() => account.state.loggedIn);
 
-// 페이지 진입 시 장바구니 데이터 불러오기
-onMounted(() => {
-  console.log("CartStore 상태:", items.value);
-  if (loggedIn.value) {
-    load();
-    state.items = items.value;
-  }
+onMounted(async () => {
+  await load();
+  await fetchStoreDetails();
 });
 
-// 장바구니 데이터 API 요청
 const load = async () => {
   if (!loggedIn.value) return;
   const res = await getItem();
@@ -40,7 +42,6 @@ const load = async () => {
   state.items = res.data.resultData || [];
 };
 
-// 장바구니 항목 개별 삭제
 const remove = async (cartId) => {
   const res = await removeItem(cartId);
   if (res === undefined || res.status !== 200) return;
@@ -48,26 +49,21 @@ const remove = async (cartId) => {
   load();
 };
 
-// 수량 증가
 const increaseQty = (item) => {
   item.quantity++;
 };
 
-// 수량 감소 (1 미만으로 내려가지 않도록 제한)
 const decreaseQty = (item) => {
   if (item.quantity > 1) item.quantity--;
 };
 
-// 전체 금액 계산
 const totalPrice = computed(() =>
   state.items.reduce((sum, item) => sum + item.price * item.quantity, 0)
 );
 
-// 페이지 이동 처리
 const goToLogin = () => router.push("/login");
 const goToMain = () => router.push("/");
 
-// 주문 페이지로 이동하면서 orderItems 저장
 const goToOrder = (group) => {
   if (!group || !group.items || group.items.length === 0) {
     alert("주문할 메뉴가 없습니다.");
@@ -87,7 +83,6 @@ const goToOrder = (group) => {
   router.push(`/stores/${group.items[0].storeId}/order`);
 };
 
-// 매장별로 장바구니 아이템 그룹화
 const groupedItems = computed(() => {
   const groups = {};
   for (const item of state.items) {
@@ -158,7 +153,7 @@ const grandTotalPrice = computed(() => {
   <div v-else-if="!loggedIn" class="unlogin">
     <div class="store-layout">
       <div class="store-card">
-        <img class="thumbnail" src="@/imgs/chicken.png" />
+        <img class="thumbnail" src="@/imgs/chicken.png"/>
         <div class="store-content">
           <h3 class="store-name">가게이름</h3>
 
@@ -201,7 +196,7 @@ const grandTotalPrice = computed(() => {
             <p class="item-name">{{ item.name }}</p>
             <p class="item-comment"></p>
             <div class="qty-box">
-              <!-- 수량이 1일 때는 X버튼으로 삭제 -->
+              <!-- ❌ 수량이 1일 때는 X버튼으로 삭제 -->
               <button
                 v-if="item.quantity === 1"
                 @click="remove(item.id)"
@@ -253,29 +248,40 @@ const grandTotalPrice = computed(() => {
   <div v-else>
     <!-- 음식점 가게 카드 -->
     <div class="store-layout">
-      <div class="store-card">
-        <img class="thumbnail" src="@/imgs/chicken.png" />
-        <div class="store-content">
-          <h3 class="store-name">{{ group.storeName }}</h3>
+  <div class="store-card" v-if="groupedItems.length > 0">
+    <img
+      class="thumbnail"
+      :src="storeMap[groupedItems[0].storeId]?.imagePath || '/src/imgs/chicken.png'"
+    />
+    <div class="store-content">
+      <h3 class="store-name">
+        {{ storeMap[groupedItems[0].storeId]?.name || groupedItems[0].storeName }}
+      </h3>
 
-          <div class="store-meta">
-            <div class="rating">
-              <img id="icon" src="/src/imgs/star.png" alt="별점" />
-              <span class="score">4.8</span>
-              <span class="count">(983)</span>
-            </div>
-            <div class="likes">
-              <img id="icon" src="/src/imgs/love.png" alt="찜" />
-              <span class="like-count">927</span>
-            </div>
-          </div>
-
-          <div class="store-info">
-            <p>최소 주문 금액 10,000원</p>
-            <p>배달료 0원 ~ 3,000원</p>
-          </div>
+      <div class="store-meta">
+        <div class="rating">
+          <img id="icon" src="/src/imgs/star.png" alt="별점" />
+          <span class="score">{{ storeMap[groupedItems[0].storeId]?.rating ?? '0.0' }}</span>
+          <span class="count">({{ storeMap[groupedItems[0].storeId]?.reviewCount ?? 0 }})</span>
+        </div>
+        <div class="likes">
+          <img id="icon" src="/src/imgs/love.png" alt="찜" />
+          <span class="like-count">{{ storeMap[groupedItems[0].storeId]?.likeCount ?? 0 }}</span>
         </div>
       </div>
+
+      <div class="store-info">
+        <p>
+          최소 주문 금액
+          {{ storeMap[groupedItems[0].storeId]?.minOrderAmount?.toLocaleString() || '10,000' }}원
+        </p>
+        <p>
+          배달료
+          {{ storeMap[groupedItems[0].storeId]?.deliveryFeeRange || '0원 ~ 3,000원' }}
+        </p>
+      </div>
+    </div>
+  </div>
       <div
         v-for="group in groupedItems"
         :key="group.storeName"
@@ -399,7 +405,7 @@ const grandTotalPrice = computed(() => {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 80px;
+  margin-bottom: 30px;
 }
 
 .header-row {
