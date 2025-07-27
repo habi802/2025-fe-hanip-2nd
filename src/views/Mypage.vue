@@ -87,13 +87,13 @@ onMounted ( () => {
   display: flex;
   justify-content: center;
   height: 500px;
+  margin-bottom: -230px;
   .userboard {
     align-items: center;
-    //
     display: flex;
     justify-content: space-around;
-    margin-top: 165px;
-    width: 1390px;
+    margin-top: 85px;
+    width: 1110px;
     height: 228px;
     border-radius: 25px;
     border: #000 solid 1px;
@@ -133,8 +133,9 @@ onMounted ( () => {
       font-family: "BMJUA";
       font-size: 1.2em;
       margin-top: 20px;
-      margin-left: -170px;
+      margin-left: -274px;
       width: 250px;
+
       .num {
         margin-top: 10px;
         font-size: 1.3em;
