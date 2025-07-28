@@ -7,7 +7,7 @@ import Account from "@/components/myPage/Account.vue";
 
 //
 const user = reactive({
-  name: "데이터 연동 필요", // 데이터 연동 필요함
+  name: "000", // 데이터 연동 필요함
   orders: 0,
   cupon: 0,
   point: 0,
