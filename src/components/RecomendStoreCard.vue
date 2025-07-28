@@ -1,47 +1,80 @@
 <script setup>
-import { computed } from 'vue';
-import defaultImage from '@/imgs/owner/haniplogo_sample4.png'
-import { useRouter } from 'vue-router';
+import { computed, onMounted, ref } from "vue";
+import defaultImage from "@/imgs/owner/haniplogo_sample4.png";
+import { useRouter } from "vue-router";
+import { getReviewsByStoreId } from "@/services/reviewServices";
 
-const router = useRouter()
+const router = useRouter();
 
 // 가게 정보
 const props = defineProps({
-    stores: {
-    }
-})
+  stores: {},
+});
+
+onMounted(() => {
+  reviews();
+});
+
 
 // 가게 이미지
-const img = `/pic/store-profile/${props.stores.storeId}/${props.stores.imagePath}`
+const img = `/pic/store-profile/${props.stores.storeId}/${props.stores.imagePath}`;
 
 // 가게 이미지가 없을 시 대체 이미지 나타내기
 const imgSrc = computed(() => {
-  return props.stores && props.stores.imagePath && props.stores.imagePath !== 'null'
-  ? `/pic/store-profile/${props.stores.storeId}/${props.stores.imagePath}`
-  : defaultImage;
-})
+  return props.stores &&
+    props.stores.imagePath &&
+    props.stores.imagePath !== "null"
+    ? `/pic/store-profile/${props.stores.storeId}/${props.stores.imagePath}`
+    : defaultImage;
+});
 
 // 해당 가게로 이동
 const toStore = () => {
   if (props.stores?.storeId) {
-    router.push(`/stores/${props.stores.storeId}`)
+    router.push(`/stores/${props.stores.storeId}`);
   } else {
-    console.warn("store id 없음", props.stores)
+    console.warn("store id 없음", props.stores);
   }
-}
+};
+
+// 별점 조회
+let total = ref(0);
+let leng = ref(0);
+
+const reviews = async () => {
+  const res = await getReviewsByStoreId(props.stores.storeId);
+  const length = res.data.resultData;
+  leng = length.length;
+
+  let totals = 0;
+  for (let i = 0; i < length?.length; i++) {
+    const forNum = length[i]?.rating;
+    totals += forNum;
+  }
+  totals = (totals / length?.length).toFixed(1);
+  total.value = totals;
+  console.log("total", total);
+};
 </script>
 
 <template>
   <div class="store">
     <div class="storeImgBox">
-      <img class="sImg" :src="imgSrc" @error="e => e.target.src = defaultImage" />
+      <img
+        class="sImg"
+        :src="imgSrc"
+        @error="(e) => (e.target.src = defaultImage)"
+      />
     </div>
     <div class="storeTextBox">
       <div class="sText">{{ props.stores?.name }}</div>
       <div class="icons">
         <div class="star">
           <img id="icon" src="/src/imgs/star.png" />
-          {{ props.stores?.rating }}
+          <span v-if="total !== 'NaN'">
+            {{ total ? total : 0 }}
+          </span>
+          <span v-else> 0 </span>
           <span class="starNum"></span>
         </div>
         <div class="love">
@@ -58,8 +91,9 @@ const toStore = () => {
 
 <style lang="scss" scoped>
 @font-face {
-  font-family: 'BMJUA';
-  src: url('https://fastly.jsdelivr.net/gh/projectnoonnu/noonfonts_one@1.0/BMJUA.woff') format('woff');
+  font-family: "BMJUA";
+  src: url("https://fastly.jsdelivr.net/gh/projectnoonnu/noonfonts_one@1.0/BMJUA.woff")
+    format("woff");
   font-weight: 600;
   font-style: normal;
 }
@@ -67,7 +101,7 @@ const toStore = () => {
 .f-text {
   font-family: "BMJUA";
   letter-spacing: 2px;
-  color: #FF6666;
+  color: #ff6666;
   font-size: 2em;
   text-align: center;
   padding-top: 105px;
@@ -93,6 +127,9 @@ const toStore = () => {
     box-shadow: 6px 7px 5px -2px rgba(0, 0, 0, 0.33);
 
     .storeImgBox {
+      display: flex;
+      justify-content: center;
+      align-items: center;
       width: 330px;
       height: 280px;
       overflow: hidden;
@@ -101,7 +138,7 @@ const toStore = () => {
       border-radius: 20px;
 
       .sImg {
-        width: 330px;
+        width: 340px;
         border-radius: 20px;
       }
     }
@@ -111,7 +148,7 @@ const toStore = () => {
 
       #smallText {
         font-size: 0.8em;
-        color: #6C6C6C;
+        color: #6c6c6c;
         margin-top: 4px;
       }
 
@@ -148,7 +185,7 @@ const toStore = () => {
     font-family: "BMJUA";
     font-size: 1em;
     color: #fff;
-    background-color: #FF6666;
+    background-color: #ff6666;
     text-align: center;
     width: 163px;
     padding: 7px;
@@ -186,7 +223,6 @@ const toStore = () => {
 
         .sImg {
           width: 150px;
-
         }
       }
 
@@ -201,7 +237,6 @@ const toStore = () => {
         margin-top: 3px;
         margin-left: 50px;
       }
-
     }
   }
 }
@@ -212,8 +247,9 @@ const toStore = () => {
   }
 }
 
-@media (max-width:800px) {
+@media (max-width: 800px) {
   .guideBox {
     width: 450px;
   }
-}</style>
+}
+</style>
