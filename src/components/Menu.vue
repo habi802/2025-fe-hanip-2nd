@@ -1,7 +1,7 @@
 <script setup>
 import { addItem } from '@/services/cartService';
 import { useAccountStore } from '@/stores/account';
-import defaultImage from '@/imgs/owner/haniplogo_sample2.png'
+import defaultImage from '@/imgs/owner/owner-service3.png';
 
 const account = useAccountStore();
 const emit = defineEmits(['addCart'])
