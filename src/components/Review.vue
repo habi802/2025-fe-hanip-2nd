@@ -1,5 +1,6 @@
 <script setup>
 import defaultImage from '@/imgs/owner/owner-service3.png'
+import { computed } from 'vue';
 
 const props = defineProps({
   item: {
@@ -16,7 +17,13 @@ const props = defineProps({
 });
 
 //리뷰 이미지 저장
-const reviewImg = `/pic/menu-profile/${props.item.id}/${props.item?.imagePath}`
+// const reviewImg = `/pic/menu-profile/${props.item.id}/${props.item?.imagePath}`
+
+const reviewSrc = computed(() => {
+  return props.item && props.item?.imagePath && props.item?.imagePath !== 'null'
+  ? `/pic/review-profile/${props.item.id}/${props.item?.imagePath}`
+  : defaultImage;
+})
 </script>
 
 <template>
@@ -37,10 +44,9 @@ const reviewImg = `/pic/menu-profile/${props.item.id}/${props.item?.imagePath}`
           <!-- 이미지 -->
           <div class="review-image border">
             <!-- 이미지 필요 -->
-            <div>
-              <img class="reviewImg" :src="reviewImg"
+              <img class="reviewImg" :src="reviewSrc"
                 @error="e => e.target.src = defaultImage" />
-            </div>
+
           </div>
         </div>
       </div>
@@ -99,7 +105,7 @@ const reviewImg = `/pic/menu-profile/${props.item.id}/${props.item?.imagePath}`
   display: flex;
   justify-content: center;
   align-items: center;
-  width: 270px !important;
+  width: 270px;
   height: 160px;
   border-radius: 10px;
   overflow: hidden;
@@ -140,4 +146,6 @@ const reviewImg = `/pic/menu-profile/${props.item.id}/${props.item?.imagePath}`
   font-size: 20px;
   color: #FAC729;
 }
+
+
 </style>
