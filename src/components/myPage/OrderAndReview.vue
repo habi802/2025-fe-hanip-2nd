@@ -214,18 +214,18 @@ const idCheck = async () => {
 
 <style lang="scss" scoped>
 :hover.bigBoard{
-    border:  #ff6666 2px solid;
-  }
-  .bigBoard {
-    width: 1440px !important;
-    min-height: 330px; // 최소 높이
-    border: #797979 2px solid;
-    border-radius: 25px;
-    margin-bottom: 20px;
-    //overflow: clip;
-    display: flex;
-    flex-direction: column;
-    padding: 20px;
+  border:  #ff6666 2px solid;
+}
+.bigBoard {
+  width: 1440px !important;
+  min-height: 330px; // 최소 높이
+  border: #797979 2px solid !important;;
+  border-radius: 25px;
+  margin-bottom: 20px;
+  //overflow: clip;
+  display: flex;
+  flex-direction: column;
+  padding: 20px;
 
   .board {
     display: flex;
@@ -233,141 +233,144 @@ const idCheck = async () => {
     justify-content: space-around;
     align-items: center;
     //overflow: clip;
-    
-    .boardLeft {
-      .imgBox {
-        width: 260px;
-        height: 170px;
-        margin-top: 10px;
-        border: #797979 1px solid;
-        border-radius: 20px;
-        overflow: hidden;
-
-        .img {
-          width: 100%;
-          height: 100%;
-          object-fit: cover;
-        }
-      }
-
-      .created {
-        font-size: 20px;
-        margin-top: -10px;
-        margin-left: 10px;
-      }
-
-      .textBox {
-        font-family: "BMJUA";
-        font-size: 1.5em;
-        margin-left: 10px;
-        margin-top: 10px;
-      }
-    }
-
-    .boardMiddle {
-      width: 500px;
-      margin-top: 20px;
-      font-family: "BMJUA";
-      font-size: 1.3em;
-
-      .more {
-        margin-top: 10px;
-        display: flex;
-        justify-content: end;
-        margin-right: 50px;
-      }
-
-      .menuBox{
-        margin-right: 50px;
-        .menu {
-          display: flex;
-          justify-content: space-between;
-          font-family: "BMJUA";
-          margin-top: 10px;
-          .name {
-            width: 200px;
-            text-align: left;
-          }
-          .num {
-            width: 50px;
-            margin-left: 10px;
-            text-align: right;
-          }
-          .price {
-            width: 120px;
-            text-align: right;
-          }
-        }
-      }
-    }
-    .boardRigth {
-      display: flex;
-      gap: 80px;
-      text-align: center;
-
-      .amountNum {
-        margin-top: 10px;
-        font-size: 20px;
-        color: #ff6666;
-      }
-
-      .amountText {
-        font-size: 20px;
-      }
-    }
-
-    position:relative
-  }
-
-  .removeImg {
-    position:absolute;
-    top:45%;
-    right: 30px;
-    width: 20px;
-    //margin-right: 35px;
-    //margin-top: 20px;
-    margin: 30px;
-    cursor: pointer;
-  }
-
-  .reviewBigBox {
-    display: flex;
-    justify-content: center;
-    width: 100%;
-    height: 400px;
-    margin-top: 20px;
-
-    .reviewBox {
-      display: flex;
-      width: 90%;
-      height: 330px;
-      margin-top: 20px;
-      background-color: #fff;
-      border: #797979 3px solid;
-      border-radius: 30px;
-    }
-
-    .reviewimgBox {
-      width: 270px;
-      height: 270px;
+  
+  .boardLeft {
+    .imgBox {
+      width: 260px;
+      height: 170px;
+      margin-top: 10px;
+      border: #797979 1px solid;
+      border-radius: 15px 15px 0 0;
       overflow: hidden;
-      border-radius: 20px;
-      margin-top: 25px;
-      margin-left: 30px;
 
-      .reviewImg {
-        width: 300px;
-        height: 300px;
+      .img {
+        width: 100%;
+        height: 100%;
         object-fit: cover;
-        display: block;
       }
     }
 
-    .reviewBoxLeft {
+    .created {
+      font-size: 20px;
+      margin-top: -10px;
+      margin-left: 10px;
+    }
+
+    .textBox {
       font-family: "BMJUA";
-      font-size: 1.3em;
-      margin-left: 20px;
-      margin-top: 45px;
+      font-size: 1.5em;
+      font-weight: 700;
+      margin-left: 10px;
+      margin-top: 10px;
+    }
+  }
+
+  .boardMiddle {
+    width: 500px;
+    margin-top: 20px;
+    font-family: "BMJUA";
+    font-size: 1.3em;
+
+    .more {
+      margin-top: 10px;
+      display: flex;
+      justify-content: end;
+      margin-right: 50px;
+    }
+
+    .menuBox{
+      margin-right: 50px;
+      .menu {
+        display: flex;
+        justify-content: space-between;
+        font-family: "BMJUA";
+        margin-top: 10px;
+        .name {
+          width: 200px;
+          text-align: left;
+        }
+        .num {
+          width: 50px;
+          margin-left: 10px;
+          text-align: right;
+        }
+        .price {
+          width: 120px;
+          text-align: right;
+        }
+      }
+    }
+  }
+  .boardRigth {
+    display: flex;
+    gap: 80px;
+    text-align: center;
+
+    .amountText {
+      font-size: 20px;
+      color: #797979;
+    }
+    .amountNum {
+      margin-top: 10px;
+      font-size: 24px;
+      color: #ff6666;
+      font-weight: 700;
+    }
+
+  }
+
+  position:relative
+}
+
+.removeImg {
+  position:absolute;
+  top:45%;
+  right: 30px;
+  width: 20px;
+  //margin-right: 35px;
+  //margin-top: 20px;
+  margin: 30px;
+  cursor: pointer;
+}
+
+.reviewBigBox {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+  height: 400px;
+  margin-top: 20px;
+
+  .reviewBox {
+    display: flex;
+    width: 90%;
+    height: 330px;
+    margin-top: 20px;
+    background-color: #fff;
+    border: #797979 3px solid;
+    border-radius: 30px;
+  }
+
+  .reviewimgBox {
+    width: 270px;
+    height: 270px;
+    overflow: hidden;
+    border-radius: 20px;
+    margin-top: 25px;
+    margin-left: 30px;
+
+    .reviewImg {
+      width: 300px;
+      height: 300px;
+      object-fit: cover;
+      display: block;
+    }
+  }
+
+  .reviewBoxLeft {
+    font-family: "BMJUA";
+    font-size: 1.3em;
+    margin-left: 20px;
+    margin-top: 45px;
 
       .nameBox {
         display: flex;
@@ -424,9 +427,10 @@ const idCheck = async () => {
       border: #ff6666 2px solid;
       border-radius: 8px;
     }
-    &:active {
+    :hover.btn {
       background-color: #ff6666;
       border: #ff6666 2px solid;
+      color: #fff;
     }
   }
 }
