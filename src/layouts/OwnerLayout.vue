@@ -112,14 +112,14 @@ const toggleBusiness = async () => {
     : "가게 영업을 중지하겠습니까?";
 
   if (confirm(confirmMessage)) {
-    await activeStore(storeId); // 상태 변경
+    await activeStore(storeId); 
 
-    const res = await getOwnerStore(); // 최신 상태 fetch
+    const res = await getOwnerStore();
     if (res.status === 200) {
       state.form = res.data.resultData;
       isOpen.value = state.form.isActive;
 
-      // ✅ 상태에 따라 경로 이동
+      // 상태에 따라 경로 이동
       if (isOpen.value) {
         router.push("/owner/dashboard");
       } else {
@@ -176,7 +176,6 @@ const updateClock = () => {
 
   currentTime.value = `${month}월 ${date}일 (${day})  ${hours}:${minutes}:${seconds}`;
 };
-
 let intervalId = null;
 
 onMounted(() => {
@@ -211,7 +210,7 @@ const toMain = () => {
           @click="toMain"
         />
         <!-- 시각 -->
-        <div class="text-black-50 mb-4" style="font-weight: 600; font-size: 17px;">{{ currentTime  }}</div>
+        <div class="text-black-50 mb-4" style="font-weight: 600; font-size: 20px;">{{ currentTime  }}</div>
         <!-- 토글버튼 -->
         <div class="toggle-container d-flex justify-content-center" style="height: 40px">
           <span v-if="route.path !== '/owner' || isOpen">영업 상태</span>
