@@ -28,7 +28,7 @@
       <div class="footer-divider"></div>
       <!-- 오른쪽 회사 정보 -->
       <div class="footer-info">
-        <div class="footer-logo">
+        <div class="footer-logo footer-column">
           <img src="@/imgs/symbollogo.png" alt="Hanlp 로고" />
         </div>
         <div class="footer-column company-details">
@@ -51,6 +51,7 @@
 </template>
 <style lang="scss" scoped>
 @font-face {
+  // 프리텐다드 폰트 설정
   font-family: 'Pretendard-Regular';
   src: url('https://fastly.jsdelivr.net/gh/Project-Noonnu/noonfonts_2107@1.1/Pretendard-Regular.woff') format('woff');
   font-weight: 400;
@@ -58,6 +59,7 @@
 }
 
 * {
+  // 기본 폰트 적용
   font-family: 'Pretendard-Regular';
 }
 
@@ -68,29 +70,35 @@
   font-size: 0.8rem;
 
   .container {
+    // 푸터 컨텐츠 래퍼 (가운데 정렬)
+    position: relative;
     display: flex;
-    justify-content: center; // 중앙 정렬
     align-items: flex-start;
-    gap: 20px; // 구분선 포함 3등분 처리
-    max-width: 1200px;
+    max-width: 1400px;
     margin: 0 auto;
-    padding: 30px 20px;
+    padding: 30px 0px;
+    gap: 80px; // 공간 조절
   }
 
   .footer-menus {
+    // 왼쪽 메뉴 그룹 (회사소개/문의하기/정책)
     display: flex;
-    gap: 1.5rem;
+    gap: 100px;
+    margin-right: 70PX;
 
     .footer-column {
-      margin-right: 10px;
+      // 각 컬럼 내부 스타일
+      margin: 0 20px 0 10px;
 
       h4 {
+        // 컬럼 제목
         margin-bottom: 1rem;
         font-size: 20px;
         font-weight: bold;
       }
 
       p {
+        // 컬럼 항목 
         margin-top: 2rem;
         margin-bottom: -1.5rem;
         margin-right: 4rem;
@@ -99,51 +107,64 @@
   }
 
   .footer-divider {
+    // 메뉴 영역과 회사 정보 사이 구분선
+    position: absolute;
+    left: 50%; // 컨테이너 기준 정가운데
+    transform: translateX(-50%); // 정확히 가운데 맞춤
     width: 1px;
     background-color: #bbb;
     height: 120px;
-    margin: 0 1.5rem;
+
   }
 
   .footer-info {
-    display: flex; // 수평 정렬
-    align-items: flex-start; // 상단 기준 정렬
-    justify-content: flex-start; // 왼쪽 정렬
-    gap: 3rem;
+    // 오른쪽 회사 정보 전체 영역
+    display: flex;
+    align-items: flex-start;
+    justify-content: flex-start;
+    gap: 70px;
 
     .footer-logo {
+      // 로고 이미지 영역
       display: flex;
       align-items: first baseline;
-      padding: 0;
-      margin: 0;
+      margin-right: 20px;
 
       img {
-        height: 70px;
-        width: auto;
-        padding: 0;
-        margin-right: 20px;
+        height: 70px; // 로고 높이
+        width: auto; // 비율 유지
       }
     }
 
-    .footer-texts {
-      display: flex;
-      flex-direction: row;
-      gap: 2rem;
+    .footer-column {
+      // 공통 컬럼 스타일 (회사정보, 고객센터)
 
-      .footer-column.company-details {
-        padding: 2rem;
+      h4 {
+        // 컬럼 제목
+        margin-bottom: 2rem;
+        font-size: 20px;
+        font-weight: bold;
       }
 
+      p {
+        // 컬럼 본문 텍스트
+        margin-bottom: 1rem;
+      }
     }
 
-    h4 {
-      margin-bottom: 2rem;
-      font-size: 20px;
-      font-weight: bold;
+    .company-details {
+      // 회사 정보 컬럼 여백 조정
+      margin-right: 40px;
     }
+
+    .customer-service {
+      margin-right: 40px;
+    }
+
   }
 
   .footer-bottom {
+    // 하단 카피라이트 영역
     margin-top: 2rem;
     text-align: left;
     font-size: 0.8rem;
