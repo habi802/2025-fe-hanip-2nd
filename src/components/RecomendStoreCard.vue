@@ -127,6 +127,9 @@ const reviews = async () => {
     box-shadow: 6px 7px 5px -2px rgba(0, 0, 0, 0.33);
 
     .storeImgBox {
+      display: flex;
+      justify-content: center;
+      align-items: center;
       width: 330px;
       height: 280px;
       overflow: hidden;
@@ -135,7 +138,7 @@ const reviews = async () => {
       border-radius: 20px;
 
       .sImg {
-        width: 330px;
+        width: 340px;
         border-radius: 20px;
       }
     }
