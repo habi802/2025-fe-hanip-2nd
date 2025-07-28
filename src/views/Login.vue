@@ -82,11 +82,11 @@ onMounted(() => {
         <h1 class="title">로그인</h1>
 
         <!-- 회원 구분 -->
-        <div class="radio-group">
+        <!-- <div class="radio-group">
           <label id="radio"><input type="radio" class="circle" name="memberType" value="customer"
               v-model="memberType" /> 일반</label>
           <label><input type="radio" class="circle" name="memberType" value="owner" v-model="memberType" /> 업주</label>
-        </div>
+        </div> -->
 
         <div class="form-floating">
           <input type="text" id="loginId" placeholder="아이디 (영문, 숫자 4~16자)" v-model="state.form.loginId" />

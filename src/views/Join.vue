@@ -1,7 +1,7 @@
 <script setup>
 import router from '@/router/index';
 import { reactive, ref, watch } from 'vue';
-import { join } from '@/services/userService';
+import { join, findId } from '@/services/userService';
 
 // 유효성 검사 에러 메세지
 const errors = reactive({
@@ -94,6 +94,47 @@ const validateForm = () => {
   return Object.values(errors).every((msg) => msg === '');
 };
 
+// 아이디 중복 검사 유효성 코드
+const checkResult = ref('');
+
+// 아이디 중복 확인 함수
+const checkDuplicateId = async () => {
+  // 1. 아이디 유효성 검사 먼저 수행
+  validateLoginId();
+  if (errors.loginId !== '') return; // 유효성 에러 있으면 중복검사 중단
+
+  try {
+    // 2. findId 함수 호출 (loginId와 role 객체 형태로 전달)
+    const response = await findId({ loginId: state.form.loginId, role: memberType.value });
+
+    // 3. HTTP 상태 코드가 200이 아닐 경우 (즉, 중복 시 400 등 에러 상태)
+    if (response.status !== 200) {
+      // 서버가 보낸 에러 메시지를 에러 상태에 반영
+      errors.loginId = response.data?.resultMessage || '중복 확인 실패';
+      checkResult.value = ''; // 중복 확인 결과 메시지 초기화
+      return; // 함수 종료
+    }
+
+    // 4. 정상 응답 시 resultData가 null이면 사용 가능한 아이디로 간주
+    const available = response.data.resultData === null;
+
+    if (available) {
+      // 5. 사용 가능한 아이디일 때 메시지 설정
+      checkResult.value = '사용 가능한 아이디입니다.';
+      errors.loginId = '';
+    } else {
+      // 6. 중복된 아이디일 때 메시지 설정
+      checkResult.value = '';
+      errors.loginId = '이미 사용 중인 아이디입니다.';
+    }
+  } catch (err) {
+    // 7. 네트워크 오류나 예외 발생 시 에러 메시지 처리
+    checkResult.value = '';
+    errors.loginId = '서버 오류로 확인에 실패했습니다.';
+    console.error('중복 검사 에러:', err);
+  }
+};
+
 // 회원 타입
 const memberType = ref('customer');
 
@@ -102,7 +143,6 @@ const confirmPw = ref('');
 const phone1 = ref('010');
 const phone2 = ref('');
 const phone3 = ref('');
-const phoneAreaCode = ref('02');
 
 const ownerTel1 = ref('02');
 const ownerTel2 = ref('');
@@ -177,34 +217,34 @@ const submit = async () => {
   state.form.role = memberType.value;
 
   if (!validateForm()) {
-    alert('입력값을 다시 확인해주세요.');
+    showModal('입력값을 다시 확인해주세요.');
     return;
   }
 
   if (!state.form.loginId || !state.form.loginPw || !state.form.email) {
-    alert('아이디, 비밀번호, 이메일은 필수입니다.');
+    showModal('아이디, 비밀번호, 이메일은 필수입니다.');
     return;
   }
 
   if (memberType.value === 'customer') {
     if (!state.form.name) {
-      alert('이름은 필수입니다.');
+      showModal('이름은 필수입니다.');
       return;
     }
   } else {
     if (!state.owner.name || !state.owner.category) {
-      alert('가게명 및 카테고리는 필수입니다.');
+      showModal('가게명 및 카테고리는 필수입니다.');
       return;
     }
   }
 
   if (!agreement.terms.useTerms || !agreement.terms.privacyPolicy || !agreement.terms.thirdParty) {
-    alert('필수 약관에 동의해주세요.');
+    showModal('필수 약관에 동의해주세요.');
     return;
   }
 
   if (confirmPw.value !== state.form.loginPw) {
-    alert('비밀번호 확인이 일치하지 않습니다.');
+    showModal('비밀번호 확인이 일치하지 않습니다.');
     return;
   }
 
@@ -216,15 +256,15 @@ const submit = async () => {
   try {
     const res = await join(payload);
     if (res.status === 200) {
-      alert('회원가입 완료!');
+      showModal('회원가입 완료!');
       localStorage.setItem('user', JSON.stringify(res.data.resultData));
       router.push('/');
     } else {
-      alert('입력 정보를 다시 확인해 주세요.');
+      showModal('입력 정보를 다시 확인해 주세요.');
     }
   } catch (err) {
     console.error(err);
-    alert('회원가입 중 오류 발생');
+    showModal('회원가입 중 오류 발생');
   }
 };
 
@@ -234,6 +274,16 @@ const termsText = {
   privacyPolicy: `개인정보 수집 항목은 다음과 같으며...`,
   thirdParty: `당사는 다음과 같은 제3자에게 정보를 제공할 수 있습니다...`,
 };
+
+// 모달창 함수
+const showModal = (message) => {
+  const modalBody = document.getElementById('alertModalBody');
+  if (modalBody) modalBody.textContent = message;
+
+  const modal = new bootstrap.Modal(document.getElementById('alertModal'));
+  modal.show();
+};
+
 </script>
 
 <template>
@@ -279,8 +329,9 @@ const termsText = {
               <div class="id">
                 <input v-model="state.form.loginId" :class="{ invalid: errors.loginId }" @blur="validateLoginId"
                   placeholder="영문 소문자/숫자, 4~16자" />
-                <button type="button">아이디 중복</button>
+                <button type="button" @click="checkDuplicateId">아이디 중복</button>
                 <p v-if="errors.loginId" class="error-msg">{{ errors.loginId }}</p>
+                <p v-else-if="checkResult" class="success-msg">{{ checkResult }}</p>
               </div>
             </div>
           </div>
@@ -336,48 +387,6 @@ const termsText = {
             </div>
           </div>
           <div class="sevLine"></div>
-          <!-- 일반번호 -->
-          <div class="form-group phone-input-wrap">
-            <div class="label">
-              <span>*</span>
-              <p>일반번호</p>
-              <div class="phone-input">
-                <select v-model="phoneAreaCode">
-                  <option>02</option>
-                  <option>031</option>
-                  <option>032</option>
-                  <option>033</option>
-                  <option>041</option>
-                  <option>042</option>
-                  <option>043</option>
-                  <option>051</option>
-                  <option>052</option>
-                  <option>053</option>
-                  <option>054</option>
-                  <option>055</option>
-                  <option>061</option>
-                  <option>063</option>
-                  <option>064</option>
-                  <option>0502</option>
-                  <option>0503</option>
-                  <option>0504</option>
-                  <option>0505</option>
-                  <option>0506</option>
-                  <option>0507</option>
-                  <option>0508</option>
-                  <option>070</option>
-                  <option>010</option>
-                  <option>016</option>
-                  <option>017</option>
-                  <option>018</option>
-                  <option>019</option>
-                </select>
-                <input type="text" />
-                <input type="text" />
-              </div>
-            </div>
-          </div>
-          <div class="sevLine"></div>
           <!-- 휴대전화 -->
           <div class="form-group phone-input-wrap">
             <div class="label">
@@ -397,18 +406,18 @@ const termsText = {
             </div>
             <div class="telNum">
               <p v-if="errors.phone2 || errors.phone3" class="error-msg">
-                  {{ errors.phone2 || errors.phone3 }}
+                {{ errors.phone2 || errors.phone3 }}
               </p>
             </div>
           </div>
           <div class="sevLine"></div>
           <!-- 이메일 -->
-          <div class="form-group">
+          <div class="form-group email-group">
             <div class="label">
               <span>*</span>
               <p>이메일</p>
-              <div class="mail">
-                <input v-model="state.form.email" @blur="validateEmail" :class="{ invalid: errors.email }" />
+              <div class="email">
+                <input v-model="state.form.email" @blur="validateEmail" :class="{ invalid: errors.email }" placeholder="example@example.com"/>
                 <p v-if="errors.email" class="error-msg">{{ errors.email }}</p>
               </div>
             </div>
@@ -485,8 +494,10 @@ const termsText = {
                 <input type="text" v-model="ownerTel3" @blur="validateOwnerTel"
                   :class="{ invalid: errors.ownerTel3 }" />
               </div>
+            </div>
+            <div class="telNum">
               <p v-if="errors.ownerTel2 || errors.ownerTel3" class="error-msg">
-                  {{ errors.ownerTel2 || errors.ownerTel3 }}
+                {{ errors.ownerTel2 || errors.ownerTel3 }}
               </p>
             </div>
           </div>
@@ -526,8 +537,10 @@ const termsText = {
               <div class="upload-row owner-sigin">
                 <input type="text" v-model="state.owner.businessNumber" @blur="validateBusinessNumber"
                   :class="{ invalid: errors.businessNumber }" />
-                <p v-if="errors.businessNumber" class="error-msg">{{ errors.businessNumber }}</p>
                 <button type="button">조회</button>
+                <div class="owner-upload-num">
+                  <p v-if="errors.businessNumber" class="error-msg owner-up">{{ errors.businessNumber }}</p>
+                </div>
               </div>
             </div>
           </div>
@@ -537,8 +550,8 @@ const termsText = {
             <div class="label">
               <span>*</span>
               <p>이메일</p>
-              <div class="email">
-                <input type="email" v-model="state.form.email" @blur="validateEmail" :class="{ invalid: errors.email }"
+              <div class="mail">
+                <input type="email" id="email" v-model="state.form.email" @blur="validateEmail" :class="{ invalid: errors.email }"
                   placeholder="example@example.com" />
                 <p v-if="errors.email" class="error-msg">{{ errors.email }}</p>
               </div>
@@ -564,11 +577,13 @@ const termsText = {
                   <input type="text" v-model="ownerPhone3" @blur="validateOwnerPhone"
                     :class="{ invalid: errors.ownerPhone3 }" />
                 </div>
-                <p v-if="errors.ownerPhone2 || errors.ownerPhone3" class="error-msg"><span class="telNum">
-                    {{ errors.ownerPhone2 || errors.ownerPhone3 }}
-                  </span>
-                </p>
               </div>
+            </div>
+            <div class="phoneNum">
+              <p v-if="errors.ownerPhone2 || errors.ownerPhone3" class="error-msg"><span class="telNum">
+                  {{ errors.ownerPhone2 || errors.ownerPhone3 }}
+                </span>
+              </p>
             </div>
           </div>
           <div class="sevLine"></div>
@@ -636,6 +651,20 @@ const termsText = {
       </form>
     </div>
   </div>
+  <!-- 공통 알림 모달 -->
+  <div class="modal fade" id="alertModal" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">알림</h5>
+        </div>
+        <div class="modal-body" id="alertModalBody">내용</div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-primary" data-bs-dismiss="modal">확인</button>
+        </div>
+      </div>
+    </div>
+  </div>
 </template>
 
 <style lang="scss" scoped>
@@ -695,7 +724,6 @@ label.serveTitle {
 // 유효성 검사
 input[type='text'],
 input[type='password'],
-input[type='email'],
 select {
   width: 100%;
   max-width: 400px;
@@ -718,14 +746,20 @@ select.invalid {
   //border-color: #ff6666;
   background-color: #ffe5e5;
 }
-    // 전화번호 에러메세지 정렬
-    .telNum {
-      display: flex;
-      margin: 10px 0 -13px 300px;
-      color: #ff6666;
-      font-size: 15px;
-      font-weight: 600;
-    }
+
+
+// 전화번호 에러메세지 정렬
+.telNum {
+  display: flex;
+  margin: 10px 0 -13px 300px;
+  color: #ff6666;
+  font-size: 15px;
+  font-weight: 600;
+}
+.owner-upload-num {
+  margin-left: -25px;
+  margin-top: -10px;
+}
 .container {
   .label {
     // 필수 입력 정보 설명
@@ -742,6 +776,22 @@ select.invalid {
       color: #ff6666;
       font-size: 15px;
       font-weight: 600;
+      transition: color 0.3s ease;
+    }
+
+    span.owner-upload-num {
+      margin-top: -5px;
+    }
+
+    // 아이디 중복 확인
+    p.success-msg {
+      color: #2f57db;
+      font-size: 15px;
+      font-weight: 600;
+      margin-top: 10px;
+      margin-left: 170px;
+      user-select: none;
+      transition: color 0.3s ease;
     }
 
     .label {
@@ -960,6 +1010,9 @@ select.invalid {
   .form-group {
     .id {
       margin-left: -15px;
+      input {
+        max-width: 490px;
+      }
     }
 
     .password {
@@ -969,8 +1022,7 @@ select.invalid {
     .password2 {
       margin-left: -65px;
     }
-
-    .mail {
+    .email {
       margin-left: -10px;
     }
   }
@@ -1014,6 +1066,9 @@ select.invalid {
       border-radius: 8px;
       margin-left: 138px;
       vertical-align: middle;
+    }
+    .form-group.mail {
+      width: 620px !important;
     }
   }
 
@@ -1166,6 +1221,7 @@ select.invalid {
     }
   }
 
+
   // 회원가입 완료 버튼
   .form-submit {
     margin-top: 1rem;
@@ -1217,4 +1273,5 @@ select.invalid {
     }
   }
 }
+
 </style>
