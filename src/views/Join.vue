@@ -3,31 +3,116 @@ import router from '@/router/index';
 import { reactive, ref, watch } from 'vue';
 import { join } from '@/services/userService';
 
-// 회원 타입 구분: 일반고객(customer) 또는 업주(owner)
+// 유효성 검사 에러 메세지
+const errors = reactive({
+  loginId: '',
+  loginPw: '',
+  confirmPw: '',
+  email: '',
+  name: '',
+  address: '',
+  phone2: '',
+  phone3: '',
+  businessNumber: '',
+  ownerTel2: '',
+  ownerTel3: '',
+  ownerPhone2: '',
+  ownerPhone3: '',
+});
+
+// 유효성 검사 함수들
+const validateLoginId = () => {
+  const regex = /^[a-z0-9]{4,16}$/;
+  errors.loginId = regex.test(state.form.loginId)
+    ? ''
+    : '아이디는 영문 소문자+숫자 4~16자여야 합니다.';
+};
+
+const validatePassword = () => {
+  const regex = /^(?=.*[A-Za-z])(?=.*\d)(?=.*[!@#$%^&*])[A-Za-z\d!@#$%^&*]{8,16}$/;
+  errors.loginPw = regex.test(state.form.loginPw)
+    ? ''
+    : '비밀번호는 영문, 숫자, 특수문자 포함 8~16자여야 합니다.';
+};
+
+const validateConfirmPw = () => {
+  errors.confirmPw = confirmPw.value === state.form.loginPw
+    ? ''
+    : '비밀번호가 일치하지 않습니다.';
+};
+
+const validateEmail = () => {
+  const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  errors.email = regex.test(state.form.email)
+    ? ''
+    : '유효한 이메일 주소를 입력하세요.';
+};
+
+const validatePhone = () => {
+  const middleRegex = /^\d{3,4}$/;
+  const lastRegex = /^\d{4}$/;
+  errors.phone2 = middleRegex.test(phone2.value) ? '' : '중간 번호는 3~4자리 숫자';
+  errors.phone3 = lastRegex.test(phone3.value) ? '' : '끝 번호는 4자리 숫자';
+};
+
+const validateOwnerTel = () => {
+  const middleRegex = /^\d{3,4}$/;
+  const lastRegex = /^\d{4}$/;
+  errors.ownerTel2 = middleRegex.test(ownerTel2.value) ? '' : '중간 번호는 3~4자리 숫자';
+  errors.ownerTel3 = lastRegex.test(ownerTel3.value) ? '' : '끝 번호는 4자리 숫자';
+};
+
+const validateOwnerPhone = () => {
+  const middleRegex = /^\d{3,4}$/;
+  const lastRegex = /^\d{4}$/;
+  errors.ownerPhone2 = middleRegex.test(ownerPhone2.value) ? '' : '중간 번호는 3~4자리 숫자';
+  errors.ownerPhone3 = lastRegex.test(ownerPhone3.value) ? '' : '끝 번호는 4자리 숫자';
+};
+
+const validateBusinessNumber = () => {
+  const regex = /^\d{10}$/;
+  errors.businessNumber = regex.test(state.owner.businessNumber)
+    ? ''
+    : '사업자등록번호는 숫자 10자리여야 합니다.';
+};
+
+// 제출 전 모든 필드 유효성 검사
+const validateForm = () => {
+  validateLoginId();
+  validatePassword();
+  validateConfirmPw();
+  validateEmail();
+
+  if (memberType.value === 'customer') {
+    validatePhone();
+  } else {
+    validateOwnerTel();
+    validateOwnerPhone();
+    validateBusinessNumber();
+  }
+
+  return Object.values(errors).every((msg) => msg === '');
+};
+
+// 회원 타입
 const memberType = ref('customer');
 
-// 비밀번호 확인용
+// 입력 필드
 const confirmPw = ref('');
-
-// 일반 회원 일반전화 필드
-const phoneAreaCode = ref('02');
-
-// 일반 회원용 전화번호 필드
 const phone1 = ref('010');
 const phone2 = ref('');
 const phone3 = ref('');
+const phoneAreaCode = ref('02');
 
-// 업주 회원용 가게 전화번호
 const ownerTel1 = ref('02');
 const ownerTel2 = ref('');
 const ownerTel3 = ref('');
 
-// 업주 회원용 대표자 휴대전화
 const ownerPhone1 = ref('010');
 const ownerPhone2 = ref('');
 const ownerPhone3 = ref('');
 
-// 전체 폼 상태
+// 상태
 const state = reactive({
   form: {
     name: '',
@@ -50,7 +135,6 @@ const state = reactive({
   }
 });
 
-// 약관 동의 상태
 const agreement = reactive({
   allAgree: false,
   terms: {
@@ -63,27 +147,22 @@ const agreement = reactive({
   email: false,
 });
 
-// 회원 타입 변경 시 role 값 자동 반영
 watch(memberType, (val) => {
-  state.form.role = val;  // 'customer' or 'owner'
+  state.form.role = val;
 });
 
-// 일반 전화번호 조합
 watch([phone1, phone2, phone3], () => {
   state.form.phone = `${phone1.value}-${phone2.value}-${phone3.value}`;
 });
 
-// 업주용 가게 전화번호 조합
 watch([ownerTel1, ownerTel2, ownerTel3], () => {
   state.owner.tel = `${ownerTel1.value}-${ownerTel2.value}-${ownerTel3.value}`;
 });
 
-// 업주용 대표자 휴대폰 조합
-// watch([ownerPhone1, ownerPhone2, ownerPhone3], () => {
-//   state.owner.businessNumber = `${ownerPhone1.value}-${ownerPhone2.value}-${ownerPhone3.value}`;
-// });
+watch([ownerPhone1, ownerPhone2, ownerPhone3], () => {
+  state.owner.phone = `${ownerPhone1.value}-${ownerPhone2.value}-${ownerPhone3.value}`;
+});
 
-// 전체 약관 동의 시 세부 항목도 일괄 변경
 const toggleAllAgree = () => {
   const val = agreement.allAgree;
   agreement.terms.useTerms = val;
@@ -94,90 +173,67 @@ const toggleAllAgree = () => {
   agreement.email = val;
 };
 
-// 회원가입 처리 함수
 const submit = async () => {
   state.form.role = memberType.value;
-  console.log('submit 시작, memberType:', memberType.value);
-  console.log('가입 요청 데이터 확인:', JSON.stringify(state.form, null, 2));
-  // 공통 필수값 확인
+
+  if (!validateForm()) {
+    alert('입력값을 다시 확인해주세요.');
+    return;
+  }
+
   if (!state.form.loginId || !state.form.loginPw || !state.form.email) {
     alert('아이디, 비밀번호, 이메일은 필수입니다.');
     return;
   }
 
-  // 회원 유형별 필수값 확인
   if (memberType.value === 'customer') {
     if (!state.form.name) {
       alert('이름은 필수입니다.');
       return;
     }
-  } else if (memberType.value === 'owner') {
-    if (!state.owner.name) {
-      alert('가게 상호명은 필수입니다.');
-      return;
-    }
-    if (!state.owner.category) {
-      alert('가게 카테고리는 필수입니다.');
+  } else {
+    if (!state.owner.name || !state.owner.category) {
+      alert('가게명 및 카테고리는 필수입니다.');
       return;
     }
   }
 
-  // 필수 약관 동의 여부 확인
   if (!agreement.terms.useTerms || !agreement.terms.privacyPolicy || !agreement.terms.thirdParty) {
-    alert('필수 약관에 모두 동의해 주세요.');
+    alert('필수 약관에 동의해주세요.');
     return;
   }
 
-  // 비밀번호 확인값과 입력값 비교
   if (confirmPw.value !== state.form.loginPw) {
     alert('비밀번호 확인이 일치하지 않습니다.');
     return;
   }
 
-  // 서버에 전송할 데이터 구성
   const payload = {
     ...state.form,
     owner: memberType.value === 'owner' ? state.owner : null
   };
 
-  console.log('가입 요청 데이터 확인:', JSON.stringify(state.form, null, 2));
-  console.log('전송 데이터:', payload); // 디버깅 확인용
-
   try {
-    console.log('전송할 데이터:', payload);
     const res = await join(payload);
-    console.log('회원가입 결과:', res);
-
     if (res.status === 200) {
-      alert('회원가입 되었습니다!');
-
-      // 서버가 user 데이터 res.data.resultData로 준다고 가정
-      if (res.data.resultData) {
-        localStorage.setItem('user', JSON.stringify(res.data.resultData));
-      }
-      
+      alert('회원가입 완료!');
+      localStorage.setItem('user', JSON.stringify(res.data.resultData));
       router.push('/');
     } else {
       alert('입력 정보를 다시 확인해 주세요.');
     }
   } catch (err) {
-    console.error('회원가입 실패:', err);
-
-    if (err.response?.status === 401) {
-      alert('권한이 없습니다. 관리자에게 문의하세요.');
-    } else {
-      alert('회원가입 중 오류가 발생했습니다.');
-    }
+    console.error(err);
+    alert('회원가입 중 오류 발생');
   }
 };
 
-// 이용약관 설명글
+// 약관 설명 텍스트
 const termsText = {
   useTerms: `제1조(목적) 이 약관은...`,
   privacyPolicy: `개인정보 수집 항목은 다음과 같으며...`,
   thirdParty: `당사는 다음과 같은 제3자에게 정보를 제공할 수 있습니다...`,
 };
-
 </script>
 
 <template>
@@ -221,8 +277,10 @@ const termsText = {
               <span>*</span>
               <p>아이디</p>
               <div class="id">
-                <input type="text" class="id-input" v-model="state.form.loginId" placeholder="영문 소문자/숫자, 4~16자" />
+                <input v-model="state.form.loginId" :class="{ invalid: errors.loginId }" @blur="validateLoginId"
+                  placeholder="영문 소문자/숫자, 4~16자" />
                 <button type="button">아이디 중복</button>
+                <p v-if="errors.loginId" class="error-msg">{{ errors.loginId }}</p>
               </div>
             </div>
           </div>
@@ -234,7 +292,8 @@ const termsText = {
             <span>*</span>
             <p>비밀번호</p>
             <div class="password">
-              <input type="password" v-model="state.form.loginPw" placeholder="영문 대/소문자+숫자+특수문자 조합 8~16자" />
+              <input v-model="state.form.loginPw" :class="{ invalid: errors.loginPw }" @blur="validatePassword" />
+              <p v-if="errors.loginPw" class="error-msg">{{ errors.loginPw }}</p>
             </div>
           </div>
         </div>
@@ -245,7 +304,8 @@ const termsText = {
             <span>*</span>
             <p>비밀번호 확인</p>
             <div class="password2">
-              <input type="password" v-model="confirmPw" placeholder="비밀번호를 한 번 더 입력해주세요" />
+              <input v-model="confirmPw" @blur="validateConfirmPw" :class="{ invalid: errors.confirmPw }" />
+              <p v-if="errors.confirmPw" class="error-msg">{{ errors.confirmPw }}</p>
             </div>
           </div>
         </div>
@@ -331,9 +391,14 @@ const termsText = {
                   <option>018</option>
                   <option>019</option>
                 </select>
-                <input type="text" v-model="phone2" />
-                <input type="text" v-model="phone3" />
+                <input type="text" v-model="phone2" @blur="validatePhone" :class="{ invalid: errors.phone2 }" />
+                <input type="text" v-model="phone3" @blur="validatePhone" :class="{ invalid: errors.phone3 }" />
               </div>
+            </div>
+            <div class="telNum">
+              <p v-if="errors.phone2 || errors.phone3" class="error-msg">
+                  {{ errors.phone2 || errors.phone3 }}
+              </p>
             </div>
           </div>
           <div class="sevLine"></div>
@@ -343,7 +408,8 @@ const termsText = {
               <span>*</span>
               <p>이메일</p>
               <div class="mail">
-                <input type="email" v-model="state.form.email" placeholder="반드시 사용 중인 메일을 @ 형식으로 입력하세요." />
+                <input v-model="state.form.email" @blur="validateEmail" :class="{ invalid: errors.email }" />
+                <p v-if="errors.email" class="error-msg">{{ errors.email }}</p>
               </div>
             </div>
           </div>
@@ -414,9 +480,14 @@ const termsText = {
                   <option>018</option>
                   <option>019</option>
                 </select>
-                <input type="text" v-model="ownerTel2" />
-                <input type="text" v-model="ownerTel3" />
+                <input type="text" v-model="ownerTel2" @blur="validateOwnerTel"
+                  :class="{ invalid: errors.ownerTel2 }" />
+                <input type="text" v-model="ownerTel3" @blur="validateOwnerTel"
+                  :class="{ invalid: errors.ownerTel3 }" />
               </div>
+              <p v-if="errors.ownerTel2 || errors.ownerTel3" class="error-msg">
+                  {{ errors.ownerTel2 || errors.ownerTel3 }}
+              </p>
             </div>
           </div>
           <div class="sevLine"></div>
@@ -453,7 +524,9 @@ const termsText = {
               <span>*</span>
               <p>사업자 등록번호</p>
               <div class="upload-row owner-sigin">
-                <input type="text" v-model="state.owner.businessNumber" class="upload-box" />
+                <input type="text" v-model="state.owner.businessNumber" @blur="validateBusinessNumber"
+                  :class="{ invalid: errors.businessNumber }" />
+                <p v-if="errors.businessNumber" class="error-msg">{{ errors.businessNumber }}</p>
                 <button type="button">조회</button>
               </div>
             </div>
@@ -465,7 +538,9 @@ const termsText = {
               <span>*</span>
               <p>이메일</p>
               <div class="email">
-                <input type="email" v-model="state.form.email" placeholder="반드시 사용 중인 메일을 @ 형식으로 입력하세요." />
+                <input type="email" v-model="state.form.email" @blur="validateEmail" :class="{ invalid: errors.email }"
+                  placeholder="example@example.com" />
+                <p v-if="errors.email" class="error-msg">{{ errors.email }}</p>
               </div>
             </div>
           </div>
@@ -484,9 +559,15 @@ const termsText = {
                     <option>018</option>
                     <option>019</option>
                   </select>
-                  <input type="text" v-model="ownerPhone2" />
-                  <input type="text" v-model="ownerPhone3" />
+                  <input type="text" v-model="ownerPhone2" @blur="validateOwnerPhone"
+                    :class="{ invalid: errors.ownerPhone2 }" />
+                  <input type="text" v-model="ownerPhone3" @blur="validateOwnerPhone"
+                    :class="{ invalid: errors.ownerPhone3 }" />
                 </div>
+                <p v-if="errors.ownerPhone2 || errors.ownerPhone3" class="error-msg"><span class="telNum">
+                    {{ errors.ownerPhone2 || errors.ownerPhone3 }}
+                  </span>
+                </p>
               </div>
             </div>
           </div>
@@ -558,14 +639,16 @@ const termsText = {
 </template>
 
 <style lang="scss" scoped>
-@font-face { // 배민 주아체
+@font-face {
+  // 배민 주아체
   font-family: 'BMJUA';
   src: url('https://fastly.jsdelivr.net/gh/projectnoonnu/noonfonts_one@1.0/BMJUA.woff') format('woff');
   font-weight: normal;
   font-style: normal;
 }
 
-@font-face { // 프리텐다드 
+@font-face {
+  // 프리텐다드 
   font-family: 'Pretendard-Regular';
   src: url('https://fastly.jsdelivr.net/gh/Project-Noonnu/noonfonts_2107@1.1/Pretendard-Regular.woff') format('woff');
   font-weight: 400;
@@ -609,6 +692,40 @@ label.serveTitle {
   margin-left: 67px;
 }
 
+// 유효성 검사
+input[type='text'],
+input[type='password'],
+input[type='email'],
+select {
+  width: 100%;
+  max-width: 400px;
+  padding: 10px 12px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: 15px;
+  transition: border 0.2s ease;
+}
+
+input:focus,
+select:focus {
+  border-color: #ff6666;
+  outline: none;
+}
+
+input.invalid,
+select.invalid {
+  box-shadow: 0 0 3px #ff6666(233, 0, 0, 0.3) !important;
+  //border-color: #ff6666;
+  background-color: #ffe5e5;
+}
+    // 전화번호 에러메세지 정렬
+    .telNum {
+      display: flex;
+      margin: 10px 0 -13px 300px;
+      color: #ff6666;
+      font-size: 15px;
+      font-weight: 600;
+    }
 .container {
   .label {
     // 필수 입력 정보 설명
@@ -617,6 +734,24 @@ label.serveTitle {
     gap: 23px; // *와 텍스트 사이 간격
     margin-left: 40px;
     align-items: center; // 수직 정렬
+
+    // 에러 메세지
+    p.error-msg {
+      margin-top: 10px;
+      margin-left: 170px;
+      color: #ff6666;
+      font-size: 15px;
+      font-weight: 600;
+    }
+
+    .label {
+      display: flex;
+      align-items: flex-start;
+
+      span.telNum {
+        display: flex;
+      }
+    }
 
     span {
       color: #ff6666; // 별표 강조용
@@ -792,6 +927,7 @@ label.serveTitle {
 
     button {
       flex-shrink: 0;
+      font-size: 15px;
       height: 50px;
       padding: 0.5rem 1rem;
       background-color: #eee;
