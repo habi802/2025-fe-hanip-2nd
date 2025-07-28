@@ -254,6 +254,7 @@ const status = computed(() => {
 
             <!--  -->
             <!--  -->
+            
             <!--  -->
             <div>
                 <h4 class="mb-3">다른 가게 주문하기</h4>
