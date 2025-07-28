@@ -710,6 +710,7 @@ const grandTotalPrice = computed(() => {
     font-weight: bold;
   }
 }
+
 .delete-button {
   cursor: pointer;
   border: none;
