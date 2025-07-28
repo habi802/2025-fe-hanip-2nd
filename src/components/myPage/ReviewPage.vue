@@ -32,6 +32,8 @@ let reviewId = 0;
 // 이미지 경로
 let img = "";
 
+
+
 // 들어왔을 때 리뷰를 적었는지 안 적었는지 에 따라 입력값이 달라지는 함수
 const join = async () => {
   // 오더 아이디 가져오기
@@ -125,7 +127,7 @@ const addReview = async () => {
       new Blob([JSON.stringify(state.review)], { type: "application/json" })
     );
     const res = await saveReview(formData);
-    router.push("/review/ok");
+    router.push("/orders");
   }
   // 수정하기용, 작성한 리뷰가 있다면
   if (revId.data.resultData.id > 0) {
@@ -278,10 +280,15 @@ const addReview = async () => {
             </div>
             <div class="leftBox">
               <textarea
+                maxlength="200"
                 class="inputBox"
                 placeholder="리뷰를 입력해주세요"
                 v-model="state.review.comment"
               />
+            </div>
+            <div class="comment-length">
+              <span>{{ state.review.comment.length }}</span>
+              <sapn>/200자</sapn>
             </div>
             <div class="btns">
               <router-link to="/orders" class="cancell btn"
@@ -583,5 +590,10 @@ const addReview = async () => {
     font-size: 24px;
     margin-left: 30px;
   }
+}
+.comment-length{
+  display: flex;
+  justify-content: end;
+  color: #6c6c6c;
 }
 </style>
