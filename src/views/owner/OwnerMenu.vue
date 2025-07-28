@@ -170,7 +170,7 @@ const fetchMenus = async () => {
     </div>
   </div>
 
-  <div class="owner-title1">메뉴상세</div>
+  <div class="owner-title1">메뉴 관리</div>
   <div class="owner-title2">
     어서오세요! {{ ownerName }} 사장님, 관리자 페이지에 다시 오신 것을
     환영합니다!
@@ -262,7 +262,7 @@ const fetchMenus = async () => {
 
 .owner-title2 {
   padding-left: 12px;
-  padding-bottom: 10px;
+  padding-bottom: 14px;
   color: #686868;
 }
 

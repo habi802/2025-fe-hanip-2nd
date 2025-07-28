@@ -164,9 +164,9 @@ const ownerName = inject("ownerName", "");
 
   <div class="wrap">
     <div>
-      <h2>주문 상세</h2>
-      <span style="color: #838383"
-        >어서오세요! {{ ownerName }} 사장님 관리자 페이지에 다시 오신것을 환영합니다!</span
+      <div class="owner-title1">주문 관리</div>
+      <span class="owner-title2"
+        >어서오세요! {{ ownerName }} 사장님, 관리자 페이지에 다시 오신 것을 환영합니다!</span
       >
 
       <!-- 상단 집계 카드 -->
@@ -221,8 +221,8 @@ const ownerName = inject("ownerName", "");
     <div>
       <div class="orders-header">
         <div>
-          <h2>주문 내역</h2>
-          <span style="color: #838383">최근 한달간의 주문 내역만 보입니다</span>
+          <div class="owner-title1">주문 내역</div>
+          <span class="owner-title2">최근 한달간의 주문 내역만 보입니다</span>
         </div>
 
         <!-- 조회기간설정 카드 -->
@@ -385,6 +385,16 @@ const ownerName = inject("ownerName", "");
 </template>
 
 <style scoped lang="scss">
+.owner-title1 {
+  font-size: 30px;
+  font-weight: bold;
+  padding-bottom: 2px;
+}
+
+.owner-title2 {
+  color: #686868;
+}
+
 // 로딩
 .loading {
   width: 40px;
@@ -405,15 +415,14 @@ const ownerName = inject("ownerName", "");
   max-width: 1501px;
   background-color: #e8e8e8;
   font-family: "Pretendard", sans-serif;
-  width: 1575px;
-  overflow: auto;
-  padding: 9px;
+  transform: translateX(13px);
+  padding-bottom: 70px;
 
   // 상단 집계 카드
   .total-wrap {
     display: flex;
-    gap: 45px;
-    margin-top: 20px;
+    gap: 50px;
+    margin-top: 15px;
     margin-bottom: 40px;
     .circle {
       background-color: #ff6666;
