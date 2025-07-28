@@ -42,7 +42,7 @@ const props = defineProps({
 
           <div id="name-box">
             <span id="name">{{ props.item.userName }}</span>
-            <span class="star">★★★★★</span>
+            <span class="star" v-for="n in Math.floor(props.item.rating || 0)" :key="n">★</span>
           </div>
           <div id="name-left-box">
             <span class="created">{{ props.item.created }}</span>
@@ -56,9 +56,7 @@ const props = defineProps({
     </div>
 
     <!-- 사장님 코멘트 -->
-    <div
-      v-if="props.item.ownerComment !== null && props.item.ownerComment !== ''"
-    >
+    <div v-if="props.item.ownerComment !== null && props.item.ownerComment !== ''">
       <div class="owner-comment border rounded p-2">
         {{ props.item.ownerComment }}
       </div>
@@ -74,12 +72,14 @@ const props = defineProps({
   height: 160px;
   padding: 25px;
 }
-.border {
-}
+
+.border {}
+
 .border-top {
   display: flex;
   border: none !important;
 }
+
 .owner-comment {
   //   background-color: #ff6666;
   border: 2px #ff6666 solid !important;
@@ -92,22 +92,26 @@ const props = defineProps({
   border-radius: 10px;
   overflow: hidden;
 }
+
 #big-box {
   padding: 20px !important;
   margin-top: 50px;
   border: #797979 1px solid !important;
 }
+
 .user-box {
   margin-top: 7px;
   margin-left: 30px;
 }
+
 .user-top {
   display: flex;
   align-items: center;
-    justify-content: space-between;
+  justify-content: space-between;
   width: 100%;
   align-items: center;
 }
+
 .created {
   font-size: 13px;
 }
@@ -119,5 +123,6 @@ const props = defineProps({
 
 .star {
   font-size: 20px;
+  color: #FAC729;
 }
 </style>
