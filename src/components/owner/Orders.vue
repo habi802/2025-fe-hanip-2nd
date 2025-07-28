@@ -1,6 +1,6 @@
 <script setup>
 import OrderListCard from "./OrderListCard.vue";
-import { computed, ref, reactive, onMounted } from "vue";
+import { computed, ref, reactive, inject } from "vue";
 import { useOrderStore } from "@/stores/orderStore";
 import { deleteOrder } from "@/services/orderService";
 import { useOwnerStore } from "@/stores/account";
@@ -130,6 +130,9 @@ const formatDateTime = (isoStr) => {
     minute: "2-digit",
   });
 };
+
+// 사장 대표자 이름
+const ownerName = inject("ownerName", "");
 </script>
 
 <template>
@@ -163,7 +166,7 @@ const formatDateTime = (isoStr) => {
     <div>
       <h2>주문 상세</h2>
       <span style="color: #838383"
-        >어서오세요! {{}}사장님 관리자 페이지에 다시 오신것을 환영합니다!</span
+        >어서오세요! {{ ownerName }} 사장님 관리자 페이지에 다시 오신것을 환영합니다!</span
       >
 
       <!-- 상단 집계 카드 -->
@@ -264,7 +267,7 @@ const formatDateTime = (isoStr) => {
             font-size: 1.5rem;
             padding: 1rem 2rem;
             justify-content: center;
-            width: 754px;
+            width: 775px;
           "
         >
           더보기
@@ -399,17 +402,17 @@ const formatDateTime = (isoStr) => {
 }
 
 .wrap {
-  max-width: 1400px;
+  max-width: 1501px;
   background-color: #e8e8e8;
   font-family: "Pretendard", sans-serif;
   width: 1575px;
   overflow: auto;
-  padding: 10px;
+  padding: 9px;
 
   // 상단 집계 카드
   .total-wrap {
     display: flex;
-    gap: 30px;
+    gap: 45px;
     margin-top: 20px;
     margin-bottom: 40px;
     .circle {
@@ -566,7 +569,7 @@ const formatDateTime = (isoStr) => {
     .orders-detail {
       font-family: "Pretendard", sans-serif;
       width: 800px;
-      max-width: 595px;
+      max-width: 670px;
       height: 1000px;
       background-color: #fff;
       border-radius: 15px;

@@ -104,13 +104,13 @@ const ownerName = inject("ownerName", "");
 
   <div class="padding">
     <div class="d-flex board">
-      <div style="width: 400px">
+      <div style="width: 450px">
         <OrderCard :orders="orderStore.orderedList" />
       </div>
-      <div style="width: 400px">
+      <div style="width: 450px">
         <OrderPrepare :orders="orderStore.preparingList" />
       </div>
-      <div style="width: 400px">
+      <div style="width: 450px">
         <OrderDelivery :orders="orderStore.deliveringList" />
       </div>
     </div>
@@ -119,7 +119,7 @@ const ownerName = inject("ownerName", "");
 
 <style scoped lang="scss">
 .board {
-  gap: 83px;
+  gap: 77px;
   font-family: "Pretendard", sans-serif;
 }
 
@@ -146,7 +146,7 @@ const ownerName = inject("ownerName", "");
   font-family: "Pretendard", sans-serif;
     display: flex;
     padding-left: 13px;
-    gap: 19px;
+    gap: 65px;
     margin-top: 5px;
     margin-bottom: 20px;
     .circle {

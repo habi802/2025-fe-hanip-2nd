@@ -90,8 +90,8 @@ const start = async () => {
   </div>
 
   <!-- 메인 -->
-    <div class="container-fluid d-flex mb-5" style="height: 700px; padding-top: 81px;">
-      <div class="card shadow p-5 w-100 text-center" style="max-width: 1300px;">
+    <div class="container-fluid d-flex mb-5" style="height: 921px; padding-top: 81px;">
+      <div class="card shadow p-5 w-100 text-center d-flex justify-content-center align-items-center flex-column" style="max-width: 1501px;">
         <div class="ps-4 pt-5">
           <div class="text-date">{{ today }}</div>
           <div class="pb-5 text">오늘의 영업을 시작하세요!</div>
@@ -110,13 +110,13 @@ const start = async () => {
 
 .text-date {
   font-weight: bold;
-  font-size: 60px;
+  font-size: 55px;
   color: #959595
 }
 
 .text {
   font-weight: bold;
-  font-size: 65px;
+  font-size: 60px;
 }
 
 .storeAccept-btn {
@@ -125,9 +125,9 @@ const start = async () => {
   color: white;
   padding: 6px 16px;
   border-radius: 10px;
-  font-size: 45px;
-  width: 300px;
-  height: 150px;
+  font-size: 40px;
+  width: 250px;
+  height: 120px;
   transition: background-color 0.3s, color 0.3s;
 }
 
