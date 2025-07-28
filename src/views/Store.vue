@@ -365,7 +365,7 @@ const reviewbutton = () => {
               <div class="order-title">장바구니</div>
               <div class="store-name">{{ state.store.name }}</div>
               <div
-                class="d-flex justify-content-between border-bottom pb-2 mb-2"
+                class="d-flex justify-content-between border-bottom pb-2 mb-2 "
               >
                 <div class="delete-order">
                   <img class="removeImg" src="/src/imgs/remove.png" @click="deleteCart()" />
