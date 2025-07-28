@@ -15,6 +15,9 @@ const props = defineProps({
     }
 });
 
+//메뉴 이미지
+const menuImg = `/pic/menu-profile/${props.item.id}/${props.item?.imagePath}`
+
 const addCart = async () => {
     if (!account.state.loggedIn) {
         alert('로그인 후 주문이 가능합니다.');
@@ -57,8 +60,8 @@ const addCart = async () => {
                     </span>
                 </div>
             </div>
-            <div id="menuImg" class="col-4 col-md-2 border rounded">
-                이것은 메뉴의 이미지다
+            <div id="menuImgs" class="col-4 col-md-2 border rounded">
+                <img class="menuImgBox" :src="menuImg" @error="e => e.target.src = '/src/imgs/owner/owner-service3.png'" />
             </div>
         </div>
     </div>
@@ -72,8 +75,17 @@ const addCart = async () => {
         border-color: #fcaeae !important;
     }
 }
-#menuImg{
+#menuImgs{
     margin-left: -15px;
+    display: flex;
+    width: 170px;
+    height: 104px;
+    overflow: hidden;
+    justify-content: center;
+    align-items: center;
+    .menuImgBox{
+        width: 170px;
+    }
 }
 .bottom-box{
     display: flex;
@@ -93,5 +105,14 @@ const addCart = async () => {
     border: #000 2px solid;
     font-size: 23px;
     border-radius: 5px;
+}
+.row{
+    display: flex;
+    justify-content: center;
+
+}
+.col-8 {
+    width: 80%;
+    margin-left: -15px;
 }
 </style>
