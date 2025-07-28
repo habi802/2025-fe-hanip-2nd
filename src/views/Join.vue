@@ -217,34 +217,34 @@ const submit = async () => {
   state.form.role = memberType.value;
 
   if (!validateForm()) {
-    alert('입력값을 다시 확인해주세요.');
+    showModal('입력값을 다시 확인해주세요.');
     return;
   }
 
   if (!state.form.loginId || !state.form.loginPw || !state.form.email) {
-    alert('아이디, 비밀번호, 이메일은 필수입니다.');
+    showModal('아이디, 비밀번호, 이메일은 필수입니다.');
     return;
   }
 
   if (memberType.value === 'customer') {
     if (!state.form.name) {
-      alert('이름은 필수입니다.');
+      showModal('이름은 필수입니다.');
       return;
     }
   } else {
     if (!state.owner.name || !state.owner.category) {
-      alert('가게명 및 카테고리는 필수입니다.');
+      showModal('가게명 및 카테고리는 필수입니다.');
       return;
     }
   }
 
   if (!agreement.terms.useTerms || !agreement.terms.privacyPolicy || !agreement.terms.thirdParty) {
-    alert('필수 약관에 동의해주세요.');
+    showModal('필수 약관에 동의해주세요.');
     return;
   }
 
   if (confirmPw.value !== state.form.loginPw) {
-    alert('비밀번호 확인이 일치하지 않습니다.');
+    showModal('비밀번호 확인이 일치하지 않습니다.');
     return;
   }
 
@@ -256,15 +256,15 @@ const submit = async () => {
   try {
     const res = await join(payload);
     if (res.status === 200) {
-      alert('회원가입 완료!');
+      showModal('회원가입 완료!');
       localStorage.setItem('user', JSON.stringify(res.data.resultData));
       router.push('/');
     } else {
-      alert('입력 정보를 다시 확인해 주세요.');
+      showModal('입력 정보를 다시 확인해 주세요.');
     }
   } catch (err) {
     console.error(err);
-    alert('회원가입 중 오류 발생');
+    showModal('회원가입 중 오류 발생');
   }
 };
 
@@ -274,6 +274,16 @@ const termsText = {
   privacyPolicy: `개인정보 수집 항목은 다음과 같으며...`,
   thirdParty: `당사는 다음과 같은 제3자에게 정보를 제공할 수 있습니다...`,
 };
+
+// 모달창 함수
+const showModal = (message) => {
+  const modalBody = document.getElementById('alertModalBody');
+  if (modalBody) modalBody.textContent = message;
+
+  const modal = new bootstrap.Modal(document.getElementById('alertModal'));
+  modal.show();
+};
+
 </script>
 
 <template>
@@ -402,12 +412,12 @@ const termsText = {
           </div>
           <div class="sevLine"></div>
           <!-- 이메일 -->
-          <div class="form-group">
+          <div class="form-group email-group">
             <div class="label">
               <span>*</span>
               <p>이메일</p>
-              <div class="mail">
-                <input v-model="state.form.email" @blur="validateEmail" :class="{ invalid: errors.email }" />
+              <div class="email">
+                <input v-model="state.form.email" @blur="validateEmail" :class="{ invalid: errors.email }" placeholder="example@example.com"/>
                 <p v-if="errors.email" class="error-msg">{{ errors.email }}</p>
               </div>
             </div>
@@ -484,6 +494,8 @@ const termsText = {
                 <input type="text" v-model="ownerTel3" @blur="validateOwnerTel"
                   :class="{ invalid: errors.ownerTel3 }" />
               </div>
+            </div>
+            <div class="telNum">
               <p v-if="errors.ownerTel2 || errors.ownerTel3" class="error-msg">
                 {{ errors.ownerTel2 || errors.ownerTel3 }}
               </p>
@@ -525,8 +537,10 @@ const termsText = {
               <div class="upload-row owner-sigin">
                 <input type="text" v-model="state.owner.businessNumber" @blur="validateBusinessNumber"
                   :class="{ invalid: errors.businessNumber }" />
-                <p v-if="errors.businessNumber" class="error-msg">{{ errors.businessNumber }}</p>
                 <button type="button">조회</button>
+                <div class="owner-upload-num">
+                  <p v-if="errors.businessNumber" class="error-msg owner-up">{{ errors.businessNumber }}</p>
+                </div>
               </div>
             </div>
           </div>
@@ -536,8 +550,8 @@ const termsText = {
             <div class="label">
               <span>*</span>
               <p>이메일</p>
-              <div class="email">
-                <input type="email" v-model="state.form.email" @blur="validateEmail" :class="{ invalid: errors.email }"
+              <div class="mail">
+                <input type="email" id="email" v-model="state.form.email" @blur="validateEmail" :class="{ invalid: errors.email }"
                   placeholder="example@example.com" />
                 <p v-if="errors.email" class="error-msg">{{ errors.email }}</p>
               </div>
@@ -563,11 +577,13 @@ const termsText = {
                   <input type="text" v-model="ownerPhone3" @blur="validateOwnerPhone"
                     :class="{ invalid: errors.ownerPhone3 }" />
                 </div>
-                <p v-if="errors.ownerPhone2 || errors.ownerPhone3" class="error-msg"><span class="telNum">
-                    {{ errors.ownerPhone2 || errors.ownerPhone3 }}
-                  </span>
-                </p>
               </div>
+            </div>
+            <div class="phoneNum">
+              <p v-if="errors.ownerPhone2 || errors.ownerPhone3" class="error-msg"><span class="telNum">
+                  {{ errors.ownerPhone2 || errors.ownerPhone3 }}
+                </span>
+              </p>
             </div>
           </div>
           <div class="sevLine"></div>
@@ -635,6 +651,20 @@ const termsText = {
       </form>
     </div>
   </div>
+  <!-- 공통 알림 모달 -->
+  <div class="modal fade" id="alertModal" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">알림</h5>
+        </div>
+        <div class="modal-body" id="alertModalBody">내용</div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-primary" data-bs-dismiss="modal">확인</button>
+        </div>
+      </div>
+    </div>
+  </div>
 </template>
 
 <style lang="scss" scoped>
@@ -694,7 +724,6 @@ label.serveTitle {
 // 유효성 검사
 input[type='text'],
 input[type='password'],
-input[type='email'],
 select {
   width: 100%;
   max-width: 400px;
@@ -727,7 +756,10 @@ select.invalid {
   font-size: 15px;
   font-weight: 600;
 }
-
+.owner-upload-num {
+  margin-left: -25px;
+  margin-top: -10px;
+}
 .container {
   .label {
     // 필수 입력 정보 설명
@@ -745,6 +777,10 @@ select.invalid {
       font-size: 15px;
       font-weight: 600;
       transition: color 0.3s ease;
+    }
+
+    span.owner-upload-num {
+      margin-top: -5px;
     }
 
     // 아이디 중복 확인
@@ -974,6 +1010,9 @@ select.invalid {
   .form-group {
     .id {
       margin-left: -15px;
+      input {
+        max-width: 490px;
+      }
     }
 
     .password {
@@ -983,8 +1022,7 @@ select.invalid {
     .password2 {
       margin-left: -65px;
     }
-
-    .mail {
+    .email {
       margin-left: -10px;
     }
   }
@@ -1028,6 +1066,9 @@ select.invalid {
       border-radius: 8px;
       margin-left: 138px;
       vertical-align: middle;
+    }
+    .form-group.mail {
+      width: 620px !important;
     }
   }
 
@@ -1180,6 +1221,7 @@ select.invalid {
     }
   }
 
+
   // 회원가입 완료 버튼
   .form-submit {
     margin-top: 1rem;
@@ -1231,4 +1273,5 @@ select.invalid {
     }
   }
 }
+
 </style>
