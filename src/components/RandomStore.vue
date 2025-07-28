@@ -1,5 +1,5 @@
 <script setup>
-import { reactive, computed, onMounted } from "vue";
+import { reactive, computed, onMounted,ref } from "vue";
 import { useRouter } from "vue-router";
 import defaultImage from "@/imgs/owner/haniplogo_sample2.png";
 import { getReviewsByStoreId } from "@/services/reviewServices";
@@ -30,8 +30,8 @@ reviews();
 
 // 별점 조회
 
-let total = 0;
-let leng = 0;
+let total = ref(0);
+let leng = ref(0);
 
 const reviews = async() => {
     const res = await getReviewsByStoreId(props.stores.storeId);
@@ -45,7 +45,7 @@ const reviews = async() => {
         totals += forNum;
     }
     totals = (totals/length?.length).toFixed(1);
-    total = totals;
+    total.value = totals;
     // console.log("total", totals);
     
 }
@@ -69,7 +69,13 @@ const reviews = async() => {
       <p class="mb-1 text-muted">배달비 0원 ~ 3000원</p>
       <p class="mb-2 text-muted">최소 주문 금액 10,000원</p>
       <div class="d-flex justify-content-between align-items-center">
-        <div class="small">⭐ {{ total }} ({{ leng }})     &nbsp;&nbsp; ❤️ {{ props.stores.favorites }}</div>
+        <div v-if="total !== 'NaN'">
+            <div class="small">⭐ {{ total }} ({{ leng }})     &nbsp;&nbsp; ❤️ {{ props.stores.favorites }}</div>
+        </div>
+        <div v-else>
+            <div class="small">⭐ 0 ({{ leng }})     &nbsp;&nbsp; ❤️ {{ props.stores.favorites }}</div>
+
+        </div>
         <button @click="sotreRouter" class="btn btn-outline-danger btn-sm">자세히보기</button>
       </div>
     </div>
