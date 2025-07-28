@@ -1,7 +1,7 @@
 <script setup>
-import { defineProps, reactive, ref, computed } from "vue";
+import { reactive, ref, computed } from "vue";
 import defaultMenuImage from "@/imgs/owner/haniplogo_sample.png";
-import { modifyMenu, getMenus, deleteMenu } from "@/services/menuService";
+import { modifyMenu, deleteMenu } from "@/services/menuService";
 import { useRouter } from "vue-router";
 import defaultImage from "@/imgs/owner/haniplogo_sample.png"
 

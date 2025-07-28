@@ -2,7 +2,7 @@
 import { getOwnerOrder } from "@/services/orderService";
 import { activeStore, getOwnerStore } from "@/services/storeService";
 import { useOrderStore } from "@/stores/orderStore";
-import { ref, onMounted, provide, watch, computed, reactive } from "vue";
+import { ref, onMounted, onUnmounted, provide, watch, computed, reactive } from "vue";
 import { RouterLink, useRouter, useRoute } from "vue-router";
 import { logout } from "@/services/userService";
 import { useAccountStore } from "@/stores/account";
@@ -18,37 +18,23 @@ const orderStore = useOrderStore();
 const notifications = ref([]); // 알림배열
 const removedNotification = ref(new Set());
 
-const homeRouter = () => {
-  router.push("/");
-};
-
 onMounted(async () => {
   const res = await getOwnerStore();
-  
-  // console.log("res: ", res.data.resultData)
   if (res.status !== 200) {
     alert("에러");
     return;
   }
+
   state.form = res.data.resultData;
   isOpen.value = state.form.isActive;
 
-  // id가 준비된 후에 호출
   if (state.form.id) {
-    await getOwnerOrder(state.form.id);
-    orderStore.fetchOrders(state.form.id);
+    await orderStore.fetchOrders(state.form.id); 
+    // pollingInterval = setInterval(() => {
+    //   orderStore.fetchOrders(state.form.id);
+    // }, 5000);
   }
-
-  // 5초마다 반복 호출 서버 로그 방해 되면 아랫줄 주석 처리할것
-  if(state.form.id) {
-    orderStore.fetchOrders(state.form.id);
-  }
-  setInterval(() => {
-    orderStore.fetchOrders(state.form.id);
-  }, 5000);
-   
 });
-
 
 
 
@@ -59,7 +45,7 @@ const state = reactive({
 
 const menus = [
   { text: "대시보드", path: "/owner/dashboard" },
-  { text: "가게 수정", path: "/owner/store" },
+  { text: "가게 상태 관리", path: "/owner/status" },
   { text: "주문 관리", path: "/owner/orders" },
   { text: "메뉴 관리", path: "/owner/menu" },
   { text: "리뷰 관리", path: "/owner/review" },
@@ -70,16 +56,6 @@ const menus = [
   { text: "광고 관리", path: "/owner/ads" },
 ];
 
-// 데이터 가져오기
-watch(
-  () => state.form.id,
-  (newId) => {
-    if (newId) {
-      console.log("보내는 storeId:", newId);
-      orderStore.fetchOrders(newId);
-    }
-  }
-);
 
 // 알림 갱신
 onMounted(async () => {
@@ -125,27 +101,28 @@ const removeNotification = (id) => {
 };
 
 // 영업 버튼 토글
-const isOpen = ref();
+const isOpen = ref(false);
 
 const toggleBusiness = async () => {
-  console.log("isActive: ", isOpen.value);
   const storeId = state.form.id;
-  // await activeStore(storeId);
+  const willOpen = !isOpen.value; // <- 변경 전 값을 기준으로
 
-  if (isOpen.value === 0) {
-    if (confirm("가게 영업을 시작하시겠습니까?")) {
-      await activeStore(storeId);
-      await router.push({ path: "/" });
-      await router.push({ path: "/owner/dashboard" });
-    }
-  }
+  const confirmMessage = willOpen
+    ? "가게 영업을 시작하시겠습니까?"
+    : "가게 영업을 중지하겠습니까?";
 
-  if (isOpen.value === 1) {
-    if (confirm("가게 영업을 중지하겠습니까?")) {
-      await activeStore(storeId);
-      await router.push({ path: "/" });
-      await router.push({ path: "/owner" });
+  if (confirm(confirmMessage)) {
+    await activeStore(storeId);
+
+    const res = await getOwnerStore();
+    if (res.status === 200) {
+      state.form = res.data.resultData;
+      isOpen.value = state.form.isActive;
     }
+  } else {
+    // 취소되면 원래대로 복원
+    // 현재는 토글된 상태이므로 반대로 되돌려야 함
+    isOpen.value = !willOpen;
   }
 };
 
@@ -171,6 +148,35 @@ const logoutOwner = async () => {
 const storeModify = async() => {
   router.push("/owner/store");
 }
+
+// 시계
+const currentTime = ref('');
+
+const updateClock = () => {
+  const now = new Date();
+
+  const month = now.getMonth() + 1;
+  const date = now.getDate();
+  const dayNames = ['일', '월', '화', '수', '목', '금', '토'];
+  const day = dayNames[now.getDay()];
+
+  const hours = String(now.getHours()).padStart(2, '0');
+  const minutes = String(now.getMinutes()).padStart(2, '0');
+  const seconds = String(now.getSeconds()).padStart(2, '0');
+
+  currentTime.value = `${month}월 ${date}일 (${day})  ${hours}:${minutes}:${seconds}`;
+};
+
+let intervalId = null;
+
+onMounted(() => {
+  updateClock();
+  intervalId = setInterval(updateClock, 1000); 
+});
+
+onUnmounted(() => {
+  clearInterval(intervalId);
+});
 </script>
 
 <template>
@@ -180,11 +186,20 @@ const storeModify = async() => {
       <div class="text-center mb-5">
         <img
           class="logo"
-          @click="homeRouter"
           src="/src/imgs/haniplogo3.png"
           alt="logo"
           style="width: 180px"
         />
+        <!-- 시각 -->
+        <div class="text-black-50 mb-4" style="font-weight: 600; font-size: 17px;">{{ currentTime  }}</div>
+        <!-- 토글버튼 -->
+         <div class="toggle-container d-flex justify-content-center">
+          <span>영업 상태</span>
+          <label class="switch">
+            <input type="checkbox" :checked="isOpen" @change="toggleBusiness" />
+            <span class="slider"></span>
+          </label>
+         </div>
       </div>
       <ul class="nav nav-pills flex-column gap-4">
         <li class="nav-item" v-for="menu in menus" :key="menu.text">
@@ -231,16 +246,8 @@ const storeModify = async() => {
             </form>
           </li>
 
-          <button
-            :class="['btn', isOpen === 1 ? 'btn-success' : 'btn-danger']"
-            @click="toggleBusiness"
-            style="height: 50px"
-          >
-            {{ isOpen === 1 ? "영업 진행" : "영업 중단" }}
-          </button>
-
           <!-- 드랍다운 -->
-          <div class="relative d-flex">
+          <div class="relative d-flex gap-2">
             <div class="dropdown position-relative">
               <img
                 src="/src/imgs/owner/icon_bell.svg"
@@ -326,9 +333,6 @@ const storeModify = async() => {
 .box {
   font-family: "Pretendard", sans-serif;
 }
-img.logo {
-  cursor: pointer;
-}
 
 .padding {
   padding-top: 20px;
@@ -366,7 +370,7 @@ img.logo {
 
 .search {
   border-radius: 10px;
-  width: 730px;
+  width: 800px;
   height: 50px;
 }
 
@@ -385,5 +389,62 @@ img.logo {
   width: 1.5px;
   height: 45px;
   background-color: #d1d1d1;
+}
+
+// 토글버튼
+.toggle-container {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-weight: bold;
+  color: #403f57;
+  margin: 10px 0;
+  font-size: 17px;
+}
+
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 66px;
+  height: 32px;
+}
+
+.switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.slider {
+  position: absolute;
+  cursor: pointer;
+  background-color: #c4c4c4;
+  border: 1px solid #403f57;
+  border-radius: 34px;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  transition: 0.4s;
+}
+
+.slider::before {
+  position: absolute;
+  content: "";
+  height: 30px;
+  width: 30px;
+  left: 0px;
+  bottom: 0px;
+  background-color: white;
+  transition: 0.4s;
+  border-radius: 50%;
+}
+
+input:checked + .slider {
+  background-color: #ff6666;
+}
+
+input:checked + .slider::before {
+  transform: translateX(34px);
 }
 </style>

@@ -1,12 +1,13 @@
 <script setup>
-import { reactive } from "vue";
+import { reactive, onMounted } from "vue";
+import { getUser } from "@/services/userService";
 
 // 컴포넌트 import
 import Account from "@/components/myPage/Account.vue";
 
 //
 const user = reactive({
-  name: "데이터 연동 필요",
+  name: "데이터 연동 필요", // 데이터 연동 필요함
   orders: 0,
   cupon: 0,
   point: 0,
@@ -18,6 +19,26 @@ const myAccount = [
   "즐겨찾기",
   "고객센터",
 ];
+
+onMounted ( () => {
+  getUser()
+    .then(res => {
+      if (res.status === 200) {
+        console.log("user data:", res.data); // 확인용
+        const data = res.data.resultData;
+        user.name = data.name;
+        // user.orders = data.orders;
+        // user.cupon = data.cupon;
+        // user.point = data.point;
+      } else {
+        console.warn("사용자 정보를 가져올 수 없음", res);
+      }
+    })
+    .catch(err => {
+      console.error("사용자 정보 요청 실패", err);
+    });
+});
+
 </script>
 <template>
   <div class="allBox">
@@ -66,13 +87,13 @@ const myAccount = [
   display: flex;
   justify-content: center;
   height: 500px;
+  margin-bottom: -230px;
   .userboard {
     align-items: center;
-    //
     display: flex;
     justify-content: space-around;
-    margin-top: 165px;
-    width: 1390px;
+    margin-top: 85px;
+    width: 1110px;
     height: 228px;
     border-radius: 25px;
     border: #000 solid 1px;
@@ -112,8 +133,9 @@ const myAccount = [
       font-family: "BMJUA";
       font-size: 1.2em;
       margin-top: 20px;
-      margin-left: -170px;
+      margin-left: -274px;
       width: 250px;
+
       .num {
         margin-top: 10px;
         font-size: 1.3em;
