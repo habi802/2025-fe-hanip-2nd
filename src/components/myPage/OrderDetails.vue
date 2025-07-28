@@ -8,6 +8,7 @@ import { getReviewsByStoreId } from '@/services/reviewServices';
 import { useRouter } from 'vue-router';
 import { getStore } from '@/services/storeService';
 import { useCartStore } from '@/stores/cart';
+import { addItem } from '@/services/cartService';
 
 //라우터
 const router = useRouter();
@@ -74,7 +75,7 @@ const filteredOrders = computed(() => state.orders.filter(order => order.isdelet
 // 재주문
 const cartStore = useCartStore();
 
-const reorder = (menus) => {
+const reorder = async (menus) => {
   const addMenus = menus.map(menu => ({
     id: menu.menuId,
     name: menu.name,
@@ -82,6 +83,11 @@ const reorder = (menus) => {
     quantity: menu.quantity,
   }));
 
+  const res = await addItem( addMenus );
+  if(res.status !== 200) {
+    alert("오류 발생")
+    return;
+  }
   cartStore.addMenus(addMenus);
   console.log("CartStore 상태:", cartStore.state.items);
   router.push("/cart");
