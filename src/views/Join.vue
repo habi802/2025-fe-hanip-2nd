@@ -1,7 +1,7 @@
 <script setup>
 import router from '@/router/index';
 import { reactive, ref, watch } from 'vue';
-import { join } from '@/services/userService';
+import { join, check } from '@/services/userService';
 
 // 유효성 검사 에러 메세지
 const errors = reactive({
@@ -94,6 +94,32 @@ const validateForm = () => {
   return Object.values(errors).every((msg) => msg === '');
 };
 
+// 아이디 중복 검사 유효성 코드
+const checkResult = ref('');
+
+// 아이디 중복 확인 함수
+const checkDuplicateId = async () => {
+  validateLoginId();
+  if (errors.loginId !== '') return;
+
+  try {
+    const response = await check(state.form.loginId);
+    const { available } = response.data;
+
+    if (available) {
+      checkResult.value = '사용 가능한 아이디입니다.';
+      errors.loginId = '';
+    } else {
+      checkResult.value = '';
+      errors.loginId = '이미 사용 중인 아이디입니다.';
+    }
+  } catch (err) {
+    checkResult.value = '';
+    errors.loginId = '서버 오류로 확인에 실패했습니다.';
+    console.error(err);
+  }
+};
+
 // 회원 타입
 const memberType = ref('customer');
 
@@ -102,7 +128,6 @@ const confirmPw = ref('');
 const phone1 = ref('010');
 const phone2 = ref('');
 const phone3 = ref('');
-const phoneAreaCode = ref('02');
 
 const ownerTel1 = ref('02');
 const ownerTel2 = ref('');
@@ -279,8 +304,9 @@ const termsText = {
               <div class="id">
                 <input v-model="state.form.loginId" :class="{ invalid: errors.loginId }" @blur="validateLoginId"
                   placeholder="영문 소문자/숫자, 4~16자" />
-                <button type="button">아이디 중복</button>
+                <button type="button" @click="checkDuplicateId">아이디 중복</button>
                 <p v-if="errors.loginId" class="error-msg">{{ errors.loginId }}</p>
+                <p v-if="checkResult" class="success-msg">{{ checkResult }}</p>
               </div>
             </div>
           </div>
@@ -336,48 +362,6 @@ const termsText = {
             </div>
           </div>
           <div class="sevLine"></div>
-          <!-- 일반번호 -->
-          <div class="form-group phone-input-wrap">
-            <div class="label">
-              <span>*</span>
-              <p>일반번호</p>
-              <div class="phone-input">
-                <select v-model="phoneAreaCode">
-                  <option>02</option>
-                  <option>031</option>
-                  <option>032</option>
-                  <option>033</option>
-                  <option>041</option>
-                  <option>042</option>
-                  <option>043</option>
-                  <option>051</option>
-                  <option>052</option>
-                  <option>053</option>
-                  <option>054</option>
-                  <option>055</option>
-                  <option>061</option>
-                  <option>063</option>
-                  <option>064</option>
-                  <option>0502</option>
-                  <option>0503</option>
-                  <option>0504</option>
-                  <option>0505</option>
-                  <option>0506</option>
-                  <option>0507</option>
-                  <option>0508</option>
-                  <option>070</option>
-                  <option>010</option>
-                  <option>016</option>
-                  <option>017</option>
-                  <option>018</option>
-                  <option>019</option>
-                </select>
-                <input type="text" />
-                <input type="text" />
-              </div>
-            </div>
-          </div>
-          <div class="sevLine"></div>
           <!-- 휴대전화 -->
           <div class="form-group phone-input-wrap">
             <div class="label">
@@ -397,7 +381,7 @@ const termsText = {
             </div>
             <div class="telNum">
               <p v-if="errors.phone2 || errors.phone3" class="error-msg">
-                  {{ errors.phone2 || errors.phone3 }}
+                {{ errors.phone2 || errors.phone3 }}
               </p>
             </div>
           </div>
@@ -486,7 +470,7 @@ const termsText = {
                   :class="{ invalid: errors.ownerTel3 }" />
               </div>
               <p v-if="errors.ownerTel2 || errors.ownerTel3" class="error-msg">
-                  {{ errors.ownerTel2 || errors.ownerTel3 }}
+                {{ errors.ownerTel2 || errors.ownerTel3 }}
               </p>
             </div>
           </div>
@@ -718,14 +702,16 @@ select.invalid {
   //border-color: #ff6666;
   background-color: #ffe5e5;
 }
-    // 전화번호 에러메세지 정렬
-    .telNum {
-      display: flex;
-      margin: 10px 0 -13px 300px;
-      color: #ff6666;
-      font-size: 15px;
-      font-weight: 600;
-    }
+
+// 전화번호 에러메세지 정렬
+.telNum {
+  display: flex;
+  margin: 10px 0 -13px 300px;
+  color: #ff6666;
+  font-size: 15px;
+  font-weight: 600;
+}
+
 .container {
   .label {
     // 필수 입력 정보 설명
