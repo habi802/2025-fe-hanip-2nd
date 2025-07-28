@@ -11,7 +11,7 @@ const storeRouter = () => {
 };
 
 // 가게 이미지
-const img = `/pic/store-profile/${props.stores.storeId}/${props.stores.imagePath}`
+// const img = `/pic/store-profile/${props.stores.storeId}/${props.stores.imagePath}`
 
 // 가게 이미지가 없을 시 대체 이미지 나타내기
 const imgSrc = computed(() => {
