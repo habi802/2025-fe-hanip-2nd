@@ -14,6 +14,10 @@ export const check = () => {
     return axios.get(`${path}/check`).catch(e => e.response);
 }
 
+export const findId = ({ loginId, role }) => {
+    return axios.post(`${path}/check-id`, { loginId, role }).catch(e => e.response);
+}
+
 export const logined = () => {
     return axios.get(path).catch(e => e.response);
 }

@@ -1,7 +1,7 @@
 <script setup>
 import router from '@/router/index';
 import { reactive, ref, watch } from 'vue';
-import { join, check } from '@/services/userService';
+import { join, findId } from '@/services/userService';
 
 // 유효성 검사 에러 메세지
 const errors = reactive({
@@ -99,24 +99,39 @@ const checkResult = ref('');
 
 // 아이디 중복 확인 함수
 const checkDuplicateId = async () => {
+  // 1. 아이디 유효성 검사 먼저 수행
   validateLoginId();
-  if (errors.loginId !== '') return;
+  if (errors.loginId !== '') return; // 유효성 에러 있으면 중복검사 중단
 
   try {
-    const response = await check(state.form.loginId);
-    const { available } = response.data;
+    // 2. findId 함수 호출 (loginId와 role 객체 형태로 전달)
+    const response = await findId({ loginId: state.form.loginId, role: memberType.value });
+
+    // 3. HTTP 상태 코드가 200이 아닐 경우 (즉, 중복 시 400 등 에러 상태)
+    if (response.status !== 200) {
+      // 서버가 보낸 에러 메시지를 에러 상태에 반영
+      errors.loginId = response.data?.resultMessage || '중복 확인 실패';
+      checkResult.value = ''; // 중복 확인 결과 메시지 초기화
+      return; // 함수 종료
+    }
+
+    // 4. 정상 응답 시 resultData가 null이면 사용 가능한 아이디로 간주
+    const available = response.data.resultData === null;
 
     if (available) {
+      // 5. 사용 가능한 아이디일 때 메시지 설정
       checkResult.value = '사용 가능한 아이디입니다.';
       errors.loginId = '';
     } else {
+      // 6. 중복된 아이디일 때 메시지 설정
       checkResult.value = '';
       errors.loginId = '이미 사용 중인 아이디입니다.';
     }
   } catch (err) {
+    // 7. 네트워크 오류나 예외 발생 시 에러 메시지 처리
     checkResult.value = '';
     errors.loginId = '서버 오류로 확인에 실패했습니다.';
-    console.error(err);
+    console.error('중복 검사 에러:', err);
   }
 };
 
@@ -306,7 +321,7 @@ const termsText = {
                   placeholder="영문 소문자/숫자, 4~16자" />
                 <button type="button" @click="checkDuplicateId">아이디 중복</button>
                 <p v-if="errors.loginId" class="error-msg">{{ errors.loginId }}</p>
-                <p v-if="checkResult" class="success-msg">{{ checkResult }}</p>
+                <p v-else-if="checkResult" class="success-msg">{{ checkResult }}</p>
               </div>
             </div>
           </div>
@@ -703,6 +718,7 @@ select.invalid {
   background-color: #ffe5e5;
 }
 
+
 // 전화번호 에러메세지 정렬
 .telNum {
   display: flex;
@@ -728,6 +744,18 @@ select.invalid {
       color: #ff6666;
       font-size: 15px;
       font-weight: 600;
+      transition: color 0.3s ease;
+    }
+
+    // 아이디 중복 확인
+    p.success-msg {
+      color: #2f57db;
+      font-size: 15px;
+      font-weight: 600;
+      margin-top: 10px;
+      margin-left: 170px;
+      user-select: none;
+      transition: color 0.3s ease;
     }
 
     .label {
