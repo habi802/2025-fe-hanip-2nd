@@ -4,6 +4,8 @@ import { ref, onMounted, computed, onActivated } from "vue";
 import { getStoreList } from "@/services/storeService";
 import { getFavorite } from "@/services/favoriteService";
 import { useRouter, useRoute } from "vue-router";
+import { watch } from "vue";
+import { getFavoriteList } from "@/services/favoriteService";
 
 const router = useRouter();
 const route = useRoute();
@@ -18,24 +20,27 @@ const allStores = ref([]);
 
 const fetchFavorites = async () => {
   const storeListRes = await getStoreList();
-  if (storeListRes?.data?.resultData) {
+  const favoriteListRes = await getFavoriteList();
+
+  if (storeListRes?.data?.resultData && favoriteListRes?.data?.resultData) {
     allStores.value = storeListRes.data.resultData;
 
-    // 여기서 모든 store에 대해 찜 상태 확인
-    for (const store of allStores.value) {
-      const storeId = store.id || store.storeId; // 둘 중 하나라도 있으면 사용
-      if (!storeId) continue; // 없으면 스킵
-
-      const res = await getFavorite(storeId);
-      if (res?.data?.resultData !== null) {
-        favoriteStore.toggleFavorite(storeId);
-      }
-    }
+    const favoriteIds = favoriteListRes.data.resultData.map( store => store.id || store.storeId ) 
+    favoriteStore.setFavorites(favoriteIds);
   }
 };
 
 onMounted(fetchFavorites);
 onActivated(fetchFavorites);
+
+watch(
+  () => route.path,
+  (path) => {
+    if(path === "/favorites"){
+    fetchFavorites();
+    }
+  }
+);
 
 const favoriteStores = computed(() => {
   console.log("찜한 storeIds:", favoriteStore.state.storeIds);
@@ -66,8 +71,7 @@ console.log("라우터로 받은 storeId:", storeId);
         <div class="solid"></div>
       </div>
 
-      <div v-if="sotreIds !== null">
-        <!-- 구역 구분용 찜하기가 있으면 -->
+      <div v-if="favoriteStores.length > 0">
         <div class="store-list">
           <div
             class="store-card"
@@ -104,7 +108,6 @@ console.log("라우터로 받은 storeId:", storeId);
       </div>
 
       <div v-else>
-        <!-- 장바구니가 비었을 때  -->
         <div class="container">
           <div class="text-no">찜한 가게가 없습니다</div>
           <div class="img-box">
@@ -115,6 +118,7 @@ console.log("라우터로 받은 storeId:", storeId);
     </div>
   </div>
 </template>
+
 
 <style lang="scss" scoped>
 @font-face {
