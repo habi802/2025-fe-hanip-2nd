@@ -41,6 +41,7 @@ const state = reactive({
   ownerCommentNum: 0,
 });
 
+
 // 장바구니 총 금액 표시하기 위한 변수
 const totalPrice = ref(0);
 
@@ -71,7 +72,7 @@ const loadStore = async (id) => {
   // console.log("storeInfo", storeInfo);
 
   state.storeInfo = storeInfo.data.resultData;
-  // console.log("storeInfo :", state.storeInfo[0]);
+  console.log("storeInfo :", state.storeInfo[0]);
 
   // 조회 성공 시 가게 찜 추가 여부 조회 함수 호출
   loadFavorite(id);
@@ -162,11 +163,7 @@ const loadReviews = async (id) => {
   loadCarts(id);
 };
 
-// // 가게 찜 점수 조회
-// const storeFav = async (storeId) => {
-//   const res = await getStoreFavorite(id);
-//   console.log("storeFav", res.data);
-// }
+
 
 // 고객 유저 장바구니 조회
 const loadCarts = async (id) => {
@@ -360,16 +357,11 @@ const reviewbutton = () => {
   menubtn.value = false;
   reviewbtn.value = true;
 };
-// 찜 횟수 조회
-const faivor = async () => {
-  console.log("favor", state.store)
-}
 
 
 //
 
-// 가게 이미지
-// const img = `/pic/store-profile/${props.stores.storeId}/${props.stores.imagePath}`
+
 
 // 가게 이미지가 없을 시 대체 이미지 나타내기
 // const imgSrc = computed(() => {
@@ -377,6 +369,10 @@ const faivor = async () => {
 //   ? `/pic/store-profile/${props.stores.storeId}/${props.stores.imagePath}`
 //   : defaultImage;
 // })
+
+// 가게 이미지
+const storeImg = `/pic/store-profile/${state.store.storeId}/${state.storeInfo[0]?.imagePath}`;
+
 
 
 </script>
@@ -392,6 +388,7 @@ const faivor = async () => {
               <div class="store-image border rounded h-100">
                 <div class="img-one">
                   <!-- <img class="sImg" :src="imgSrc" @error="e => e.target.src = defaultImage" /> -->
+                  <img class="storeImg" :src="storeImg" @error="e => e.target.src = '/src/imgs/owner/owner-service3.png'" />
                 </div>
               </div>
             </div>
@@ -793,5 +790,15 @@ const faivor = async () => {
 
 .modal {
   top: 7%;
+}
+
+.img-one {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  .storeImg {
+    width: 270px;
+  }
 }
 </style>
