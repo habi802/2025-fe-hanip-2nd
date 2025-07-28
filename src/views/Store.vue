@@ -1,5 +1,5 @@
 <script setup>
-import { onMounted, reactive, ref } from "vue";
+import { onMounted, reactive, ref, computed } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { getStore, getStoreList } from "@/services/storeService";
 import { getOneMenu } from "@/services/menuService";
@@ -73,7 +73,8 @@ const loadStore = async (id) => {
   // console.log("storeInfo", storeInfo);
 
   state.storeInfo = storeInfo.data.resultData;
-  console.log("storeInfo :", state.storeInfo[0]);
+  // console.log("storeInfo :", state.storeInfo[0]);
+  // console.log("storeId:", state.store.id);
 
   // 조회 성공 시 가게 찜 추가 여부 조회 함수 호출
   loadFavorite(id);
@@ -202,6 +203,8 @@ const toggleFavorite = async (id) => {
     favoriteStore.toggleFavorite(storeId);
     console.log('찜 상태 저장됨:', favoriteStore.state.storeIds);
   }
+  loadReviews(id);
+  loadStore(id);
 };
 
 // 장바구니 추가 함수(Menu.vue 컴포넌트에서 받아옴)
@@ -372,7 +375,13 @@ const reviewbutton = () => {
 // })
 
 // 가게 이미지
-const storeImg = `/pic/store-profile/${state.store.storeId}/${state.storeInfo[0]?.imagePath}`;
+// const storeImg = `/pic/store-profile/${state.store.id}/${state.storeInfo[0]?.imagePath}`;/
+
+const imgSrc = computed(() => {
+  return state.store && state.storeInfo[0]?.imagePath && state.storeInfo[0]?.imagePath !== 'null'
+  ? `/pic/store-profile/${state.store.id}/${state.storeInfo[0]?.imagePath}`
+  : defaultImage;
+})
 
 
 
@@ -389,7 +398,7 @@ const storeImg = `/pic/store-profile/${state.store.storeId}/${state.storeInfo[0]
               <div class="store-image border rounded h-100 align-items-center">
                 <div class="img-one">
                   <!-- <img class="sImg" :src="imgSrc" @error="e => e.target.src = defaultImage" /> -->
-                  <img class="storeImg" :src="storeImg" @error="e => e.target.src = defaultImage" />
+                  <img class="storeImg" :src="imgSrc" @error="e => e.target.src = defaultImage" />
                 </div>
               </div>
             </div>
@@ -400,7 +409,7 @@ const storeImg = `/pic/store-profile/${state.store.storeId}/${state.storeInfo[0]
               <span>⭐ {{ state.reviewNum }}({{ state.reviews.length }})
                 <span class="favorite" @click="toggleFavorite(state.store.id)">{{ state.store.favorite ? "❤️" : "🤍"
                 }}</span>
-                {{ state.storeInfo[0]?.rating }}</span>
+                {{ state.storeInfo[0]?.favorites }}</span>
             </div>
             <div class="col-12 col-md-4">
               <div id="map" class="border rounded mb-2">
@@ -728,10 +737,14 @@ const storeImg = `/pic/store-profile/${state.store.storeId}/${state.storeInfo[0]
 }
 
 .store-image {
+  display: flex;
+  justify-content: center;
+  align-items: center;
   border-radius: 20px !important;
-  width: 246px !important;
+  width: 246px ;
   height: 183px !important;
   overflow: hidden;
+
   .img-one {
     width: 250px;
   }

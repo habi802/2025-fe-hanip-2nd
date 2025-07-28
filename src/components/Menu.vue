@@ -2,13 +2,14 @@
 import { addItem } from '@/services/cartService';
 import { useAccountStore } from '@/stores/account';
 import defaultImage from '@/imgs/owner/owner-service3.png';
+import { computed } from 'vue';
 
 const account = useAccountStore();
 const emit = defineEmits(['addCart'])
 
 const props = defineProps({
     item: {
-        id: Number,
+        menuId: Number,
         name: String,
         comment: String,
         price: Number,
@@ -17,7 +18,20 @@ const props = defineProps({
 });
 
 //메뉴 이미지
-const menuImg = `/pic/menu-profile/${props.item.id}/${props.item?.imagePath}`
+
+// const menuImg = `/pic/menu-profile/${props.item.id}/${props.item?.imagePath}`
+
+// const imgSrc = computed(() => {
+//   return state.store && state.storeInfo[0]?.imagePath && state.storeInfo[0]?.imagePath !== 'null'
+//   ? `/pic/store-profile/${state.store.id}/${state.storeInfo[0]?.imagePath}`
+//   : defaultImage;
+// })
+
+const menuSrc = computed(() => {
+  return props.item && props.item?.imagePath && props.item?.imagePath !== 'null'
+  ? `/pic/menu-profile/${props.item.menuId}/${props.item?.imagePath}`
+  : defaultImage;
+})
 
 const addCart = async () => {
     if (!account.state.loggedIn) {
@@ -37,8 +51,9 @@ const addCart = async () => {
         emit('addCart', props.item);
     }
 };
-
+console.log("props.img", props.item);
 // 
+
 
 </script>
 
@@ -60,7 +75,7 @@ const addCart = async () => {
                 </div> -->
             </div>
             <div id="menuImgs" class="col-4 col-md-2 border rounded">
-                <img class="menuImgBox" :src="menuImg" @error="e => e.target.src = defaultImage" />
+                <img class="menuImgBox" :src="menuSrc" @error="e => e.target.src = defaultImage" />
             </div>
         </div>
     </div>
