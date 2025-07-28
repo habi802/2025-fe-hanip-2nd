@@ -106,7 +106,7 @@ const img = "`/pic/menu-profile/${props.menu.menuId}/${props.menu.imagePath}`"
 <template>
   <div
     class="card mb-3 shadow-sm w-100"
-    style="max-width: 590px; height: 250px"
+    style="max-width: 485px; height: 250px"
   >
     <div class="row g-0 h-100">
       <div class="col-md-5 d-flex align-items-center justify-content-center">
@@ -124,7 +124,7 @@ const img = "`/pic/menu-profile/${props.menu.menuId}/${props.menu.imagePath}`"
         />
       </div>
       <div class="col-md-7 d-flex flex-column justify-content-between p-3">
-        <div>
+        <div class="pt-3">
           <h5 class="card-title card-size mb-3 pt-2">{{ props.menu.name }}</h5>
           <h6 class="text-muted mb-2">
             {{ props.menu.price.toLocaleString() + "원" }}

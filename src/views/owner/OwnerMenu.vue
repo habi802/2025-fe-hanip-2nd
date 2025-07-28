@@ -176,7 +176,7 @@ const fetchMenus = async () => {
     환영합니다!
   </div>
   <div class="padding pb-5">
-    <div class="row gap-3">
+    <div class="row row-2 gap-3">
       <OwnerMenuCard
         v-for="menu in state.form"
         :key="menu.id"
@@ -271,7 +271,7 @@ const fetchMenus = async () => {
 }
 
 .add-card {
-  width: 590px;
+  width: 480px;
   height: 250px;
   display: flex;
   justify-content: center;
