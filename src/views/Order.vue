@@ -73,7 +73,8 @@ onMounted(async () => {
     phone3.value = phone[2];
     state.form.phone = `${phone1.value}-${phone2.value}-${phone3.value}`;
 
-    state.carts = items.length !== 0 ? items : cart.state.items;
+    // state.carts = items.length !== 0 ? items : cart.state.items;
+    state.carts = cart.state.items;
     calculateTotal();
 });
 

@@ -251,7 +251,7 @@ const ownerName = inject("ownerName", "");
       </div>
     </div>
     <div class="container-fluid d-flex mb-5">
-      <div class="card shadow p-5 w-100" style="max-width: 1300px">
+      <div class="card shadow p-5 w-100" style="max-width: 1501px">
         <div class="ps-4">
           <div class="text-danger mb-4">
             <p class="mb-1">● 가게 정보 수정시 내용을 꼭 확인해주세요.</p>
