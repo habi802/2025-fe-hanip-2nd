@@ -1,5 +1,5 @@
 <script setup>
-import defaultImage from '@/imgs/owner/haniplogo_sample2.png'
+import defaultImage from '@/imgs/owner/owner-service3.png'
 
 const props = defineProps({
   item: {
