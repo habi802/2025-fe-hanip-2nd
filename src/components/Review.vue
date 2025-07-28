@@ -1,6 +1,7 @@
 <script setup>
 const props = defineProps({
   item: {
+    id: Number,
     userName: String,
     rating: Number,
     menuName: String,
@@ -11,6 +12,9 @@ const props = defineProps({
     created: String,
   },
 });
+
+//리뷰 이미지 저장
+const reviewImg = `/pic/menu-profile/${props.item.id}/${props.item?.imagePath}`
 </script>
 
 <template>
@@ -31,7 +35,10 @@ const props = defineProps({
           <!-- 이미지 -->
           <div class="review-image border">
             <!-- 이미지 필요 -->
-            <div></div>
+            <div>
+              <img class="reviewImg" :src="reviewImg"
+                @error="e => e.target.src = '/src/imgs/owner/owner-service3.png'" />
+            </div>
           </div>
         </div>
       </div>
@@ -87,10 +94,16 @@ const props = defineProps({
 }
 
 .review-image {
+  display: flex;
+  justify-content: center;
+  align-items: center;
   width: 270px !important;
   height: 160px;
   border-radius: 10px;
   overflow: hidden;
+  .reviewImg{
+    width: 270px;
+  }
 }
 
 #big-box {
