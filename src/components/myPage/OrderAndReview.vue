@@ -219,7 +219,7 @@ const idCheck = async () => {
   .bigBoard {
     width: 1440px !important;
     min-height: 330px; // 최소 높이
-    border: #cbcbcb 2px solid;
+    border: #797979 2px solid;
     border-radius: 25px;
     margin-bottom: 20px;
     //overflow: clip;
@@ -239,7 +239,7 @@ const idCheck = async () => {
         width: 260px;
         height: 170px;
         margin-top: 10px;
-        border: #6c6c6c 1px solid;
+        border: #797979 1px solid;
         border-radius: 20px;
         overflow: hidden;
 
@@ -343,7 +343,7 @@ const idCheck = async () => {
       height: 330px;
       margin-top: 20px;
       background-color: #fff;
-      border: #6c6c6c 3px solid;
+      border: #797979 3px solid;
       border-radius: 30px;
     }
 
@@ -386,7 +386,7 @@ const idCheck = async () => {
         width: 500px;
         height: 200px;
         border-radius: 30px;
-        border: #6c6c6c 3px solid;
+        border: #797979 3px solid;
         overflow: hidden;
       }
 

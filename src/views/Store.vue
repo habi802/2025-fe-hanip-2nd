@@ -570,8 +570,8 @@ const reviewbutton = () => {
 			</div>
 		</div>
 	</div>
-       <!-- 찜 실패 -->
-       <div class="modal fade" id="faiF" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+      <!-- 찜 실패 -->
+      <div class="modal fade" id="faiF" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
 		<div class="modal-dialog" role="document">
 			<div class="modal-content">
 				<div class="modal-header">
