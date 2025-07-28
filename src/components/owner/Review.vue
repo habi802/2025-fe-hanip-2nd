@@ -1,6 +1,6 @@
 <script setup>
-import { computed, ref , reactive, onMounted } from 'vue';
-import { useOwnerStore, useUserInfo,  } from '@/stores/account'
+import { computed, ref , reactive, onMounted, inject } from 'vue';
+import { useOwnerStore, useUserInfo } from '@/stores/account'
 import { useReviewStore } from '@/stores/review';
 import defaultUserProfile from "@/imgs/owner/user_profile.jpg"
 
@@ -171,13 +171,16 @@ const formatDateTime = (isoStr) => {
     minute: "2-digit",
     });
 };
+
+// 사장 대표자 이름
+const ownerName = inject("ownerName", "");
 </script>
 
 <template>
 <div class="wrap" > 
     <div>
         <h2>리뷰 관리</h2>
-        <span style="color : #838383">어서오세요! {{ userName }} 사장님, 관리자 페이지에 다시 오신것을 환영합니다</span>
+        <span style="color : #838383">어서오세요! {{ ownerName }} 사장님, 관리자 페이지에 다시 오신것을 환영합니다</span>
         
         <!-- 전체 토탈 카드 -->
         <div class="total-wrap">
