@@ -131,7 +131,7 @@ const reviews = async () => {
       display: flex;
       justify-content: center;
       align-items: center;
-      width: 100%;
+      width: 330px;
       height: 280px;
       overflow: hidden;
       //margin-left: 15px;
@@ -139,12 +139,8 @@ const reviews = async () => {
       border-radius: 20px 20px 0 0;
       
       .sImg {
-        width: 100%;
-        height: 100%;
-        text-align: center;
-        margin: auto;
-        border-radius: 20px 20px 0 0;
-        object-fit: cover;
+        width: 340px;
+        border-radius: 20px;
       }
     }
 
