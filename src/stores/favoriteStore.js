@@ -6,6 +6,10 @@ export const useFavoriteStore = defineStore('favorite', () => {
     storeIds: [],
   });
 
+  const setFavorites = (ids) => {
+    state.storeIds = ids;
+  };
+
   const toggleFavorite = (storeId) => {
     if (state.storeIds.includes(storeId)) {
       state.storeIds = state.storeIds.filter(id => id !== storeId);
@@ -15,5 +19,9 @@ export const useFavoriteStore = defineStore('favorite', () => {
     console.log('storeIds:', state.storeIds);
   };
 
-  return { state, toggleFavorite };
+  return { 
+    state, 
+    setFavorites,
+    toggleFavorite,
+   };
 });

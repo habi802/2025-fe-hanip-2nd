@@ -13,3 +13,7 @@ export const addFavorite = args => {
 export const deleteFavorite = id => {
     return axios.delete(`${path}/${id}`).catch(e => e.response);
 }
+
+export const getFavoriteList = () => {
+    return axios.get(path).catch( e => e.response );
+}
