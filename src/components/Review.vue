@@ -1,4 +1,6 @@
 <script setup>
+import defaultImage from '@/imgs/owner/owner-service3.png'
+
 const props = defineProps({
   item: {
     id: Number,
@@ -37,7 +39,7 @@ const reviewImg = `/pic/menu-profile/${props.item.id}/${props.item?.imagePath}`
             <!-- 이미지 필요 -->
             <div>
               <img class="reviewImg" :src="reviewImg"
-                @error="e => e.target.src = '/src/imgs/owner/owner-service3.png'" />
+                @error="e => e.target.src = defaultImage" />
             </div>
           </div>
         </div>

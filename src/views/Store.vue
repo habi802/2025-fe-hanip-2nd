@@ -15,6 +15,7 @@ import { useCartStore } from "@/stores/cart";
 import Menu from "@/components/Menu.vue";
 import Review from "@/components/Review.vue";
 import { useFavoriteStore } from "@/stores/favoriteStore";
+import defaultImage from '@/imgs/owner/owner-service3.png';
 
 const favoriteStore = useFavoriteStore();
 
@@ -388,7 +389,7 @@ const storeImg = `/pic/store-profile/${state.store.storeId}/${state.storeInfo[0]
               <div class="store-image border rounded h-100">
                 <div class="img-one">
                   <!-- <img class="sImg" :src="imgSrc" @error="e => e.target.src = defaultImage" /> -->
-                  <img class="storeImg" :src="storeImg" @error="e => e.target.src = '/src/imgs/owner/owner-service3.png'" />
+                  <img class="storeImg" :src="storeImg" @error="e => e.target.src = defaultImage" />
                 </div>
               </div>
             </div>

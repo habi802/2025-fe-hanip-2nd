@@ -1,6 +1,7 @@
 <script setup>
 import { addItem } from '@/services/cartService';
 import { useAccountStore } from '@/stores/account';
+import defaultImage from '@/imgs/owner/owner-service3.png';
 
 const account = useAccountStore();
 const emit = defineEmits(['addCart'])
@@ -61,7 +62,7 @@ const addCart = async () => {
                 </div>
             </div>
             <div id="menuImgs" class="col-4 col-md-2 border rounded">
-                <img class="menuImgBox" :src="menuImg" @error="e => e.target.src = '/src/imgs/owner/owner-service3.png'" />
+                <img class="menuImgBox" :src="menuImg" @error="e => e.target.src = defaultImage" />
             </div>
         </div>
     </div>
