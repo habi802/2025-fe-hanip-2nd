@@ -146,7 +146,7 @@ const ownerName = inject("ownerName", "");
   font-family: "Pretendard", sans-serif;
     display: flex;
     padding-left: 13px;
-    gap: 65px;
+    gap: 50px;
     margin-top: 5px;
     margin-bottom: 20px;
     .circle {
@@ -164,7 +164,7 @@ const ownerName = inject("ownerName", "");
       box-shadow: 2px 2px 5px 1px #c6c6c6;
       display: flex;
       height: 137px;
-      width: 327px;
+      width: 337px;
       :last-child {
         display: block;
       }

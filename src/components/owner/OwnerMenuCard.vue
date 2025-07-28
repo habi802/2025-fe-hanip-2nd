@@ -105,7 +105,7 @@ const img = "`/pic/menu-profile/${props.menu.menuId}/${props.menu.imagePath}`"
 
 <template>
   <div
-    class="card mb-3 shadow-sm w-100"
+    class="card mb-3 shadow-sm w-100 rounded-4"
     style="max-width: 485px; height: 250px"
   >
     <div class="row g-0 h-100">

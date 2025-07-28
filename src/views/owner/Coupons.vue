@@ -33,7 +33,7 @@ const ownerName = inject("ownerName", "");
 
 .owner-title2 {
   padding-left: 12px;
-  padding-bottom: 10px;
+  padding-bottom: 14px;
   color: #686868;
 }
 </style>
