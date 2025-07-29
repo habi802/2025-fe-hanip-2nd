@@ -147,7 +147,6 @@ const formatDateTime = (isoStr) => {
 </script>
 
 <template>
-
 <!-- 리뷰카드  -->
 <div class="review-box-wrap">
     <div class="review-box shadow"  v-for="(review, index) in reviewStore.reviews" :key="index">
@@ -213,30 +212,34 @@ const formatDateTime = (isoStr) => {
     </div>
 </div>
 
-
-    <!-- 부트스트랩 모달 -->
+<!-- 부트스트랩 모달 -->
+<Teleport to="body">
 <div class="modal fade" ref="addReviewModal" tabindex="-1">
     <div class="modal-dialog">
-    <div class="modal-content">
-        <div class="modal-header">
-        <h5 class="modal-title">답글 달기</h5>
-        <button
-            type="button"
-            class="btn-close"
-            data-bs-dismiss="modal"
-        ></button>
+    <div class="modal-content" style="padding: 20px 30px 20px 20px;">
+        <div class="modal-header" style="display:flex; justify-content: space-between;">
+        <h5 class="modal-title" style="font-weight: 700; ">답글 달기</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
         </div>
         <div class="modal-body">
-        <textarea class="form-control" v-model="ownerComment"  placeholder="답글을 입력하세요. 고객과의 소통은 매출상승의 지름길입니다!"  ></textarea>
+        <span style="margin-left: 10px;" > 고객 리뷰 </span>
+        <br></br>
+        <p class="form-control-customer">{{ selectedReview?.comment }}</p>
+        <br></br>
+        
+        
+        <span style="margin-left: 10px;">사장님 답글</span>
+        <br></br>
+        <textarea class="form-control" v-model="ownerComment"  placeholder="답글을 입력하세요. 고객과의 소통은 매출상승의 지름길입니다!" ></textarea>
         </div>
         <div class="modal-footer">
-        <button class="btn btn-secondary" data-bs-dismiss="modal"> 취소</button>
-        <button class="btn btn-comment" @click="submitReview">등록</button>
+        <button class="btn delete-btn" data-bs-dismiss="modal"> 취소</button>
+        <button class="btn accept-btn" @click="submitReview">등록</button>
         </div>
     </div>
     </div>
 </div>
-
+</Teleport>
 </template>
 
 <style lang="scss" scoped>
@@ -470,18 +473,103 @@ const formatDateTime = (isoStr) => {
     justify-content: center;
     width: max-content;
 
-    label {
-      display: flex;
-      flex-direction: column;
-      font-size: 13px;
+        label {
+        display: flex;
+        flex-direction: column;
+        font-size: 13px;
+        }
+
+        input[type="date"] {
+        padding: 5px;
+        border: 1px solid #ccc;
+        border-radius: 6px;
+        }
+    }
+}
+
+
+
+.accept-btn {
+  background: #f66463;
+  border: none;
+  color: white;
+  border-radius: 8px;
+  font-size: 18px;
+  width: 68px;
+  height: 42px;
+  transition: background-color 0.3s, color 0.3s;
+}
+
+.accept-btn:hover {
+  background: #d44b4a;
+}
+.accept-btn:active {
+  background: #b23837;
+}
+
+.delete-btn {
+  background: #a3a3a3;
+  border: none;
+  color: white;
+  border-radius: 8px;
+  font-size: 18px;
+  width: 68px;
+  height: 42px;
+  transition: background-color 0.3s, color 0.3s;
+}
+
+.delete-btn:hover {
+  background: #838383;
+}
+.delete-btn:active {
+  background: #696969;
+}
+
+.modal-body{
+    span{
+        color: #ff6666; font-weight: 700; font-size: 16pt;
     }
 
-    input[type="date"] {
-      padding: 5px;
-      border: 1px solid #ccc;
-      border-radius: 6px;
+    p{
+        border: #797979 solid 2px;
+        min-height: 200px;
+        border-radius: 10px;
+        padding: 12px;
+        box-sizing: border-box;
+        white-space: pre-wrap;       /* 줄바꿈과 공백 유지 + 자동 줄바꿈 허용 */
+        word-wrap: break-word;       /* 긴 단어도 줄바꿈 허용 */
+        overflow-wrap: break-word;   /* 최신 속성: 긴 단어 강제 줄바꿈 */
+        overflow: hidden;            /* 스크롤 제거 */
+
     }
-  }
+
+    textarea{
+        height: 200px;
+        border: #797979 solid 2px;
+        border-radius: 10px;
+        overflow-y: auto;
+        resize: vertical;           /* 크기 조절은 세로만 (원하면 제거 가능) */
+        overflow: auto;             /* 자동 스크롤 */
+        padding-right: 12px;        /* 스크롤과 글자 간격 확보 */
+        box-sizing: border-box;     /* 패딩 포함한 너비 계산 */
+    }
+    textarea::-webkit-scrollbar-track {
+    background: transparent !important; /* 트랙 배경 제거 */
+    margin: 2px 0;             /* 위아래 여백 줘서 둥근 모서리 맞춤 */
+    border-radius: 10px;       /* 트랙도 둥글게 */
+    }
+    textarea::-webkit-scrollbar {
+    width: 6px;              /* 스크롤바 너비 */
+    background: transparent;   /* 스크롤 영역 자체도 투명하게 */
+    
+    }
+    textarea::-webkit-scrollbar-thumb {
+    background-color: #aaa;  /* 스크롤바 색상 */
+    border-radius: 10px;     /* 둥글게 */
+    }
+    textarea::-webkit-scrollbar-thumb:hover {
+    background: #888;        /* 호버 시 조금 진하게 */
+    }
 
 }
 
