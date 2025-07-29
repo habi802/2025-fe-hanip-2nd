@@ -111,7 +111,7 @@ const statusText = computed(() => {
 });
 
 // 더보기
-const visibleCount = ref(5);
+const visibleCount = ref(3);
 const visibleOrders = computed(() => {
   return nonOrderedOrders.value
     .filter((order) => order.isDeleted !== 1)
@@ -313,7 +313,7 @@ const selectRange = async (range) => {
             </div>
             <img src="/src/imgs/owner/Icon_목록단추.svg" alt="목록단추" />
           </button>
-          <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+          <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdownMenuButton">
             <li>
               <button class="dropdown-item" @click="selectRange('7d')">
                 최근 1주일
@@ -354,7 +354,7 @@ const selectRange = async (range) => {
             font-size: 1.5rem;
             padding: 1rem 2rem;
             justify-content: center;
-            width: 755px;
+            width: 775px;
           "
         >
           더보기
