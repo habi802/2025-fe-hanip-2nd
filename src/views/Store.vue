@@ -748,8 +748,8 @@ const imgSrc = computed(() => {
   width: 246px;
   height: 183px !important;
   overflow: hidden;
-
-  .storeImg {
+  background-color: #f5f5f5;
+  .img-one {
     width: 250px;
   }
 }
