@@ -40,7 +40,7 @@ onMounted(async () => {
     router.push({ path: "/" });
     return;
   }
-
+  
   // 넘어온 쿼리가 있다면 ?
   if (route.query.id > 0) {
     const ress = await getStore(route.params.id);

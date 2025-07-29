@@ -48,6 +48,7 @@
       <div class="copyright">All right reserved.&copy;Hanip Company,2025</div>
     </div>
   </footer>
+  
 </template>
 <style lang="scss" scoped>
 @font-face {

@@ -109,7 +109,7 @@ const reorder = async (menus) => {
   router.push("/cart");
 }
 
-// 모달
+
 </script>
 
 <template>

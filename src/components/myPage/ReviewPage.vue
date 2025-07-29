@@ -357,7 +357,7 @@ const addReview = async () => {
 .allBox {
   display: flex;
   justify-content: center;
-  margin-top: 150px;
+  margin-top: 20px;
   width: 100%;
   height: 1050px;
 }
