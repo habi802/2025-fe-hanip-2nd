@@ -20,7 +20,7 @@ const state = reactive({
   reviews: [],
   reviewNum: 0,
   favorites: [],
-  store:{},
+  store: {},
 });
 
 const storeMap = reactive({});
@@ -39,7 +39,7 @@ const fetchStoreDetails = async () => {
       const ref = await getFavoriteList(storeId);
       if (ref?.status === 200 && ref.data?.resultStatus === 200) {
         state.favorites = ref.data.resultData;
-        console.log("fav",state.favorites);
+        console.log("fav", state.favorites);
       }
 
       if (res?.status === 200 && res.data?.resultStatus === 200) {
@@ -163,9 +163,9 @@ const grandTotalPrice = computed(() => {
 // 가게 이미지
 const imgSrc = computed(() => {
 
-return state.store.id && state.store.imagePath && state.store.imagePath !== 'null'
-  ? `/pic/store-profile/${state.store.id}/${state.store.imagePath}`
-  : defaultImage;
+  return state.store.id && state.store.imagePath && state.store.imagePath !== 'null'
+    ? `/pic/store-profile/${state.store.id}/${state.store.imagePath}`
+    : defaultImage;
 
 })
 
@@ -292,7 +292,7 @@ return state.store.id && state.store.imagePath && state.store.imagePath !== 'nul
       <!-- 가게 대표 카드 -->
       <div class="store-card" v-if="groupedItems.length > 0">
         <img class="thumbnail" :src="imgSrc" @error="e => e.target.src = defaultImage" />
-         <!-- <img :src='`/pic/store-profile/${state.store.id}/${state.store.imagePath}` '/> -->
+        <!-- <img :src='`/pic/store-profile/${state.store.id}/${state.store.imagePath}` '/> -->
         <div class="store-content">
           <h3 class="store-name">
             {{ storeMap[groupedItems[0].storeId]?.name || groupedItems[0].storeName }}
@@ -301,8 +301,14 @@ return state.store.id && state.store.imagePath && state.store.imagePath !== 'nul
           <div class="store-meta">
             <div class="rating">
               <img id="icon" src="/src/imgs/star.png" alt="별점" />
-              <span class="score">{{ state.reviewNum ? state.reviewNum : '0' }}</span>
-              <span class="count">({{ state.reviewNum.length ? state.reviewNum.length : '0' }})</span>
+              <div v-if="state.reviewNum !== 'NaN'">
+                <span class="score">{{ state.reviewNum ? state.reviewNum : '0' }}</span>
+                <span class="count">({{ state.reviewNum.length ? state.reviewNum.length : '0' }})</span>
+              </div>
+              <div v-else>
+                <span class="score"> 0</span>
+                <span class="count">(0)</span>
+              </div>
             </div>
             <div class="likes">
               <img id="icon" src="/src/imgs/love.png" alt="찜" />
