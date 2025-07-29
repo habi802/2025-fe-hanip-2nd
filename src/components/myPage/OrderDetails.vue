@@ -121,7 +121,7 @@ const reorder = async (menus) => {
 // const heightY = () => {
 //   allBoxHeight.value += 890;
 // };
-const visibleCount = ref(2);
+const visibleCount = ref(3);
 const showMore = () => {
   visibleCount.value += 2;
 };
