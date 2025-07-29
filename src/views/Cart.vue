@@ -10,6 +10,7 @@ import { getFavoriteList } from "@/services/favoriteService";
 // 에러 이미지
 import defaultImage from '@/imgs/owner/owner-service3.png';
 
+
 const cartStore = useCartStore();
 
 const router = useRouter();
@@ -205,7 +206,7 @@ const menuIgmSrc = computed(()=>{
   <div v-if="!loggedIn && state.items.length === 0">
     <div class="div18">장바구니에 담은 음식이 없습니다.</div>
     <div class="groupContainer">
-      <div class="div19" @click="goToMain">음식 담으러 가기</div>
+      <div class="div19" @click="goToLogin">로그인 하러 가기</div>
     </div>
   </div>
 
