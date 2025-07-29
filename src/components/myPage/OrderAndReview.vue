@@ -121,7 +121,7 @@ const idCheck = async () => {
 
 <template>
   <!-- 신경 x 2차때 사용 예정 -->
-  <div :style= " { Height: on ? '315px' : '750px' }" class="bigBoard">
+  <div :style= " { height: on ? '315px' : '750px' }" class="bigBoard">
   <!-- <div class="bigBoard"> -->
     <!-- 내부 -->
     <div class="board">
@@ -228,7 +228,7 @@ const idCheck = async () => {
   min-height: 330px; // 최소 높이
   border: #797979 2px solid !important;;
   border-radius: 25px;
-  margin-bottom: 20px;
+  margin-bottom: 40px;
   //overflow: clip;
   display: flex;
   flex-direction: column;
@@ -247,7 +247,7 @@ const idCheck = async () => {
       height: 170px;
       margin-top: 10px;
       border: #797979 1px solid;
-      border-radius: 15px 15px 0 0;
+      border-radius: 15px;
       overflow: hidden;
 
       .img {
@@ -269,6 +269,7 @@ const idCheck = async () => {
       font-weight: 700;
       margin-left: 10px;
       margin-top: 10px;
+      text-align: center;
     }
   }
 
