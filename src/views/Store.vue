@@ -4,11 +4,7 @@ import { useRoute, useRouter } from "vue-router";
 import { getStore, getStoreList } from "@/services/storeService";
 import { getOneMenu } from "@/services/menuService";
 import { getReviewsByStoreId } from "@/services/reviewServices";
-import {
-  getFavorite,
-  addFavorite,
-  deleteFavorite,
-} from "@/services/favoriteService";
+import { getFavorite, addFavorite, deleteFavorite } from "@/services/favoriteService";
 import { updateQuantity, removeItem, removeCart } from "@/services/cartService";
 import { useAccountStore } from "@/stores/account";
 import { useCartStore } from "@/stores/cart";
@@ -16,6 +12,11 @@ import Menu from "@/components/Menu.vue";
 import Review from "@/components/Review.vue";
 import { useFavoriteStore } from "@/stores/favoriteStore";
 import defaultImage from '@/imgs/owner/owner-service3.png';
+
+// 하트 이미지
+import lovet from '@/imgs/loveFull.png';
+import lovef from '@/imgs/loveBoard.png'
+
 
 const favoriteStore = useFavoriteStore();
 
@@ -57,15 +58,12 @@ const loadStore = async (id) => {
     modal.show();
     router.push({ path: "/" });
     return;
-  } else if (res.data.resultStatus !== 200) {
-    // alert(res.data.resultMessage);
-    const modal = new bootstrap.Modal(document.getElementById("storeF"));
-    modal.show();
-    router.push({ path: "/" });
-    return;
   }
 
   state.store = res.data.resultData;
+  console.log("state", state.store);
+  
+  showMap(state.store.address);
 
   //
   const storeInfo = await getStoreList({ searchText: state.store.name });
@@ -78,6 +76,37 @@ const loadStore = async (id) => {
 
   // 조회 성공 시 가게 찜 추가 여부 조회 함수 호출
   loadFavorite(id);
+};
+
+// 지도를 보여주는 함수
+const showMap = address => {
+  const map = new naver.maps.Map('map', {
+    center: new naver.maps.LatLng(37.5665, 126.9780),
+    zoom: 15,
+  });
+
+  naver.maps.Service.geocode(
+    { query: address },
+    function (status, response) {
+      if (status !== naver.maps.Service.Status.OK) {
+        console.log('address: 주소를 찾을 수 없습니다.');
+      }
+      
+      const result = response.v2.addresses[0];
+      if (result.total === 0) {
+        console.log('address: 검색 결과가 없습니다.');
+      }
+
+      const point = new naver.maps.LatLng(result.y, result.x);
+
+      map.setCenter(point);
+
+      new naver.maps.Marker({
+        map: map,
+        position: point
+      });
+    }
+  );
 };
 
 // 고객 유저가 가게를 찜 목록에 추가했는지 조회하는 함수
@@ -378,9 +407,11 @@ const reviewbutton = () => {
 // const storeImg = `/pic/store-profile/${state.store.id}/${state.storeInfo[0]?.imagePath}`;/
 
 const imgSrc = computed(() => {
-  return state.store && state.storeInfo[0]?.imagePath && state.storeInfo[0]?.imagePath !== 'null'
-  ? `/pic/store-profile/${state.store.id}/${state.storeInfo[0]?.imagePath}`
-  : defaultImage;
+
+  return state.store && state.store?.imagePath && state.store?.imagePath !== 'null'
+    ? `/pic/store-profile/${state.store.id}/${state.store?.imagePath}`
+    : defaultImage;
+
 })
 
 
@@ -393,7 +424,7 @@ const imgSrc = computed(() => {
     <div class="top">
       <div class="row">
         <div id="store" class="col-12 col-md-8 p-3">
-          <div id="store-box" class="row border rounded p-3 mb-3">
+          <div id="store-box" class="row border rounded-4 p-3 mb-3">
             <div class="col-6 col-md-4 mb-4">
               <div class="store-image border rounded h-100">
                 <div class="img-one">
@@ -406,16 +437,13 @@ const imgSrc = computed(() => {
               <h3>{{ state.store.name }}</h3>
               <p>최소 주문 금액 15,000원</p>
               <p>배달료 0원 ~ 3,000원</p>
-              <span>⭐ {{ state.reviewNum }}({{ state.reviews.length }})
-                <span class="favorite" @click="toggleFavorite(state.store.id)">{{ state.store.favorite ? "❤️" : "🤍"
-                }}</span>
+              <span><img class="restar" src="/src/imgs/starBoard.png"/> {{ state.reviewNum !== 'NaN' ? state.reviewNum : 0 }}({{ state.reviews.length }})
+                <img class="favorite" @click="toggleFavorite(state.store.id)" :src="state.store.favorite ? lovet : lovef"/>
                 {{ state.storeInfo[0]?.favorites }}</span>
             </div>
             <div class="col-12 col-md-4">
-              <div id="map" class="border rounded mb-2">
-                지도 이미지 / 2차 구현
-              </div>
-              <span>{{ state.store.address }}</span>
+              <div id="map" class="border rounded mb-2"></div>
+              <span class="addressText">{{ state.store.address }}</span>
             </div>
           </div>
 
@@ -434,9 +462,7 @@ const imgSrc = computed(() => {
                   <div class="p-2" :class="{ 'border-top': idx !== 0 }">
                     <div class="d-flex justify-content-between mb-2">
                       <span>{{ item.name }}</span>
-                      <span>{{
-                        (item.price * item.quantity).toLocaleString()
-                      }}원</span>
+                      <span>{{ (item.price * item.quantity).toLocaleString() }}원</span>
                     </div>
                     <div class="d-flex justify-content-between">
                       <div>
@@ -462,7 +488,7 @@ const imgSrc = computed(() => {
                 {{ totalPrice.toLocaleString() }}원
               </div>
             </div>
-            <button type="button" @click="toOrder()" class="btn btn-basic btn-submit">
+            <button id="orderBtn" type="button" @click="toOrder()" class="btn btn-basic btn-submit">
               주문하기
             </button>
           </div>
@@ -506,7 +532,9 @@ const imgSrc = computed(() => {
                     <div class="review-data">
                       <!-- 왼쪽 별/점수 -->
                       <div>
-                        <span class="star" v-for="n in Math.floor(state.reviewNum || 0)" :key="n">★</span>
+                        <span class="star" v-for="n in Math.floor(state.reviewNum || 0)" :key="n">
+                        <img class="starImg" src="/src/imgs/starBoard.png"/>
+                        </span>
                         <div class="review-num">{{ state.reviewNum }}</div>
                       </div>
                       <!-- 오른쪽 텍스트 -->
@@ -602,19 +630,19 @@ const imgSrc = computed(() => {
         <div class="modal-body">삭제에 실패하였습니다</div>
         <div class="modal-footer">
           <a class="btn" id="modalY" href="#" data-bs-dismiss="modal">닫기</a>
-        </div>
-      </div>
-    </div>
-  </div>
-  <!-- 찜 실패 -->
-  <div class="modal fade" id="faiF" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
-    <div class="modal-dialog" role="document">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title" id="exampleModalLabel">경고</h5>
-        </div>
-        <div class="modal-body"> 찜 하기에 실패하였습니다</div>
-        <div class="modal-footer">
+				</div>
+			</div>
+		</div>
+	</div>
+    <!-- 찜 실패 -->
+    <div class="modal fade" id="faiF" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+		<div class="modal-dialog" role="document">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h5 class="modal-title" id="exampleModalLabel">경고</h5>
+				</div>
+				<div class="modal-body">찜 하기에 실패하였습니다</div>
+				<div class="modal-footer">
           <a class="btn" id="modalY" href="#" data-bs-dismiss="modal">닫기</a>
         </div>
       </div>
@@ -631,6 +659,9 @@ const imgSrc = computed(() => {
   font-weight: normal;
   font-style: normal;
 }
+.top{
+  font-family: "BMJUA";
+}
 
 .container {
   margin-top: 70px;
@@ -641,6 +672,7 @@ const imgSrc = computed(() => {
 }
 
 .favorite {
+width: 20px;
   cursor: pointer;
 }
 
@@ -725,7 +757,7 @@ const imgSrc = computed(() => {
   display: flex;
   align-items: center;
   width: 860px;
-  height: 270px;
+  height: 303px;
 }
 
 .store-image {
@@ -733,10 +765,12 @@ const imgSrc = computed(() => {
   justify-content: center;
   align-items: center;
   border-radius: 20px !important;
-  width: 246px ;
+  width: 246px;
   height: 183px !important;
   overflow: hidden;
-  .storeImg{
+  background-color: #f5f5f5;
+  margin-top: 20px;
+  .img-one {
     width: 250px;
   }
 }
@@ -749,7 +783,7 @@ const imgSrc = computed(() => {
 .store-name {
   font-family: "BMJUA";
   font-size: 24px;
-  font-weight: 800;
+  font-weight: 500;
   color: #ff6666;
 }
 
@@ -791,6 +825,7 @@ const imgSrc = computed(() => {
   font-family: "BMJUA";
   font-size: 30px;
   color: #FAC729;
+  
 }
 
 .left-box {
@@ -812,5 +847,26 @@ const imgSrc = computed(() => {
   .storeImg {
     width: 270px;
   }
+}
+.starImg{
+  width: 30px;
+  padding: 3px;
+}
+.restar{
+  width: 20px;
+}
+#order{
+  font-family: "BMJUA" !important;
+  margin-top: -15px;
+}
+.addressText{
+  text-align: center;
+  margin-left: 25px;
+}
+#orderBtn{
+  margin-top: 20px;
+  margin-left: -12px;
+  font-size: 25px;
+  width: 470px;
 }
 </style>

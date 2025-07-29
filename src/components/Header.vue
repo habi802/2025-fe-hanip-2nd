@@ -38,6 +38,7 @@ const toOrder = () => {
 const logoutIn = async () => {
   const res = await logout();
   account.setLoggedIn(false);
+  location.href = "/";
 };
 
 // 마이 페이지 이동

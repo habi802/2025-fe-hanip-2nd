@@ -28,6 +28,7 @@ const user = reactive({
 // onMounted
 onMounted(async() => {
   await findorder();
+  console.log("dfdf: ", cartStore.state.items )
 })
 
 // 주문 목록 조회
@@ -60,10 +61,16 @@ const selectStar = (index) => {
 }
 
 // 주문 삭제
-const deleteOrderOne = async (orderId) => {
+const deleteOrderOne = async (order) => {
+  console.log("order: ", order)
+  if(order.status === "ORDERED" || order.status === "DELIVERING" || order.status === "PREPARING") {
+    const modal = new bootstrap.Modal(document.getElementById("orderF"));
+    modal.show();
+    return;
+  }
   try {
-    await deleteOrder(orderId);
-    state.orders = state.orders.filter(order => order.id !== orderId);
+    await deleteOrder(order.orederId);
+    state.orders = state.orders.filter(order => order.id !== order.orderId);
   } catch (e) {
     console.error("삭제 실패", e);
   }
@@ -76,22 +83,33 @@ const filteredOrders = computed(() => state.orders.filter(order => order.isdelet
 const cartStore = useCartStore();
 
 const reorder = async (menus) => {
-  const addMenus = menus.map(menu => ({
+  console.log("menus: ", menus.orderGetList)
+  const addMenus = menus.orderGetList.map(menu => ({
     id: menu.menuId,
     name: menu.name,
     price: menu.price,
     quantity: menu.quantity,
+    storeId: menu.storeId,
   }));
 
-  const res = await addItem( addMenus );
-  if(res.status !== 200) {
-    alert("오류 발생")
+  const cartItems = cartStore.state.items;
+  if (cartItems.length > 0 && cartItems[0].id !== addMenus[0].id) {
+    const modal = new bootstrap.Modal(document.getElementById("cartF"));
+    modal.show();
     return;
   }
+
   cartStore.addMenus(addMenus);
-  console.log("CartStore 상태:", cartStore.state.items);
+
+  for(let i = 0; i < menus.orderGetList.length; i++) {
+    console.log(menus.orderGetList[i].menuId)
+    const res = await addItem (menus.orderGetList[i].menuId);
+    console.log(res.data.resultData)
+  }
   router.push("/cart");
 }
+
+// 모달
 </script>
 
 <template>
@@ -213,13 +231,50 @@ const reorder = async (menus) => {
           </div>
         </div>
       </div>
-
     </div> 
     </div> -->
+    
+    <!-- 장바구니 모달 -->
+    <div class="modal fade" id="orderF" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="exampleModalLabel">경고</h5>
+        </div>
+        <div class="modal-body">진행 중인 주문은 삭제하실 수 없습니다.</div>
+        <div class="modal-footer">
+          <a class="btn" id="modalY" href="#" data-bs-dismiss="modal">닫기</a>
+				</div>
+			</div>
+		</div>
+	</div>
   </div>
+
+      <!-- 장바구니 모달 -->
+      <div class="modal fade" id="cartF" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="exampleModalLabel">경고</h5>
+        </div>
+ 
+        <div class="modal-body">다른 가게의 메뉴가 이미 장바구니에 있습니다.</div>
+        <div class="modal-body">장바구니를 비워주세요.</div>
+ 
+        <div class="modal-footer">
+          <a class="btn" id="modalY" href="#" data-bs-dismiss="modal">닫기</a>
+				</div>
+			</div>
+		</div>
+	</div>
+  
 </template>
 
 <style lang="scss" scoped>
+.modal {
+  top: 20%;
+}
+
 @font-face {
   font-family: 'BMJUA';
   src: url('https://fastly.jsdelivr.net/gh/projectnoonnu/noonfonts_one@1.0/BMJUA.woff') format('woff');
@@ -250,14 +305,13 @@ const reorder = async (menus) => {
     .ordertext {
       font-size: 25px;
       margin-top: 20px;
-      margin-bottom: 50px;
     }
 
 
     .solid {
       width: 1470px;
       border: 1px #000 solid;
-      margin-top: 15px;
+      margin: 50px 0 80px 0;
     }
   }
 

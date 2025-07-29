@@ -1,6 +1,6 @@
 <script setup>
 import router from '@/router/index';
-import { reactive, ref, watch } from 'vue';
+import { reactive, ref, watch, nextTick } from 'vue';
 import { join, findId } from '@/services/userService';
 
 // 유효성 검사 에러 메세지
@@ -284,6 +284,27 @@ const showModal = (message) => {
   modal.show();
 };
 
+// 주소 검색
+const addressSearch = () => {
+  new window.daum.Postcode({
+    oncomplete: (data) => {
+      console.log("선택된 주소: ", data);
+
+      // 예: 도로명 주소 기준으로 세팅
+      state.form.postcode = data.zonecode;
+      state.form.address = data.roadAddress;
+
+      // 포커스 이동
+      nextTick(() => {
+        const detailInput = document.querySelector(
+          "input[placeholder='상세 주소 (선택 입력 가능)']"
+        );
+        detailInput?.focus();
+      });
+    },
+  }).open();
+};
+
 </script>
 
 <template>
@@ -343,7 +364,7 @@ const showModal = (message) => {
             <span>*</span>
             <p>비밀번호</p>
             <div class="password">
-              <input v-model="state.form.loginPw" :class="{ invalid: errors.loginPw }" @blur="validatePassword" />
+              <input type="password" v-model="state.form.loginPw" :class="{ invalid: errors.loginPw }" @blur="validatePassword" />
               <p v-if="errors.loginPw" class="error-msg">{{ errors.loginPw }}</p>
             </div>
           </div>
@@ -355,7 +376,7 @@ const showModal = (message) => {
             <span>*</span>
             <p>비밀번호 확인</p>
             <div class="password2">
-              <input v-model="confirmPw" @blur="validateConfirmPw" :class="{ invalid: errors.confirmPw }" />
+              <input type="password" v-model="confirmPw" @blur="validateConfirmPw" :class="{ invalid: errors.confirmPw }" />
               <p v-if="errors.confirmPw" class="error-msg">{{ errors.confirmPw }}</p>
             </div>
           </div>
@@ -378,7 +399,7 @@ const showModal = (message) => {
               <p>주소</p>
               <div class="address-row">
                 <input type="text" v-model="state.form.postcode" placeholder="우편번호" />
-                <button type="button">주소검색</button>
+                <button @click="addressSearch" type="button">주소검색</button>
               </div>
             </div>
             <div class="sev-addres-row">

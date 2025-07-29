@@ -107,6 +107,11 @@ const submitMenu = async () => {
     return;
   } else if (res.status !== 200) {
     showAlert("에러 발생");
+    newMenu.name = "";
+    newMenu.price = "";
+    newMenu.comment = "";
+    newMenu.imagePath = null;
+    previewImage.value = defaultMenuImage;
     return;
   }
 
