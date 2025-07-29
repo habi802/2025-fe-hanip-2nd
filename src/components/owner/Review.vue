@@ -179,8 +179,8 @@ const ownerName = inject("ownerName", "");
 <template>
 <div class="wrap" > 
     <div>
-        <h2>리뷰 관리</h2>
-        <span style="color : #838383">어서오세요! {{ ownerName }} 사장님, 관리자 페이지에 다시 오신것을 환영합니다</span>
+        <div class="owner-title1">리뷰 통계</div>
+        <span class="owner-title2">어서오세요! {{ ownerName }} 사장님, 관리자 페이지에 다시 오신것을 환영합니다</span>
         
         <!-- 전체 토탈 카드 -->
         <div class="total-wrap">
@@ -206,7 +206,10 @@ const ownerName = inject("ownerName", "");
 
     
     <div class="review-header">
-        <h2>리뷰 내역</h2>
+        <div>
+            <div class="owner-title1">리뷰 내역</div>
+            <div class="owner-title2">전체 리뷰 내역입니다.</div>
+        </div>
         <!-- 조회기간설정 카드 -->
         <div class="date-filter">
             <img src="/src/imgs/owner/Icon_조회기간설정.svg" alt="캘린더아이콘" title="캘린더아이콘">
@@ -230,7 +233,7 @@ const ownerName = inject("ownerName", "");
 
     <!-- 리뷰카드  -->
     <div class="review-box-wrap">
-        <div class="review-box"  v-for="(review, index) in reviewStore.reviews" :key="index">
+        <div class="review-box shadow"  v-for="(review, index) in reviewStore.reviews" :key="index">
             <div class="profile">
                 <div class="profile-circle">
                     <img :src="imgSrc" @error="e => e.target.src = defaultUserProfile" alt="프로필"/>
@@ -306,16 +309,26 @@ const ownerName = inject("ownerName", "");
 </template>
 
 <style lang="scss" scoped>
+.owner-title1 {
+  font-size: 30px;
+  font-weight: bold;
+  padding-bottom: 2px;
+}
+
+.owner-title2 {
+  color: #686868;
+}
+
 .wrap{
     background-color: #e8e8e8;
     font-family: 'Pretendard', sans-serif;
-    width: 1400px;
-    overflow: auto;
-    padding : 10px;
+    width: 1501px;
+    transform: translateX(13px);
+    padding-bottom: 70px;
     .total-wrap{
         display: flex;
-        gap : 30px;
-        margin-top: 20px;
+        gap : 50px;
+        margin-top: 15px;
         margin-bottom: 40px;
         .circle{
             background-color: #ff6666;
@@ -344,7 +357,6 @@ const ownerName = inject("ownerName", "");
 
     .review-header{
         display: flex;
-        align-items: baseline;
         justify-content: space-between;
         margin-bottom: 10px;
     }
@@ -375,6 +387,7 @@ const ownerName = inject("ownerName", "");
     .review-box-wrap{
         display: grid;
         grid-template-columns: repeat(auto-fit, minmax(422px, 1fr));
+        padding-top: 15px;
         gap: 20px;
 
         .review-box{
