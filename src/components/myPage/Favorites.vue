@@ -207,9 +207,9 @@ const toStore = id => {
 }
 
 .detail-btn {
-  background-color: #ff6666;
-  color: white;
-  border: none;
+  background-color: #fff;
+  color: #ff6666;
+  border: #ff6666 solid 2px;
   border-radius: 8px;
   padding: 8px 14px;
   font-size: 14px;
@@ -218,6 +218,7 @@ const toStore = id => {
 }
 .detail-btn:hover {
   background-color: #ff6666;
+  color:#FFF;
 }
 .container {
   margin-bottom: 120px;
