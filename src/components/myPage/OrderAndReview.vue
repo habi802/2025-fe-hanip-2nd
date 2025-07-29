@@ -15,6 +15,11 @@ const reviewButton = () => {
   router.push(`/reviews-page/${props.order?.id}`);
 };
 
+//주문 상세 페이지 이동 
+ const orderDetail = () => {
+  router.push({ path: `stores/${props.order?.storeId}/order/success`, query:{id : props.order?.id}});
+}
+
 //
 const previewUrl = ref(""); //이미지 경로 저장용
 
@@ -113,7 +118,16 @@ const idCheck = async () => {
 </script>
 
 <template>
-
+  <!-- 버튼들 -->
+  <div class="btns">
+    <div class="btn" @click="$emit('reorder', props.order.orderGetList)">
+      재주문 하기
+    </div>
+    <div @click="reviewButton" class="btn btn-primary">
+      {{ revCheck !== null ? "리뷰 수정" : "리뷰 등록" }}
+    </div>
+    <div @click="orderDetail" class="btn">주문상세</div>
+  </div>
   <!-- 신경 x 2차때 사용 예정 -->
   <div :style= " { Height: on ? '315px' : '750px' }" class="bigBoard">
   <!-- <div class="bigBoard"> -->

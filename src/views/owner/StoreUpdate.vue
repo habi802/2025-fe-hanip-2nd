@@ -54,6 +54,7 @@ const getStoreData = async () => {
     state.form.comment = data.comment;
     state.form.category = data.category;
     state.form.id = data.id;
+    state.form.name = data.name;
 
     // 가게주소
     state.form.zipcode = data.postcode;
@@ -82,6 +83,7 @@ const state = reactive({
   form: {
     password: "",
     ownerName: "",
+    name: "",
     comment: "",
     zipcode: "",
     baseAddress: "",
@@ -98,12 +100,57 @@ const state = reactive({
   },
 });
 
+// 유효성
+const isValidEmail = (email) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+
 // 수정하기 버튼
 const submit = async (e) => {
   e.preventDefault();
 
-  if (state.form.password.length === 0) {
+  if (state.form.password.trim().length === 0) {
     showAlert("비밀번호를 입력해주세요.");
+    return;
+  }
+
+  if (state.form.email.trim().length === 0) {
+    showAlert("이메일을 입력해주세요.");
+    return;
+  }
+
+  if (state.form.comment.trim().length === 0) {
+    showAlert("가게 설명란은 공란으로 두실 수 없습니다.");
+    return;
+  }
+
+  if (!isValidEmail(state.form.email)) {
+    showAlert("올바른 이메일 형식을 입력해주세요.");
+    return;
+  }
+
+  if (
+    state.form.postcode.trim().length === 0 ||
+    state.form.address.trim().length === 0 ||
+    state.form.email.trim().length === 0
+  ) {
+    showAlert("가게 주소는 공란으로 두실 수 없습니다.");
+    return;
+  }
+
+  if (
+    state.form.storeTel1.trim().length === 0 ||
+    state.form.storeTel2.trim().length === 0 ||
+    state.form.storeTel3.trim().length === 0
+  ) {
+    showAlert("가게 전화는 공란으로 두실 수 없습니다.");
+    return;
+  }
+
+  if (
+    state.form.mobile1.trim().length === 0 ||
+    state.form.mobile2.trim().length === 0 ||
+    state.form.mobile3.trim().length === 0
+  ) {
+    showAlert("전화 번호는 공란으로 두실 수 없습니다.");
     return;
   }
 
@@ -251,7 +298,7 @@ const ownerName = inject("ownerName", "");
       </div>
     </div>
     <div class="container-fluid d-flex mb-5">
-      <div class="card shadow p-5 w-100" style="max-width: 1300px">
+      <div class="card shadow p-5 w-100 rounded-4" style="max-width: 1501px">
         <div class="ps-4">
           <div class="text-danger mb-4">
             <p class="mb-1">● 가게 정보 수정시 내용을 꼭 확인해주세요.</p>
@@ -281,6 +328,19 @@ const ownerName = inject("ownerName", "");
                 class="form-control"
                 v-model="state.form.ownerName"
                 style="width: 500px"
+                disabled
+              />
+            </div>
+
+            <!-- 가게 상호 -->
+            <div class="d-flex align-items-center mb-4">
+              <label class="me-4 mb-0" style="width: 170px">가게 상호명</label>
+              <input
+                type="text"
+                class="form-control"
+                style="width: 500px"
+                v-model="state.form.name"
+                disabled
               />
             </div>
 
@@ -360,6 +420,7 @@ const ownerName = inject("ownerName", "");
                   <select class="form-select" v-model="state.form.storeTel1">
                     <option value="02">02</option>
                     <option value="031">031</option>
+                    <option value="053">053</option>
                   </select>
                 </div>
                 <div class="col-4">
@@ -478,7 +539,7 @@ input::placeholder {
 
 .owner-title2 {
   padding-left: 12px;
-  padding-bottom: 10px;
+  padding-bottom: 14px;
   color: #686868;
 }
 

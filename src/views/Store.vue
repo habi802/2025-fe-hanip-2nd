@@ -1,7 +1,7 @@
 <script setup>
-import { onMounted, reactive, ref } from "vue";
+import { onMounted, reactive, ref, computed } from "vue";
 import { useRoute, useRouter } from "vue-router";
-import { getStore } from "@/services/storeService";
+import { getStore, getStoreList } from "@/services/storeService";
 import { getOneMenu } from "@/services/menuService";
 import { getReviewsByStoreId } from "@/services/reviewServices";
 import {
@@ -14,7 +14,8 @@ import { useAccountStore } from "@/stores/account";
 import { useCartStore } from "@/stores/cart";
 import Menu from "@/components/Menu.vue";
 import Review from "@/components/Review.vue";
-import { useFavoriteStore } from '@/stores/favoriteStore';
+import { useFavoriteStore } from "@/stores/favoriteStore";
+import defaultImage from '@/imgs/owner/owner-service3.png';
 
 const favoriteStore = useFavoriteStore();
 
@@ -33,7 +34,14 @@ const state = reactive({
   reviews: [],
   // 고객 장바구니 정보
   carts: [],
+  // 가게 전체 정보
+  storeInfo: [],
+  // 리뷰 총점
+  reviewNum: 0,
+  // 사장 코멘트 갯수
+  ownerCommentNum: 0,
 });
+
 
 // 장바구니 총 금액 표시하기 위한 변수
 const totalPrice = ref(0);
@@ -58,6 +66,16 @@ const loadStore = async (id) => {
   }
 
   state.store = res.data.resultData;
+  console.log("state", state.store);
+
+  //
+  const storeInfo = await getStoreList({ searchText: state.store.name });
+
+  // console.log("storeInfo", storeInfo);
+
+  state.storeInfo = storeInfo.data.resultData;
+  // console.log("storeInfo :", state.storeInfo[0]);
+  // console.log("storeId:", state.store.id);
 
   // 조회 성공 시 가게 찜 추가 여부 조회 함수 호출
   loadFavorite(id);
@@ -70,17 +88,17 @@ const loadFavorite = async (id) => {
     loadMenus(id);
     return;
   }
-    const res = await getFavorite(id);
+  const res = await getFavorite(id);
 
-    if (res === undefined || res.data.resultStatus !== 200) {
-      const modal = new bootstrap.Modal(document.getElementById("storeF"));
-      modal.show();
-      return;
-    }
+  if (res === undefined || res.data.resultStatus !== 200) {
+    const modal = new bootstrap.Modal(document.getElementById("storeF"));
+    modal.show();
+    return;
+  }
 
-    state.store.favorite = res.data.resultData !== null ? true : false;
-    // 조회 성공 시 가게 메뉴 조회 함수 호출
-    loadMenus(id);
+  state.store.favorite = res.data.resultData !== null ? true : false;
+  // 조회 성공 시 가게 메뉴 조회 함수 호출
+  loadMenus(id);
 };
 
 // 가게 메뉴 조회하는 함수
@@ -113,9 +131,42 @@ const loadReviews = async (id) => {
   }
 
   state.reviews = res.data.resultData;
+  // 리뷰 총점 구하기
+  let ratingNumCal = 0;
+  // console.log("state.reviews: ", state.reviews);
+  for (let i = 0; i < state.reviews.length; i++) {
+    ratingNumCal += state.reviews[i].rating;
+  }
+  const count = (ratingNumCal / state.reviews.length).toFixed(1)
+  // console.log("ratingNumCal", ratingNumCal);
+
+  state.reviewNum = count
+  // 사장 코멘트 갯수
+  // console.log("owner", state.reviews[0].ownerComment);
+  let commentNum = "";
+  let comLeng = 0;
+  for (let i = 0; i < state.reviews.length; i++) {
+
+    commentNum = state.reviews[i].ownerComment
+    // console.log("commentNum", commentNum)
+    // console.log("comLeng", comLeng)
+    if (typeof commentNum === "string" && commentNum !== null && commentNum !== "") {
+      comLeng += 1;
+
+    }
+    state.ownerCommentNum = comLeng;
+  }
+  // console.log("comLeng: ", comLeng);
+
   // 조회 성공 시 장바구니 조회 함수 호출
+
+
+
+
   loadCarts(id);
 };
+
+
 
 // 고객 유저 장바구니 조회
 const loadCarts = async (id) => {
@@ -153,6 +204,8 @@ const toggleFavorite = async (id) => {
     favoriteStore.toggleFavorite(storeId);
     console.log('찜 상태 저장됨:', favoriteStore.state.storeIds);
   }
+  loadReviews(id);
+  loadStore(id);
 };
 
 // 장바구니 추가 함수(Menu.vue 컴포넌트에서 받아옴)
@@ -243,23 +296,23 @@ const deleteItem = async (cartId) => {
 
 // 장바구니 전체 삭제 함수
 const deleteCart = async () => {
-    if (state.carts.length > 0) {
-        const res = await removeCart();
+  if (state.carts.length > 0) {
+    const res = await removeCart();
 
-        if (res === undefined) {
-          const modal = new bootstrap.Modal(document.getElementById("delF"));
-          modal.show();
-            return;
-        } else if (res.data.resultStatus === 401) {
-            // alert(res.data.resultMessage);
-            const modal = new bootstrap.Modal(document.getElementById("delF"));
-            modal.show();
-            return;
-        }
-
-        state.carts = [];
-        calculateTotal();
+    if (res === undefined) {
+      const modal = new bootstrap.Modal(document.getElementById("delF"));
+      modal.show();
+      return;
+    } else if (res.data.resultStatus === 401) {
+      // alert(res.data.resultMessage);
+      const modal = new bootstrap.Modal(document.getElementById("delF"));
+      modal.show();
+      return;
     }
+
+    state.carts = [];
+    calculateTotal();
+  }
 };
 
 // 장바구니 총 금액 계산하는 함수
@@ -292,6 +345,7 @@ onMounted(() => {
   const storeId = route.params.id;
 
   loadStore(storeId);
+  
 });
 
 // 메뉴랑 리뷰보기 v-if 설정 함수
@@ -310,10 +364,10 @@ const reviewbutton = () => {
   reviewbtn.value = true;
 };
 
+
 //
 
-// 가게 이미지
-// const img = `/pic/store-profile/${props.stores.storeId}/${props.stores.imagePath}`
+
 
 // 가게 이미지가 없을 시 대체 이미지 나타내기
 // const imgSrc = computed(() => {
@@ -321,6 +375,20 @@ const reviewbutton = () => {
 //   ? `/pic/store-profile/${props.stores.storeId}/${props.stores.imagePath}`
 //   : defaultImage;
 // })
+
+// 가게 이미지
+// const storeImg = `/pic/store-profile/${state.store.id}/${state.storeInfo[0]?.imagePath}`;/
+
+const imgSrc = computed(() => {
+
+  return state.store && state.store?.imagePath && state.store?.imagePath !== 'null'
+    ? `/pic/store-profile/${state.store.id}/${state.store?.imagePath}`
+    : defaultImage;
+
+})
+
+
+
 </script>
 
 <template>
@@ -334,6 +402,7 @@ const reviewbutton = () => {
               <div class="store-image border rounded h-100 align-items-center">
                 <div class="img-one">
                   <!-- <img class="sImg" :src="imgSrc" @error="e => e.target.src = defaultImage" /> -->
+                  <img class="storeImg" :src="imgSrc" @error="e => e.target.src = defaultImage" />
                 </div>
               </div>
             </div>
@@ -341,15 +410,10 @@ const reviewbutton = () => {
               <h3>{{ state.store.name }}</h3>
               <p>최소 주문 금액 15,000원</p>
               <p>배달료 0원 ~ 3,000원</p>
-              <span
-                >⭐ 4.5(983)
-                <span
-                  class="favorite"
-                  @click="toggleFavorite(state.store.id)"
-                  >{{ state.store.favorite ? "❤️" : "♡" }}</span
-                >
-                927</span
-              >
+              <span>⭐ {{ state.reviewNum }}({{ state.reviews.length }})
+                <span class="favorite" @click="toggleFavorite(state.store.id)">{{ state.store.favorite ? "❤️" : "🤍"
+                }}</span>
+                {{ state.storeInfo[0]?.favorites }}</span>
             </div>
             <div class="col-12 col-md-4">
               <div id="map" class="border rounded mb-2">
@@ -365,7 +429,7 @@ const reviewbutton = () => {
               <div class="order-title">장바구니</div>
               <div class="store-name">{{ state.store.name }}</div>
               <div
-                class="d-flex justify-content-between border-bottom pb-2 mb-2 "
+                class="d-flex justify-content-between border-bottom pb-2 mb-2"
               >
                 <div class="delete-order">
                   <img class="removeImg" src="/src/imgs/remove.png" @click="deleteCart()" />
@@ -376,36 +440,22 @@ const reviewbutton = () => {
                   <div class="p-2" :class="{ 'border-top': idx !== 0 }">
                     <div class="d-flex justify-content-between mb-2">
                       <span>{{ item.name }}</span>
-                      <span
-                        >{{
-                          (item.price * item.quantity).toLocaleString()
-                        }}원</span
-                      >
+                      <span>{{
+                        (item.price * item.quantity).toLocaleString()
+                      }}원</span>
                     </div>
                     <div class="d-flex justify-content-between">
                       <div>
-                        <button
-                          type="button"
-                          class="btn btn-basic btn-quantity"
-                          @click="decreaseQuantity(idx)"
-                        >
+                        <button type="button" class="btn btn-basic btn-quantity" @click="decreaseQuantity(idx)">
                           -
                         </button>
                         <span class="p-3">{{ item.quantity }}</span>
-                        <button
-                          type="button"
-                          class="btn btn-basic btn-quantity"
-                          @click="increaseQuantity(idx)"
-                        >
+                        <button type="button" class="btn btn-basic btn-quantity" @click="increaseQuantity(idx)">
                           +
                         </button>
                       </div>
                       <div>
-                        <button
-                          type="button"
-                          class="btn btn-basic btn-submit"
-                          @click="deleteItem(item.id)"
-                        >
+                        <button type="button" class="btn btn-basic btn-submit" @click="deleteItem(item.id)">
                           메뉴 취소
                         </button>
                       </div>
@@ -421,7 +471,7 @@ const reviewbutton = () => {
             <button
               type="button"
               @click="toOrder()"
-              class="btn btn-basic  p-3 rounded-4 mt-4 btn-submit"
+              class="btn btn-basic btn-submit"
             >
               주문하기
             </button>
@@ -430,18 +480,12 @@ const reviewbutton = () => {
 
         <div class="button">
           <!-- 메뉴 보기 버튼  -->
-          <div
-            :style="{ color: menubtn ? '#ff6666' : '#000' }"
-            class="menu-title rounded pt-2 ps-3"
-          >
+          <div :style="{ color: menubtn ? '#ff6666' : '#000' }" class="menu-title rounded pt-2 ps-3">
             <h3 @click="menubutton" class="mb-1">메뉴보기</h3>
           </div>
 
           <!-- 리뷰보기 버튼 -->
-          <div
-            :style="{ color: reviewbtn ? '#ff6666' : '#000' }"
-            class="review-title pt-2 ps-3"
-          >
+          <div :style="{ color: reviewbtn ? '#ff6666' : '#000' }" class="review-title pt-2 ps-3">
             <h3 @click="reviewbutton" class="mb-1">리뷰보기</h3>
           </div>
         </div>
@@ -461,30 +505,29 @@ const reviewbutton = () => {
 
             <!-- 리뷰보기 리스트 -->
 
-            
-            <div>
-                <div v-if="reviewbtn" class="pt-2 mb-3">
 
-                  <!-- 총 가게 평점 -->
-                  <div class="review-point">
-                    <div class="review-box">
-                      <div class="review-text">총 가게 평점</div>
-                      <div class="review-data">
-                          <!-- 왼쪽 별/점수 -->
-                        <div>
-                          <div class="star">★★★★★</div>
-                          <div class="review-num">4.0</div>
-                        </div>
-                        <!-- 오른쪽 텍스트 -->
-                        <div class="left-box">
-                          <div>총 리뷰 수 100개</div>
-                          <div>오늘 새로 달린 리뷰 10개</div>
-                          <div>사장님 댓글 5개</div>
-                        </div>
+            <div>
+              <div v-if="reviewbtn" class="pt-2 mb-3">
+
+                <!-- 총 가게 평점 -->
+                <div class="review-point">
+                  <div class="review-box">
+                    <div class="review-text">총 가게 평점</div>
+                    <div class="review-data">
+                      <!-- 왼쪽 별/점수 -->
+                      <div>
+                        <span class="star" v-for="n in Math.floor(state.reviewNum || 0)" :key="n">★</span>
+                        <div class="review-num">{{ state.reviewNum }}</div>
+                      </div>
+                      <!-- 오른쪽 텍스트 -->
+                      <div class="left-box">
+                        <div>총 리뷰 수 {{ state.reviews.length }}개</div>
+                        <div>사장님 댓글 {{ state.ownerCommentNum }}개</div>
                       </div>
                     </div>
                   </div>
-                  <!-- 리뷰 리스트 조회 -->
+                </div>
+                <!-- 리뷰 리스트 조회 -->
                 <div v-if="state.reviews.length > 0">
                   <div v-for="item in state.reviews" :key="item.id">
                     <Review :item="item" />
@@ -499,79 +542,82 @@ const reviewbutton = () => {
     </div>
   </div>
   <!-- 메뉴 없이 주문하면.. -->
-  <div class="modal fade" id="orderF" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
-		<div class="modal-dialog" role="document">
-			<div class="modal-content">
-				<div class="modal-header">
-					<h5 class="modal-title" id="exampleModalLabel">경고</h5>
-				</div>
-				<div class="modal-body">메뉴를 추가해주세요</div>
-				<div class="modal-footer">
+  <div class="modal fade" id="orderF" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+    aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="exampleModalLabel">경고</h5>
+        </div>
+        <div class="modal-body">메뉴를 추가해주세요</div>
+        <div class="modal-footer">
           <a class="btn" id="modalY" href="#" data-bs-dismiss="modal">닫기</a>
-				</div>
-			</div>
-		</div>
-	</div>
+        </div>
+      </div>
+    </div>
+  </div>
 
 
-   <!-- 로그인이 안 되어 있으면.. -->
-   <div class="modal fade" id="loginF" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
-		<div class="modal-dialog" role="document">
-			<div class="modal-content">
-				<div class="modal-header">
-					<h5 class="modal-title" id="exampleModalLabel">경고</h5>
-				</div>
-				<div class="modal-body">로그인이 필요합니다</div>
-				<div class="modal-footer">
+  <!-- 로그인이 안 되어 있으면.. -->
+  <div class="modal fade" id="loginF" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+    aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="exampleModalLabel">경고</h5>
+        </div>
+        <div class="modal-body">로그인이 필요합니다</div>
+        <div class="modal-footer">
           <a class="btn" id="modalY" href="#" data-bs-dismiss="modal">닫기</a>
-				</div>
-			</div>
-		</div>
-	</div>
+        </div>
+      </div>
+    </div>
+  </div>
   <!-- 조회 실패 -->
-  <div class="modal fade" id="storeF" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
-		<div class="modal-dialog" role="document">
-			<div class="modal-content">
-				<div class="modal-header">
-					<h5 class="modal-title" id="exampleModalLabel">경고</h5>
-				</div>
-				<div class="modal-body">조회에 실패하였습니다</div>
-				<div class="modal-footer">
+  <div class="modal fade" id="storeF" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+    aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="exampleModalLabel">경고</h5>
+        </div>
+        <div class="modal-body">조회에 실패하였습니다</div>
+        <div class="modal-footer">
+          <a class="btn" id="modalY" href="#" data-bs-dismiss="modal">닫기</a>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!--  수정 실패 -->
+  <div class="modal fade" id="putF" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="exampleModalLabel">경고</h5>
+        </div>
+        <div class="modal-body">수정에 실패하였습니다</div>
+        <div class="modal-footer">
+          <a class="btn" id="modalY" href="#" data-bs-dismiss="modal">닫기</a>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- 삭제 실패 -->
+  <div class="modal fade" id="delF" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="exampleModalLabel">경고</h5>
+        </div>
+        <div class="modal-body">삭제에 실패하였습니다</div>
+        <div class="modal-footer">
           <a class="btn" id="modalY" href="#" data-bs-dismiss="modal">닫기</a>
 				</div>
 			</div>
 		</div>
 	</div>
-    <!--  수정 실패 -->
-    <div class="modal fade" id="putF" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
-		<div class="modal-dialog" role="document">
-			<div class="modal-content">
-				<div class="modal-header">
-					<h5 class="modal-title" id="exampleModalLabel">경고</h5>
-				</div>
-				<div class="modal-body">수정에 실패하였습니다</div>
-				<div class="modal-footer">
-          <a class="btn" id="modalY" href="#" data-bs-dismiss="modal">닫기</a>
-				</div>
-			</div>
-		</div>
-	</div>
-      <!-- 삭제 실패 -->
-      <div class="modal fade" id="delF" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
-		<div class="modal-dialog" role="document">
-			<div class="modal-content">
-				<div class="modal-header">
-					<h5 class="modal-title" id="exampleModalLabel">경고</h5>
-				</div>
-				<div class="modal-body">삭제에 실패하였습니다</div>
-				<div class="modal-footer">
-          <a class="btn" id="modalY" href="#" data-bs-dismiss="modal">닫기</a>
-				</div>
-			</div>
-		</div>
-	</div>
-      <!-- 찜 실패 -->
-      <div class="modal fade" id="faiF" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+       <!-- 찜 실패 -->
+       <div class="modal fade" id="faiF" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
 		<div class="modal-dialog" role="document">
 			<div class="modal-content">
 				<div class="modal-header">
@@ -580,24 +626,24 @@ const reviewbutton = () => {
 				<div class="modal-body"> 찜 하기에 실패하였습니다</div>
 				<div class="modal-footer">
           <a class="btn" id="modalY" href="#" data-bs-dismiss="modal">닫기</a>
-				</div>
-			</div>
-		</div>
-	</div>
+        </div>
+      </div>
+    </div>
+  </div>
 
-        <!--  -->
+  <!--  -->
 </template>
 
 <style lang="scss" scoped>
 @font-face {
   font-family: "BMJUA";
-  src: url("https://fastly.jsdelivr.net/gh/projectnoonnu/noonfonts_one@1.0/BMJUA.woff")
-    format("woff");
+  src: url("https://fastly.jsdelivr.net/gh/projectnoonnu/noonfonts_one@1.0/BMJUA.woff") format("woff");
   font-weight: normal;
   font-style: normal;
 }
+
 .container {
-    margin-top: 70px;
+  margin-top: 70px;
 }
 
 #map {
@@ -640,6 +686,7 @@ const reviewbutton = () => {
   gap: 56px;
   font-size: 30px;
 }
+
 .menu-title {
   //   border: 1px solid #ff6666;
   font-family: "BMJUA";
@@ -652,8 +699,8 @@ const reviewbutton = () => {
 }
 
 .removeImg {
-    width: 20px;
-    cursor: pointer;
+  width: 20px;
+  cursor: pointer;
 }
 
 .review-title {
@@ -670,48 +717,59 @@ const reviewbutton = () => {
   margin-bottom: 120px;
   margin-top: 81px;
 }
+
 .detailBox {
   width: 860px;
 }
+
 .top {
   display: flex;
   justify-content: space-between;
 }
+
 #store {
   width: 100%;
   display: flex;
   justify-content: space-around;
 }
+
 #store-box {
   display: flex;
   align-items: center;
   width: 860px;
   height: 270px;
 }
+
 .store-image {
+  display: flex;
+  justify-content: center;
+  align-items: center;
   border-radius: 20px !important;
-  width: 246px !important;
+  width: 246px;
   height: 183px !important;
   overflow: hidden;
-  background-color: #f5f5f5;
   .img-one {
     width: 250px;
   }
 }
+
 .order-title {
   font-family: "BMJUA";
   font-size: 24px;
 }
+
 .store-name {
   font-family: "BMJUA";
   font-size: 24px;
   font-weight: 500;
   color: #ff6666;
 }
+
 .delete-order {
   text-align: end;
   width: 100%;
 }
+
 .review-box {
   border: 1px #797979 solid;
   border-radius: 10px;
@@ -723,32 +781,48 @@ const reviewbutton = () => {
   font-size: 25px;
 
 }
-.review-data{
-    width: 100%;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    gap:40px;
-    margin-top: 10px;
-    margin-left: 30px;
+
+.review-data {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 40px;
+  margin-top: 10px;
+
 
 }
+
 .review-num {
-    font-family: "BMJUA";
-    font-size: 50px;
-    margin-top: -10px;
+  font-family: "BMJUA";
+  font-size: 50px;
+  margin-top: -10px;
 }
-.star{
-    font-family: "BMJUA";
-    font-size: 30px;
+
+.star {
+  font-family: "BMJUA";
+  font-size: 30px;
+  color: #FAC729;
 }
-.left-box{
-      font-family: "BMJUA";
-    text-align: start;
-    font-size: 19px;
-    margin-bottom: 10px;
+
+.left-box {
+  font-family: "BMJUA";
+  text-align: start;
+  font-size: 19px;
+  margin-bottom: 10px;
 }
-.modal{
-  top:7%;
+
+.modal {
+  top: 7%;
+}
+
+.img-one {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  .storeImg {
+    width: 270px;
+  }
 }
 </style>

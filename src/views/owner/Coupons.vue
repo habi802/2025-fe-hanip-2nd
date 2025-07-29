@@ -14,7 +14,7 @@ const ownerName = inject("ownerName", "");
       </div>
     </div>
     <div class="container-fluid d-flex mb-5">
-      <div class="card shadow p-5 w-100" style="max-width: 1300px">
+      <div class="card shadow p-5 w-100 rounded-4" style="max-width: 1501px">
         <div class="ps-4">
           <img src="@/imgs/owner/owner-service.png" class="img-fluid w-100" />
         </div>
@@ -33,7 +33,7 @@ const ownerName = inject("ownerName", "");
 
 .owner-title2 {
   padding-left: 12px;
-  padding-bottom: 10px;
+  padding-bottom: 14px;
   color: #686868;
 }
 </style>

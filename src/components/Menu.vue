@@ -1,19 +1,37 @@
 <script setup>
 import { addItem } from '@/services/cartService';
 import { useAccountStore } from '@/stores/account';
+import defaultImage from '@/imgs/owner/owner-service3.png';
+import { computed } from 'vue';
 
 const account = useAccountStore();
 const emit = defineEmits(['addCart'])
 
 const props = defineProps({
     item: {
-        id: Number,
+        menuId: Number,
         name: String,
         comment: String,
         price: Number,
         imagePath: String
     }
 });
+
+//메뉴 이미지
+
+// const menuImg = `/pic/menu-profile/${props.item.id}/${props.item?.imagePath}`
+
+// const imgSrc = computed(() => {
+//   return state.store && state.storeInfo[0]?.imagePath && state.storeInfo[0]?.imagePath !== 'null'
+//   ? `/pic/store-profile/${state.store.id}/${state.storeInfo[0]?.imagePath}`
+//   : defaultImage;
+// })
+
+const menuSrc = computed(() => {
+  return props.item && props.item?.imagePath && props.item?.imagePath !== 'null'
+  ? `/pic/menu-profile/${props.item.menuId}/${props.item?.imagePath}`
+  : defaultImage;
+})
 
 const addCart = async () => {
     if (!account.state.loggedIn) {
@@ -33,8 +51,9 @@ const addCart = async () => {
         emit('addCart', props.item);
     }
 };
-
+console.log("props.img", props.item);
 // 
+
 
 </script>
 
@@ -55,9 +74,8 @@ const addCart = async () => {
                     <!-- </span>
                 </div> -->
             </div>
-            <span class="d-block ps-4 pe-4">{{ props.item.price.toLocaleString() }}원</span>
-            <div id="menuImg" style="padding: 70px 50px; border: solid #797979 1px; border-radius: 15px;">
-                이것은 메뉴의 이미지다(추후 css수정예정)
+            <div id="menuImgs" class="col-4 col-md-2 border rounded">
+                <img class="menuImgBox" :src="menuSrc" @error="e => e.target.src = defaultImage" />
             </div>
         </div>
     </div>
@@ -71,8 +89,17 @@ const addCart = async () => {
         border-color: #fcaeae !important;
     }
 }
-#menuImg{
+#menuImgs{
     margin-left: -15px;
+    display: flex;
+    width: 170px;
+    height: 104px;
+    overflow: hidden;
+    justify-content: center;
+    align-items: center;
+    .menuImgBox{
+        width: 170px;
+    }
 }
 .bottom-box{
     display: flex;
@@ -92,5 +119,14 @@ const addCart = async () => {
     border: #000 2px solid;
     font-size: 23px;
     border-radius: 5px;
+}
+.row{
+    display: flex;
+    justify-content: center;
+
+}
+.col-8 {
+    width: 80%;
+    margin-left: -15px;
 }
 </style>

@@ -4,12 +4,15 @@ import { useRouter } from "vue-router";
 import { getItem, removeItem } from "@/services/cartService";
 import { useAccountStore } from "@/stores/account";
 import { getStore } from "@/services/storeService";
+import { useCartStore } from "@/stores/cart";
+
+const cartStore = useCartStore();
 
 const router = useRouter();
 const account = useAccountStore();
 
 const state = reactive({
-  items: [],
+  items: cartStore.state.items
 });
 
 const storeMap = reactive({});
@@ -707,6 +710,7 @@ const grandTotalPrice = computed(() => {
     font-weight: bold;
   }
 }
+
 .delete-button {
   cursor: pointer;
   border: none;
