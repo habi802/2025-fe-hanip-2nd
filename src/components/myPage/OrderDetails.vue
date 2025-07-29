@@ -295,10 +295,10 @@ const reorder = async (menus) => {
   width: 100%;
   justify-content: center;
   font-family: 'BMJUA';
+  width: 100%;
 
-  // 
+  
   .orderList {
-
     font-weight: 800;
     text-align: center;
 
@@ -355,7 +355,7 @@ const reorder = async (menus) => {
   height: 315px;
   border: #6c6c6c 3px solid;
   border-radius: 25px;
-  margin-top: 40px;
+  margin-bottom: 40px;
   overflow: clip;
 
   .board {

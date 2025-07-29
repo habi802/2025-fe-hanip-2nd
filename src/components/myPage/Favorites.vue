@@ -120,6 +120,8 @@ const toStore = id => {
 .all-box {
   display: flex;
   justify-content: center;
+  padding: 0 20px; // 양쪽 여백
+  width: 100%;
 }
 
 .box {
@@ -128,29 +130,32 @@ const toStore = id => {
   letter-spacing: -1.5px;
   margin-top: 90px;
   margin-bottom: 120px;
+  width: 100%;
 
   .solid {
-    width: 1120px;
+    width: 100%;
+    max-width: 1470px;
     border: 1px #000 solid;
-    margin-top: 15px;
-    margin-bottom: 50px;
+    margin: 50px auto 80px auto;
   }
 }
 
 .store-list {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 32px;
-  width: 1100px;
+  grid-template-columns: repeat(4, 1fr);
+  margin: 0 auto;   // 가운데 정렬
+  gap: 20px;
+  width: 1440px;
   
 }
 
 .store-card {
+  width: 345px;
   display: flex;
   align-items: center;
   background: #fff;
   border-radius: 15px;
-  border: 1px solid #797979;
+  border: 2px solid #797979;
   overflow: hidden;
   padding: 20px 16px; // 세로 패딩 ↑
   transition: transform 0.2s ease, box-shadow 0.2s ease;
@@ -197,14 +202,14 @@ const toStore = id => {
 }
 
 .likes {
-  color: #ff6f61;
+  color: #ff6666;
   font-weight: 500;
 }
 
 .detail-btn {
-  background-color: #ff6f61;
-  color: white;
-  border: none;
+  background-color: #fff;
+  color: #ff6666;
+  border: #ff6666 solid 2px;
   border-radius: 8px;
   padding: 8px 14px;
   font-size: 14px;
@@ -212,7 +217,8 @@ const toStore = id => {
   font-weight: 500;
 }
 .detail-btn:hover {
-  background-color: #e65c53;
+  background-color: #ff6666;
+  color:#FFF;
 }
 .container {
   margin-bottom: 120px;

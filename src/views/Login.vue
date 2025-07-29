@@ -44,6 +44,7 @@ const submit = async () => {
 
       if (role === "OWNER") {
         router.push('/owner'); // 업주용 메인화면
+        
       } else {
         router.push('/'); // 고객용 메인화면
       }

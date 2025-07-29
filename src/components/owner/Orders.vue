@@ -30,8 +30,6 @@ const removeAlert = (id) => {
   if (index !== -1) alerts.splice(index, 1);
 };
 
-
-
 // 전체 주문 수
 const totalOrderCount = computed(() => nonOrderedOrders.value.length);
 
@@ -156,6 +154,7 @@ const data = reactive({
 
 const selectRange = async (range) => {
   const end = new Date();
+  end.setDate(end.getDate() + 1);
   let start;
   switch (range) {
     case "7d":
@@ -184,7 +183,7 @@ const selectRange = async (range) => {
   }
   // console.log("res.data.resultData: ",data.storeId)
   const res = await getOrderByDate(data);
-  console.log("res.data.resultData: ", res.data.resultData)
+  console.log("res.data.resultData: ", res.data.resultData);
   if (res.status !== 200) {
     showAlert("데이터 조회에 실패하였습니다.");
     return;
@@ -313,7 +312,10 @@ const selectRange = async (range) => {
             </div>
             <img src="/src/imgs/owner/Icon_목록단추.svg" alt="목록단추" />
           </button>
-          <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdownMenuButton">
+          <ul
+            class="dropdown-menu dropdown-menu-end"
+            aria-labelledby="dropdownMenuButton"
+          >
             <li>
               <button class="dropdown-item" @click="selectRange('7d')">
                 최근 1주일
@@ -337,7 +339,13 @@ const selectRange = async (range) => {
     <div class="orders-wrap">
       <!-- 주문 리스트 -->
       <div v-if="orderStore.orders?.length === 0" class="loading"></div>
-      <div class="justify-content-center">
+
+      <!-- 주문 없음 -->
+      <div v-else-if="orderStore.nonOrderedList.length === 0">
+        주문이 없습니다.
+      </div>
+
+      <div v-else class="justify-content-center">
         <order-list-card
           v-for="order in visibleOrders"
           :key="order.id"
