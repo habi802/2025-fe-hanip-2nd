@@ -58,21 +58,19 @@ console.log("props.img", props.item);
 </script>
 
 <template>
-    <div class="menu border rounded p-3 mb-2" @click="addCart()">
+    <div class="menu border rounded-4 p-3 mb-2" @click="addCart()">
         <div class="row">
             <div class="col-8 col-md-10">
                 <h5>{{ props.item.name }}</h5>
                 <p>{{ props.item.comment }}</p>
                 <div class="bottom-box">
                     <span>{{ props.item.price.toLocaleString() }}원</span>
-                    <!-- 수량 증가 박스 -->
                     <span class="check">
                         <!-- 0이 되면 스타일 바뀌게 해야함 -->
                         <!-- <div class="check-box"> - </div> -->
                         <!-- 갯수 -->
                         <!-- <div> 0 </div> -->
                         <!-- <div class="check-box"> + </div> -->
-
                     </span>
                 </div>
             </div>
