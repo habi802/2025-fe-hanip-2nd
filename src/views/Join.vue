@@ -1,79 +1,91 @@
 <script setup>
-import router from '@/router/index';
-import { reactive, ref, watch, nextTick } from 'vue';
-import { join, findId } from '@/services/userService';
+import router from "@/router/index";
+import { reactive, ref, watch, nextTick } from "vue";
+import { join, findId } from "@/services/userService";
 
 // 유효성 검사 에러 메세지
 const errors = reactive({
-  loginId: '',
-  loginPw: '',
-  confirmPw: '',
-  email: '',
-  name: '',
-  address: '',
-  phone2: '',
-  phone3: '',
-  businessNumber: '',
-  ownerTel2: '',
-  ownerTel3: '',
-  ownerPhone2: '',
-  ownerPhone3: '',
+  loginId: "",
+  loginPw: "",
+  confirmPw: "",
+  email: "",
+  name: "",
+  address: "",
+  phone2: "",
+  phone3: "",
+  businessNumber: "",
+  ownerTel2: "",
+  ownerTel3: "",
+  ownerPhone2: "",
+  ownerPhone3: "",
 });
 
 // 유효성 검사 함수들
 const validateLoginId = () => {
   const regex = /^[a-z0-9]{4,16}$/;
   errors.loginId = regex.test(state.form.loginId)
-    ? ''
-    : '아이디는 영문 소문자+숫자 4~16자여야 합니다.';
+    ? ""
+    : "아이디는 영문 소문자+숫자 4~16자여야 합니다.";
 };
 
 const validatePassword = () => {
-  const regex = /^(?=.*[A-Za-z])(?=.*\d)(?=.*[!@#$%^&*])[A-Za-z\d!@#$%^&*]{8,16}$/;
+  const regex =
+    /^(?=.*[A-Za-z])(?=.*\d)(?=.*[!@#$%^&*])[A-Za-z\d!@#$%^&*]{8,16}$/;
   errors.loginPw = regex.test(state.form.loginPw)
-    ? ''
-    : '비밀번호는 영문, 숫자, 특수문자 포함 8~16자여야 합니다.';
+    ? ""
+    : "비밀번호는 영문, 숫자, 특수문자 포함 8~16자여야 합니다.";
 };
 
 const validateConfirmPw = () => {
-  errors.confirmPw = confirmPw.value === state.form.loginPw
-    ? ''
-    : '비밀번호가 일치하지 않습니다.';
+  errors.confirmPw =
+    confirmPw.value === state.form.loginPw
+      ? ""
+      : "비밀번호가 일치하지 않습니다.";
 };
 
 const validateEmail = () => {
   const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   errors.email = regex.test(state.form.email)
-    ? ''
-    : '유효한 이메일 주소를 입력하세요.';
+    ? ""
+    : "유효한 이메일 주소를 입력하세요.";
 };
 
 const validatePhone = () => {
   const middleRegex = /^\d{3,4}$/;
   const lastRegex = /^\d{4}$/;
-  errors.phone2 = middleRegex.test(phone2.value) ? '' : '중간 번호는 3~4자리 숫자';
-  errors.phone3 = lastRegex.test(phone3.value) ? '' : '끝 번호는 4자리 숫자';
+  errors.phone2 = middleRegex.test(phone2.value)
+    ? ""
+    : "중간 번호는 3~4자리 숫자";
+  errors.phone3 = lastRegex.test(phone3.value) ? "" : "끝 번호는 4자리 숫자";
 };
 
 const validateOwnerTel = () => {
   const middleRegex = /^\d{3,4}$/;
   const lastRegex = /^\d{4}$/;
-  errors.ownerTel2 = middleRegex.test(ownerTel2.value) ? '' : '중간 번호는 3~4자리 숫자';
-  errors.ownerTel3 = lastRegex.test(ownerTel3.value) ? '' : '끝 번호는 4자리 숫자';
+  errors.ownerTel2 = middleRegex.test(ownerTel2.value)
+    ? ""
+    : "중간 번호는 3~4자리 숫자";
+  errors.ownerTel3 = lastRegex.test(ownerTel3.value)
+    ? ""
+    : "끝 번호는 4자리 숫자";
 };
 
 const validateOwnerPhone = () => {
   const middleRegex = /^\d{3,4}$/;
   const lastRegex = /^\d{4}$/;
-  errors.ownerPhone2 = middleRegex.test(ownerPhone2.value) ? '' : '중간 번호는 3~4자리 숫자';
-  errors.ownerPhone3 = lastRegex.test(ownerPhone3.value) ? '' : '끝 번호는 4자리 숫자';
+  errors.ownerPhone2 = middleRegex.test(ownerPhone2.value)
+    ? ""
+    : "중간 번호는 3~4자리 숫자";
+  errors.ownerPhone3 = lastRegex.test(ownerPhone3.value)
+    ? ""
+    : "끝 번호는 4자리 숫자";
 };
 
 const validateBusinessNumber = () => {
   const regex = /^\d{10}$/;
   errors.businessNumber = regex.test(state.owner.businessNumber)
-    ? ''
-    : '사업자등록번호는 숫자 10자리여야 합니다.';
+    ? ""
+    : "사업자등록번호는 숫자 10자리여야 합니다.";
 };
 
 // 제출 전 모든 필드 유효성 검사
@@ -83,7 +95,7 @@ const validateForm = () => {
   validateConfirmPw();
   validateEmail();
 
-  if (memberType.value === 'customer') {
+  if (memberType.value === "customer") {
     validatePhone();
   } else {
     validateOwnerTel();
@@ -91,88 +103,100 @@ const validateForm = () => {
     validateBusinessNumber();
   }
 
-  return Object.values(errors).every((msg) => msg === '');
+  return Object.values(errors).every((msg) => msg === "");
 };
 
 // 아이디 중복 검사 유효성 코드
-const checkResult = ref('');
+const checkResult = ref("");
+// 아이디 중복 체크 버튼 눌렀는지 여부
+const isIdChecked = ref(false);
 
 // 아이디 중복 확인 함수
 const checkDuplicateId = async () => {
   // 1. 아이디 유효성 검사 먼저 수행
   validateLoginId();
-  if (errors.loginId !== '') return; // 유효성 에러 있으면 중복검사 중단
+  if (errors.loginId !== "") return; // 유효성 에러가 있으면 중복 검사 중단
+
+  isIdChecked.value = true; // 중복 체크 버튼이 눌렸음을 표시
 
   try {
-    // 2. findId 함수 호출 (loginId와 role 객체 형태로 전달)
-    const response = await findId({ loginId: state.form.loginId, role: memberType.value });
+    // 2. 서버에 아이디와 회원 역할(role)을 전달하여 중복 여부 확인
+    const response = await findId({
+      loginId: state.form.loginId,
+      role: memberType.value,
+    });
 
-    // 3. HTTP 상태 코드가 200이 아닐 경우 (즉, 중복 시 400 등 에러 상태)
-    if (response.status !== 200) {
-      // 서버가 보낸 에러 메시지를 에러 상태에 반영
-      errors.loginId = response.data?.resultMessage || '중복 확인 실패';
-      checkResult.value = ''; // 중복 확인 결과 메시지 초기화
-      return; // 함수 종료
+    // 3. 서버가 200 OK를 반환했을 경우 정상 처리
+    if (response.status === 200) {
+      // resultData가 null이면 사용 가능한 아이디로 간주
+      const available = response.data.resultData === null;
+
+      if (available) {
+        checkResult.value = "사용 가능한 아이디입니다."; // 성공 메시지 출력
+        errors.loginId = ""; // 에러 메시지 초기화
+      } else {
+        checkResult.value = ""; // 성공 메시지 초기화
+        errors.loginId = "이미 사용 중인 아이디입니다."; // 중복 아이디 메시지 출력
+      }
     }
-
-    // 4. 정상 응답 시 resultData가 null이면 사용 가능한 아이디로 간주
-    const available = response.data.resultData === null;
-
-    if (available) {
-      // 5. 사용 가능한 아이디일 때 메시지 설정
-      checkResult.value = '사용 가능한 아이디입니다.';
-      errors.loginId = '';
-    } else {
-      // 6. 중복된 아이디일 때 메시지 설정
-      checkResult.value = '';
-      errors.loginId = '이미 사용 중인 아이디입니다.';
+    // 4. 서버가 400 Bad Request를 반환했을 경우도 중복 아이디로 간주
+    else if (response.status === 400) {
+      checkResult.value = ""; // 성공 메시지 초기화
+      // 서버에서 보내준 메시지가 있으면 사용, 없으면 기본 메시지 출력
+      errors.loginId =
+        response.data?.resultMessage || "이미 사용 중인 아이디입니다.";
+    }
+    // 5. 그 외 상태 코드는 중복 확인 실패로 처리
+    else {
+      checkResult.value = ""; // 성공 메시지 초기화
+      errors.loginId = "중복 확인 실패";
     }
   } catch (err) {
-    // 7. 네트워크 오류나 예외 발생 시 에러 메시지 처리
-    checkResult.value = '';
-    errors.loginId = '서버 오류로 확인에 실패했습니다.';
-    console.error('중복 검사 에러:', err);
+    // 6. 네트워크 오류 등 예외 발생 시 에러 처리
+    checkResult.value = "";
+    errors.loginId = "서버 오류로 확인에 실패했습니다.";
+    console.error("중복 검사 에러:", err);
   }
 };
 
 // 회원 타입
-const memberType = ref('customer');
+const memberType = ref("customer");
 
 // 입력 필드
-const confirmPw = ref('');
-const phone1 = ref('010');
-const phone2 = ref('');
-const phone3 = ref('');
+const confirmPw = ref("");
+const phone1 = ref("010");
+const phone2 = ref("");
+const phone3 = ref("");
 
-const ownerTel1 = ref('02');
-const ownerTel2 = ref('');
-const ownerTel3 = ref('');
+const ownerTel1 = ref("02");
+const ownerTel2 = ref("");
+const ownerTel3 = ref("");
 
-const ownerPhone1 = ref('010');
-const ownerPhone2 = ref('');
-const ownerPhone3 = ref('');
+const ownerPhone1 = ref("010");
+const ownerPhone2 = ref("");
+const ownerPhone3 = ref("");
 
 // 상태
 const state = reactive({
   form: {
-    name: '',
-    loginId: '',
-    loginPw: '',
-    postcode: '',
-    address: '',
-    addressDetail: '',
-    phone: '',
-    email: '',
-    role: '',
+    name: "",
+    loginId: "",
+    loginPw: "",
+    postcode: "",
+    address: "",
+    addressDetail: "",
+    phone: "",
+    email: "",
+    role: "",
   },
   owner: {
-    name: '',
-    category: '',
-    tel: '',
-    businessNumber: '',
-    licenesPath: '',
-    imagePath: '',
-  }
+    name: "",
+    category: "",
+    tel: "",
+    businessNumber: "",
+    licenesPath: "",
+    imagePath: "",
+  },
 });
 
 const agreement = reactive({
@@ -186,19 +210,32 @@ const agreement = reactive({
   sms: false,
   email: false,
 });
+// // 아이디 초기화
+watch(
+  () => state.form.loginId,
+  () => {
+    checkResult.value = ""; // 중복 확인 성공 메시지 제거
 
+    // 중복 검사 실패 메시지일 경우에만 제거
+    if (errors.loginId === "이미 사용 중인 아이디입니다.") {
+      errors.loginId = "";
+    }
+  }
+);
+
+// 회원구분
 watch(memberType, (val) => {
   state.form.role = val;
 });
-
+// 전화번호(일반)
 watch([phone1, phone2, phone3], () => {
   state.form.phone = `${phone1.value}-${phone2.value}-${phone3.value}`;
 });
-
+// 가게전화
 watch([ownerTel1, ownerTel2, ownerTel3], () => {
   state.owner.tel = `${ownerTel1.value}-${ownerTel2.value}-${ownerTel3.value}`;
 });
-
+// 전화번호(업주)
 watch([ownerPhone1, ownerPhone2, ownerPhone3], () => {
   state.owner.phone = `${ownerPhone1.value}-${ownerPhone2.value}-${ownerPhone3.value}`;
 });
@@ -217,54 +254,58 @@ const submit = async () => {
   state.form.role = memberType.value;
 
   if (!validateForm()) {
-    showModal('입력값을 다시 확인해주세요.');
+    showModal("입력값을 다시 확인해주세요.");
     return;
   }
 
   if (!state.form.loginId || !state.form.loginPw || !state.form.email) {
-    showModal('아이디, 비밀번호, 이메일은 필수입니다.');
+    showModal("아이디, 비밀번호, 이메일은 필수입니다.");
     return;
   }
 
-  if (memberType.value === 'customer') {
+  if (memberType.value === "customer") {
     if (!state.form.name) {
-      showModal('이름은 필수입니다.');
+      showModal("이름은 필수입니다.");
       return;
     }
   } else {
     if (!state.owner.name || !state.owner.category) {
-      showModal('가게명 및 카테고리는 필수입니다.');
+      showModal("가게명 및 카테고리는 필수입니다.");
       return;
     }
   }
 
-  if (!agreement.terms.useTerms || !agreement.terms.privacyPolicy || !agreement.terms.thirdParty) {
-    showModal('필수 약관에 동의해주세요.');
+  if (
+    !agreement.terms.useTerms ||
+    !agreement.terms.privacyPolicy ||
+    !agreement.terms.thirdParty
+  ) {
+    showModal("필수 약관에 동의해주세요.");
     return;
   }
 
   if (confirmPw.value !== state.form.loginPw) {
-    showModal('비밀번호 확인이 일치하지 않습니다.');
+    showModal("비밀번호 확인이 일치하지 않습니다.");
     return;
   }
 
   const payload = {
     ...state.form,
-    owner: memberType.value === 'owner' ? state.owner : null
+    owner: memberType.value === "owner" ? state.owner : null,
   };
 
   try {
     const res = await join(payload);
     if (res.status === 200) {
-      showModal('회원가입 완료!');
-      localStorage.setItem('user', JSON.stringify(res.data.resultData));
-      router.push('/');
+      showModal("회원가입 완료!");
+      localStorage.setItem("user", JSON.stringify(res.data.resultData));
+      router.push("/");
     } else {
-      showModal('입력 정보를 다시 확인해 주세요.');
+      showModal("입력 정보를 다시 확인해 주세요.");
     }
   } catch (err) {
     console.error(err);
-    showModal('회원가입 중 오류 발생');
+    showModal("회원가입 중 오류 발생");
   }
 };
 
@@ -277,10 +318,10 @@ const termsText = {
 
 // 모달창 함수
 const showModal = (message) => {
-  const modalBody = document.getElementById('alertModalBody');
+  const modalBody = document.getElementById("alertModalBody");
   if (modalBody) modalBody.textContent = message;
 
-  const modal = new bootstrap.Modal(document.getElementById('alertModal'));
+  const modal = new bootstrap.Modal(document.getElementById("alertModal"));
   modal.show();
 };
 
@@ -304,7 +345,6 @@ const addressSearch = () => {
     },
   }).open();
 };
-
 </script>
 
 <template>
@@ -321,10 +361,26 @@ const addressSearch = () => {
             <span>*</span>
             <p>회원 구분</p>
             <div class="radio-group">
-              <label id="radio"><input type="radio" class="circle" name="memberType" value="customer"
-                  v-model="memberType" /> 일반</label>
-              <label><input type="radio" class="circle" name="memberType" value="owner" v-model="memberType" />
-                업주</label>
+              <label id="radio"
+                ><input
+                  type="radio"
+                  class="circle"
+                  name="memberType"
+                  value="customer"
+                  v-model="memberType"
+                />
+                일반</label
+              >
+              <label
+                ><input
+                  type="radio"
+                  class="circle"
+                  name="memberType"
+                  value="owner"
+                  v-model="memberType"
+                />
+                업주</label
+              >
             </div>
           </div>
         </div>
@@ -348,11 +404,26 @@ const addressSearch = () => {
               <span>*</span>
               <p>아이디</p>
               <div class="id">
-                <input v-model="state.form.loginId" :class="{ invalid: errors.loginId }" @blur="validateLoginId"
-                  placeholder="영문 소문자/숫자, 4~16자" />
-                <button type="button" @click="checkDuplicateId">아이디 중복</button>
-                <p v-if="errors.loginId" class="error-msg">{{ errors.loginId }}</p>
-                <p v-else-if="checkResult" class="success-msg">{{ checkResult }}</p>
+                <input
+                  v-model="state.form.loginId"
+                  :class="{ invalid: errors.loginId }"
+                  @input="
+                    () => {
+                      errors.loginId = ''; // 입력 중엔 에러 메시지 숨김
+                      checkResult.value = ''; // 중복 체크 결과 메시지도 초기화
+                    }"
+                  @blur="validateLoginId"
+                  placeholder="영문 소문자/숫자, 4~16자"
+                />
+                <button type="button" @click="checkDuplicateId">
+                  아이디 중복
+                </button>
+                <p v-if="errors.loginId" class="error-msg">
+                  {{ errors.loginId }}
+                </p>
+                <p v-else-if="checkResult" class="success-msg">
+                  {{ checkResult }}
+                </p>
               </div>
             </div>
           </div>
@@ -364,8 +435,15 @@ const addressSearch = () => {
             <span>*</span>
             <p>비밀번호</p>
             <div class="password">
-              <input type="password" v-model="state.form.loginPw" :class="{ invalid: errors.loginPw }" @blur="validatePassword" />
-              <p v-if="errors.loginPw" class="error-msg">{{ errors.loginPw }}</p>
+              <input
+                type="password"
+                v-model="state.form.loginPw"
+                :class="{ invalid: errors.loginPw }"
+                @blur="validatePassword"
+              />
+              <p v-if="errors.loginPw" class="error-msg">
+                {{ errors.loginPw }}
+              </p>
             </div>
           </div>
         </div>
@@ -376,8 +454,15 @@ const addressSearch = () => {
             <span>*</span>
             <p>비밀번호 확인</p>
             <div class="password2">
-              <input type="password" v-model="confirmPw" @blur="validateConfirmPw" :class="{ invalid: errors.confirmPw }" />
-              <p v-if="errors.confirmPw" class="error-msg">{{ errors.confirmPw }}</p>
+              <input
+                type="password"
+                v-model="confirmPw"
+                @blur="validateConfirmPw"
+                :class="{ invalid: errors.confirmPw }"
+              />
+              <p v-if="errors.confirmPw" class="error-msg">
+                {{ errors.confirmPw }}
+              </p>
             </div>
           </div>
         </div>
@@ -398,13 +483,25 @@ const addressSearch = () => {
               <span>*</span>
               <p>주소</p>
               <div class="address-row">
-                <input type="text" v-model="state.form.postcode" placeholder="우편번호" />
+                <input
+                  type="text"
+                  v-model="state.form.postcode"
+                  placeholder="우편번호"
+                />
                 <button @click="addressSearch" type="button">주소검색</button>
               </div>
             </div>
             <div class="sev-addres-row">
-              <input type="text" v-model="state.form.address" placeholder="기본주소" />
-              <input type="text" v-model="state.form.addressDetail" placeholder="상세주소 (선택입력가능)" />
+              <input
+                type="text"
+                v-model="state.form.address"
+                placeholder="기본주소"
+              />
+              <input
+                type="text"
+                v-model="state.form.addressDetail"
+                placeholder="상세주소 (선택입력가능)"
+              />
             </div>
           </div>
           <div class="sevLine"></div>
@@ -421,8 +518,18 @@ const addressSearch = () => {
                   <option>018</option>
                   <option>019</option>
                 </select>
-                <input type="text" v-model="phone2" @blur="validatePhone" :class="{ invalid: errors.phone2 }" />
-                <input type="text" v-model="phone3" @blur="validatePhone" :class="{ invalid: errors.phone3 }" />
+                <input
+                  type="text"
+                  v-model="phone2"
+                  @blur="validatePhone"
+                  :class="{ invalid: errors.phone2 }"
+                />
+                <input
+                  type="text"
+                  v-model="phone3"
+                  @blur="validatePhone"
+                  :class="{ invalid: errors.phone3 }"
+                />
               </div>
             </div>
             <div class="telNum">
@@ -438,7 +545,12 @@ const addressSearch = () => {
               <span>*</span>
               <p>이메일</p>
               <div class="email">
-                <input v-model="state.form.email" @blur="validateEmail" :class="{ invalid: errors.email }" placeholder="example@example.com"/>
+                <input
+                  v-model="state.form.email"
+                  @blur="validateEmail"
+                  :class="{ invalid: errors.email }"
+                  placeholder="example@example.com"
+                />
                 <p v-if="errors.email" class="error-msg">{{ errors.email }}</p>
               </div>
             </div>
@@ -464,13 +576,25 @@ const addressSearch = () => {
               <span>*</span>
               <p>가게주소</p>
               <div class="address-row">
-                <input type="text" v-model="state.form.postcode" placeholder="우편번호" />
+                <input
+                  type="text"
+                  v-model="state.form.postcode"
+                  placeholder="우편번호"
+                />
                 <button type="button">주소검색</button>
               </div>
             </div>
             <div class="sev-addres-row">
-              <input type="text" v-model="state.form.address" placeholder="기본주소" />
-              <input type="text" v-model="state.form.addressDetail" placeholder="상세주소 (선택입력가능)" />
+              <input
+                type="text"
+                v-model="state.form.address"
+                placeholder="기본주소"
+              />
+              <input
+                type="text"
+                v-model="state.form.addressDetail"
+                placeholder="상세주소 (선택입력가능)"
+              />
             </div>
           </div>
           <div class="sevLine"></div>
@@ -510,10 +634,18 @@ const addressSearch = () => {
                   <option>018</option>
                   <option>019</option>
                 </select>
-                <input type="text" v-model="ownerTel2" @blur="validateOwnerTel"
-                  :class="{ invalid: errors.ownerTel2 }" />
-                <input type="text" v-model="ownerTel3" @blur="validateOwnerTel"
-                  :class="{ invalid: errors.ownerTel3 }" />
+                <input
+                  type="text"
+                  v-model="ownerTel2"
+                  @blur="validateOwnerTel"
+                  :class="{ invalid: errors.ownerTel2 }"
+                />
+                <input
+                  type="text"
+                  v-model="ownerTel3"
+                  @blur="validateOwnerTel"
+                  :class="{ invalid: errors.ownerTel3 }"
+                />
               </div>
             </div>
             <div class="telNum">
@@ -556,11 +688,17 @@ const addressSearch = () => {
               <span>*</span>
               <p>사업자 등록번호</p>
               <div class="upload-row owner-sigin">
-                <input type="text" v-model="state.owner.businessNumber" @blur="validateBusinessNumber"
-                  :class="{ invalid: errors.businessNumber }" />
+                <input
+                  type="text"
+                  v-model="state.owner.businessNumber"
+                  @blur="validateBusinessNumber"
+                  :class="{ invalid: errors.businessNumber }"
+                />
                 <button type="button">조회</button>
                 <div class="owner-upload-num">
-                  <p v-if="errors.businessNumber" class="error-msg owner-up">{{ errors.businessNumber }}</p>
+                  <p v-if="errors.businessNumber" class="error-msg owner-up">
+                    {{ errors.businessNumber }}
+                  </p>
                 </div>
               </div>
             </div>
@@ -572,8 +710,14 @@ const addressSearch = () => {
               <span>*</span>
               <p>이메일</p>
               <div class="mail">
-                <input type="email" id="email" v-model="state.form.email" @blur="validateEmail" :class="{ invalid: errors.email }"
-                  placeholder="example@example.com" />
+                <input
+                  type="email"
+                  id="email"
+                  v-model="state.form.email"
+                  @blur="validateEmail"
+                  :class="{ invalid: errors.email }"
+                  placeholder="example@example.com"
+                />
                 <p v-if="errors.email" class="error-msg">{{ errors.email }}</p>
               </div>
             </div>
@@ -593,15 +737,27 @@ const addressSearch = () => {
                     <option>018</option>
                     <option>019</option>
                   </select>
-                  <input type="text" v-model="ownerPhone2" @blur="validateOwnerPhone"
-                    :class="{ invalid: errors.ownerPhone2 }" />
-                  <input type="text" v-model="ownerPhone3" @blur="validateOwnerPhone"
-                    :class="{ invalid: errors.ownerPhone3 }" />
+                  <input
+                    type="text"
+                    v-model="ownerPhone2"
+                    @blur="validateOwnerPhone"
+                    :class="{ invalid: errors.ownerPhone2 }"
+                  />
+                  <input
+                    type="text"
+                    v-model="ownerPhone3"
+                    @blur="validateOwnerPhone"
+                    :class="{ invalid: errors.ownerPhone3 }"
+                  />
                 </div>
               </div>
             </div>
             <div class="phoneNum">
-              <p v-if="errors.ownerPhone2 || errors.ownerPhone3" class="error-msg"><span class="telNum">
+              <p
+                v-if="errors.ownerPhone2 || errors.ownerPhone3"
+                class="error-msg"
+              >
+                <span class="telNum">
                   {{ errors.ownerPhone2 || errors.ownerPhone3 }}
                 </span>
               </p>
@@ -615,8 +771,14 @@ const addressSearch = () => {
               <p>사업자 등록증 업로드</p>
               <div class="upload-row upload-box">
                 <button type="button">업로드</button>
-                <li>등록증 전체가 선명하게 촬영된 이미지 또는 PDF 파일을 업로드해야 합니다.</li>
-                <li>사업자등록상의 대표자명과 가입자 정보가 다를 경우, 추가 인증이 필요합니다.</li>
+                <li>
+                  등록증 전체가 선명하게 촬영된 이미지 또는 PDF 파일을
+                  업로드해야 합니다.
+                </li>
+                <li>
+                  사업자등록상의 대표자명과 가입자 정보가 다를 경우, 추가 인증이
+                  필요합니다.
+                </li>
               </div>
             </div>
           </div>
@@ -630,38 +792,88 @@ const addressSearch = () => {
           <!-- 전체 동의 -->
           <p class="all-agree">
             <label class="custom-checkbox">
-              <input type="checkbox" class="circle" v-model="agreement.allAgree" @change="toggleAllAgree" />
+              <input
+                type="checkbox"
+                class="circle"
+                v-model="agreement.allAgree"
+                @change="toggleAllAgree"
+              />
               <strong><span class="highlight">전체동의</span></strong>
             </label>
           </p>
           <ul class="terms-list">
             <!-- 필수 이용약관 동의 -->
-            <li><label class="custom-checkbox"><input type="checkbox" class="circle"
-                  v-model="agreement.terms.useTerms" /><span class="highlight"> [필수]</span> 이용약관 동의</label></li>
+            <li>
+              <label class="custom-checkbox"
+                ><input
+                  type="checkbox"
+                  class="circle"
+                  v-model="agreement.terms.useTerms"
+                /><span class="highlight"> [필수]</span> 이용약관 동의</label
+              >
+            </li>
             <div class="terms-box">{{ termsText.useTerms }}</div>
             <!-- 필수 개인정보 수집 이용 동의 -->
-            <li><label class="custom-checkbox"><input type="checkbox" class="circle"
-                  v-model="agreement.terms.privacyPolicy" />
-                <span class="highlight"> [필수]</span> 개인정보 수집 이용 동의</label></li>
+            <li>
+              <label class="custom-checkbox"
+                ><input
+                  type="checkbox"
+                  class="circle"
+                  v-model="agreement.terms.privacyPolicy"
+                />
+                <span class="highlight"> [필수]</span> 개인정보 수집 이용
+                동의</label
+              >
+            </li>
             <div class="terms-box">{{ termsText.useTerms }}</div>
             <!-- 필수 개인정보 제3자 제공 동의 -->
-            <li><label class="custom-checkbox"><input type="checkbox" class="circle"
-                  v-model="agreement.terms.thirdParty" />
-                <span class="highlight"> [필수]</span> 개인정보 제3자 제공 동의</label></li>
+            <li>
+              <label class="custom-checkbox"
+                ><input
+                  type="checkbox"
+                  class="circle"
+                  v-model="agreement.terms.thirdParty"
+                />
+                <span class="highlight"> [필수]</span> 개인정보 제3자 제공
+                동의</label
+              >
+            </li>
             <div class="terms-box">{{ termsText.useTerms }}</div>
           </ul>
           <!-- 선택 쇼핑정보 수신 동의 -->
           <div class="marketing">
-            <p><label class="custom-checkbox"><input type="checkbox" class="circle"
-                  v-model="agreement.marketing" /><span class="highlight"> [선택]</span> 쇼핑정보 수신 동의</label></p>
+            <p>
+              <label class="custom-checkbox"
+                ><input
+                  type="checkbox"
+                  class="circle"
+                  v-model="agreement.marketing"
+                /><span class="highlight"> [선택]</span> 쇼핑정보 수신
+                동의</label
+              >
+            </p>
           </div>
           <div class="sev-marketing">
-            <span><label class="custom-checkbox"><input type="checkbox" class="circle" v-model="agreement.sms" /> SMS
-                수신을
-                동의하십니까?</label></span>
-            <span><label class="custom-checkbox"><input type="checkbox" class="circle" v-model="agreement.email" /> 이메일
-                수신을
-                동의하십니까?</label></span>
+            <span
+              ><label class="custom-checkbox"
+                ><input
+                  type="checkbox"
+                  class="circle"
+                  v-model="agreement.sms"
+                />
+                SMS 수신을 동의하십니까?</label
+              ></span
+            >
+            <span
+              ><label class="custom-checkbox"
+                ><input
+                  type="checkbox"
+                  class="circle"
+                  v-model="agreement.email"
+                />
+                이메일 수신을 동의하십니까?</label
+              ></span
+            >
           </div>
         </div>
 
@@ -673,7 +885,13 @@ const addressSearch = () => {
     </div>
   </div>
   <!-- 공통 알림 모달 -->
-  <div class="modal fade" id="alertModal" tabindex="-1" role="dialog" aria-hidden="true">
+  <div
+    class="modal fade"
+    id="alertModal"
+    tabindex="-1"
+    role="dialog"
+    aria-hidden="true"
+  >
     <div class="modal-dialog modal-dialog-centered" role="document">
       <div class="modal-content">
         <div class="modal-header">
@@ -681,7 +899,9 @@ const addressSearch = () => {
         </div>
         <div class="modal-body" id="alertModalBody">내용</div>
         <div class="modal-footer">
-          <button type="button" class="btn btn-primary" data-bs-dismiss="modal">확인</button>
+          <button type="button" class="btn btn-primary" data-bs-dismiss="modal">
+            확인
+          </button>
         </div>
       </div>
     </div>
@@ -691,22 +911,24 @@ const addressSearch = () => {
 <style lang="scss" scoped>
 @font-face {
   // 배민 주아체
-  font-family: 'BMJUA';
-  src: url('https://fastly.jsdelivr.net/gh/projectnoonnu/noonfonts_one@1.0/BMJUA.woff') format('woff');
+  font-family: "BMJUA";
+  src: url("https://fastly.jsdelivr.net/gh/projectnoonnu/noonfonts_one@1.0/BMJUA.woff")
+    format("woff");
   font-weight: normal;
   font-style: normal;
 }
 
 @font-face {
-  // 프리텐다드 
-  font-family: 'Pretendard-Regular';
-  src: url('https://fastly.jsdelivr.net/gh/Project-Noonnu/noonfonts_2107@1.1/Pretendard-Regular.woff') format('woff');
+  // 프리텐다드
+  font-family: "Pretendard-Regular";
+  src: url("https://fastly.jsdelivr.net/gh/Project-Noonnu/noonfonts_2107@1.1/Pretendard-Regular.woff")
+    format("woff");
   font-weight: 400;
   font-style: normal;
 }
 
 * {
-  font-family: 'Pretendard-Regular';
+  font-family: "Pretendard-Regular";
   letter-spacing: 1px;
   box-sizing: border-box;
 }
@@ -743,8 +965,8 @@ label.serveTitle {
 }
 
 // 유효성 검사
-input[type='text'],
-input[type='password'],
+input[type="text"],
+input[type="password"],
 select {
   width: 100%;
   max-width: 400px;
@@ -767,7 +989,6 @@ select.invalid {
   //border-color: #ff6666;
   background-color: #ffe5e5;
 }
-
 
 // 전화번호 에러메세지 정렬
 .telNum {
@@ -874,7 +1095,7 @@ select.invalid {
 
   .join-title {
     // 메인 타이틀(회원가입) 스타일
-    font-family: 'BMJUA';
+    font-family: "BMJUA";
     font-size: 50px;
     text-align: center; // 텍스트 가운데 정렬
     margin-top: 3rem;
@@ -927,7 +1148,6 @@ select.invalid {
     button {
       width: 115px;
       border-radius: 8px;
-
     }
 
     .address-row input {
@@ -1048,7 +1268,9 @@ select.invalid {
     }
   }
 
-  .form-group:not(.address-group):not(.phone-input-wrap):not(.agreement):not(:has(.radio-group)) {
+  .form-group:not(.address-group):not(.phone-input-wrap):not(.agreement):not(
+      :has(.radio-group)
+    ) {
     display: block;
 
     input,
@@ -1166,7 +1388,6 @@ select.invalid {
     margin-left: 35px;
   }
 
-
   // 약관 동의
   .agreement {
     display: flex;
@@ -1242,7 +1463,6 @@ select.invalid {
     }
   }
 
-
   // 회원가입 완료 버튼
   .form-submit {
     margin-top: 1rem;
@@ -1266,7 +1486,7 @@ select.invalid {
     }
   }
 
-  // 약관동의 체크박스 
+  // 약관동의 체크박스
   input[type="checkbox"].circle {
     appearance: none;
     -webkit-appearance: none;
@@ -1294,5 +1514,4 @@ select.invalid {
     }
   }
 }
-
 </style>
