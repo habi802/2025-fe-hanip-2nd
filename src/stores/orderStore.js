@@ -4,15 +4,19 @@ import { getOwnerOrder } from "@/services/orderService";
 export const useOrderStore = defineStore("order", {
   state: () => ({
     orders: [],
+    isLoading: false,
   }),
   actions: {
     async fetchOrders(id) {
+      this.isLoading = true;
       try {
         const res = await getOwnerOrder(id);
         this.orders = res.data.resultData ?? [];
       } catch (err) {
         console.error("fetchOrders 실패:", err);
         this.orders = [];
+      } finally {
+        this.lisLoading = false;
       }
     },
   },
