@@ -15,10 +15,13 @@ const reviewButton = () => {
   router.push(`/reviews-page/${props.order?.id}`);
 };
 
-//주문 상세 페이지 이동 
- const orderDetail = () => {
-  router.push({ path: `stores/${props.order?.storeId}/order/success`, query:{id : props.order?.id}});
-}
+//주문 상세 페이지 이동
+const orderDetail = () => {
+  router.push({
+    path: `stores/${props.order?.storeId}/order/success`,
+    query: { id: props.order?.id },
+  });
+};
 
 //
 const previewUrl = ref(""); //이미지 경로 저장용
@@ -45,7 +48,7 @@ const props = defineProps({
 let on = ref(true);
 const boardBtn = () => {
   on.value = !on.value;
-//   console.log(on.value);
+  //   console.log(on.value);
 };
 
 // 리뷰 별점
@@ -88,6 +91,44 @@ const statusText = computed(() => {
   }
 });
 
+// 주문 상태에 따른 버튼
+const statusBtn = computed(() => {
+  switch (props.order.status) {
+    case "ORDERED":
+      return {
+        color: "#6B6B6B",
+        border: "2px solid #6B6B6B ",
+        pointerEvents: "none",
+      };
+    case "PREPARING":
+      return {
+        color: "#6B6B6B",
+        border: "2px solid #6B6B6B ",
+        pointerEvents: "none",
+      };
+    case "DELIVERING":
+      return {
+        color: "#6B6B6B",
+        border: "2px solid #6B6B6B ",
+        pointerEvents: "none",
+      };
+    case "CANCELED":
+      return {
+        color: "#6B6B6B",
+        border: "2px solid #6B6B6B ",
+        pointerEvents: "none",
+      };
+    case "COMPLETED":
+      return 0;
+    default:
+      return {
+        color: "#6B6B6B",
+        border: "2px solid #6B6B6B ",
+        pointerEvents: "none",
+      };
+  }
+});
+
 onMounted(() => {
   idCheck();
 });
@@ -115,14 +156,12 @@ const idCheck = async () => {
   const revId = await getReviewOne(props.order?.id);
   revCheck.value = revId.data.resultData;
 };
-
-
 </script>
 
 <template>
   <!-- 신경 x 2차때 사용 예정 -->
-  <div :style= " { height: on ? '315px' : '750px' }" class="bigBoard">
-  <!-- <div class="bigBoard"> -->
+  <div :style="{ height: on ? '315px' : '750px' }" class="bigBoard">
+    <!-- <div class="bigBoard"> -->
     <!-- 내부 -->
     <div class="board">
       <!-- 카드 왼쪽 [ 주문 시간 , 이미지 , 가게 이름 ] -->
@@ -162,8 +201,7 @@ const idCheck = async () => {
       <!-- 카드 오른쪽 [ 총 결제금액, 배달상태 ] -->
       <div class="boardRigth">
         <div class="amount">
-          <div class="amountText">총 결제 금액
-          </div>
+          <div class="amountText">총 결제 금액</div>
           <div class="amountNum">
             {{ props.order.amount.toLocaleString() }}원
           </div>
@@ -180,15 +218,12 @@ const idCheck = async () => {
     </div>
     <!-- 버튼들 -->
     <div class="btns">
-      <div class="btn" @click="$emit('reorder', props.order)">
-        재주문 하기
-      </div>
-      <div @click="reviewButton" class="btn btn-primary">
+      <div class="btn" @click="$emit('reorder', props.order)">재주문 하기</div>
+      <div @click="reviewButton" class="btn btn-primary" :style="statusBtn">
         {{ revCheck !== null ? "리뷰 수정" : "리뷰 등록" }}
       </div>
       <div @click="orderDetail" class="btn">주문상세</div>
     </div>
-
     <!-- 리뷰 박스 -->
     <!-- <div class="reviewBigBox">
             <div class="reviewBox">
@@ -214,19 +249,18 @@ const idCheck = async () => {
                 </div>
             </div>
         </div> -->
-</div>
+  </div>
+  <div class="last"></div>
 </template>
 
-
 <style lang="scss" scoped>
-
-:hover.bigBoard{
-  border:  #ff6666 2px solid;
+:hover.bigBoard {
+  border: #ff6666 2px solid;
 }
 .bigBoard {
   width: 1440px !important;
   min-height: 330px; // 최소 높이
-  border: #797979 2px solid !important;;
+  border: #797979 2px solid !important;
   border-radius: 25px;
   margin-bottom: 40px;
   //overflow: clip;
@@ -240,145 +274,144 @@ const idCheck = async () => {
     justify-content: space-around;
     align-items: center;
     //overflow: clip;
-  
-  .boardLeft {
-    .imgBox {
-      width: 260px;
-      height: 170px;
-      margin-top: 10px;
-      border: #797979 1px solid;
-      border-radius: 15px;
-      overflow: hidden;
 
-      .img {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-      }
-    }
-
-    .created {
-      font-size: 20px;
-      margin-top: -10px;
-      margin-left: 10px;
-    }
-
-    .textBox {
-      font-family: "BMJUA";
-      font-size: 1.5em;
-      font-weight: 700;
-      margin-left: 10px;
-      margin-top: 10px;
-      text-align: center;
-    }
-  }
-
-  .boardMiddle {
-    width: 500px;
-    margin-top: 20px;
-    font-family: "BMJUA";
-    font-size: 1.3em;
-
-    .more {
-      margin-top: 10px;
-      display: flex;
-      justify-content: end;
-      margin-right: 50px;
-    }
-
-    .menuBox{
-      margin-right: 50px;
-      .menu {
-        display: flex;
-        justify-content: space-between;
-        font-family: "BMJUA";
+    .boardLeft {
+      .imgBox {
+        width: 260px;
+        height: 170px;
         margin-top: 10px;
-        .name {
-          width: 200px;
-          text-align: left;
+        border: #797979 1px solid;
+        border-radius: 15px;
+        overflow: hidden;
+
+        .img {
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
         }
-        .num {
-          width: 50px;
-          margin-left: 10px;
-          text-align: right;
-        }
-        .price {
-          width: 120px;
-          text-align: right;
+      }
+
+      .created {
+        font-size: 20px;
+        margin-top: -10px;
+        margin-left: 10px;
+      }
+
+      .textBox {
+        font-family: "BMJUA";
+        font-size: 1.5em;
+        font-weight: 700;
+        margin-left: 10px;
+        margin-top: 10px;
+        text-align: center;
+      }
+    }
+
+    .boardMiddle {
+      width: 500px;
+      margin-top: 20px;
+      font-family: "BMJUA";
+      font-size: 1.3em;
+
+      .more {
+        margin-top: 10px;
+        display: flex;
+        justify-content: end;
+        margin-right: 50px;
+      }
+
+      .menuBox {
+        margin-right: 50px;
+        .menu {
+          display: flex;
+          justify-content: space-between;
+          font-family: "BMJUA";
+          margin-top: 10px;
+          .name {
+            width: 200px;
+            text-align: left;
+          }
+          .num {
+            width: 50px;
+            margin-left: 10px;
+            text-align: right;
+          }
+          .price {
+            width: 120px;
+            text-align: right;
+          }
         }
       }
     }
-  }
-  .boardRigth {
-    display: flex;
-    gap: 80px;
-    text-align: center;
+    .boardRigth {
+      display: flex;
+      gap: 80px;
+      text-align: center;
 
-    .amountText {
-      font-size: 20px;
-      color: #797979;
+      .amountText {
+        font-size: 20px;
+        color: #797979;
+      }
+      .amountNum {
+        margin-top: 10px;
+        font-size: 24px;
+        color: #ff6666;
+        font-weight: 700;
+      }
     }
-    .amountNum {
-      margin-top: 10px;
-      font-size: 24px;
-      color: #ff6666;
-      font-weight: 700;
-    }
 
+    position: relative;
   }
 
-  position:relative
-}
+  .removeImg {
+    position: absolute;
+    top: 45%;
+    right: 30px;
+    width: 20px;
+    //margin-right: 35px;
+    //margin-top: 20px;
+    margin: 30px;
+    cursor: pointer;
+  }
 
-.removeImg {
-  position:absolute;
-  top:45%;
-  right: 30px;
-  width: 20px;
-  //margin-right: 35px;
-  //margin-top: 20px;
-  margin: 30px;
-  cursor: pointer;
-}
-
-.reviewBigBox {
-  display: flex;
-  justify-content: center;
-  width: 100%;
-  height: 400px;
-  margin-top: 20px;
-
-  .reviewBox {
+  .reviewBigBox {
     display: flex;
-    width: 90%;
-    height: 330px;
+    justify-content: center;
+    width: 100%;
+    height: 400px;
     margin-top: 20px;
-    background-color: #fff;
-    border: #797979 3px solid;
-    border-radius: 30px;
-  }
 
-  .reviewimgBox {
-    width: 270px;
-    height: 270px;
-    overflow: hidden;
-    border-radius: 20px;
-    margin-top: 25px;
-    margin-left: 30px;
-
-    .reviewImg {
-      width: 300px;
-      height: 300px;
-      object-fit: cover;
-      display: block;
+    .reviewBox {
+      display: flex;
+      width: 90%;
+      height: 330px;
+      margin-top: 20px;
+      background-color: #fff;
+      border: #797979 3px solid;
+      border-radius: 30px;
     }
-  }
 
-  .reviewBoxLeft {
-    font-family: "BMJUA";
-    font-size: 1.3em;
-    margin-left: 20px;
-    margin-top: 45px;
+    .reviewimgBox {
+      width: 270px;
+      height: 270px;
+      overflow: hidden;
+      border-radius: 20px;
+      margin-top: 25px;
+      margin-left: 30px;
+
+      .reviewImg {
+        width: 300px;
+        height: 300px;
+        object-fit: cover;
+        display: block;
+      }
+    }
+
+    .reviewBoxLeft {
+      font-family: "BMJUA";
+      font-size: 1.3em;
+      margin-left: 20px;
+      margin-top: 45px;
 
       .nameBox {
         display: flex;
@@ -421,7 +454,7 @@ const idCheck = async () => {
     gap: 20px;
     justify-content: right;
     padding-right: 120px;
-  
+
     .btn {
       font-family: "BMJUA";
       font-size: 1em;
@@ -454,7 +487,10 @@ const idCheck = async () => {
 }
 
 .filled {
-  color: yellow !important; 
+  color: yellow !important;
+}
+.last{
+  margin-bottom: 100px;
 }
 
 #imgOne {

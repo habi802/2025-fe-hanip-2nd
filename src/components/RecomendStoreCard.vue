@@ -87,7 +87,7 @@ const reviews = async () => {
       <div id="smallText">배달료 0원 ~ 3000원</div>
       <div id="smallText">최소 주문 금액 11000원</div>
     </div>
-    <div class="btn" @click="toStore">자세히보기</div>
+    <div class="btn btn-outline-danger btn-sm" @click="toStore">자세히보기</div>
   </div>
 </template>
 

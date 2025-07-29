@@ -40,7 +40,7 @@ onMounted(async () => {
     router.push({ path: "/" });
     return;
   }
-
+  
   // 넘어온 쿼리가 있다면 ?
   if (route.query.id > 0) {
     const ress = await getStore(route.params.id);
@@ -133,9 +133,10 @@ const randomThreeStores = computed(() => {
   <div class="cart-empty-wrapper">
     <div class="top-row">
       <div class="header-row">
-        <div class="div29">주문완료</div>
+        <div class="div29" v-if="route.query.id>0">주문상세</div>
+        <div v-else class="div29">주문완료</div>
       </div>
-      <div class="step-horizontal">
+      <div v-if="!route.query.id" class="step-horizontal">
         <span class="step-text">01 음식선택</span>
         <span class="arrow"
           ><img src="/src/imgs/cartimgs/arrow-back.png"
@@ -283,7 +284,7 @@ const randomThreeStores = computed(() => {
       <!--  -->
 
       <!--  -->
-      <div id="random-box">
+      <div id="random-box" v-if="!route.query.id">
         <h4 class="mb-3">다른 가게 주문하기</h4>
         <div>
           <!--  -->

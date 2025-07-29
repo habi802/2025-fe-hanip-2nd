@@ -46,6 +46,14 @@ const reviews = async () => {
   total.value = totals;
   // console.log("total", totals);
 };
+
+
+// 
+
+
+
+
+
 </script>
 
 <template>
