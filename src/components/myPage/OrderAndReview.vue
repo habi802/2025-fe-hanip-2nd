@@ -453,7 +453,7 @@ const idCheck = async () => {
 }
 
 .filled {
-  color: yellow !important;
+  color: yellow !important; 
 }
 
 #imgOne {
