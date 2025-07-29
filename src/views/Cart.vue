@@ -171,12 +171,12 @@ const imgSrc = computed(() => {
 })
 // 메뉴 이미지
 
-const menuIgmSrc = computed(()=>{
+const menuIgmSrc = items => {
 
-  return state.items[0]?.menuId && state.items[0]?.imagePath && state.items[0]?.imagePath !== 'null'
-    ? `/pic/store-profile/${state.items[0]?.menuId}/${state.items[0]?.imagePath}`
+  return items?.menuId && items?.imagePath && items?.imagePath !== 'null'
+    ? `/pic/menu-profile/${items?.menuId}/${items?.imagePath}`
     : defaultImage;  
-})
+}
 
 
 </script>
@@ -300,7 +300,7 @@ const menuIgmSrc = computed(()=>{
     <div class="store-layout">
       <!-- 가게 대표 카드 -->
       <div class="store-card" v-if="groupedItems.length > 0">
-        <img class="thumbnail" :src="menuIgmSrc" @error="e => e.target.src = defaultImage" />
+        <img class="thumbnail" :src="imgSrc" @error="e => e.target.src = defaultImage" />
         <!-- <img :src='`/pic/store-profile/${state.store.id}/${state.store.imagePath}` '/> -->
         <div class="store-content">
           <h3 class="store-name">
@@ -348,7 +348,7 @@ const menuIgmSrc = computed(()=>{
 
         <!-- 장바구니 음식 리스트 -->
         <div v-for="item in group.items" :key="item.id" class="cart-item">
-          <img  :src="imgSrc" @error="e => e.target.src = defaultImage" />
+          <img  :src="menuIgmSrc(item)" @error="e => e.target.src = defaultImage" />
           <div class="item-content">
             <p class="item-name">{{ item.name }}</p>
             <p class="item-comment"></p>
