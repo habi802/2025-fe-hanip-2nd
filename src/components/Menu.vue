@@ -62,7 +62,7 @@ console.log("props.img", props.item);
         <div class="row">
             <div class="col-8 col-md-10">
                 <h5>{{ props.item.name }}</h5>
-                <p>{{ props.item.comment }}</p>
+                <p class="comment">{{ props.item.comment }}</p>
                 <div class="bottom-box">
                     <span>{{ props.item.price.toLocaleString() }}원</span>
                     <span class="check">
@@ -82,6 +82,18 @@ console.log("props.img", props.item);
 </template>
 
 <style lang="scss" scoped>
+@font-face {
+  // 프리텐다드
+  font-family: 'Pretendard-Regular';
+  src: url('https://fastly.jsdelivr.net/gh/Project-Noonnu/noonfonts_2107@1.1/Pretendard-Regular.woff') format('woff');
+  font-weight: 400;
+  font-style: normal;
+}
+*{
+    font-family: 'Pretendard-Regular';
+    font-size: 20px;
+    font-size: 800;
+}
 .menu {
     cursor: pointer;
 
@@ -91,6 +103,7 @@ console.log("props.img", props.item);
 }
 #menuImgs{
     margin-left: -15px;
+    margin-top: 3px;
     display: flex;
     width: 170px;
     height: 104px;
@@ -128,5 +141,10 @@ console.log("props.img", props.item);
 .col-8 {
     width: 80%;
     margin-left: -15px;
+}
+.comment{
+    font-size: 18px;
+    margin-top: 10px;
+    color: #9E9E9E;
 }
 </style>
