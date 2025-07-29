@@ -10,7 +10,7 @@ const router = useRouter();
 const addMenuModal = ref(null);
 const previewImage = ref(defaultMenuImage);
 const ownerName = inject("ownerName", "");
-const storeId = inject("storeId", "")
+const storeId = inject("storeId", "");
 
 // 부트스트랩 alert
 let alertId = 0;
@@ -69,15 +69,15 @@ const openAddMenuModal = () => {
 
 // 등록하기
 const submitMenu = async () => {
-  if(newMenu.name.trim() === "") {
+  if (newMenu.name.trim() === "") {
     showAlert("메뉴 이름을 입력해주세요!");
     return;
   }
-  if(!newMenu.price || Number(newMenu.price) <= 0) {
+  if (!newMenu.price || Number(newMenu.price) <= 0) {
     showAlert("메뉴 가격을 입력해주세요!");
     return;
   }
-  if(newMenu.comment.trim() === "") {
+  if (newMenu.comment.trim() === "") {
     showAlert("메뉴 설명을 입력해주세요!");
     return;
   }
@@ -97,7 +97,6 @@ const submitMenu = async () => {
     "data",
     new Blob([JSON.stringify(payload.data)], { type: "application/json" })
   );
-
 
   const res = await saveMenu(formData);
   console.log("imagePath:", newMenu.imagePath);
@@ -144,7 +143,7 @@ const fetchMenus = async () => {
 </script>
 
 <template>
-<!-- alert -->
+  <!-- alert -->
   <div
     style="
       position: fixed;
@@ -170,13 +169,13 @@ const fetchMenus = async () => {
     </div>
   </div>
 
-  <div class="owner-title1">메뉴상세</div>
+  <div class="owner-title1">메뉴 관리</div>
   <div class="owner-title2">
     어서오세요! {{ ownerName }} 사장님, 관리자 페이지에 다시 오신 것을
     환영합니다!
   </div>
   <div class="padding pb-5">
-    <div class="row row-2 gap-3">
+    <div class="row row-2 gap-4">
       <OwnerMenuCard
         v-for="menu in state.form"
         :key="menu.id"
@@ -188,7 +187,7 @@ const fetchMenus = async () => {
       </div>
     </div>
   </div>
-  
+
   <!-- 부트스트랩 모달 -->
   <div class="modal fade" ref="addMenuModal" tabindex="-1">
     <div class="modal-dialog">
@@ -203,16 +202,17 @@ const fetchMenus = async () => {
         </div>
         <div class="modal-body">
           <!-- 프리뷰 -->
-          <div v-if="previewImage" class="text-center">
+          <div v-if="previewImage" class="text-center" style="">
             <img
               :src="previewImage"
               alt="미리보기"
               style="
-                max-width: 70%;
+                max-width: 50%;
                 height: auto;
                 border-radius: 8px;
                 margin-top: 10px;
                 margin-bottom: 10px;
+                object-fit: cover;
               "
             />
             <!-- 이미지 업로드 -->
@@ -262,7 +262,7 @@ const fetchMenus = async () => {
 
 .owner-title2 {
   padding-left: 12px;
-  padding-bottom: 10px;
+  padding-bottom: 14px;
   color: #686868;
 }
 

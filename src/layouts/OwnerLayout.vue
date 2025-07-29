@@ -112,18 +112,21 @@ const toggleBusiness = async () => {
     : "가게 영업을 중지하겠습니까?";
 
   if (confirm(confirmMessage)) {
-    await activeStore(storeId);
-    router.push("/owner")
+    await activeStore(storeId); 
 
     const res = await getOwnerStore();
     if (res.status === 200) {
       state.form = res.data.resultData;
       isOpen.value = state.form.isActive;
+
+      // 상태에 따라 경로 이동
+      if (isOpen.value) {
+        router.push("/owner/dashboard");
+      } else {
+        router.push("/owner");
+      }
     }
   } else {
-    // 취소되면 원래대로 복원
-    // 현재는 토글된 상태이므로 반대로 되돌려야 함
-    isOpen.value = !willOpen;
   }
 };
 
@@ -140,7 +143,13 @@ provide("storeActive", storeActive)
 
 // 로그아웃
 const logoutOwner = async () => {
-  await logout();
+  await activeStore(storeId.value);
+  // console.log("storeId삭제: ", storeId.value);
+  const res = await logout();
+  if(res.status !== 200) {
+    return;
+  }
+  
   account.setLoggedIn(false);
   router.push("/");
 };
@@ -167,7 +176,6 @@ const updateClock = () => {
 
   currentTime.value = `${month}월 ${date}일 (${day})  ${hours}:${minutes}:${seconds}`;
 };
-
 let intervalId = null;
 
 onMounted(() => {
@@ -202,11 +210,11 @@ const toMain = () => {
           @click="toMain"
         />
         <!-- 시각 -->
-        <div class="text-black-50 mb-4" style="font-weight: 600; font-size: 17px;">{{ currentTime  }}</div>
+        <div class="text-black-50 mb-4" style="font-weight: 600; font-size: 20px;">{{ currentTime  }}</div>
         <!-- 토글버튼 -->
         <div class="toggle-container d-flex justify-content-center" style="height: 40px">
-          <span v-if="isOpen">영업 상태</span>
-          <label v-if="isOpen" class="switch">
+          <span v-if="route.path !== '/owner' || isOpen">영업 상태</span>
+          <label v-if="route.path !== '/owner' || isOpen" class="switch">
             <input type="checkbox" :checked="isOpen" @change="toggleBusiness" />
             <span class="slider"></span>
           </label>
@@ -215,7 +223,7 @@ const toMain = () => {
       <ul class="nav nav-pills flex-column gap-4">
         <li class="nav-item" v-for="menu in menus" :key="menu.text">
           <RouterLink
-            :to="isOpen ? menu.path : '#'"
+            :to="!isOpen && menu.text === '대시보드' ? '#' : menu.path"
             class="nav-link w-100 text-center size d-flex justify-content-center align-items-center"
             :style="{
               backgroundColor: route.path === menu.path ? '#f66463' : '#dddddd',
