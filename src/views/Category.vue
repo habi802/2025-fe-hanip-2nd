@@ -150,7 +150,7 @@ const searchWesternFood = () => {
 // 디저트 찾기
 const searchDessert = () => {
   const searchCategory = {
-    category: "디저트",
+    category: "카페",
   };
   name.text = "카페/디저트";
   findAll(searchCategory);
@@ -528,9 +528,9 @@ const caLink = async () => {
 .guideBox {
   display: flex;
   flex-wrap: wrap;
-  justify-content: flex-start;
-  align-items: flex-start;
-  gap: 80px 110px;
+  justify-content: space-around;
+  align-items: center;
+  gap: 80px 10px;
   width: 1480px;
   height: 100%;
   margin: 0 auto;
