@@ -122,11 +122,12 @@ const reviews = async () => {
   background-color: #fff;
 
   .store {
-    width: 320px;
+    width: 360px;
     height: 470px;
     border-radius: 20px;
-    -webkit-box-shadow: 6px 7px 5px -2px rgba(0, 0, 0, 0.33);
-    box-shadow: 6px 7px 5px -2px rgba(0, 0, 0, 0.33);
+    border: #797979 solid 2px;
+    //-webkit-box-shadow: 6px 7px 5px -2px rgba(0, 0, 0, 0.33);
+    //box-shadow: 6px 7px 5px -2px rgba(0, 0, 0, 0.33);
 
     .storeImgBox {
       display: flex;
@@ -135,9 +136,7 @@ const reviews = async () => {
       width: 100%;
       height: 280px;
       overflow: hidden;
-      margin-left: 15px;
-      padding-top: 13px;
-      border-radius: 20px;
+      border-radius: 20px 20px 0 0;
 
       .sImg {
         width: 100%;
@@ -196,7 +195,7 @@ const reviews = async () => {
     width: 163px;
     padding: 7px;
     margin-top: 15px;
-    margin-left: 80px;
+    margin-left: 100px;
     border-radius: 10px;
   }
 }

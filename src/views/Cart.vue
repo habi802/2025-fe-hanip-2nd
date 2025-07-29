@@ -284,9 +284,7 @@ const menuIgmSrc = computed(()=>{
 
   <!-- 3. 로그인 했고 장바구니 비었을 때 -->
   <div v-else-if="state.items.length === 0">
-    <div class="cart-box">
-      <div class="div18">장바구니에 담은 음식이 없습니다.</div>
-    </div>
+    <div class="div18">장바구니에 담은 음식이 없습니다.</div>
     <div class="groupContainer">
       <div class="rectangleWrapper">
         <div class="groupItem" />
@@ -404,7 +402,7 @@ const menuIgmSrc = computed(()=>{
 
 .cart-empty-wrapper {
   max-width: 1024px;
-  margin: 50px auto;
+  margin: 50px auto 0 auto;
   padding: 20px;
   display: flex;
   flex-direction: column;
@@ -434,20 +432,26 @@ const menuIgmSrc = computed(()=>{
   font-family: "BMJUA";
   display: flex;
   align-items: center;
+  gap: 8px;
+  font-size: 20px;
+  .step-text.current {
+    // 02 장바구니
+    color: #ff6666;
+  }
 }
 
 .top-row {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 40px;
+  margin-bottom: 30px;
 }
 
 .header-row {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 20px;
+  gap: 0px;
 }
 
 .back-icon {
@@ -486,17 +490,23 @@ const menuIgmSrc = computed(()=>{
   color: #555;
 }
 
-.cart-box {
-  width: 1295px;  // top-row 너비와 동일하게 맞춤
-  margin: 0 auto; // 가운데 정렬
-  display: flex;
-  justify-content: center;
-
 .div18 {
-  font-size: 16px;
+  font-size: 32px;
   margin-bottom: 50px;
   text-align: center;
   color: #555;
+  // 텍스트를 수평 및 수직 중앙 정렬
+  display: flex; // 내부 정렬을 위한 flex 사용
+  justify-content: center; // 가로 중앙 정렬
+  align-items: center; // 세로 중앙 정렬
+  // 박스 형태 추가
+  border: 1px solid #d7d7d7;
+  background-color: #fff;
+  padding: 40px;
+  border-radius: 25px;
+  width: 1250px;
+  height: 400px;
+  margin: 0 auto 40px auto; // 가운데 정렬 및 여백
 }
 
 .groupContainer {
@@ -762,17 +772,19 @@ const menuIgmSrc = computed(()=>{
 
 .delete-button {
   cursor: pointer;
-}
+  border: none;
+  background-color: #fff; // 기본 색
+  border-radius: 4px;
+  color: #000;
 
-.cart-footer {
-  margin-top: 40px;
-  text-align: right;
-}
+  &:hover {
+    background-color: #ffe5e5;
+  }
 
-.total {
-  font-size: 18px;
-  font-weight: bold;
-  margin-bottom: 20px;
+  &.danger {
+    color: #ff6666;
+    border: 1px solid #ff6666;
+  }
 }
 
 </style>

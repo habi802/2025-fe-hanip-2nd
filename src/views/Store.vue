@@ -418,21 +418,21 @@ const imgSrc = computed(() => {
     <!-- 상단 컨테이너용 -->
     <div class="top">
       <div class="row">
-        <div id="store" class=" col-12 col-md-8 p-3">
-          <div id="store-box" class="d-flex align-items-center row border rounded-4 p-3 mb-3 ">
-            <div class="col-6 col-md-4">
-              <div class="store-image border rounded h-100 align-items-center">
+        <div id="store" class="col-12 col-md-8 p-3">
+          <div id="store-box" class="row border rounded-4 p-3 mb-3">
+            <div class="col-6 col-md-4 mb-4">
+              <div class="store-image border rounded h-100">
                 <div class="img-one">
                   <!-- <img class="sImg" :src="imgSrc" @error="e => e.target.src = defaultImage" /> -->
                   <img class="storeImg" :src="imgSrc" @error="e => e.target.src = defaultImage" />
                 </div>
               </div>
             </div>
-            <div class="col-6 col-md-4">
+            <div class="col-6 col-md-4 mb-4">
               <h3>{{ state.store.name }}</h3>
               <p>최소 주문 금액 15,000원</p>
               <p>배달료 0원 ~ 3,000원</p>
-              <span>⭐ {{ state.reviewNum }}({{ state.reviews.length }})
+              <span>⭐ {{ state.reviewNum !== 'NaN' ? state.reviewNum : 0 }}({{ state.reviews.length }})
                 <span class="favorite" @click="toggleFavorite(state.store.id)">{{ state.store.favorite ? "❤️" : "🤍"
                 }}</span>
                 {{ state.storeInfo[0]?.favorites }}</span>
@@ -444,13 +444,11 @@ const imgSrc = computed(() => {
           </div>
 
           <!-- 주문표 부분 -->
-          <div id="order" class="col-12 col-md-4 d-flex flex-column align-items-center ">
-            <div class="row border rounded-4 p-4 mb-2">
+          <div id="order" class="col-12 col-md-4 d-flex flex-column p-3">
+            <div class="row border rounded p-4 mb-2">
               <div class="order-title">장바구니</div>
               <div class="store-name">{{ state.store.name }}</div>
-              <div
-                class="d-flex justify-content-between border-bottom pb-2 mb-2"
-              >
+              <div class="d-flex justify-content-between border-bottom pb-2 mb-2">
                 <div class="delete-order">
                   <img class="removeImg" src="/src/imgs/remove.png" @click="deleteCart()" />
                 </div>
@@ -460,9 +458,7 @@ const imgSrc = computed(() => {
                   <div class="p-2" :class="{ 'border-top': idx !== 0 }">
                     <div class="d-flex justify-content-between mb-2">
                       <span>{{ item.name }}</span>
-                      <span>{{
-                        (item.price * item.quantity).toLocaleString()
-                      }}원</span>
+                      <span>{{ (item.price * item.quantity).toLocaleString() }}원</span>
                     </div>
                     <div class="d-flex justify-content-between">
                       <div>
@@ -488,11 +484,7 @@ const imgSrc = computed(() => {
                 {{ totalPrice.toLocaleString() }}원
               </div>
             </div>
-            <button
-              type="button"
-              @click="toOrder()"
-              class="btn btn-basic btn-submit"
-            >
+            <button type="button" @click="toOrder()" class="btn btn-basic btn-submit">
               주문하기
             </button>
           </div>
@@ -636,14 +628,14 @@ const imgSrc = computed(() => {
 			</div>
 		</div>
 	</div>
-       <!-- 찜 실패 -->
-       <div class="modal fade" id="faiF" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <!-- 찜 실패 -->
+    <div class="modal fade" id="faiF" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
 		<div class="modal-dialog" role="document">
 			<div class="modal-content">
 				<div class="modal-header">
 					<h5 class="modal-title" id="exampleModalLabel">경고</h5>
 				</div>
-				<div class="modal-body"> 찜 하기에 실패하였습니다</div>
+				<div class="modal-body">찜 하기에 실패하였습니다</div>
 				<div class="modal-footer">
           <a class="btn" id="modalY" href="#" data-bs-dismiss="modal">닫기</a>
         </div>
@@ -685,7 +677,6 @@ const imgSrc = computed(() => {
   &.btn-submit {
     border-color: #ff6666;
     color: #ff6666;
-    width: 105%;
   }
 
   &.btn-quantity {
@@ -694,8 +685,7 @@ const imgSrc = computed(() => {
   }
 
   &:hover {
-    background-color: #ff6666;
-    color : white;
+    background-color: #ffe5e5;
   }
 }
 

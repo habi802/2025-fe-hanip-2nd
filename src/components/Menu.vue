@@ -59,20 +59,20 @@ console.log("props.img", props.item);
 
 <template>
     <div class="menu border rounded-4 p-3 mb-2" @click="addCart()">
-        <div class="d-flex justify-content-between align-items-center">
-            <div class="col-8 col-md-5">
-                <h4>{{ props.item.name }}</h4>
+        <div class="row">
+            <div class="col-8 col-md-10">
+                <h5>{{ props.item.name }}</h5>
                 <p>{{ props.item.comment }}</p>
-                <!-- <div class="bottom-box"> -->
-                    <!-- 수량 증가 박스 -->
-                    <!-- <span class="check"> -->
+                <div class="bottom-box">
+                    <span>{{ props.item.price.toLocaleString() }}원</span>
+                    <span class="check">
                         <!-- 0이 되면 스타일 바뀌게 해야함 -->
                         <!-- <div class="check-box"> - </div> -->
                         <!-- 갯수 -->
                         <!-- <div> 0 </div> -->
                         <!-- <div class="check-box"> + </div> -->
-                    <!-- </span>
-                </div> -->
+                    </span>
+                </div>
             </div>
             <div id="menuImgs" class="col-4 col-md-2 border rounded">
                 <img class="menuImgBox" :src="menuSrc" @error="e => e.target.src = defaultImage" />
