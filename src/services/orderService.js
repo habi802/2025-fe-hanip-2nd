@@ -24,4 +24,7 @@ export const deleteOrder = (id) => {
   return axios.patch(`/order/owner/${id}`).catch(e => e.response);
 }
 
+export const getOrderByDate = (params) => {
+  return axios.get('/order/owner', {params}).catch(e => e.response);
+}
 export default axios;

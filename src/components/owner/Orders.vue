@@ -2,7 +2,7 @@
 import OrderListCard from "./OrderListCard.vue";
 import { computed, ref, reactive, inject } from "vue";
 import { useOrderStore } from "@/stores/orderStore";
-import { deleteOrder } from "@/services/orderService";
+import { deleteOrder, getOrderByDate } from "@/services/orderService";
 import { useOwnerStore } from "@/stores/account";
 
 const orderStore = useOrderStore();
@@ -29,6 +29,8 @@ const removeAlert = (id) => {
   const index = alerts.findIndex((a) => a.id === id);
   if (index !== -1) alerts.splice(index, 1);
 };
+
+
 
 // 전체 주문 수
 const totalOrderCount = computed(() => nonOrderedOrders.value.length);
@@ -109,7 +111,7 @@ const statusText = computed(() => {
 });
 
 // 더보기
-const visibleCount = ref(5);
+const visibleCount = ref(3);
 const visibleOrders = computed(() => {
   return nonOrderedOrders.value
     .filter((order) => order.isDeleted !== 1)
@@ -133,6 +135,66 @@ const formatDateTime = (isoStr) => {
 
 // 사장 대표자 이름
 const ownerName = inject("ownerName", "");
+
+// 가게 아이디
+const storeId = inject("storeId", "");
+
+// 날짜 조회
+const selectedLabel = ref("전체");
+
+// 날짜 식
+const today = new Date();
+const formatDate = (date) => {
+  return date.toISOString().split("T")[0];
+};
+
+const data = reactive({
+  storeId: "",
+  startDate: "",
+  endDate: "",
+});
+
+const selectRange = async (range) => {
+  const end = new Date();
+  let start;
+  switch (range) {
+    case "7d":
+      selectedLabel.value = "최근 1주일";
+      start = new Date();
+      start.setDate(end.getDate() - 7);
+      data.storeId = storeId?.value;
+      data.startDate = formatDate(start);
+      data.endDate = formatDate(end);
+      break;
+    case "1m":
+      selectedLabel.value = "최근 1개월";
+      start = new Date();
+      start.setMonth(end.getMonth() - 1);
+      data.storeId = storeId?.value;
+      data.startDate = formatDate(start);
+      data.endDate = formatDate(end);
+      break;
+    case "all":
+      selectedLabel.value = "전체";
+      selectedLabel.value = "전체";
+      data.storeId = storeId?.value;
+      data.startDate = null;
+      data.endDate = null;
+      break;
+  }
+  // console.log("res.data.resultData: ",data.storeId)
+  const res = await getOrderByDate(data);
+  console.log("res.data.resultData: ", res.data.resultData)
+  if (res.status !== 200) {
+    showAlert("데이터 조회에 실패하였습니다.");
+    return;
+  }
+  if (res.status === 403) {
+    showAlert("데이터 조회 권한이 없습니다.");
+    return;
+  }
+  orderStore.orders = res.data.resultData;
+};
 </script>
 
 <template>
@@ -164,9 +226,10 @@ const ownerName = inject("ownerName", "");
 
   <div class="wrap">
     <div>
-      <h2>주문 상세</h2>
-      <span style="color: #838383"
-        >어서오세요! {{ ownerName }} 사장님 관리자 페이지에 다시 오신것을 환영합니다!</span
+      <div class="owner-title1">주문 통계</div>
+      <span class="owner-title2"
+        >어서오세요! {{ ownerName }} 사장님, 관리자 페이지에 다시 오신 것을
+        환영합니다!</span
       >
 
       <!-- 상단 집계 카드 -->
@@ -175,7 +238,7 @@ const ownerName = inject("ownerName", "");
           <div class="circle"></div>
           <div>
             <span>{{ totalOrderCount || "0" }}</span>
-            <span>전체 주문 수</span>
+            <span>{{ selectedLabel }} 주문 수</span>
             <div class="change-rate">
               <span class="icon-up">↑</span><span>4% (최근 30일)</span>
             </div>
@@ -186,7 +249,7 @@ const ownerName = inject("ownerName", "");
           <div class="circle"></div>
           <div>
             <span>{{ totalCompelteOrderCount || "0" }}</span>
-            <span>전체 배달 수</span>
+            <span>{{ selectedLabel }} 배달 수</span>
             <div class="change-rate">
               <span class="icon-up">↑</span><span>4% (최근 30일)</span>
             </div>
@@ -197,7 +260,7 @@ const ownerName = inject("ownerName", "");
           <div class="circle"></div>
           <div>
             <span>{{ totalCanceledOrderCount || "0" }}</span>
-            <span>취소된 주문</span>
+            <span>{{ selectedLabel }} 주문</span>
             <div class="change-rate">
               <span class="icon-down">↓</span><span>25% (최근 30일)</span>
             </div>
@@ -208,7 +271,7 @@ const ownerName = inject("ownerName", "");
           <div class="circle"></div>
           <div>
             <span>{{ totalSales.toLocaleString() || "--" }}만</span>
-            <span>총 매출</span>
+            <span>{{ selectedLabel }} 매출</span>
             <div class="change-rate">
               <span class="icon-down">↓</span><span>12% (최근 30일)</span>
             </div>
@@ -221,35 +284,59 @@ const ownerName = inject("ownerName", "");
     <div>
       <div class="orders-header">
         <div>
-          <h2>주문 내역</h2>
-          <span style="color: #838383">최근 한달간의 주문 내역만 보입니다</span>
+          <div class="owner-title1">주문 내역</div>
+          <span class="owner-title2"
+            >{{ selectedLabel }}
+            {{ selectedLabel === "전체" ? "" : "간의" }} 주문 내역만
+            보입니다</span
+          >
         </div>
 
         <!-- 조회기간설정 카드 -->
-        <div class="date-filter" style="cursor: pointer" ref="orderDetail">
-          <img
-            src="/src/imgs/owner/Icon_조회기간설정.svg"
-            alt="캘린더아이콘"
-            title="캘린더아이콘"
-          />
-          <div>
-            <span style="font-size: 20px">조회 기간 설정</span>
-            <span style="font-size: 13px; color: #838383; font-weight: 200"
-              >2025.07.01 ~ 2025.08.01</span
-            >
-          </div>
-          <img
-            src="/src/imgs/owner/Icon_목록단추.svg"
-            alt="목록단추"
-            title="목록단추"
-          />
+        <div class="dropdown" ref="orderDetail">
+          <button
+            class="date-filter"
+            type="button"
+            id="dropdownMenuButton"
+            data-bs-toggle="dropdown"
+            style="cursor: pointer; border: none"
+          >
+            <img
+              src="/src/imgs/owner/Icon_조회기간설정.svg"
+              alt="캘린더아이콘"
+            />
+            <div>
+              <span style="font-size: 18px">조회 기간 선택</span>
+              <span style="font-size: 15px; color: #939393; font-weight: 200">{{
+                selectedLabel
+              }}</span>
+            </div>
+            <img src="/src/imgs/owner/Icon_목록단추.svg" alt="목록단추" />
+          </button>
+          <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdownMenuButton">
+            <li>
+              <button class="dropdown-item" @click="selectRange('7d')">
+                최근 1주일
+              </button>
+            </li>
+            <li>
+              <button class="dropdown-item" @click="selectRange('1m')">
+                최근 1개월
+              </button>
+            </li>
+            <li>
+              <button class="dropdown-item" @click="selectRange('all')">
+                전체
+              </button>
+            </li>
+          </ul>
         </div>
       </div>
     </div>
 
     <div class="orders-wrap">
       <!-- 주문 리스트 -->
-      <div v-if="orderStore.orders.length === 0" class="loading"></div>
+      <div v-if="orderStore.orders?.length === 0" class="loading"></div>
       <div class="justify-content-center">
         <order-list-card
           v-for="order in visibleOrders"
@@ -385,6 +472,16 @@ const ownerName = inject("ownerName", "");
 </template>
 
 <style scoped lang="scss">
+.owner-title1 {
+  font-size: 30px;
+  font-weight: bold;
+  padding-bottom: 2px;
+}
+
+.owner-title2 {
+  color: #686868;
+}
+
 // 로딩
 .loading {
   width: 40px;
@@ -405,15 +502,14 @@ const ownerName = inject("ownerName", "");
   max-width: 1501px;
   background-color: #e8e8e8;
   font-family: "Pretendard", sans-serif;
-  width: 1575px;
-  overflow: auto;
-  padding: 9px;
+  transform: translateX(13px);
+  padding-bottom: 70px;
 
   // 상단 집계 카드
   .total-wrap {
     display: flex;
-    gap: 45px;
-    margin-top: 20px;
+    gap: 50px;
+    margin-top: 15px;
     margin-bottom: 40px;
     .circle {
       background-color: #ff6666;
@@ -496,7 +592,6 @@ const ownerName = inject("ownerName", "");
     border-radius: 15px;
     box-shadow: 2px 2px 5px 1px #c6c6c6;
     display: flex;
-    align-items: center;
     justify-content: space-around;
     width: 295px;
     height: 75px;
@@ -509,6 +604,7 @@ const ownerName = inject("ownerName", "");
       }
     }
     img:last-child {
+      margin-top: 13px;
       width: 24px;
       height: 24px;
     }
