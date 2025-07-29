@@ -145,6 +145,11 @@ console.log("props.img", props.item);
 .comment{
     font-size: 18px;
     margin-top: 10px;
+    width: 600px;
     color: #9E9E9E;
+    word-wrap: break-word;      
+    white-space: pre-wrap;      
+    line-height: 1.6;           
+    text-align: left;     
 }
 </style>

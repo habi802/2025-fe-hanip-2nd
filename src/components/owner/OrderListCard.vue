@@ -48,7 +48,7 @@ const formatDate = (dateStr) => {
       </div>
     </div>
 
-    <div class="orders-list-wrap pb-4">
+    <div v-else class="orders-list-wrap pb-4">
       <div
         class="orders-list shadow"
         v-if="order"

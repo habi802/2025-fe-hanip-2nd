@@ -2,6 +2,9 @@
 import { reactive, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { login } from '@/services/userService';
+import { getStore } from '@/services/storeService';
+import { useOwnerStore } from '@/stores/account';
+
 
 const router = useRouter();
 
@@ -13,6 +16,10 @@ const state = reactive({
   },
   saveId: false // 아이디 저장용
 });
+
+const store = reactive({
+  form: {}
+})
 
 // 로그인 여부
 const submit = async () => {
@@ -43,8 +50,19 @@ const submit = async () => {
       }
 
       if (role === "OWNER") {
-        router.push('/owner'); // 업주용 메인화면
-        
+          try {
+            const ownerStore = useOwnerStore();
+            const res = await ownerStore.fetchStoreInfo();
+            const isActive = ownerStore.storeData?.isActive;
+            if (isActive === 0) {
+              router.push('/owner');
+            } else {
+              router.push('/owner/dashboard');
+            }
+          } catch (err) {
+            console.error("가게 정보 조회 실패", err);
+            router.push('/owner'); // fallback
+            }
       } else {
         router.push('/'); // 고객용 메인화면
       }

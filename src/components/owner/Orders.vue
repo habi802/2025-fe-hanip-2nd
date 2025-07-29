@@ -3,9 +3,10 @@ import OrderListCard from "./OrderListCard.vue";
 import { computed, ref, reactive, inject } from "vue";
 import { useOrderStore } from "@/stores/orderStore";
 import { deleteOrder, getOrderByDate } from "@/services/orderService";
-import { useOwnerStore } from "@/stores/account";
+import { useAccountStore, useOwnerStore } from "@/stores/account";
 
 const orderStore = useOrderStore();
+const user = useAccountStore();
 const nonOrderedOrders = computed(() => orderStore.nonOrderedList);
 const selectedOrder = ref(null);
 
@@ -109,7 +110,7 @@ const statusText = computed(() => {
 });
 
 // 더보기
-const visibleCount = ref(3);
+const visibleCount = ref(5);
 const visibleOrders = computed(() => {
   return nonOrderedOrders.value
     .filter((order) => order.isDeleted !== 1)
@@ -259,7 +260,7 @@ const selectRange = async (range) => {
           <div class="circle"></div>
           <div>
             <span>{{ totalCanceledOrderCount || "0" }}</span>
-            <span>{{ selectedLabel }} 주문</span>
+            <span>{{ selectedLabel }} 취소 수</span>
             <div class="change-rate">
               <span class="icon-down">↓</span><span>25% (최근 30일)</span>
             </div>
@@ -355,14 +356,14 @@ const selectRange = async (range) => {
         />
         <!-- 더보기 -->
         <button
-          class="btn btn-secondary"
+          class="btn btn-secondary d-block"
           v-if="visibleCount < nonOrderedOrders.length"
           @click="loadMore"
           style="
             font-size: 1.5rem;
             padding: 1rem 2rem;
-            justify-content: center;
-            width: 775px;
+            width: 100%;
+            max-width: 755px;
           "
         >
           더보기

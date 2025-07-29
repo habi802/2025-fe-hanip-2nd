@@ -2,18 +2,22 @@
 import { getOwnerOrder } from "@/services/orderService";
 import { activeStore, getOwnerStore } from "@/services/storeService";
 import { useOrderStore } from "@/stores/orderStore";
-import {
-  ref,
-  onMounted,
-  onUnmounted,
-  provide,
-  watch,
-  computed,
-  reactive,
-} from "vue";
+import { ref, onMounted, onUnmounted, provide, watch, computed, reactive,} from "vue";
 import { RouterLink, useRouter, useRoute } from "vue-router";
-import { logout } from "@/services/userService";
+import { check, logout } from "@/services/userService";
 import { useAccountStore } from "@/stores/account";
+
+// 로그인 체크
+const checkAcconut = async () => {
+  const res = await check();
+  console.log('res:', res);
+  if (res == undefined || res.status != 200) {
+    account.setChecked(false);
+    return;
+  }
+  account.setChecked(true);
+  account.setLoggedIn(res.data.resultData > 0);
+};
 
 // 로그아웃 상태 반영
 const account = useAccountStore();
@@ -68,6 +72,12 @@ onMounted(async () => {
   if (saved) {
     removedNotification.value = new Set(JSON.parse(saved));
   }
+  checkAcconut();
+});
+watch(
+  () => route.path,
+  () => {
+    checkAcconut();
 });
 
 // 알림 갱신 (watch)
@@ -174,11 +184,7 @@ const updateClock = () => {
   const dayNames = ["일", "월", "화", "수", "목", "금", "토"];
   const day = dayNames[now.getDay()];
 
-  const hours = String(now.getHours()).padStart(2, "0");
-  const minutes = String(now.getMinutes()).padStart(2, "0");
-  const seconds = String(now.getSeconds()).padStart(2, "0");
-
-  currentTime.value = `${month}월 ${date}일 (${day})  ${hours}:${minutes}:${seconds}`;
+  currentTime.value = `${month}월 ${date}일 (${day})`;
 };
 let intervalId = null;
 

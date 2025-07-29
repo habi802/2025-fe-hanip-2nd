@@ -10,6 +10,7 @@ import { getFavoriteList } from "@/services/favoriteService";
 // 에러 이미지
 import defaultImage from '@/imgs/owner/owner-service3.png';
 
+
 const cartStore = useCartStore();
 
 const router = useRouter();
@@ -170,12 +171,12 @@ const imgSrc = computed(() => {
 })
 // 메뉴 이미지
 
-const menuIgmSrc = computed(()=>{
+const menuIgmSrc = items => {
 
-  return state.items[0]?.menuId && state.items[0]?.imagePath && state.items[0]?.imagePath !== 'null'
-    ? `/pic/store-profile/${state.items[0]?.menuId}/${state.items[0]?.imagePath}`
+  return items?.menuId && items?.imagePath && items?.imagePath !== 'null'
+    ? `/pic/menu-profile/${items?.menuId}/${items?.imagePath}`
     : defaultImage;  
-})
+}
 
 
 </script>
@@ -205,7 +206,7 @@ const menuIgmSrc = computed(()=>{
   <div v-if="!loggedIn && state.items.length === 0">
     <div class="div18">장바구니에 담은 음식이 없습니다.</div>
     <div class="groupContainer">
-      <div class="div19" @click="goToMain">음식 담으러 가기</div>
+      <div class="div19" @click="goToLogin">로그인 하러 가기</div>
     </div>
   </div>
 
@@ -299,7 +300,7 @@ const menuIgmSrc = computed(()=>{
     <div class="store-layout">
       <!-- 가게 대표 카드 -->
       <div class="store-card" v-if="groupedItems.length > 0">
-        <img class="thumbnail" :src="menuIgmSrc" @error="e => e.target.src = defaultImage" />
+        <img class="thumbnail" :src="imgSrc" @error="e => e.target.src = defaultImage" />
         <!-- <img :src='`/pic/store-profile/${state.store.id}/${state.store.imagePath}` '/> -->
         <div class="store-content">
           <h3 class="store-name">
@@ -347,7 +348,7 @@ const menuIgmSrc = computed(()=>{
 
         <!-- 장바구니 음식 리스트 -->
         <div v-for="item in group.items" :key="item.id" class="cart-item">
-          <img  :src="imgSrc" @error="e => e.target.src = defaultImage" />
+          <img  :src="menuIgmSrc(item)" @error="e => e.target.src = defaultImage" />
           <div class="item-content">
             <p class="item-name">{{ item.name }}</p>
             <p class="item-comment"></p>
