@@ -115,19 +115,11 @@ const idCheck = async () => {
   const revId = await getReviewOne(props.order?.id);
   revCheck.value = revId.data.resultData;
 };
+
+
 </script>
 
 <template>
-  <!-- 버튼들 -->
-  <div class="btns">
-    <div class="btn" @click="$emit('reorder', props.order?.orderGetList)">
-      재주문 하기
-    </div>
-    <div @click="reviewButton" class="btn btn-primary">
-      {{ revCheck !== null ? "리뷰 수정" : "리뷰 등록" }}
-    </div>
-    <div @click="orderDetail" class="btn">주문상세</div>
-  </div>
   <!-- 신경 x 2차때 사용 예정 -->
   <div :style= " { Height: on ? '315px' : '750px' }" class="bigBoard">
   <!-- <div class="bigBoard"> -->
@@ -188,14 +180,13 @@ const idCheck = async () => {
     </div>
     <!-- 버튼들 -->
     <div class="btns">
-      <div class="btn" @click="$emit('reorder', props.order.orderGetList)">
+      <div class="btn" @click="$emit('reorder', props.order)">
         재주문 하기
       </div>
       <div @click="reviewButton" class="btn btn-primary">
         {{ revCheck !== null ? "리뷰 수정" : "리뷰 등록" }}
       </div>
-      <div class="btn">주문상세
-      </div>
+      <div @click="orderDetail" class="btn">주문상세</div>
     </div>
 
     <!-- 리뷰 박스 -->

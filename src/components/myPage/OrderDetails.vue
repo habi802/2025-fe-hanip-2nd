@@ -77,7 +77,8 @@ const filteredOrders = computed(() => state.orders.filter(order => order.isdelet
 const cartStore = useCartStore();
 
 const reorder = async (menus) => {
-  const addMenus = menus.map(menu => ({
+  console.log("menus: ", menus.orderGetList)
+  const addMenus = menus.orderGetList.map(menu => ({
     id: menu.menuId,
     name: menu.name,
     price: menu.price,
@@ -86,21 +87,18 @@ const reorder = async (menus) => {
   }));
 
   const cartItems = cartStore.state.items;
-
-  if (cartItems.length > 0 && cartItems[0].storeId !== addMenus[0].storeId) {
+  if (cartItems.length > 0 && cartItems[0].id !== addMenus[0].id) {
     alert("다른 가게의 메뉴가 이미 장바구니에 있습니다. 장바구니를 비워주세요.");
     return;
   }
 
   cartStore.addMenus(addMenus);
-  console.log("CartStore 상태:",addMenus[0].id);
 
-  for(let i = 0; i < menus.length; i++) {
-    console.log(menus[i].menuId)
-    const res = await addItem (menus[i].menuId);
+  for(let i = 0; i < menus.orderGetList.length; i++) {
+    console.log(menus.orderGetList[i].menuId)
+    const res = await addItem (menus.orderGetList[i].menuId);
     console.log(res.data.resultData)
   }
-  // console.log("오더 Res:", res.data.resultData);
   router.push("/cart");
 }
 </script>

@@ -15,7 +15,7 @@ const cart = useCartStore();
 
 const state = reactive({
     // 장바구니 정보
-    carts: [],
+    carts: cart.state.items,
     // 주문 등록 form 정보
     form: {
         storeId: route.params.id,
@@ -38,9 +38,9 @@ const phone3 = ref('');
 const totalPrice = ref(0);
 
 onMounted(async () => {
-    // 나현 씨가 담당한 장바구니 화면에서 받아오려고 쓴 변수(자바스크립트 localStorage 검색)
-    const saved = localStorage.getItem('orderItems');
-    const items = saved ? JSON.parse(saved) : [];
+    // // 나현 씨가 담당한 장바구니 화면에서 받아오려고 쓴 변수(자바스크립트 localStorage 검색)
+    // const saved = localStorage.getItem('orderItems');
+    // const items = saved ? JSON.parse(saved) : [];
 
     // 
     // 주소창에 입력해서 강제로 들어가는 것을 방지하기 위함
@@ -185,7 +185,7 @@ const submit = async () => {
     if (cart.state.items.length < 1) {
         cart.state.items = state.carts;
     }
-
+    cart.clearCart()
     await router.push({ path: `/stores/${route.params.id}/order/success` });
 };
 </script>

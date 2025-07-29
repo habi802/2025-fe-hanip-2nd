@@ -96,8 +96,8 @@ const load = async () => {
 const remove = async (cartId) => {
   const res = await removeItem(cartId);
   if (res === undefined || res.status !== 200) return;
-
   load();
+  cartStore.clearCart()
 };
 
 const increaseQty = (item) => {
