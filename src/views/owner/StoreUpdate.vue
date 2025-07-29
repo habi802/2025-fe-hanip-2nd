@@ -107,25 +107,25 @@ const isValidEmail = (email) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 const submit = async (e) => {
   e.preventDefault();
 
-  if (state.form.password.trim().length === 0) {
-    showAlert("비밀번호를 입력해주세요.");
-    return;
-  }
+  // if (state.form.password.trim().length === 0) {
+  //   showAlert("비밀번호를 입력해주세요.");
+  //   return;
+  // }
 
-  if (state.form.email.trim().length === 0) {
-    showAlert("이메일을 입력해주세요.");
-    return;
-  }
+  // if (state.form.email.trim().length === 0) {
+  //   showAlert("이메일을 입력해주세요.");
+  //   return;
+  // }
 
-  if (state.form.comment.trim().length === 0) {
-    showAlert("가게 설명란은 공란으로 두실 수 없습니다.");
-    return;
-  }
+  // if (state.form.comment.trim().length === 0) {
+  //   showAlert("가게 설명란은 공란으로 두실 수 없습니다.");
+  //   return;
+  // }
 
-  if (!isValidEmail(state.form.email)) {
-    showAlert("올바른 이메일 형식을 입력해주세요.");
-    return;
-  }
+  // if (!isValidEmail(state.form.email)) {
+  //   showAlert("올바른 이메일 형식을 입력해주세요.");
+  //   return;
+  // }
 
   const formData = new FormData();
   const tel = `${state.form.storeTel1}-${state.form.storeTel2}-${state.form.storeTel3}`;
