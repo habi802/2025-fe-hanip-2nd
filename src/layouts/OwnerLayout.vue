@@ -45,8 +45,8 @@ const state = reactive({
 
 const menus = [
   { text: "대시보드", path: "/owner/dashboard" },
-  { text: "가게 상태 관리", path: "/owner/status" },
   { text: "주문 관리", path: "/owner/orders" },
+  { text: "가게 상태 관리", path: "/owner/status" },
   { text: "메뉴 관리", path: "/owner/menu" },
   { text: "리뷰 관리", path: "/owner/review" },
   { text: "배달 관리", path: "/owner/delivery" },

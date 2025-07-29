@@ -26,14 +26,9 @@ const fetchFavorites = async () => {
   }
 
   state.favorites = res.data.resultData;
-  console.log(state.favorites);
-  //favoriteStore.setFavorites(favoriteIds);
-};
 
-const imgSrc = (id, imgPath) => {
-  return imgPath !== 'null'
-    ? `/pic/store-profile/${id}/${imgPath}`
-    : defaultImage;
+  const favoriteIds = state.favorites.map(favorite => favorite.storeId);
+  favoriteStore.setFavorites(favoriteIds);
 };
 
 onMounted(() => {
