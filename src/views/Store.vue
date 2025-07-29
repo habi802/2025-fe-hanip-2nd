@@ -13,6 +13,11 @@ import Review from "@/components/Review.vue";
 import { useFavoriteStore } from "@/stores/favoriteStore";
 import defaultImage from '@/imgs/owner/owner-service3.png';
 
+// 하트 이미지
+import lovet from '@/imgs/loveFull.png';
+import lovef from '@/imgs/loveBoard.png'
+
+
 const favoriteStore = useFavoriteStore();
 
 const route = useRoute();
@@ -432,14 +437,13 @@ const imgSrc = computed(() => {
               <h3>{{ state.store.name }}</h3>
               <p>최소 주문 금액 15,000원</p>
               <p>배달료 0원 ~ 3,000원</p>
-              <span>⭐ {{ state.reviewNum !== 'NaN' ? state.reviewNum : 0 }}({{ state.reviews.length }})
-                <span class="favorite" @click="toggleFavorite(state.store.id)">{{ state.store.favorite ? "❤️" : "🤍"
-                }}</span>
+              <span><img class="restar" src="/src/imgs/starBoard.png"/> {{ state.reviewNum !== 'NaN' ? state.reviewNum : 0 }}({{ state.reviews.length }})
+                <img class="favorite" @click="toggleFavorite(state.store.id)" :src="state.store.favorite ? lovet : lovef"/>
                 {{ state.storeInfo[0]?.favorites }}</span>
             </div>
             <div class="col-12 col-md-4">
               <div id="map" class="border rounded mb-2"></div>
-              <span>{{ state.store.address }}</span>
+              <span class="addressText">{{ state.store.address }}</span>
             </div>
           </div>
 
@@ -484,7 +488,7 @@ const imgSrc = computed(() => {
                 {{ totalPrice.toLocaleString() }}원
               </div>
             </div>
-            <button type="button" @click="toOrder()" class="btn btn-basic btn-submit">
+            <button id="orderBtn" type="button" @click="toOrder()" class="btn btn-basic btn-submit">
               주문하기
             </button>
           </div>
@@ -528,7 +532,9 @@ const imgSrc = computed(() => {
                     <div class="review-data">
                       <!-- 왼쪽 별/점수 -->
                       <div>
-                        <span class="star" v-for="n in Math.floor(state.reviewNum || 0)" :key="n">★</span>
+                        <span class="star" v-for="n in Math.floor(state.reviewNum || 0)" :key="n">
+                        <img class="starImg" src="/src/imgs/starBoard.png"/>
+                        </span>
                         <div class="review-num">{{ state.reviewNum }}</div>
                       </div>
                       <!-- 오른쪽 텍스트 -->
@@ -653,6 +659,9 @@ const imgSrc = computed(() => {
   font-weight: normal;
   font-style: normal;
 }
+.top{
+  font-family: "BMJUA";
+}
 
 .container {
   margin-top: 70px;
@@ -663,6 +672,7 @@ const imgSrc = computed(() => {
 }
 
 .favorite {
+width: 20px;
   cursor: pointer;
 }
 
@@ -747,7 +757,7 @@ const imgSrc = computed(() => {
   display: flex;
   align-items: center;
   width: 860px;
-  height: 270px;
+  height: 303px;
 }
 
 .store-image {
@@ -759,6 +769,7 @@ const imgSrc = computed(() => {
   height: 183px !important;
   overflow: hidden;
   background-color: #f5f5f5;
+  margin-top: 20px;
   .img-one {
     width: 250px;
   }
@@ -814,6 +825,7 @@ const imgSrc = computed(() => {
   font-family: "BMJUA";
   font-size: 30px;
   color: #FAC729;
+  
 }
 
 .left-box {
@@ -835,5 +847,26 @@ const imgSrc = computed(() => {
   .storeImg {
     width: 270px;
   }
+}
+.starImg{
+  width: 30px;
+  padding: 3px;
+}
+.restar{
+  width: 20px;
+}
+#order{
+  font-family: "BMJUA" !important;
+  margin-top: -15px;
+}
+.addressText{
+  text-align: center;
+  margin-left: 25px;
+}
+#orderBtn{
+  margin-top: 20px;
+  margin-left: -12px;
+  font-size: 25px;
+  width: 470px;
 }
 </style>
