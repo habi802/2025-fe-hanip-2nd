@@ -164,18 +164,50 @@ const memberType = ref("customer");
 
 // 입력 필드
 const confirmPw = ref("");
+// 일반전화
 const phone1 = ref("010");
 const phone2 = ref("");
 const phone3 = ref("");
-
+const phone2Input = ref(null);
+const phone3Input = ref(null);
+// 가게전화
 const ownerTel1 = ref("02");
 const ownerTel2 = ref("");
 const ownerTel3 = ref("");
-
+const ownerTel2Input = ref(null);
+const ownerTel3Input = ref(null);
+// 사장전화
 const ownerPhone1 = ref("010");
 const ownerPhone2 = ref("");
 const ownerPhone3 = ref("");
+const ownerPhone2Input = ref(null);
+const ownerPhone3Input = ref(null);
 
+// 공통 전화번호 입력 처리 함수, 숫자만 입력, 최대4자리, 4자리 입력시 다음 으로 이동
+function handlePhoneInput(event, model, currentRef, nextRef = null) {
+  const value = event.target.value.replace(/\D/g, ""); // 숫자만 허용
+  if (value.length > 4) value = value.slice(0, 4); // 4자리 제한
+
+  // 모델 값 동기화
+  model.value = value;
+
+  // input 요소의 실제 값도 수동으로 설정
+  event.target.value = value;
+
+  // 다음 input으로 포커스 이동
+  if (value.length === 4 && nextRef?.value) {
+    nextRef.value.focus();
+  }
+}
+// 숫자 이외 키 입력 차단 함수
+function onlyNumberInput(event) {
+  const allowedKeys = ["Backspace", "ArrowLeft", "ArrowRight", "Tab"];
+  const isNumber = /^[0-9]$/.test(event.key);
+
+  if (!isNumber && !allowedKeys.includes(event.key)) {
+    event.preventDefault();
+  }
+}
 // 상태
 const state = reactive({
   form: {
@@ -210,7 +242,8 @@ const agreement = reactive({
   sms: false,
   email: false,
 });
-// // 아이디 초기화
+
+// 아이디 초기화
 watch(
   () => state.form.loginId,
   () => {
@@ -409,9 +442,10 @@ const addressSearch = () => {
                   :class="{ invalid: errors.loginId }"
                   @input="
                     () => {
-                      errors.loginId = ''; // 입력 중엔 에러 메시지 숨김
-                      checkResult.value = ''; // 중복 체크 결과 메시지도 초기화
-                    }"
+                      errors.loginId = ''; // 입력 도중 아이디 에러 메시지 초기화
+                      checkResult.value = ''; // 중복 체크 결과 메시지 초기화
+                    }
+                  "
                   @blur="validateLoginId"
                   placeholder="영문 소문자/숫자, 4~16자"
                 />
@@ -439,6 +473,7 @@ const addressSearch = () => {
                 type="password"
                 v-model="state.form.loginPw"
                 :class="{ invalid: errors.loginPw }"
+                @input="() => (errors.loginPw = '')"
                 @blur="validatePassword"
               />
               <p v-if="errors.loginPw" class="error-msg">
@@ -457,6 +492,7 @@ const addressSearch = () => {
               <input
                 type="password"
                 v-model="confirmPw"
+                @input="() => (errors.confirmPw = '')"
                 @blur="validateConfirmPw"
                 :class="{ invalid: errors.confirmPw }"
               />
@@ -473,7 +509,11 @@ const addressSearch = () => {
             <div class="label">
               <span>*</span>
               <p>이름</p>
-              <input type="text" v-model="state.form.name" />
+              <input
+                type="text"
+                v-model="state.form.name"
+                @input="() => (errors.name = '')"
+              />
             </div>
           </div>
           <div class="sevLine"></div>
@@ -487,6 +527,7 @@ const addressSearch = () => {
                   type="text"
                   v-model="state.form.postcode"
                   placeholder="우편번호"
+                  readonly
                 />
                 <button @click="addressSearch" type="button">주소검색</button>
               </div>
@@ -496,6 +537,7 @@ const addressSearch = () => {
                 type="text"
                 v-model="state.form.address"
                 placeholder="기본주소"
+                readonly
               />
               <input
                 type="text"
@@ -521,14 +563,18 @@ const addressSearch = () => {
                 <input
                   type="text"
                   v-model="phone2"
-                  @blur="validatePhone"
+                  maxlength="4"
+                  @input="onPhoneInput($event, 'phone2', 'phone3')"
                   :class="{ invalid: errors.phone2 }"
+                  @keydown="onlyNumberInput"
                 />
                 <input
                   type="text"
                   v-model="phone3"
-                  @blur="validatePhone"
+                  maxlength="4"
+                  @input="onPhoneInput($event, 'phone3')"
                   :class="{ invalid: errors.phone3 }"
+                  @keydown="onlyNumberInput"
                 />
               </div>
             </div>
@@ -547,6 +593,7 @@ const addressSearch = () => {
               <div class="email">
                 <input
                   v-model="state.form.email"
+                  @input="() => (errors.email = '')"
                   @blur="validateEmail"
                   :class="{ invalid: errors.email }"
                   placeholder="example@example.com"
@@ -565,7 +612,11 @@ const addressSearch = () => {
               <span>*</span>
               <p>대표자 이름</p>
               <div class="owner-name">
-                <input type="text" v-model="state.form.name" />
+                <input
+                  type="text"
+                  v-model="state.form.name"
+                  @input="() => (errors.name = '')"
+                />
               </div>
             </div>
           </div>
@@ -580,6 +631,7 @@ const addressSearch = () => {
                   type="text"
                   v-model="state.form.postcode"
                   placeholder="우편번호"
+                  readonly
                 />
                 <button type="button">주소검색</button>
               </div>
@@ -589,6 +641,7 @@ const addressSearch = () => {
                 type="text"
                 v-model="state.form.address"
                 placeholder="기본주소"
+                readonly
               />
               <input
                 type="text"
@@ -637,14 +690,20 @@ const addressSearch = () => {
                 <input
                   type="text"
                   v-model="ownerTel2"
-                  @blur="validateOwnerTel"
+                  maxlength="4"
+                  @input="onOwnerTelInput($event, 'ownerTel2', 'ownerTel3')"
                   :class="{ invalid: errors.ownerTel2 }"
+                  ref="ownerTel2Input"
+                  @keydown="onlyNumberInput"
                 />
                 <input
                   type="text"
                   v-model="ownerTel3"
-                  @blur="validateOwnerTel"
+                  maxlength="4"
+                  @input="onOwnerTelInput($event, 'ownerTel3')"
                   :class="{ invalid: errors.ownerTel3 }"
+                  ref="ownerTel3Input"
+                  @keydown="onlyNumberInput"
                 />
               </div>
             </div>
@@ -662,7 +721,11 @@ const addressSearch = () => {
               <p>가게 상호명 및 카테고리</p>
               <div class="category-name">
                 <div class="phone-input">
-                  <input type="text" v-model="state.owner.name" />
+                  <input
+                    type="text"
+                    v-model="state.owner.name"
+                    @input="() => (errors.ownerName = '')"
+                  />
                   <select v-model="state.owner.category">
                     <option>카테고리</option>
                     <option>한식</option>
@@ -691,6 +754,7 @@ const addressSearch = () => {
                 <input
                   type="text"
                   v-model="state.owner.businessNumber"
+                  @input="() => (errors.businessNumber = '')"
                   @blur="validateBusinessNumber"
                   :class="{ invalid: errors.businessNumber }"
                 />
@@ -714,6 +778,7 @@ const addressSearch = () => {
                   type="email"
                   id="email"
                   v-model="state.form.email"
+                  @input="() => (errors.email = '')"
                   @blur="validateEmail"
                   :class="{ invalid: errors.email }"
                   placeholder="example@example.com"
@@ -740,14 +805,22 @@ const addressSearch = () => {
                   <input
                     type="text"
                     v-model="ownerPhone2"
-                    @blur="validateOwnerPhone"
+                    maxlength="4"
+                    @input="
+                      onOwnerPhoneInput($event, 'ownerPhone2', 'ownerPhone3')
+                    "
                     :class="{ invalid: errors.ownerPhone2 }"
+                    ref="ownerPhone2Input"
+                    @keydown="onlyNumberInput"
                   />
                   <input
                     type="text"
                     v-model="ownerPhone3"
-                    @blur="validateOwnerPhone"
+                    maxlength="4"
+                    @input="onOwnerPhoneInput($event, 'ownerPhone3')"
                     :class="{ invalid: errors.ownerPhone3 }"
+                    ref="ownerPhone3Input"
+                    @keydown="onlyNumberInput"
                   />
                 </div>
               </div>
