@@ -60,7 +60,7 @@ onMounted(async () => {
     randomList();
   }
 
-  if (res === undefined ) {
+  if (res === undefined) {
     alert("조회 실패");
     router.push({ path: "/" });
     return;
@@ -285,15 +285,14 @@ const randomThreeStores = computed(() => {
       <!--  -->
       <div id="random-box">
         <h4 class="mb-3">다른 가게 주문하기</h4>
-        <div >
-<!--  -->
-          <div class="for">
-            <!--  -->
-            <div
-              v-for="(item, index) in randomThreeStores"
-              :key="item.id"
-            >
-              <Randomstore :stores="item" />
+        <div>
+          <!--  -->
+          <div class="big-Box">
+            <div class="for">
+              <!--  -->
+              <div v-for="(item, index) in randomThreeStores" :key="item.id">
+                <Randomstore class="board" :stores="item" />
+              </div>
             </div>
             <!-- <div class="col-12 col-md-4">
                 <div id="imgBigBox" class="card h-100 shadow-sm">
@@ -404,8 +403,8 @@ const randomThreeStores = computed(() => {
     width: 250px;
     height: 180px;
     overflow: hidden;
-    .storeImg{
-        width: 260px;
+    .storeImg {
+      width: 260px;
     }
   }
 }
@@ -453,9 +452,13 @@ const randomThreeStores = computed(() => {
   font-size: 30px;
   margin-left: 10px;
 }
-.for{
-    display: flex;
-    justify-content: space-between;
-    margin-bottom: 50px;
+.for {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 20px;
+  margin-bottom: 50px;
 }
+
+
 </style>
