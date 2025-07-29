@@ -24,6 +24,18 @@ const reviewSrc = computed(() => {
     ? `/pic/review-profile/${props.item.id}/${props.item?.imagePath}`
     : defaultImage;
 })
+
+// 날짜 파싱
+const formatDateTime = (isoStr) => {
+  return new Date(isoStr).toLocaleString("ko-KR", {
+    timeZone: "Asia/Seoul",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+};
 </script>
 
 <template>
@@ -60,7 +72,7 @@ const reviewSrc = computed(() => {
                 src="/src/imgs/starBoard.png" alt="별점" /></span>
           </div>
           <div id="name-left-box">
-            <span class="created">{{ props.item.created }}</span>
+            <span class="created">{{ formatDateTime (props.item.created) }}</span>
           </div>
         </div>
         <!-- 유저 코멘트 -->

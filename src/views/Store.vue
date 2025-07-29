@@ -414,8 +414,23 @@ const imgSrc = computed(() => {
 
 })
 
+// 더보기
+const visibleCount = ref(3);
+const visibleReview = computed(() => {
+  return state.reviews
+    .slice(0, visibleCount.value);
+});
+const loadMore = () => {
+  visibleCount.value += 5;
+};
 
-
+// 위로 가기
+const arrow = () => {
+  window.scrollTo({
+    top: 0,
+    behavior: 'smooth',
+  });
+};
 </script>
 
 <template>
@@ -441,7 +456,7 @@ const imgSrc = computed(() => {
                 <img class="favorite" @click="toggleFavorite(state.store.id)" :src="state.store.favorite ? lovet : lovef"/>
                 {{ state.storeInfo[0]?.favorites }}</span>
             </div>
-            <div class="col-12 col-md-4">
+            <div class="col-12 col-md-4 pt-4">
               <div id="map" class="border rounded mb-2"></div>
               <span class="addressText">{{ state.store.address }}</span>
             </div>
@@ -532,10 +547,11 @@ const imgSrc = computed(() => {
                     <div class="review-data">
                       <!-- 왼쪽 별/점수 -->
                       <div>
-                        <span class="star" v-for="n in Math.floor(state.reviewNum || 0)" :key="n">
+                        <span class="star" v-for="n in Math.floor(state.reviewNum || 0)" :key="n"
+                        v-if="state.reviewNum && state.reviewNum > 0">
                         <img class="starImg" src="/src/imgs/starBoard.png"/>
                         </span>
-                        <div class="review-num">{{ state.reviewNum }}</div>
+                        <div class="review-num">{{ isNaN(state.reviewNum) ? 0 : state.reviewNum }}</div>
                       </div>
                       <!-- 오른쪽 텍스트 -->
                       <div class="left-box">
@@ -547,11 +563,24 @@ const imgSrc = computed(() => {
                 </div>
                 <!-- 리뷰 리스트 조회 -->
                 <div v-if="state.reviews.length > 0">
-                  <div v-for="item in state.reviews" :key="item.id">
+                  <div v-for="item in visibleReview" :key="item.id">
                     <Review :item="item" />
                   </div>
                 </div>
-                <div v-else>등록된 리뷰가 없습니다.</div>
+                <div 
+                v-else
+                class="d-flex mt-5 justify-content-center align-items-center w-100" 
+                style="font-size: 40px; flex-direction: column;"
+                > 등록된 리뷰가 없습니다.
+                <img src="/src/imgs/owner/owner-service5.png" alt="리뷰없엉">
+              </div>
+                <div class="d-flex justify-content-center">
+                  <button v-if="visibleReview.length > 0 && visibleCount < state.reviews.length"
+                    @click="loadMore"
+                    class="btn btn-secondary btn-review">
+                    더보기
+                  </button>
+                </div>
               </div>
             </div>
           </div>
@@ -559,6 +588,8 @@ const imgSrc = computed(() => {
       </div>
     </div>
   </div>
+  <img @click="arrow" class="arrow" src="/src/imgs/arrow.png" />
+  
   <!-- 메뉴 없이 주문하면.. -->
   <div class="modal fade" id="orderF" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
     aria-hidden="true">
@@ -659,6 +690,33 @@ const imgSrc = computed(() => {
   font-weight: normal;
   font-style: normal;
 }
+
+.arrow {
+  position: sticky;
+  width: 3.8%;
+  bottom: 100px;
+  left: 93%;
+  z-index: 999;
+  margin-bottom: 70px;
+}
+
+// 버튼
+.btn-review {
+  width: 250px;
+  font-size: 30px;
+  height: 50px;
+  margin-top: 10px;
+  border: none;
+  cursor: pointer;
+  background: #f66463;
+}
+.btn-review:hover {
+  background: #d44b4a;
+}
+.btn-review:active {
+  background: #b23837;
+}
+
 .top{
   font-family: "BMJUA";
 }
@@ -668,7 +726,7 @@ const imgSrc = computed(() => {
 }
 
 #map {
-  height: 125px;
+  height: 180px;
 }
 
 .favorite {
