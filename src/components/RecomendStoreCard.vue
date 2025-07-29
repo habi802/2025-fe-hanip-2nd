@@ -78,7 +78,7 @@ const toStore = () => {
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
-  gap: 90px 15px;
+  gap: 80px 15px;
   width: 1600px;
   height: 100%;
   margin: 0 auto;
@@ -86,23 +86,31 @@ const toStore = () => {
   background-color: #fff;
 
   .store {
-    width: 360px;
+    width: 320px;
     height: 470px;
     border-radius: 20px;
-    -webkit-box-shadow: 6px 7px 5px -2px rgba(0, 0, 0, 0.33);
-    box-shadow: 6px 7px 5px -2px rgba(0, 0, 0, 0.33);
+    border: #797979 solid 1px;
+    //-webkit-box-shadow: 6px 7px 5px -2px rgba(0, 0, 0, 0.33);
+    //box-shadow: 6px 7px 5px -2px rgba(0, 0, 0, 0.33);
 
     .storeImgBox {
-      width: 330px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      width: 100%;
       height: 280px;
       overflow: hidden;
-      margin-left: 15px;
-      padding-top: 13px;
-      border-radius: 20px;
-
+      //margin-left: 15px;
+      //padding-top: 13px;
+      border-radius: 20px 20px 0 0;
+      
       .sImg {
-        width: 330px;
-        border-radius: 20px;
+        width: 100%;
+        height: 100%;
+        text-align: center;
+        margin: auto;
+        border-radius: 20px 20px 0 0;
+        object-fit: cover;
       }
     }
 
@@ -153,7 +161,7 @@ const toStore = () => {
     width: 163px;
     padding: 7px;
     margin-top: 15px;
-    margin-left: 100px;
+    margin-left: 80px;
     border-radius: 10px;
   }
 }
