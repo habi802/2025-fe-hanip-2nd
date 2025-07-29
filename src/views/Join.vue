@@ -475,6 +475,7 @@ const addressSearch = () => {
                 :class="{ invalid: errors.loginPw }"
                 @input="() => (errors.loginPw = '')"
                 @blur="validatePassword"
+                placeholder="비밀번호는 영문, 숫자, 특수문자 포함 8~16자"
               />
               <p v-if="errors.loginPw" class="error-msg">
                 {{ errors.loginPw }}
@@ -495,6 +496,7 @@ const addressSearch = () => {
                 @input="() => (errors.confirmPw = '')"
                 @blur="validateConfirmPw"
                 :class="{ invalid: errors.confirmPw }"
+                placeholder="비밀번호 재입력"
               />
               <p v-if="errors.confirmPw" class="error-msg">
                 {{ errors.confirmPw }}
@@ -633,7 +635,7 @@ const addressSearch = () => {
                   placeholder="우편번호"
                   readonly
                 />
-                <button type="button">주소검색</button>
+                <button type="button" disabled>주소검색</button>
               </div>
             </div>
             <div class="sev-addres-row">
@@ -957,6 +959,7 @@ const addressSearch = () => {
       </form>
     </div>
   </div>
+  
   <!-- 공통 알림 모달 -->
   <div
     class="modal fade"
@@ -1294,8 +1297,10 @@ select.invalid {
       font-size: 15px;
       height: 50px;
       padding: 0.5rem 1rem;
-      background-color: #eee;
-      border: 1px solid #ccc;
+      background-color: #fff;
+      color: #ff6666;
+      border: 1px solid #ff6666;
+      font-weight: 600;
       cursor: pointer;
 
       &:hover {
@@ -1586,5 +1591,13 @@ select.invalid {
       top: 0.5px;
     }
   }
+}
+// 아이디 비활성화
+input[readonly] {
+  background-color: #f5f5f5;
+  cursor: default; // 마우스 커서 변경
+  border: 1px solid #ccc; // 기본 테두리 유지
+  color: #7d7d7d;
+  pointer-events: none;
 }
 </style>
