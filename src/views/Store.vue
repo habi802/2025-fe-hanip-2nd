@@ -66,6 +66,7 @@ const loadStore = async (id) => {
   }
 
   state.store = res.data.resultData;
+  console.log("state", state.store);
 
   //
   const storeInfo = await getStoreList({ searchText: state.store.name });
@@ -344,6 +345,7 @@ onMounted(() => {
   const storeId = route.params.id;
 
   loadStore(storeId);
+  
 });
 
 // 메뉴랑 리뷰보기 v-if 설정 함수
@@ -378,9 +380,11 @@ const reviewbutton = () => {
 // const storeImg = `/pic/store-profile/${state.store.id}/${state.storeInfo[0]?.imagePath}`;/
 
 const imgSrc = computed(() => {
-  return state.store && state.storeInfo[0]?.imagePath && state.storeInfo[0]?.imagePath !== 'null'
-  ? `/pic/store-profile/${state.store.id}/${state.storeInfo[0]?.imagePath}`
-  : defaultImage;
+
+  return state.store && state.store?.imagePath && state.store?.imagePath !== 'null'
+    ? `/pic/store-profile/${state.store.id}/${state.store?.imagePath}`
+    : defaultImage;
+
 })
 
 
@@ -733,10 +737,11 @@ const imgSrc = computed(() => {
   justify-content: center;
   align-items: center;
   border-radius: 20px !important;
-  width: 246px ;
+  width: 246px;
   height: 183px !important;
   overflow: hidden;
-  .storeImg{
+
+  .storeImg {
     width: 250px;
   }
 }
