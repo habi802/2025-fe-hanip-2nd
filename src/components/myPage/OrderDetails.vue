@@ -249,15 +249,12 @@ const reorder = async (menus) => {
 
     .ordertext {
       font-size: 25px;
-      margin-top: 20px;
-      margin-bottom: 50px;
     }
-
 
     .solid {
       width: 1470px;
       border: 1px #000 solid;
-      margin-top: 15px;
+      margin: 80px 0;
     }
   }
 
