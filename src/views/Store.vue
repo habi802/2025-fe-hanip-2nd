@@ -53,16 +53,12 @@ const loadStore = async (id) => {
     modal.show();
     router.push({ path: "/" });
     return;
-  } else if (res.data.resultStatus !== 200) {
-    // alert(res.data.resultMessage);
-    const modal = new bootstrap.Modal(document.getElementById("storeF"));
-    modal.show();
-    router.push({ path: "/" });
-    return;
   }
 
   state.store = res.data.resultData;
   console.log("state", state.store);
+  
+  showMap(state.store.address);
 
   //
   const storeInfo = await getStoreList({ searchText: state.store.name });
@@ -75,6 +71,37 @@ const loadStore = async (id) => {
 
   // 조회 성공 시 가게 찜 추가 여부 조회 함수 호출
   loadFavorite(id);
+};
+
+// 지도를 보여주는 함수
+const showMap = address => {
+  const map = new naver.maps.Map('map', {
+    center: new naver.maps.LatLng(37.5665, 126.9780),
+    zoom: 15,
+  });
+
+  naver.maps.Service.geocode(
+    { query: address },
+    function (status, response) {
+      if (status !== naver.maps.Service.Status.OK) {
+        console.log('address: 주소를 찾을 수 없습니다.');
+      }
+      
+      const result = response.v2.addresses[0];
+      if (result.total === 0) {
+        console.log('address: 검색 결과가 없습니다.');
+      }
+
+      const point = new naver.maps.LatLng(result.y, result.x);
+
+      map.setCenter(point);
+
+      new naver.maps.Marker({
+        map: map,
+        position: point
+      });
+    }
+  );
 };
 
 // 고객 유저가 가게를 찜 목록에 추가했는지 조회하는 함수
