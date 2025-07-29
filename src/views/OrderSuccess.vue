@@ -57,9 +57,10 @@ onMounted(async () => {
     state.store = res.data.resultData;
     state.carts = cart.state.items;
     calculateTotal();
+    randomList();
   }
 
-  if (res === undefined) {
+  if (res === undefined ) {
     alert("조회 실패");
     router.push({ path: "/" });
     return;
@@ -289,7 +290,6 @@ const randomThreeStores = computed(() => {
           <div class="for">
             <!--  -->
             <div
-              
               v-for="(item, index) in randomThreeStores"
               :key="item.id"
             >
