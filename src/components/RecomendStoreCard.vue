@@ -114,7 +114,7 @@ const reviews = async () => {
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
-  gap: 90px 15px;
+  gap: 80px 30px;
   width: 1600px;
   height: 100%;
   margin: 0 auto;
@@ -125,23 +125,26 @@ const reviews = async () => {
     width: 360px;
     height: 470px;
     border-radius: 20px;
-    -webkit-box-shadow: 6px 7px 5px -2px rgba(0, 0, 0, 0.33);
-    box-shadow: 6px 7px 5px -2px rgba(0, 0, 0, 0.33);
+    border: #797979 solid 2px;
+    //-webkit-box-shadow: 6px 7px 5px -2px rgba(0, 0, 0, 0.33);
+    //box-shadow: 6px 7px 5px -2px rgba(0, 0, 0, 0.33);
 
     .storeImgBox {
       display: flex;
       justify-content: center;
       align-items: center;
-      width: 330px;
+      width: 100%;
       height: 280px;
       overflow: hidden;
-      margin-left: 15px;
-      padding-top: 13px;
-      border-radius: 20px;
-
+      border-radius: 20px 20px 0 0;
+      
       .sImg {
-        width: 340px;
-        border-radius: 20px;
+        width: 100%;
+        height: 100%;
+        text-align: center;
+        margin: auto;
+        border-radius: 20px 20px 0 0;
+        object-fit: cover;
       }
     }
 
@@ -156,7 +159,7 @@ const reviews = async () => {
 
       .sText {
         font-size: 1.3em;
-        font-weight: 600;
+        font-weight: 700;
         margin-top: 10px;
       }
     }
