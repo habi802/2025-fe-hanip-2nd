@@ -401,9 +401,9 @@ const menuIgmSrc = computed(()=>{
 }
 
 .cart-empty-wrapper {
-  // 메인 헤더부분(?)
-  max-width: 1497px;
+  max-width: 1024px;
   margin: 50px auto 0 auto;
+  padding: 20px;
   display: flex;
   flex-direction: column;
   margin-top: 80px;
@@ -427,7 +427,6 @@ const menuIgmSrc = computed(()=>{
     font-size: 50px;
   }
 }
-
 .step-horizontal {
   // 01 음식선택 > 02 장바구니 > 03 주문/결제 > 04 주문 완료
   font-family: "BMJUA";
@@ -435,7 +434,6 @@ const menuIgmSrc = computed(()=>{
   align-items: center;
   gap: 8px;
   font-size: 20px;
-
   .step-text.current {
     // 02 장바구니
     color: #ff6666;
@@ -443,7 +441,6 @@ const menuIgmSrc = computed(()=>{
 }
 
 .top-row {
-  // 글씨 박스
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -455,6 +452,30 @@ const menuIgmSrc = computed(()=>{
   align-items: center;
   justify-content: space-between;
   gap: 0px;
+}
+
+.back-icon {
+  width: 24px;
+  height: 24px;
+  margin-right: 10px;
+}
+
+.div29 {
+  font-size: 28px;
+  font-weight: bold;
+}
+
+.step-horizontal {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  font-weight: bold;
+}
+
+.step-text.current {
+  color: #ff6666;
+  font-size: 16px;
 }
 
 .arrow img {
@@ -469,9 +490,7 @@ const menuIgmSrc = computed(()=>{
   color: #555;
 }
 
-// 빈 장바구니
 .div18 {
-  // 장바구니에 담은 음식이 없습니다.
   font-size: 32px;
   margin-bottom: 50px;
   text-align: center;
@@ -480,7 +499,6 @@ const menuIgmSrc = computed(()=>{
   display: flex; // 내부 정렬을 위한 flex 사용
   justify-content: center; // 가로 중앙 정렬
   align-items: center; // 세로 중앙 정렬
-
   // 박스 형태 추가
   border: 1px solid #d7d7d7;
   background-color: #fff;
@@ -768,4 +786,6 @@ const menuIgmSrc = computed(()=>{
     border: 1px solid #ff6666;
   }
 }
+
 </style>
+

@@ -137,7 +137,7 @@ const reviews = async () => {
       height: 280px;
       overflow: hidden;
       border-radius: 20px 20px 0 0;
-      
+
       .sImg {
         width: 100%;
         height: 100%;
