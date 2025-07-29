@@ -4,11 +4,7 @@ import { useRoute, useRouter } from "vue-router";
 import { getStore, getStoreList } from "@/services/storeService";
 import { getOneMenu } from "@/services/menuService";
 import { getReviewsByStoreId } from "@/services/reviewServices";
-import {
-  getFavorite,
-  addFavorite,
-  deleteFavorite,
-} from "@/services/favoriteService";
+import { getFavorite, addFavorite, deleteFavorite } from "@/services/favoriteService";
 import { updateQuantity, removeItem, removeCart } from "@/services/cartService";
 import { useAccountStore } from "@/stores/account";
 import { useCartStore } from "@/stores/cart";
@@ -345,7 +341,6 @@ onMounted(() => {
   const storeId = route.params.id;
 
   loadStore(storeId);
-  
 });
 
 // 메뉴랑 리뷰보기 v-if 설정 함수
@@ -416,9 +411,7 @@ const imgSrc = computed(() => {
                 {{ state.storeInfo[0]?.favorites }}</span>
             </div>
             <div class="col-12 col-md-4">
-              <div id="map" class="border rounded mb-2">
-                지도 이미지 / 2차 구현
-              </div>
+              <div id="map" class="border rounded mb-2"></div>
               <span>{{ state.store.address }}</span>
             </div>
           </div>
