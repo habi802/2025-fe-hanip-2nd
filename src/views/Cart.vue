@@ -1,10 +1,14 @@
 <script setup>
-import { reactive, onMounted, computed } from "vue";
+import { reactive, onMounted, computed, ref } from "vue";
 import { useRouter } from "vue-router";
 import { getItem, removeItem } from "@/services/cartService";
 import { useAccountStore } from "@/stores/account";
 import { getStore } from "@/services/storeService";
 import { useCartStore } from "@/stores/cart";
+import { getReviewsByStoreId } from "@/services/reviewServices";
+import { getFavoriteList } from "@/services/favoriteService";
+// 에러 이미지
+import defaultImage from '@/imgs/owner/owner-service3.png';
 
 const cartStore = useCartStore();
 
@@ -12,7 +16,11 @@ const router = useRouter();
 const account = useAccountStore();
 
 const state = reactive({
-  items: cartStore.state.items
+  items: cartStore.state.items,
+  reviews: [],
+  reviewNum: 0,
+  favorites: [],
+  store: {},
 });
 
 const storeMap = reactive({});
@@ -22,18 +30,58 @@ const fetchStoreDetails = async () => {
   for (const storeId of storeIds) {
     if (!storeMap[storeId]) {
       const res = await getStore(storeId);
+      // 리뷰 찾을려고 추기작성
+      const rev = await getReviewsByStoreId(storeIds);
+      if (rev?.status === 200 && rev.data?.resultStatus === 200) {
+        state.reviews = rev.data.resultData;
+      }
+      // 찜하기 찾을려고 추가 작성
+      const ref = await getFavoriteList(storeId);
+      if (ref?.status === 200 && ref.data?.resultStatus === 200) {
+        state.favorites = ref.data.resultData;
+        console.log("fav", state.favorites);
+      }
+
       if (res?.status === 200 && res.data?.resultStatus === 200) {
         storeMap[storeId] = res.data.resultData;
+        state.store = res.data.resultData;
       }
     }
   }
 };
+
+
+// 가게 리뷰 조회 함수
+const loadReviews = () => {
+
+  console.log("reviews", state.reviews)
+  // 리뷰 총점 구하기
+  let ratingNumCal = 0;
+  console.log("state.reviews: ", state.reviews);
+  for (let i = 0; i < state.reviews.length; i++) {
+    ratingNumCal += state.reviews[i].rating;
+  }
+  const count = (ratingNumCal / state.reviews.length).toFixed(1)
+  // console.log("ratingNumCal", ratingNumCal);
+
+  state.reviewNum = count
+
+
+  // console.log("comLeng: ", comLeng);
+
+  // 조회 성공 시 장바구니 조회 함수 호출
+
+};
+
+
 
 const loggedIn = computed(() => account.state.loggedIn);
 
 onMounted(async () => {
   await load();
   await fetchStoreDetails();
+  loadReviews();
+  console.log("item", state.items[0])
 });
 
 const load = async () => {
@@ -111,6 +159,25 @@ const grandTotalPrice = computed(() => {
     );
   }, 0);
 });
+
+// 가게 이미지
+const imgSrc = computed(() => {
+
+  return state.store.id && state.store.imagePath && state.store.imagePath !== 'null'
+    ? `/pic/store-profile/${state.store.id}/${state.store.imagePath}`
+    : defaultImage;
+
+})
+// 메뉴 이미지
+
+const menuIgmSrc = computed(()=>{
+
+  return state.items[0]?.menuId && state.items[0]?.imagePath && state.items[0]?.imagePath !== 'null'
+    ? `/pic/store-profile/${state.items[0]?.menuId}/${state.items[0]?.imagePath}`
+    : defaultImage;  
+})
+
+
 </script>
 
 <template>
@@ -146,19 +213,19 @@ const grandTotalPrice = computed(() => {
   <div v-else-if="!loggedIn" class="unlogin">
     <div class="store-layout">
       <div class="store-card">
-        <img class="thumbnail" src="@/imgs/chicken.png"/>
+        <img class="thumbnail" src="@/imgs/chicken.png" />
         <div class="store-content">
           <h3 class="store-name">가게이름</h3>
 
           <div class="store-meta">
             <div class="rating">
               <img id="icon" src="/src/imgs/star.png" alt="별점" />
-              <span class="score">4.8</span>
-              <span class="count">(983)</span>
+              <span class="score">{{ state.reviewNum ? state.reviewNum : '0' }}</span>
+              <span class="count">({{ state.reviewNum.length ? state.reviewNum.length : '0' }})</span>
             </div>
             <div class="likes">
               <img id="icon" src="/src/imgs/love.png" alt="찜" />
-              <span class="like-count">927</span>
+              <span class="like-count">{{ state.favorites.length }}</span>
             </div>
           </div>
 
@@ -168,11 +235,7 @@ const grandTotalPrice = computed(() => {
           </div>
         </div>
       </div>
-      <div
-        v-for="group in groupedItems"
-        :key="group.storeName"
-        class="store-box"
-      >
+      <div v-for="group in groupedItems" :key="group.storeName" class="store-box">
         <!-- 가게 음식 정보 -->
         <div class="store-info">
           <p class="store-name">{{ group.storeName }}</p>
@@ -180,21 +243,14 @@ const grandTotalPrice = computed(() => {
         </div>
         <!-- 장바구니 음식 리스트 -->
         <div v-for="item in group.items" :key="item.id" class="cart-item">
-          <img
-            :src="item.image_path"
-            alt="음식 이미지"
-            style="width: 60px; height: 60px"
-          />
+          <img :src="item.image_path" alt="음식 이미지" style="width: 60px; height: 60px" />
           <div class="item-content">
             <p class="item-name">{{ item.name }}</p>
             <p class="item-comment"></p>
             <div class="qty-box">
               <!-- ❌ 수량이 1일 때는 X버튼으로 삭제 -->
-              <button
-                v-if="item.quantity === 1"
-                @click="remove(item.id)"
-                :class="{ 'delete-button': true, danger: true }"
-              >
+              <button v-if="item.quantity === 1" @click="remove(item.id)"
+                :class="{ 'delete-button': true, danger: true }">
                 x
               </button>
 
@@ -240,99 +296,112 @@ const grandTotalPrice = computed(() => {
   </div>
 
   <!-- 4. 로그인 후 장바구니에 음식 있음 -->
-<div v-else>
-  <!-- 음식점 가게 카드 -->
-  <div class="store-layout">
-    <!-- 가게 대표 카드 -->
-    <div class="store-card" v-if="groupedItems.length > 0">
-      <img
-        class="thumbnail"
-        :src="storeMap[groupedItems[0].storeId]?.imagePath || '/src/imgs/chicken.png'"
-      />
-      <div class="store-content">
-        <h3 class="store-name">
-          {{ storeMap[groupedItems[0].storeId]?.name || groupedItems[0].storeName }}
-        </h3>
+  <div v-else>
+    <!-- 음식점 가게 카드 -->
+    <div class="store-layout">
+      <!-- 가게 대표 카드 -->
+      <div class="store-card" v-if="groupedItems.length > 0">
+        <img class="thumbnail" :src="menuIgmSrc" @error="e => e.target.src = defaultImage" />
+        <!-- <img :src='`/pic/store-profile/${state.store.id}/${state.store.imagePath}` '/> -->
+        <div class="store-content">
+          <h3 class="store-name">
+            {{ storeMap[groupedItems[0].storeId]?.name || groupedItems[0].storeName }}
+          </h3>
 
-        <div class="store-meta">
-          <div class="rating">
-            <img id="icon" src="/src/imgs/star.png" alt="별점" />
-            <span class="score">{{ storeMap[groupedItems[0].storeId]?.rating ?? '0.0' }}</span>
-            <span class="count">({{ storeMap[groupedItems[0].storeId]?.reviewCount ?? 0 }})</span>
+          <div class="store-meta">
+            <div class="rating">
+              <img id="icon" src="/src/imgs/star.png" alt="별점" />
+              <div v-if="state.reviewNum !== 'NaN'">
+                <span class="score">{{ state.reviewNum ? state.reviewNum : '0' }}</span>
+                <span class="count">({{ state.reviewNum.length ? state.reviewNum.length : '0' }})</span>
+              </div>
+              <div v-else>
+                <span class="score"> 0</span>
+                <span class="count">(0)</span>
+              </div>
+            </div>
+            <div class="likes">
+              <img id="icon" src="/src/imgs/love.png" alt="찜" />
+              <span class="like-count">{{ state.favorites.length }}</span>
+            </div>
           </div>
-          <div class="likes">
-            <img id="icon" src="/src/imgs/love.png" alt="찜" />
-            <span class="like-count">{{ storeMap[groupedItems[0].storeId]?.likeCount ?? 0 }}</span>
+
+          <div class="store-info">
+            <p>
+              최소 주문 금액
+              {{ storeMap[groupedItems[0].storeId]?.minOrderAmount?.toLocaleString() || '10,000' }}원
+            </p>
+            <p>
+              배달료
+              {{ storeMap[groupedItems[0].storeId]?.deliveryFeeRange || '0원 ~ 3,000원' }}
+            </p>
           </div>
         </div>
+      </div>
 
+      <!-- 그룹 반복 렌더링 -->
+      <div v-for="group in groupedItems" :key="group.storeName" class="store-box">
+        <!-- 가게 음식 정보 -->
         <div class="store-info">
-          <p>
-            최소 주문 금액
-            {{ storeMap[groupedItems[0].storeId]?.minOrderAmount?.toLocaleString() || '10,000' }}원
-          </p>
-          <p>
-            배달료
-            {{ storeMap[groupedItems[0].storeId]?.deliveryFeeRange || '0원 ~ 3,000원' }}
-          </p>
+          <p class="store-name">{{ group.storeName }}</p>
+          <p class="store-sub">{{ group.storeNotice }}</p>
         </div>
-      </div>
-    </div>
 
-    <!-- 그룹 반복 렌더링 -->
-    <div
-      v-for="group in groupedItems"
-      :key="group.storeName"
-      class="store-box"
-    >
-      <!-- 가게 음식 정보 -->
-      <div class="store-info">
-        <p class="store-name">{{ group.storeName }}</p>
-        <p class="store-sub">{{ group.storeNotice }}</p>
-      </div>
-
-      <!-- 장바구니 음식 리스트 -->
-      <div v-for="item in group.items" :key="item.id" class="cart-item">
-        <img :src="item.image_path" alt="음식 이미지" style="width: 60px; height: 60px" />
-        <div class="item-content">
-          <p class="item-name">{{ item.name }}</p>
-          <p class="item-comment"></p>
-          <div class="qty-box">
-            <button
-              v-if="item.quantity === 1"
-              @click="remove(item.id)"
-              :class="{ 'delete-button': true, danger: true }"
-            >
-              x
-            </button>
-            <button v-else @click="decreaseQty(item)" class="qty-button">-</button>
-            <span>{{ item.quantity }}</span>
-            <button @click="increaseQty(item)">+</button>
+        <!-- 장바구니 음식 리스트 -->
+        <div v-for="item in group.items" :key="item.id" class="cart-item">
+          <img  :src="imgSrc" @error="e => e.target.src = defaultImage" />
+          <div class="item-content">
+            <p class="item-name">{{ item.name }}</p>
+            <p class="item-comment"></p>
+            <div class="qty-box">
+              <button v-if="item.quantity === 1" @click="remove(item.id)"
+                :class="{ 'delete-button': true, danger: true }">
+                x
+              </button>
+              <button v-else @click="decreaseQty(item)" class="qty-button">-</button>
+              <span>{{ item.quantity }}</span>
+              <button @click="increaseQty(item)">+</button>
+            </div>
+            <p class="item-price">
+              {{ (item.price * item.quantity).toLocaleString() }}원
+            </p>
           </div>
-          <p class="item-price">
-            {{ (item.price * item.quantity).toLocaleString() }}원
+        </div>
+
+        <!-- 총 금액 표시만 -->
+        <div class="cart-footer">
+          <p class="total">총 결제 금액:</p>
+          <p class="total">
+            {{group.items.reduce((sum, item) => sum + item.price * item.quantity, 0).toLocaleString()}}원
           </p>
         </div>
       </div>
+    </div>
 
-      <!-- 총 금액 표시만 -->
-      <div class="cart-footer">
-        <p class="total">총 결제 금액:</p>
-        <p class="total">
-          {{ group.items.reduce((sum, item) => sum + item.price * item.quantity, 0).toLocaleString() }}원
-        </p>
-      </div>
+    <div class="groupContainer">
+      <div class="div19" @click="goToOrder(groupedItems[0])">주문하기</div>
     </div>
   </div>
-  
-  <div class="groupContainer">
-    <div class="div19" @click="goToOrder(groupedItems[0])">주문하기</div>
-  </div>
-</div>
 
 </template>
 
-<style scoped>
+<style lang="scss" scoped>
+@font-face {
+  // 배민 주아체
+  font-family: "BMJUA";
+  src: url("https://fastly.jsdelivr.net/gh/projectnoonnu/noonfonts_one@1.0/BMJUA.woff") format("woff");
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  // 프리텐다드
+  font-family: "Pretendard-Regular";
+  src: url("https://fastly.jsdelivr.net/gh/Project-Noonnu/noonfonts_2107@1.1/Pretendard-Regular.woff") format("woff");
+  font-weight: 400;
+  font-style: normal;
+}
+
 .cart-empty-wrapper {
   max-width: 1024px;
   margin: 50px auto;
@@ -343,6 +412,26 @@ const grandTotalPrice = computed(() => {
 }
 
 .title-wrap {
+  // < 장바구니
+  font-family: "BMJUA";
+  display: flex;
+  align-items: center;
+
+  .back-icon {
+    // <
+    width: 50px;
+    height: 50px;
+    margin-right: 10px;
+  }
+
+  .div29 {
+    // 장바구니
+    font-size: 50px;
+  }
+}
+.step-horizontal {
+  // 01 음식선택 > 02 장바구니 > 03 주문/결제 > 04 주문 완료
+  font-family: "BMJUA";
   display: flex;
   align-items: center;
 }
@@ -521,6 +610,7 @@ const grandTotalPrice = computed(() => {
         text-align: center;
       }
     }
+
     .store-info {
       color: #797979;
       font-size: 18px;
@@ -614,6 +704,7 @@ const grandTotalPrice = computed(() => {
     color-scheme: #a9a9a9;
     font-size: 15px;
   }
+
   .item-price {
     // 메뉴 가격
     font-family: "BMJUA";

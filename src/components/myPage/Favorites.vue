@@ -161,18 +161,13 @@ console.log("라우터로 받은 storeId:", storeId);
   display: flex;
   align-items: center;
   background: #fff;
-  border-radius: 16px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-  border: 2px solid #666;
+  border-radius: 15px;
+  border: 1px solid #797979;
   overflow: hidden;
   padding: 20px 16px; // 세로 패딩 ↑
   transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
-.store-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
-}
 
 .store-image {
   width: 110px;
@@ -252,4 +247,5 @@ console.log("라우터로 받은 storeId:", storeId);
   text-align: center;
   margin-bottom: 50px;
 }
+
 </style>
