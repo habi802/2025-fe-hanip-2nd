@@ -61,10 +61,16 @@ const selectStar = (index) => {
 }
 
 // 주문 삭제
-const deleteOrderOne = async (orderId) => {
+const deleteOrderOne = async (order) => {
+  console.log("order: ", order)
+  if(order.status === "ORDERED" || order.status === "DELIVERING" || order.status === "PREPARING") {
+    const modal = new bootstrap.Modal(document.getElementById("orderF"));
+    modal.show();
+    return;
+  }
   try {
-    await deleteOrder(orderId);
-    state.orders = state.orders.filter(order => order.id !== orderId);
+    await deleteOrder(order.orederId);
+    state.orders = state.orders.filter(order => order.id !== order.orderId);
   } catch (e) {
     console.error("삭제 실패", e);
   }
@@ -88,7 +94,8 @@ const reorder = async (menus) => {
 
   const cartItems = cartStore.state.items;
   if (cartItems.length > 0 && cartItems[0].id !== addMenus[0].id) {
-    alert("다른 가게의 메뉴가 이미 장바구니에 있습니다. 장바구니를 비워주세요.");
+    const modal = new bootstrap.Modal(document.getElementById("cartF"));
+    modal.show();
     return;
   }
 
@@ -101,6 +108,8 @@ const reorder = async (menus) => {
   }
   router.push("/cart");
 }
+
+// 모달
 </script>
 
 <template>
@@ -222,13 +231,50 @@ const reorder = async (menus) => {
           </div>
         </div>
       </div>
-
     </div> 
     </div> -->
+    
+    <!-- 장바구니 모달 -->
+    <div class="modal fade" id="orderF" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="exampleModalLabel">경고</h5>
+        </div>
+        <div class="modal-body">진행 중인 주문은 삭제하실 수 없습니다.</div>
+        <div class="modal-footer">
+          <a class="btn" id="modalY" href="#" data-bs-dismiss="modal">닫기</a>
+				</div>
+			</div>
+		</div>
+	</div>
   </div>
+
+      <!-- 장바구니 모달 -->
+      <div class="modal fade" id="cartF" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="exampleModalLabel">경고</h5>
+        </div>
+ 
+        <div class="modal-body">다른 가게의 메뉴가 이미 장바구니에 있습니다.</div>
+        <div class="modal-body">장바구니를 비워주세요.</div>
+ 
+        <div class="modal-footer">
+          <a class="btn" id="modalY" href="#" data-bs-dismiss="modal">닫기</a>
+				</div>
+			</div>
+		</div>
+	</div>
+  
 </template>
 
 <style lang="scss" scoped>
+.modal {
+  top: 20%;
+}
+
 @font-face {
   font-family: 'BMJUA';
   src: url('https://fastly.jsdelivr.net/gh/projectnoonnu/noonfonts_one@1.0/BMJUA.woff') format('woff');

@@ -174,7 +174,7 @@ const idCheck = async () => {
         </div>
       </div>
       <!-- 메뉴 삭제하기 버튼 -->
-      <div class="remove" @click="$emit('delete-order', props.order?.id)">
+      <div class="remove" @click="$emit('delete-order', props.order)">
         <img class="removeImg" src="/src/imgs/remove.png" />
       </div>
     </div>
@@ -219,6 +219,7 @@ const idCheck = async () => {
 
 
 <style lang="scss" scoped>
+
 :hover.bigBoard{
   border:  #ff6666 2px solid;
 }
