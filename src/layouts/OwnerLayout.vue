@@ -45,12 +45,12 @@ const state = reactive({
 
 const menus = [
   { text: "대시보드", path: "/owner/dashboard" },
-  { text: "가게 상태 관리", path: "/owner/status" },
   { text: "주문 관리", path: "/owner/orders" },
+  { text: "가게 상태 관리", path: "/owner/status" },
   { text: "메뉴 관리", path: "/owner/menu" },
   { text: "리뷰 관리", path: "/owner/review" },
-  { text: "배달 관리", path: "/owner/delivery" },
   { text: "통계 현황", path: "/owner/donations" },
+  { text: "배달 관리", path: "/owner/delivery" },
   { text: "고객 관리", path: "/owner/customer" },
   { text: "쿠폰 관리", path: "/owner/coupons" },
   { text: "광고 관리", path: "/owner/ads" },
