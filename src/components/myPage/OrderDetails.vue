@@ -1,14 +1,14 @@
 <!-- 주문내역 전체 화면 -->
 
 <script setup>
-import { reactive, ref, onMounted, computed } from 'vue';
-import OrderAndReview from './OrderAndReview.vue';
-import { getOrder, deleteOrder } from '@/services/orderService'
-import { getReviewsByStoreId } from '@/services/reviewServices';
-import { useRouter } from 'vue-router';
-import { getStore } from '@/services/storeService';
-import { useCartStore } from '@/stores/cart';
-import { addItem } from '@/services/cartService';
+import { reactive, ref, onMounted, computed } from "vue";
+import OrderAndReview from "./OrderAndReview.vue";
+import { getOrder, deleteOrder } from "@/services/orderService";
+import { getReviewsByStoreId } from "@/services/reviewServices";
+import { useRouter } from "vue-router";
+import { getStore } from "@/services/storeService";
+import { useCartStore } from "@/stores/cart";
+import { addItem } from "@/services/cartService";
 
 //라우터
 const router = useRouter();
@@ -16,7 +16,7 @@ const router = useRouter();
 // state
 const state = reactive({
   orders: [],
-})
+});
 //
 const user = reactive({
   name: "하드 코딩",
@@ -26,23 +26,23 @@ const user = reactive({
 });
 
 // onMounted
-onMounted(async() => {
+onMounted(async () => {
   await findorder();
-  console.log("dfdf: ", cartStore.state.items )
-})
+  console.log("dfdf: ", cartStore.state.items);
+});
 
 // 주문 목록 조회
 const findorder = async () => {
   const res = await getOrder();
   console.log(res.data.resultData);
   state.orders = res.data.resultData;
-}
+};
 
 // 리뷰 목록 조회
 const findReview = async (storeId) => {
   const res = await getReviewsByStoreId(storeId);
   console.log("review", res.data.resultData);
-}
+};
 
 //
 let on = ref(true);
@@ -58,33 +58,39 @@ const stars = [1, 2, 3, 4, 5];
 
 const selectStar = (index) => {
   selected.value = index + 1;
-}
+};
 
 // 주문 삭제
 const deleteOrderOne = async (order) => {
-  console.log("order: ", order)
-  if(order.status === "ORDERED" || order.status === "DELIVERING" || order.status === "PREPARING") {
+  console.log("order: ", order);
+  if (
+    order.status === "ORDERED" ||
+    order.status === "DELIVERING" ||
+    order.status === "PREPARING"
+  ) {
     const modal = new bootstrap.Modal(document.getElementById("orderF"));
     modal.show();
     return;
   }
   try {
     await deleteOrder(order.orederId);
-    state.orders = state.orders.filter(order => order.id !== order.orderId);
+    state.orders = state.orders.filter((order) => order.id !== order.orderId);
   } catch (e) {
     console.error("삭제 실패", e);
   }
-}
+};
 
 // 주문 목록
-const filteredOrders = computed(() => state.orders.filter(order => order.isdeleted !== 0));
+const filteredOrders = computed(() =>
+  state.orders.filter((order) => order.isdeleted !== 0)
+);
 
 // 재주문
 const cartStore = useCartStore();
 
 const reorder = async (menus) => {
-  console.log("menus: ", menus.orderGetList)
-  const addMenus = menus.orderGetList.map(menu => ({
+  console.log("menus: ", menus.orderGetList);
+  const addMenus = menus.orderGetList.map((menu) => ({
     id: menu.menuId,
     name: menu.name,
     price: menu.price,
@@ -101,19 +107,33 @@ const reorder = async (menus) => {
 
   cartStore.addMenus(addMenus);
 
-  for(let i = 0; i < menus.orderGetList.length; i++) {
-    console.log(menus.orderGetList[i].menuId)
-    const res = await addItem (menus.orderGetList[i].menuId);
-    console.log(res.data.resultData)
+  for (let i = 0; i < menus.orderGetList.length; i++) {
+    console.log(menus.orderGetList[i].menuId);
+    const res = await addItem(menus.orderGetList[i].menuId);
+    console.log(res.data.resultData);
   }
   router.push("/cart");
-}
+};
 
-
+// 더보기 처리
+// const allBoxHeight = ref(1570);
+// const length = ref(state.orders.length);
+// const heightY = () => {
+//   allBoxHeight.value += 890;
+// };
+const visibleCount = ref(2);
+const showMore = () => {
+  visibleCount.value += 2;
+};
+const visibleCards = computed(() => {
+  return state.orders.slice(0, visibleCount.value);
+});
 </script>
 
+
+
 <template>
-  <div class="all-box">
+  <div class="all-box" :style="{ height: allBoxHeight + 'px' }">
     <div class="box">
       <!-- 상단 페이지 -->
       <!-- <div class="userboard">
@@ -145,11 +165,6 @@ const reorder = async (menus) => {
       </div> -->
     </div>
     <div class="board-box">
-
-
-
-
-
       <!-- 하단 주문 내역 -->
 
       <div class="orderList">
@@ -158,8 +173,16 @@ const reorder = async (menus) => {
           <div class="solid"></div>
         </div>
       </div>
-      <div v-for="order in filteredOrders" :key="order.id" style="margin-bottom: 10px;">
-        <order-and-review :order="order" @delete-order="deleteOrderOne" @reorder="reorder"/>
+      <div
+        v-for="order in visibleCards"
+        :key="order.id"
+        style="margin-bottom: 10px"
+      >
+        <order-and-review
+          :order="order"
+          @delete-order="deleteOrderOne"
+          @reorder="reorder"
+        />
       </div>
     </div>
 
@@ -233,41 +256,62 @@ const reorder = async (menus) => {
       </div>
     </div> 
     </div> -->
-    
+
     <!-- 장바구니 모달 -->
-    <div class="modal fade" id="orderF" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
-    <div class="modal-dialog" role="document">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title" id="exampleModalLabel">경고</h5>
+    <div
+      class="modal fade"
+      id="orderF"
+      tabindex="-1"
+      role="dialog"
+      aria-labelledby="exampleModalLabel"
+      aria-hidden="true"
+    >
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="exampleModalLabel">경고</h5>
+          </div>
+          <div class="modal-body">진행 중인 주문은 삭제하실 수 없습니다.</div>
+          <div class="modal-footer">
+            <a class="btn" id="modalY" href="#" data-bs-dismiss="modal">닫기</a>
+          </div>
         </div>
-        <div class="modal-body">진행 중인 주문은 삭제하실 수 없습니다.</div>
-        <div class="modal-footer">
-          <a class="btn" id="modalY" href="#" data-bs-dismiss="modal">닫기</a>
-				</div>
-			</div>
-		</div>
-	</div>
+      </div>
+    </div>
   </div>
 
-      <!-- 장바구니 모달 -->
-      <div class="modal fade" id="cartF" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <!-- 장바구니 모달 -->
+  <div
+    class="modal fade"
+    id="cartF"
+    tabindex="-1"
+    role="dialog"
+    aria-labelledby="exampleModalLabel"
+    aria-hidden="true"
+  >
     <div class="modal-dialog" role="document">
       <div class="modal-content">
         <div class="modal-header">
           <h5 class="modal-title" id="exampleModalLabel">경고</h5>
         </div>
- 
-        <div class="modal-body">다른 가게의 메뉴가 이미 장바구니에 있습니다.</div>
+
+        <div class="modal-body">
+          다른 가게의 메뉴가 이미 장바구니에 있습니다.
+        </div>
         <div class="modal-body">장바구니를 비워주세요.</div>
- 
+
         <div class="modal-footer">
           <a class="btn" id="modalY" href="#" data-bs-dismiss="modal">닫기</a>
-				</div>
-			</div>
-		</div>
-	</div>
-  
+        </div>
+      </div>
+    </div>
+  </div>
+  <div v-if="state.orders.length >0" class="btnBox">
+    <div v-if="visibleCount < state.orders.length" class="btn" @click="showMore">
+  더보기
+  </div>
+  </div>
+  <!-- <div class=""></div> -->
 </template>
 
 <style lang="scss" scoped>
@@ -276,28 +320,28 @@ const reorder = async (menus) => {
 }
 
 @font-face {
-  font-family: 'BMJUA';
-  src: url('https://fastly.jsdelivr.net/gh/projectnoonnu/noonfonts_one@1.0/BMJUA.woff') format('woff');
+  font-family: "BMJUA";
+  src: url("https://fastly.jsdelivr.net/gh/projectnoonnu/noonfonts_one@1.0/BMJUA.woff")
+    format("woff");
   font-weight: normal;
   font-style: normal;
-  font-family: 'Pretendard-Regular';
-  src: url('https://fastly.jsdelivr.net/gh/Project-Noonnu/noonfonts_2107@1.1/Pretendard-Regular.woff');
+  font-family: "Pretendard-Regular";
+  src: url("https://fastly.jsdelivr.net/gh/Project-Noonnu/noonfonts_2107@1.1/Pretendard-Regular.woff");
 }
 
 * {
-  font-family: 'BMJUA';
+  font-family: "BMJUA";
 }
-
 
 .all-box {
   display: flex;
   flex-wrap: wrap;
   width: 100%;
   justify-content: center;
-  font-family: 'BMJUA';
+  font-family: "BMJUA";
   width: 100%;
+  overflow: clip;
 
-  
   .orderList {
     font-weight: 800;
     text-align: center;
@@ -307,30 +351,27 @@ const reorder = async (menus) => {
       margin-top: 20px;
     }
 
-
     .solid {
       width: 1470px;
       border: 1px #000 solid;
       margin: 50px 0 80px 0;
     }
   }
-
 }
 
 .box {
   display: flex;
   justify-content: center;
-  font-family: 'Pretendard-Regular';
+  font-family: "Pretendard-Regular";
   width: 1400px;
 
   font-size: 1.4em;
   letter-spacing: -1.5px;
   margin-top: 70px;
-
 }
 
 .btn {
-  font-family: 'BMJUA';
+  font-family: "BMJUA";
   font-size: 1em;
   text-align: center;
   background-color: #fff;
@@ -381,7 +422,7 @@ const reorder = async (menus) => {
       }
 
       .textBox {
-        font-family: 'BMJUA';
+        font-family: "BMJUA";
         font-size: 1.5em;
         margin-left: 40px;
         margin-top: 10px;
@@ -392,14 +433,14 @@ const reorder = async (menus) => {
       width: 720px;
       height: 300px;
       margin-top: 30px;
-      font-family: 'BMJUA';
+      font-family: "BMJUA";
       font-size: 1.3em;
       margin-left: 30px;
 
       .menu {
         display: flex;
         justify-content: space-between;
-        font-family: 'BMJUA';
+        font-family: "BMJUA";
         margin-top: 10px;
 
         .name {
@@ -455,7 +496,7 @@ const reorder = async (menus) => {
       height: 330px;
       margin-top: 20px;
       background-color: #fff;
-      border: #6C6C6C 3px solid;
+      border: #6c6c6c 3px solid;
       border-radius: 30px;
     }
 
@@ -466,11 +507,10 @@ const reorder = async (menus) => {
       border-radius: 20px;
       margin-top: 25px;
       margin-left: 30px;
-
     }
 
     .reviewBoxLeft {
-      font-family: 'BMJUA';
+      font-family: "BMJUA";
       font-size: 1.3em;
       margin-left: 30px;
       margin-top: 45px;
@@ -492,13 +532,12 @@ const reorder = async (menus) => {
         width: 500px;
         height: 200px;
         border-radius: 30px;
-        border: #6C6C6C 3px solid;
+        border: #6c6c6c 3px solid;
         overflow: hidden;
-
       }
 
       .inputBox {
-        font-family: 'Pretendard-Regular';
+        font-family: "Pretendard-Regular";
         width: 400px;
         height: 150px;
         border: none;
@@ -528,7 +567,7 @@ const reorder = async (menus) => {
 }
 
 #imgOne {
-  font-family: 'Pretendard-Regular';
+  font-family: "Pretendard-Regular";
   font-size: 0.6em;
   margin-left: 10px;
   margin-bottom: 10px;
@@ -541,9 +580,7 @@ const reorder = async (menus) => {
   width: 1500px;
 }
 
-
 // 상단 유저 보더
-
 
 .userboard {
   display: flex;
@@ -609,5 +646,23 @@ const reorder = async (menus) => {
       font-size: 1.3em;
     }
   }
+}
+.board-box{
+  overflow: clip;
+}
+.btnBox{
+  display: flex;
+  justify-content: center;
+}
+.btn{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 40px;
+  width: 76.9%;
+  height: 50px;
+  margin-left: -5px;
+  margin-bottom: 120px;
+  margin-top: -20px;
 }
 </style>
