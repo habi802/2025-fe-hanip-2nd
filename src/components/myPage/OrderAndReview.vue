@@ -115,6 +115,8 @@ const idCheck = async () => {
   const revId = await getReviewOne(props.order?.id);
   revCheck.value = revId.data.resultData;
 };
+
+
 </script>
 
 <template>
@@ -172,20 +174,19 @@ const idCheck = async () => {
         </div>
       </div>
       <!-- 메뉴 삭제하기 버튼 -->
-      <div class="remove" @click="$emit('delete-order', props.order.id)">
+      <div class="remove" @click="$emit('delete-order', props.order?.id)">
         <img class="removeImg" src="/src/imgs/remove.png" />
       </div>
     </div>
     <!-- 버튼들 -->
     <div class="btns">
-      <div class="btn" @click="$emit('reorder', props.order.orderGetList)">
+      <div class="btn" @click="$emit('reorder', props.order)">
         재주문 하기
       </div>
       <div @click="reviewButton" class="btn btn-primary">
         {{ revCheck !== null ? "리뷰 수정" : "리뷰 등록" }}
       </div>
-      <div class="btn">주문상세
-      </div>
+      <div @click="orderDetail" class="btn">주문상세</div>
     </div>
 
     <!-- 리뷰 박스 -->
