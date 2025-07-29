@@ -1,66 +1,52 @@
 <script setup>
 import { useFavoriteStore } from "@/stores/favoriteStore";
-import { ref, onMounted, computed, onActivated } from "vue";
-import { getStoreList } from "@/services/storeService";
-import { getFavorite } from "@/services/favoriteService";
-import { useRouter, useRoute } from "vue-router";
-import { watch } from "vue";
+import { onMounted, reactive } from "vue";
 import { getFavoriteList } from "@/services/favoriteService";
+import { useRoute, useRouter } from "vue-router";
+import { watch } from "vue";
+import defaultImage from '@/imgs/owner/owner-service3.png';
 
 const router = useRouter();
 const route = useRoute();
 
 const favoriteStore = useFavoriteStore();
 
-const isFavorite = (storeId) => {
-  return favoriteStore.state.storeIds.includes(storeId);
-};
-
-const allStores = ref([]);
+const state = reactive({
+  // 찜 가게 정보
+  favorites: []
+});
 
 const fetchFavorites = async () => {
-  const storeListRes = await getStoreList();
-  const favoriteListRes = await getFavoriteList();
+  const res = await getFavoriteList();
 
-  if (storeListRes?.data?.resultData && favoriteListRes?.data?.resultData) {
-    allStores.value = storeListRes.data.resultData;
-
-    const favoriteIds = favoriteListRes.data.resultData.map( store => store.id || store.storeId ) 
-    favoriteStore.setFavorites(favoriteIds);
+  if (res === undefined || res.data.resultStatus !== 200) {
+    const modal = new bootstrap.Modal(document.getElementById("favorite-error"));
+    modal.show();
+    return;
   }
+
+  state.favorites = res.data.resultData;
+
+  const favoriteIds = state.favorites.map(favorite => favorite.storeId);
+  favoriteStore.setFavorites(favoriteIds);
 };
 
-onMounted(fetchFavorites);
-onActivated(fetchFavorites);
+onMounted(() => {
+  fetchFavorites();
+});
 
 watch(
   () => route.path,
   (path) => {
-    if(path === "/favorites"){
-    fetchFavorites();
+    if (path === "/favorites") {
+      fetchFavorites();
     }
   }
 );
 
-const favoriteStores = computed(() => {
-  console.log("찜한 storeIds:", favoriteStore.state.storeIds);
-  console.log("전체 매장 목록:", allStores.value);
-
-  return allStores.value.filter((store) =>
-    favoriteStore.state.storeIds.includes(store.id || store.storeId)
-  );
-});
-
-const goToDetail = (storeId) => {
-  if (!storeId) {
-    console.warn("storeId가 없습니다.");
-    return;
-  }
-  router.push(`/stores/${storeId}`);
+const toStore = id => {
+  router.push({ path: `/stores/${id}` });
 };
-
-const storeId = route.params.id;
-console.log("라우터로 받은 storeId:", storeId);
 </script>
 
 <template>
@@ -71,35 +57,21 @@ console.log("라우터로 받은 storeId:", storeId);
         <div class="solid"></div>
       </div>
 
-      <div v-if="favoriteStores.length > 0">
+      <div v-if="state.favorites.length > 0">
         <div class="store-list">
-          <div
-            class="store-card"
-            v-for="store in favoriteStores"
-            :key="store.id"
-          >
-            <img
-              :src="`/imgs/${store.image}`"
-              alt="가게 이미지"
-              class="store-image"
-            />
+          <div class="store-card" v-for="store in state.favorites" :key="store.id">
+            <img :src="store.imagePath !== null ? `/pic/store-profile/${store.storeId}/${store.imagePath}` : defaultImage" alt="가게 이미지" class="store-image" />
             <div class="store-info">
               <h3 class="store-title">{{ store.name }}</h3>
               <p class="store-sub">
-                배달팁 {{ store.deliveryFee }}원 · 최소주문
-                {{ store.minOrderAmount }}원
+                최소 주문 금액 15,000원<br>
+                배달료 0원 ~ 3,000원
               </p>
               <div class="store-meta">
                 <span class="rating">⭐ {{ store.rating }}</span>
-                <span class="likes" @click="toggleFavorite(store.id)">
-                  {{ isFavorite(store.id) ? "❤️" : "🤍" }}
-                  {{ store.likeCount || 0 }}
-                </span>
+                <span class="likes">❤️ {{ store.favorites }}</span>
               </div>
-              <button
-                class="detail-btn"
-                @click="() => goToDetail(store.id ?? store.storeId)"
-              >
+              <button class="detail-btn" @click="toStore(store.storeId)">
                 자세히 보기
               </button>
             </div>
@@ -109,10 +81,26 @@ console.log("라우터로 받은 storeId:", storeId);
 
       <div v-else>
         <div class="container">
-          <div class="text-no">찜한 가게가 없습니다</div>
+          <div class="text-no">찜한 가게가 없습니다.</div>
           <div class="img-box">
             <img src="/src/imgs/owner/owner-service2.png" />
           </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 조회 실패 -->
+  <div class="modal fade" id="favorite-error" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+    aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="exampleModalLabel">경고</h5>
+        </div>
+        <div class="modal-body">조회에 실패하였습니다</div>
+        <div class="modal-footer">
+          <a class="btn" id="modalY" href="#" data-bs-dismiss="modal">닫기</a>
         </div>
       </div>
     </div>
