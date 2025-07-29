@@ -7,7 +7,8 @@ import { getStore } from "@/services/storeService";
 import { useCartStore } from "@/stores/cart";
 import { getReviewsByStoreId } from "@/services/reviewServices";
 import { getFavoriteList } from "@/services/favoriteService";
-
+// 에러 이미지
+import defaultImage from '@/imgs/owner/owner-service3.png';
 
 const cartStore = useCartStore();
 
@@ -19,6 +20,7 @@ const state = reactive({
   reviews: [],
   reviewNum: 0,
   favorites: [],
+  store:{},
 });
 
 const storeMap = reactive({});
@@ -42,12 +44,11 @@ const fetchStoreDetails = async () => {
 
       if (res?.status === 200 && res.data?.resultStatus === 200) {
         storeMap[storeId] = res.data.resultData;
+        state.store = res.data.resultData;
       }
     }
   }
 };
-
-// 스토어 아이디 어디?
 
 
 // 가게 리뷰 조회 함수
@@ -80,6 +81,7 @@ onMounted(async () => {
   await load();
   await fetchStoreDetails();
   loadReviews();
+  // console.log("item", `/pic/store-profile/${state.store.id}/${state.store.imagePath}`)
 });
 
 const load = async () => {
@@ -157,6 +159,17 @@ const grandTotalPrice = computed(() => {
     );
   }, 0);
 });
+
+// 가게 이미지
+const imgSrc = computed(() => {
+
+return state.store.id && state.store.imagePath && state.store.imagePath !== 'null'
+  ? `/pic/store-profile/${state.store.id}/${state.store.imagePath}`
+  : defaultImage;
+
+})
+
+
 </script>
 
 <template>
@@ -278,7 +291,8 @@ const grandTotalPrice = computed(() => {
     <div class="store-layout">
       <!-- 가게 대표 카드 -->
       <div class="store-card" v-if="groupedItems.length > 0">
-        <img class="thumbnail" :src="storeMap[groupedItems[0].storeId]?.imagePath || '/src/imgs/chicken.png'" />
+        <img class="thumbnail" :src="imgSrc" @error="e => e.target.src = defaultImage" />
+         <!-- <img :src='`/pic/store-profile/${state.store.id}/${state.store.imagePath}` '/> -->
         <div class="store-content">
           <h3 class="store-name">
             {{ storeMap[groupedItems[0].storeId]?.name || groupedItems[0].storeName }}
