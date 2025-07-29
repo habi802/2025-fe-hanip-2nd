@@ -120,7 +120,7 @@ const idCheck = async () => {
 <template>
   <!-- 버튼들 -->
   <div class="btns">
-    <div class="btn" @click="$emit('reorder', props.order.orderGetList)">
+    <div class="btn" @click="$emit('reorder', props.order?.orderGetList)">
       재주문 하기
     </div>
     <div @click="reviewButton" class="btn btn-primary">
@@ -180,7 +180,7 @@ const idCheck = async () => {
         </div>
       </div>
       <!-- 메뉴 삭제하기 버튼 -->
-      <div class="remove" @click="$emit('delete-order', props.order.id)">
+      <div class="remove" @click="$emit('delete-order', props.order?.id)">
         <img class="removeImg" src="/src/imgs/remove.png" />
       </div>
     </div>

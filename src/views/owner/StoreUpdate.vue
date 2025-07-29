@@ -127,33 +127,6 @@ const submit = async (e) => {
     return;
   }
 
-  if (
-    state.form.postcode.trim().length === 0 ||
-    state.form.address.trim().length === 0 ||
-    state.form.email.trim().length === 0
-  ) {
-    showAlert("가게 주소는 공란으로 두실 수 없습니다.");
-    return;
-  }
-
-  if (
-    state.form.storeTel1.trim().length === 0 ||
-    state.form.storeTel2.trim().length === 0 ||
-    state.form.storeTel3.trim().length === 0
-  ) {
-    showAlert("가게 전화는 공란으로 두실 수 없습니다.");
-    return;
-  }
-
-  if (
-    state.form.mobile1.trim().length === 0 ||
-    state.form.mobile2.trim().length === 0 ||
-    state.form.mobile3.trim().length === 0
-  ) {
-    showAlert("전화 번호는 공란으로 두실 수 없습니다.");
-    return;
-  }
-
   const formData = new FormData();
   const tel = `${state.form.storeTel1}-${state.form.storeTel2}-${state.form.storeTel3}`;
   const phone = `${state.form.mobile1}-${state.form.mobile2}-${state.form.mobile3}`;

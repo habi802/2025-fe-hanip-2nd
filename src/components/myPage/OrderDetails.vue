@@ -28,6 +28,7 @@ const user = reactive({
 // onMounted
 onMounted(async() => {
   await findorder();
+  console.log("dfdf: ", cartStore.state.items )
 })
 
 // 주문 목록 조회
@@ -81,15 +82,25 @@ const reorder = async (menus) => {
     name: menu.name,
     price: menu.price,
     quantity: menu.quantity,
+    storeId: menu.storeId,
   }));
 
-  const res = await addItem( addMenus );
-  if(res.status !== 200) {
-    alert("오류 발생")
+  const cartItems = cartStore.state.items;
+
+  if (cartItems.length > 0 && cartItems[0].storeId !== addMenus[0].storeId) {
+    alert("다른 가게의 메뉴가 이미 장바구니에 있습니다. 장바구니를 비워주세요.");
     return;
   }
+
   cartStore.addMenus(addMenus);
-  console.log("CartStore 상태:", cartStore.state.items);
+  console.log("CartStore 상태:",addMenus[0].id);
+
+  for(let i = 0; i < menus.length; i++) {
+    console.log(menus[i].menuId)
+    const res = await addItem (menus[i].menuId);
+    console.log(res.data.resultData)
+  }
+  // console.log("오더 Res:", res.data.resultData);
   router.push("/cart");
 }
 </script>
