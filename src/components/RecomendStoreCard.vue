@@ -71,10 +71,10 @@ const reviews = async () => {
       <div class="icons">
         <div class="star">
           <img id="icon" src="/src/imgs/star.png" />
-          <span v-if="total !== 'NaN'">
+          <span class="starNum" v-if="total !== 'NaN'">
             {{ total ? total : 0 }}
           </span>
-          <span v-else> 0 </span>
+          <span class="starNum" v-else> 0 </span>
           <span class="starNum"></span>
         </div>
         <div class="love">
@@ -170,7 +170,7 @@ const reviews = async () => {
 
       .star {
         .starNum {
-          font-size: 14px;
+          font-size: 18px;
         }
       }
 
