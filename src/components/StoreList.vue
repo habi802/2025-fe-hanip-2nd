@@ -1,7 +1,8 @@
 <script setup>
 import { useRouter } from 'vue-router';
+import { getReviewsByStoreId } from '@/services/reviewServices';
 import defaultImage from '@/imgs/owner/haniplogo_sample2.png'
-import { computed } from 'vue';
+import { computed, onMounted, ref } from 'vue';
 const router = useRouter();
 const props = defineProps({
   stores: Object,
@@ -9,6 +10,11 @@ const props = defineProps({
 const storeRouter = () => {
   router.push(`/stores/${props.stores.storeId}`);
 };
+
+onMounted(() => {
+  reviews();
+});
+
 
 // 가게 이미지
 // const img = `/pic/store-profile/${props.stores.storeId}/${props.stores.imagePath}`
@@ -19,6 +25,25 @@ const imgSrc = computed(() => {
   ? `/pic/store-profile/${props.stores.storeId}/${props.stores.imagePath}`
   : defaultImage;
 })
+
+//리뷰 조회
+let total = ref(0);
+let leng = ref(0);
+
+const reviews = async () => {
+  const res = await getReviewsByStoreId(props.stores.storeId);
+  const length = res.data.resultData;
+  leng = length.length;
+
+  let totals = 0;
+  for (let i = 0; i < length?.length; i++) {
+    const forNum = length[i]?.rating;
+    totals += forNum;
+  }
+  totals = (totals / length?.length).toFixed(1);
+  total.value = totals;
+  console.log("total", total);
+};
 </script>
 <template>
   <div @click="storeRouter" class="router">
@@ -34,14 +59,17 @@ const imgSrc = computed(() => {
         </div>
         <div class="icons">
           <div class="star">
-            <img id="icon" src="/src/imgs/star.png" />
-            4.8
-            <span class="starNum">(938)</span>
-          </div>
-          <div class="love">
-            <img id="icon" src="/src/imgs/love.png" />
-            927
-          </div>
+          <img id="icon" src="/src/imgs/star.png" />
+          <span class="starNum" v-if="total !== 'NaN'">
+            {{ total ? total : 0 }}
+          </span>
+          <span class="starNum" v-else> 0 </span>
+          <span class="starNum">({{ leng }})</span>
+        </div>
+        <div class="love">
+          <img id="icon" src="/src/imgs/love.png" />
+          {{ props.stores?.favorites }}
+        </div>
         </div>
         <div class="btn">자세히보기</div>
       </div>
@@ -57,15 +85,16 @@ const imgSrc = computed(() => {
   overflow: hidden;
 
   .storeImgBox {
+    display: flex;
+    justify-content: center;
+    align-items: center;
     width: 420px;
     height: 250px;
     overflow: hidden;
     border-radius: 20px 20px 0px 0px;
 
     .sImg {
-      width: 100%;
-      height: 260px;
-      object-fit: contain;
+      width: 420px;
       border-radius: 20px 20px 0px 0px;
     }
   }
@@ -94,7 +123,7 @@ const imgSrc = computed(() => {
   .icons {
     font-family: 'BMJUA';
     display: flex;
-    margin-top: 25px;
+    margin-top: 20px;
     font-size: 13px;
     flex-direction: column;
     margin-left: 25px;
@@ -104,14 +133,15 @@ const imgSrc = computed(() => {
     }
 
     .star {
+      
       .starNum {
-        font-size: 10px;
+        font-size: 17px;
         letter-spacing: 0.5px;
       }
     }
 
     .love {
-      font-size: 13px;
+      font-size: 17px;
       letter-spacing: 0.5px;
     }
   }
