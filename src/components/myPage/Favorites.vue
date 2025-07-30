@@ -11,6 +11,8 @@ import favoriteImage from '@/imgs/love.png';
 import noFavoriteImage from '@/imgs/loveBoard.png'
 import ratingImage from '@/imgs/star.png';
 
+
+
 const router = useRouter();
 const route = useRoute();
 
@@ -222,6 +224,7 @@ const toStore = id => {
   display: flex;
   justify-content: center;
 }
+
 .box {
   display: block;
   font-family: "BMJUA";
