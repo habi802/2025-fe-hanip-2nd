@@ -545,7 +545,8 @@ input[type="email"] {
         border: 1px solid #ccc;
         border-radius: 8px;
       }
-// 주소검색 버튼
+
+      // 주소검색 버튼
       button {
         margin-top: 1rem;
         width: 90px;
