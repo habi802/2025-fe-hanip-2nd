@@ -705,8 +705,13 @@ const arrow = () => {
   bottom: 100px;
   left: 93%;
   z-index: 999;
-  margin-bottom: 70px;
+  margin-bottom: 100px;
+
+  &:hover {
+    opacity: 80%;
+  }
 }
+
 
 // 버튼
 .btn-review {

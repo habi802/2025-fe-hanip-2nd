@@ -240,7 +240,8 @@ const toStore = id => {
 .for {
   display: flex;
   flex-wrap: wrap;
-  gap: 64px;
+  justify-content: center;
+  gap: 30px;
   margin-bottom: 100px;
   letter-spacing: .015em;
 }
