@@ -425,7 +425,7 @@ const imgSrc = computed(() => {
       <div class="row">
         <div id="store" class="col-12 col-md-8 p-3">
           <div id="store-box" class="row border rounded-4 p-3 mb-3">
-            <div class="col-6 col-md-4 mb-4">
+            <div  class="col-6 col-md-4 mb-4">
               <div class="store-image border rounded h-100">
                 <div class="img-one">
                   <!-- <img class="sImg" :src="imgSrc" @error="e => e.target.src = defaultImage" /> -->
@@ -661,6 +661,7 @@ const imgSrc = computed(() => {
 }
 .top{
   font-family: "BMJUA";
+  font-size: 18px;
 }
 
 .container {
@@ -756,6 +757,7 @@ width: 20px;
 #store-box {
   display: flex;
   align-items: center;
+
   width: 860px;
   height: 303px;
 }
@@ -861,7 +863,7 @@ width: 20px;
 }
 .addressText{
   text-align: center;
-  margin-left: 25px;
+  margin-left: 14px;
 }
 #orderBtn{
   margin-top: 20px;
