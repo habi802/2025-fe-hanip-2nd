@@ -344,7 +344,7 @@ const addReview = async () => {
 }
 // 모달
 .modal{
-  top: 7%
+  top: 40%
 }
 
 
