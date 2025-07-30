@@ -4,17 +4,22 @@ import { reactive, watch } from 'vue';
 export const useCartStore = defineStore('carts', () => {
   const state = reactive({
     items: JSON.parse(localStorage.getItem('cart-items')) || [],
+    latestOrder: []
   });
 
   const addMenus = (menus) => {
     menus.forEach(menu => {
-      const existing = state.items.find(item => item.id === menu.id);
+      const existing = state.items.find(item => item.menuId === menu.menuId);
       if (existing) {
         existing.quantity += menu.quantity;
       } else {
         state.items.push({ ...menu });
       }
     });
+  };
+
+  const setLatestOrder = (items) => {
+    state.latestOrder = items;
   };
 
   const clearCart = () => {
@@ -30,5 +35,5 @@ export const useCartStore = defineStore('carts', () => {
     { deep: true }
   );
 
-  return { state, addMenus, clearCart };
+  return { state, addMenus, clearCart, setLatestOrder };
 });

@@ -183,8 +183,11 @@ const submit = async () => {
     }
 
     if (cart.state.items.length < 1) {
-        cart.state.items = state.carts;
+        cart.state.ite
+        ms = state.carts;
     }
+    cart.setLatestOrder([...cart.state.items]);
+
     cart.clearCart()
     await router.push({ path: `/stores/${route.params.id}/order/success` });
 };

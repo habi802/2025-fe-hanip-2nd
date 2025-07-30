@@ -40,22 +40,28 @@ onMounted(async () => {
     router.push({ path: "/" });
     return;
   }
-  
+  const orderId = Number(route.query.id);
   // 넘어온 쿼리가 있다면 ?
-  if (route.query.id > 0) {
+  let res = null;
+  if (!isNaN(orderId) && orderId > 0) {
     const ress = await getStore(route.params.id);
     state.store = ress.data.resultData;
-    const res = await getOwnerOrder2(route.query.id);
+    res = await getOwnerOrder2(route.query.id);
+    
     state.order = res.data.resultData;
-    console.log("res.ingo", state.order);
+    console.log("난 주문 상세야: ", state.order);
     console.log("total", totalPrice.value);
     randomList();
     calculateTotal();
     status();
   } else {
-    const res = await getStore(route.params.id);
+    res = await getStore(route.params.id);
     state.store = res.data.resultData;
-    state.carts = cart.state.items;
+    console.log("난 주문이야: ", res);
+    state.carts = cart.state.latestOrder;
+    console.log("state.order", cart.order);
+    console.log("cart.state.items", cart.state);
+    console.log(localStorage.getItem('cart-items'));
     calculateTotal();
     randomList();
   }
@@ -64,7 +70,7 @@ onMounted(async () => {
     alert("조회 실패");
     router.push({ path: "/" });
     return;
-  } else if (res.data.resultStatus !== 200) {
+  } else if (res.status !== 200) {
     alert(res.data.resultMessage);
     router.push({ path: "/" });
     return;
