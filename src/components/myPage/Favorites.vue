@@ -1,7 +1,7 @@
 <script setup>
 import { useAccountStore } from "@/stores/account";
 import { useFavoriteStore } from "@/stores/favoriteStore";
-import { onMounted, reactive } from "vue";
+import { ref, onMounted, reactive, computed } from "vue";
 import { getFavoriteList, addFavorite, deleteFavorite } from "@/services/favoriteService";
 import { useRoute, useRouter } from "vue-router";
 import { watch } from "vue";
@@ -63,6 +63,15 @@ const toggleFavorite = async store => {
   }
 };
 
+// 더보기 버튼 함수
+const visibleCount = ref(8);
+const showMore = () => {
+  visibleCount.value += 8;
+};
+const visibleCards = computed(() => {
+  return state.favorites.slice(0, visibleCount.value);
+});
+
 // 위로 가기 버튼 함수
 const arrow = () => {
   window.scrollTo({
@@ -97,47 +106,55 @@ const toStore = id => {
         <div class="solid"></div>
       </div>
 
-      <div class="for" v-if="state.favorites.length > 0">
+      <div v-if="state.favorites.length > 0">
 
-        <div class="all" v-for="store in state.favorites" :key="store.storeId">
-          <div id="imgBigBox" class="card h-100 shadow-sm">
-            <div id="imgBox" class="card-img-top">
-              <img
-                class="sImg"
-                :src="store.imagePath !== null ? `/pic/store-profile/${store.storeId}/${store.imagePath}` : defaultImage"
-              />
+        <div class="for">
+          <div class="all" v-for="store in visibleCards" :key="store.storeId">
+            <div id="imgBigBox" class="card h-100 shadow-sm">
+              <div id="imgBox" class="card-img-top">
+                <img
+                  class="sImg"
+                  :src="store.imagePath !== null ? `/pic/store-profile/${store.storeId}/${store.imagePath}` : defaultImage"
+                />
+              </div>
+              <!-- <img src="" class="card-img-top" alt="음식 이미지"> -->
+              <div class="card-body">
+                <h6 class="card-title">{{ store.name }}</h6>
+                <div v-if="store.rating !== 'NaN'">
+                  <img class="star" :src="ratingImage" />
+                  <span class="small">
+                    {{ store.rating }}&nbsp;({{ store.reviews }})&nbsp;&nbsp;
+                    <img class="love"
+                      :src="store.favorite ? favoriteImage : noFavoriteImage"
+                      @click="toggleFavorite(store)" />
+                    {{ store.favorites }}
+                  </span>
+                </div>
+                <div v-else>
+                  <img class="star" :src="ratingImage" />
+                  <span class="small">
+                    0&nbsp;(0)&nbsp;&nbsp;
+                    <img class="love"
+                      :src="store.favorite ? favoriteImage : noFavoriteImage"
+                      @click="toggleFavorite(store)" />
+                    {{ store.favorites }}
+                  </span>
+                </div>
+                <p class="mb-1 text-muted small">배달비 0원 ~ 3000원</p>
+                <p class="mb-2 text-muted small">최소 주문 금액 10,000원</p>
+                <div class="d-flex justify-content-center align-items-center">
+                  <button @click="toStore(store.storeId)" class="btn btn-outline-danger btn-sm">
+                    자세히보기
+                  </button>
+                </div>
+              </div>
             </div>
-            <!-- <img src="" class="card-img-top" alt="음식 이미지"> -->
-            <div class="card-body">
-              <h6 class="card-title">{{ store.name }}</h6>
-              <div v-if="store.rating !== 'NaN'">
-                <img class="star" :src="ratingImage" />
-                <span class="small">
-                  {{ store.rating }}&nbsp;({{ store.reviews }})&nbsp;&nbsp;
-                  <img class="love"
-                    :src="store.favorite ? favoriteImage : noFavoriteImage"
-                    @click="toggleFavorite(store)" />
-                  {{ store.favorites }}
-                </span>
-              </div>
-              <div v-else>
-                <img class="star" :src="ratingImage" />
-                <span class="small">
-                  0&nbsp;(0)&nbsp;&nbsp;
-                  <img class="love"
-                    :src="store.favorite ? favoriteImage : noFavoriteImage"
-                    @click="toggleFavorite(store)" />
-                  {{ store.favorites }}
-                </span>
-              </div>
-              <p class="mb-1 text-muted small">배달비 0원 ~ 3000원</p>
-              <p class="mb-2 text-muted small">최소 주문 금액 10,000원</p>
-              <div class="d-flex justify-content-center align-items-center">
-                <button @click="toStore(store.storeId)" class="btn btn-outline-danger btn-sm">
-                  자세히보기
-                </button>
-              </div>
-            </div>
+          </div>
+        </div>
+
+        <div class="btnBox" v-if="state.favorites.length > 0">
+          <div id="btnB" v-if="visibleCount < state.favorites.length" @click="showMore">
+            더보기
           </div>
         </div>
 
@@ -224,7 +241,7 @@ const toStore = id => {
   display: flex;
   flex-wrap: wrap;
   gap: 64px;
-  margin-bottom: 50px;
+  margin-bottom: 100px;
   letter-spacing: .015em;
 }
 #imgBox {
@@ -257,6 +274,24 @@ const toStore = id => {
 .love{
   width: 20px;
   cursor: pointer;
+}
+
+.btnBox {
+  display: flex;
+  justify-content: center;
+}
+
+#btnB {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 10px;
+  font-size: 40px;
+  width: 60% !important;
+  height: 50px;
+  margin-left: -5px;
+  margin-top: -20px;
+  border: none;
 }
 
 .arrow {
