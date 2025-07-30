@@ -62,7 +62,7 @@ const loadStore = async (id) => {
 
   state.store = res.data.resultData;
   console.log("state", state.store);
-  
+
   showMap(state.store.address);
 
   //
@@ -91,7 +91,7 @@ const showMap = address => {
       if (status !== naver.maps.Service.Status.OK) {
         console.log('address: 주소를 찾을 수 없습니다.');
       }
-      
+
       const result = response.v2.addresses[0];
       if (result.total === 0) {
         console.log('address: 검색 결과가 없습니다.');
@@ -440,7 +440,7 @@ const arrow = () => {
       <div class="row">
         <div id="store" class="col-12 col-md-8 p-3">
           <div id="store-box" class="row border rounded-4 p-3 mb-3">
-            <div  class="col-6 col-md-4 mb-4">
+            <div class="col-6 col-md-4 mb-4">
               <div class="store-image border rounded h-100">
                 <div class="img-one">
                   <!-- <img class="sImg" :src="imgSrc" @error="e => e.target.src = defaultImage" /> -->
@@ -452,8 +452,10 @@ const arrow = () => {
               <h3>{{ state.store.name }}</h3>
               <p>최소 주문 금액 15,000원</p>
               <p>배달료 0원 ~ 3,000원</p>
-              <span><img class="restar" src="/src/imgs/starBoard.png"/> {{ state.reviewNum !== 'NaN' ? state.reviewNum : 0 }}({{ state.reviews.length }})
-                <img class="favorite" @click="toggleFavorite(state.store.id)" :src="state.store.favorite ? lovet : lovef"/>
+              <span><img class="restar" src="/src/imgs/starBoard.png" /> {{ state.reviewNum !== 'NaN' ? state.reviewNum
+                : 0 }}({{ state.reviews.length }})
+                <img class="favorite" @click="toggleFavorite(state.store.id)"
+                  :src="state.store.favorite ? lovet : lovef" />
                 {{ state.storeInfo[0]?.favorites }}</span>
             </div>
             <div class="col-12 col-md-4 pt-4">
@@ -531,7 +533,10 @@ const arrow = () => {
                   <Menu :item="item" @addCart="addCart" />
                 </div>
               </div>
-              <div v-else>메뉴 준비중입니다.</div>
+              <div v-else class="d-flex mt-5 justify-content-center align-items-center w-100"
+                style="font-size: 40px; flex-direction: column;"> 등록된 메뉴가 없습니다.
+                <img src="/src/imgs/owner/owner-service5.png" alt="메뉴없엉">
+              </div>
             </div>
 
             <!-- 리뷰보기 리스트 -->
@@ -548,8 +553,15 @@ const arrow = () => {
                       <!-- 왼쪽 별/점수 -->
                       <div>
                         <span class="star" v-for="n in Math.floor(state.reviewNum || 0)" :key="n"
-                        v-if="state.reviewNum && state.reviewNum > 0">
-                        <img class="starImg" src="/src/imgs/starBoard.png"/>
+                          v-if="state.reviewNum && state.reviewNum > 0">
+                          <img class="starImg" src="/src/imgs/starBoard.png" />
+                        </span>
+                        <span class="star" v-else>
+                          <img class="starImg" src="/src/imgs/starNull.png" />
+                          <img class="starImg" src="/src/imgs/starNull.png" />
+                          <img class="starImg" src="/src/imgs/starNull.png" />
+                          <img class="starImg" src="/src/imgs/starNull.png" />
+                          <img class="starImg" src="/src/imgs/starNull.png" />
                         </span>
                         <div class="review-num">{{ isNaN(state.reviewNum) ? 0 : state.reviewNum }}</div>
                       </div>
@@ -567,16 +579,12 @@ const arrow = () => {
                     <Review :item="item" />
                   </div>
                 </div>
-                <div 
-                v-else
-                class="d-flex mt-5 justify-content-center align-items-center w-100" 
-                style="font-size: 40px; flex-direction: column;"
-                > 등록된 리뷰가 없습니다.
-                <img src="/src/imgs/owner/owner-service5.png" alt="리뷰없엉">
-              </div>
+                <div v-else class="d-flex mt-5 justify-content-center align-items-center w-100"
+                  style="font-size: 40px; flex-direction: column;"> 등록된 리뷰가 없습니다.
+                  <img src="/src/imgs/owner/owner-service5.png" alt="리뷰없엉">
+                </div>
                 <div class="d-flex justify-content-center">
-                  <button v-if="visibleReview.length > 0 && visibleCount < state.reviews.length"
-                    @click="loadMore"
+                  <button v-if="visibleReview.length > 0 && visibleCount < state.reviews.length" @click="loadMore"
                     class="btn btn-secondary btn-review">
                     더보기
                   </button>
@@ -589,7 +597,7 @@ const arrow = () => {
     </div>
   </div>
   <img @click="arrow" class="arrow" src="/src/imgs/arrow.png" />
-  
+
   <!-- 메뉴 없이 주문하면.. -->
   <div class="modal fade" id="orderF" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
     aria-hidden="true">
@@ -661,19 +669,19 @@ const arrow = () => {
         <div class="modal-body">삭제에 실패하였습니다</div>
         <div class="modal-footer">
           <a class="btn" id="modalY" href="#" data-bs-dismiss="modal">닫기</a>
-				</div>
-			</div>
-		</div>
-	</div>
-    <!-- 찜 실패 -->
-    <div class="modal fade" id="faiF" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
-		<div class="modal-dialog" role="document">
-			<div class="modal-content">
-				<div class="modal-header">
-					<h5 class="modal-title" id="exampleModalLabel">경고</h5>
-				</div>
-				<div class="modal-body">찜 하기에 실패하였습니다</div>
-				<div class="modal-footer">
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- 찜 실패 -->
+  <div class="modal fade" id="faiF" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="exampleModalLabel">경고</h5>
+        </div>
+        <div class="modal-body">찜 하기에 실패하였습니다</div>
+        <div class="modal-footer">
           <a class="btn" id="modalY" href="#" data-bs-dismiss="modal">닫기</a>
         </div>
       </div>
@@ -710,14 +718,16 @@ const arrow = () => {
   cursor: pointer;
   background: #f66463;
 }
+
 .btn-review:hover {
   background: #d44b4a;
 }
+
 .btn-review:active {
   background: #b23837;
 }
 
-.top{
+.top {
   font-family: "BMJUA";
   font-size: 18px;
 }
@@ -731,7 +741,7 @@ const arrow = () => {
 }
 
 .favorite {
-width: 20px;
+  width: 20px;
   cursor: pointer;
 }
 
@@ -830,6 +840,7 @@ width: 20px;
   overflow: hidden;
   background-color: #f5f5f5;
   margin-top: 20px;
+
   .img-one {
     width: 250px;
   }
@@ -885,7 +896,7 @@ width: 20px;
   font-family: "BMJUA";
   font-size: 30px;
   color: #FAC729;
-  
+
 }
 
 .left-box {
@@ -908,22 +919,27 @@ width: 20px;
     width: 270px;
   }
 }
-.starImg{
+
+.starImg {
   width: 30px;
   padding: 3px;
 }
-.restar{
+
+.restar {
   width: 20px;
 }
-#order{
+
+#order {
   font-family: "BMJUA" !important;
   margin-top: -15px;
 }
-.addressText{
+
+.addressText {
   text-align: center;
   margin-left: 14px;
 }
-#orderBtn{
+
+#orderBtn {
   margin-top: 20px;
   margin-left: -12px;
   font-size: 25px;
