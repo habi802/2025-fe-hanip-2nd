@@ -1,7 +1,8 @@
 <script setup>
+import { useAccountStore } from "@/stores/account";
 import { useFavoriteStore } from "@/stores/favoriteStore";
 import { onMounted, reactive } from "vue";
-import { getFavoriteList } from "@/services/favoriteService";
+import { getFavoriteList, addFavorite, deleteFavorite } from "@/services/favoriteService";
 import { useRoute, useRouter } from "vue-router";
 import { watch } from "vue";
 
@@ -13,6 +14,7 @@ import ratingImage from  '@/imgs/star.png';
 const router = useRouter();
 const route = useRoute();
 
+const account = useAccountStore();
 const favoriteStore = useFavoriteStore();
 
 const state = reactive({
@@ -20,6 +22,7 @@ const state = reactive({
   favorites: []
 });
 
+// 찜 목록 불러오는 함수
 const fetchFavorites = async () => {
   const res = await getFavoriteList();
 
@@ -30,11 +33,37 @@ const fetchFavorites = async () => {
   }
 
   state.favorites = res.data.resultData;
+  // 찜 목록 추가/삭제 함수 실행을 위해 찜 상태값을 강제로 넣어줌
+  state.favorites.map(favorite => favorite.favorite = true);
 
+  // 찜 ID들을 Pinia store에 저장
   const favoriteIds = state.favorites.map(favorite => favorite.storeId);
   favoriteStore.setFavorites(favoriteIds);
 };
 
+// 찜 목록 추가/삭제 함수
+const toggleFavorite = async store => {
+  if (account.state.loggedIn) {
+    const storeId = Number(store.storeId);
+
+    const res = store.favorite ? await deleteFavorite(storeId) : await addFavorite({ storeId });
+
+    if (res === undefined || res.data.resultStatus !== 200) {
+      // alert("찜 상태 변경 실패");
+      const modal = new bootstrap.Modal(document.getElementById("faiF"));
+      modal.show();
+      return;
+    }
+
+    store.favorite = !store.favorite;
+    store.favorites = store.favorite ? store.favorites + 1 : store.favorites - 1;
+
+    // Pinia store에도 업데이트
+    favoriteStore.toggleFavorite(storeId);
+  }
+};
+
+// 위로 가기 버튼 함수
 const arrow = () => {
   window.scrollTo({
     top: 0,
@@ -84,14 +113,20 @@ const toStore = id => {
               <div v-if="store.rating !== 'NaN'">
                 <img class="star" :src="ratingImage" />
                 <span class="small">
-                  {{ store.rating }}&nbsp;({{ store.reviews }})&nbsp;&nbsp;<img class="love" :src="favoriteImage" />
+                  {{ store.rating }}&nbsp;({{ store.reviews }})&nbsp;&nbsp;
+                  <img class="love"
+                    :src="store.favorite ? favoriteImage : noFavoriteImage"
+                    @click="toggleFavorite(store)" />
                   {{ store.favorites }}
                 </span>
               </div>
               <div v-else>
                 <img class="star" :src="ratingImage" />
                 <span class="small">
-                  0&nbsp;(0)&nbsp;&nbsp;<img class="love" :src="favoriteImage" />
+                  0&nbsp;(0)&nbsp;&nbsp;
+                  <img class="love"
+                    :src="store.favorite ? favoriteImage : noFavoriteImage"
+                    @click="toggleFavorite(store)" />
                   {{ store.favorites }}
                 </span>
               </div>
@@ -130,6 +165,21 @@ const toStore = id => {
           <h5 class="modal-title" id="exampleModalLabel">경고</h5>
         </div>
         <div class="modal-body">조회에 실패하였습니다</div>
+        <div class="modal-footer">
+          <a class="btn" id="modalY" href="#" data-bs-dismiss="modal">닫기</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 찜 실패 -->
+  <div class="modal fade" id="faiF" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="exampleModalLabel">알림</h5>
+        </div>
+        <div class="modal-body">찜 하기에 실패하였습니다</div>
         <div class="modal-footer">
           <a class="btn" id="modalY" href="#" data-bs-dismiss="modal">닫기</a>
         </div>
@@ -206,6 +256,7 @@ const toStore = id => {
 }
 .love{
   width: 20px;
+  cursor: pointer;
 }
 
 .arrow {
