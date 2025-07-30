@@ -1,46 +1,133 @@
 <script setup>
-import { onMounted, reactive, ref, watch } from 'vue';
-import { useRouter } from 'vue-router';
-import { getUser, update } from '@/services/userService';
+import { onMounted, reactive, ref, watch } from "vue";
+import { useRouter } from "vue-router";
+import { getUser, update } from "@/services/userService";
+import { nextTick } from "vue";
 
 const router = useRouter();
 
 // 사용자 정보 리스트
 const state = reactive({
   form: {
-    loginId: '', // ID 비활성화 해야함!!
-    loginPw: '',
-    name: '',
-    postcode: '',
-    address: '',
-    addressDetail: '',
-    phone: '',
-    email: '',
-  }
+    loginId: "", // ID 비활성화 해야함!!
+    loginPw: "",
+    name: "",
+    postcode: "",
+    address: "",
+    addressDetail: "",
+    phone: "",
+    email: "",
+  },
+});
+const confirmPw = ref(""); // 새 비밀번호
+const errors = reactive({
+  loginPw: "",
+  confirmPw: "",
+  email: "",
+  phone: "",
 });
 
 //일반 회원용 전화번호 필드
-const phone1 = ref('010');
-const phone2 = ref('');
-const phone3 = ref('');
+const phone1 = ref("010");
+const phone2 = ref("");
+const phone3 = ref("");
+const phone2Input = ref(null);
+const phone3Input = ref(null);
+
+// 부트스트랩 모달 인스턴스를 저장할 변수 (전역으로 관리)
+let alertModal = null;
 
 //전화번호 조합
 watch([phone1, phone2, phone3], () => {
   state.form.phone = `${phone1.value}-${phone2.value}-${phone3.value}`;
 });
 
+// 유효성 검사 함수
+function validateForm() {
+  let isValid = true;
 
+  // 현재 비밀번호 필수
+  if (!state.form.loginPw) {
+    errors.loginPw = "현재 비밀번호를 입력해주세요.";
+    isValid = false;
+  } else {
+    errors.loginPw = "";
+  }
+
+  // 새 비밀번호 유효성: 다르고, 8~16자, 숫자/특수문자 포함
+  const pw = confirmPw.value;
+  const sameAsOld = pw === state.form.loginPw;
+  const regexPw =
+    /^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#?&^])[A-Za-z\d@$!%*#?&^]{8,16}$/;
+
+  if (!pw) {
+    errors.confirmPw = "새 비밀번호를 입력해주세요.";
+    isValid = false;
+  } else if (sameAsOld) {
+    errors.confirmPw = "새 비밀번호는 현재 비밀번호와 다르게 입력해주세요.";
+    isValid = false;
+  } else if (!regexPw.test(pw)) {
+    errors.confirmPw =
+      "비밀번호는 영문, 숫자, 특수문자를 포함한 8~16자여야 합니다.";
+    isValid = false;
+  } else {
+    errors.confirmPw = "";
+  }
+
+  // 이메일 유효성
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!state.form.email || !emailRegex.test(state.form.email)) {
+    errors.email = "유효한 이메일 주소를 입력해주세요.";
+    isValid = false;
+  } else {
+    errors.email = "";
+  }
+
+  // 휴대전화 각 자리 검사
+  const phoneRegex = /^[0-9]{3,4}$/;
+  if (!phoneRegex.test(phone2.value) || !phoneRegex.test(phone3.value)) {
+    errors.phone = "휴대전화 번호는 숫자만 3~4자리 입력해주세요.";
+    isValid = false;
+  } else {
+    errors.phone = "";
+  }
+
+  return isValid;
+}
+// 숫자만 입력되게 하고 자동 이동
+function onPhoneInput(modelRef, event) {
+  let val = event.target.value.replace(/\D/g, ""); // 숫자만 남김
+  if (val.length > 4) val = val.slice(0, 4); // 최대 4자리 제한
+  modelRef.value = val;
+
+  // 자동 포커스 이동
+  if (modelRef === phone2 && val.length === 4) {
+    nextTick(() => phone3Input.value?.focus());
+  }
+}
+
+// 화살표/백스페이스 제외하고 숫자 외 입력 방지
+function onPhoneKeydown(event) {
+  const allowed = ["Backspace", "ArrowLeft", "ArrowRight", "Tab"];
+  if (!/^\d$/.test(event.key) && !allowed.includes(event.key)) {
+    event.preventDefault();
+  }
+}
 // 컴포넌트 마운트 시 사용자 정보 조회
 onMounted(async () => {
+  // modal..
+  const modalEl = document.getElementById("alertModal");
+  if (modalEl) {
+    alertModal = new bootstrap.Modal(modalEl);
+  }
   try {
     // 로그인 시 localStorage에 저장된 사용자 ID 가져오기
-    const id = localStorage.getItem('id'); // or 로그인 시 저장된 값
-    console.log('localStorage loginId:', id); // user 로그인 정보를 저장하고 있는지 확인용
-
+    const id = localStorage.getItem("id"); // or 로그인 시 저장된 값
+    console.log("localStorage loginId:", id); // user 로그인 정보를 저장하고 있는지 확인용
 
     if (!id) {
-      alert('로그인 정보가 없습니다. 로그인 후 이용해주세요.');
-      router.push('/login');
+      showAlertModal("로그인 정보가 없습니다. 로그인 후 이용해주세요.");
+      router.push("/login");
       return;
     }
 
@@ -49,19 +136,20 @@ onMounted(async () => {
 
     if (res && res.data) {
       // 조회된 사용자 정보로 폼 초기화
-      Object.assign(state.form, res.data.resultData);// 정보 채우기
-    } if (res.data.resultData.phone) {
+      Object.assign(state.form, res.data.resultData); // 정보 채우기
+    }
+    if (res.data.resultData.phone) {
       // 전화번호 분해해서 phone1/phone2/phone3에 넣어주는 부분
-        const phoneParts = res.data.resultData.phone.split('-');
-        phone1.value = phoneParts[0] || '';
-        phone2.value = phoneParts[1] || '';
-        phone3.value = phoneParts[2] || '';
-      } else {
-      alert('사용자 정보를 불러오는데 실패했습니다.');
+      const phoneParts = res.data.resultData.phone.split("-");
+      phone1.value = phoneParts[0] || "";
+      phone2.value = phoneParts[1] || "";
+      phone3.value = phoneParts[2] || "";
+    } else {
+      showAlertModal("사용자 정보를 불러오는데 실패했습니다.");
     }
   } catch (err) {
-    console.error('사용자 정보 로딩 실패:', err);
-    alert('사용자 정보 로딩 중 오류가 발생했습니다.');
+    console.error("사용자 정보 로딩 실패:", err);
+    showAlertModal("사용자 정보 로딩 중 오류가 발생했습니다.");
   }
 });
 
@@ -69,29 +157,67 @@ onMounted(async () => {
 const submitForm = async (e) => {
   e.preventDefault();
 
+  if (!validateForm()) return; // 유효성 검사 추가
+
   try {
     // 수정 요청 전 폼 유효성 체크 등 필요시 추가
-    const id = localStorage.getItem('id');
+    const id = localStorage.getItem("id");
 
     if (!id) {
-      alert('로그인 정보가 없습니다.');
-      router.push('/login');
+      showAlertModal("로그인 정보가 없습니다.");
+      router.push("/login");
       return;
     }
 
     // API 호출: 사용자 정보 수정
     const res = await update(id, state.form);
     if (res.status === 200) {
-      alert('정보가 성공적으로 수정되었습니다.');
-      router.push('/mypage');
+      showAlertModal("정보가 성공적으로 수정되었습니다.");
+      router.push("/mypage");
     } else {
-      alert('정보 수정에 실패했습니다.');
+      showAlertModal("정보 수정에 실패했습니다.");
     }
   } catch (err) {
-    console.error('정보 수정 실패:', err);
-    alert('정보 수정 중 오류가 발생했습니다.');
+    console.error("정보 수정 실패:", err);
+    showAlertModal("정보 수정 중 오류가 발생했습니다.");
   }
 };
+// 새비밀번호 입력창 아래에 비밀번호 조건 안내 문구
+watch(phone2, (val) => {
+  if (val.length === 4) {
+    nextTick(() => phone3Input.value?.focus());
+  }
+});
+// 에러 지우기 (email, phone 등 key값 전달)
+function clearError(key) {
+  errors[key] = "";
+}
+
+// 전화번호 입력 시 에러 초기화 + 숫자만 필터 + 자동 이동
+function handlePhoneInput(modelRef, key) {
+  let val = modelRef.value.replace(/\D/g, "");
+  if (val.length > 4) val = val.slice(0, 4);
+  modelRef.value = val;
+  errors[key] = ""; // 에러 제거
+
+  if (key === "phone" && modelRef === phone2 && val.length === 4) {
+    nextTick(() => phone3Input.value?.focus());
+  }
+}
+// 모달
+function showAlertModal(message) {
+  if (!alertModal) {
+    console.error("alertModal 인스턴스가 없습니다.");
+    return;
+  }
+  const modalBody = document.querySelector("#alertModal .modal-body");
+  if (!modalBody) {
+    console.error("#alertModal .modal-body 요소를 찾을 수 없습니다.");
+    return;
+  }
+  modalBody.textContent = message; // 메시지 표시
+  alertModal.show(); // 모달 띄우기
+}
 </script>
 
 <template>
@@ -103,29 +229,55 @@ const submitForm = async (e) => {
       <div class="container">
         <form class="information-form" @submit="submitForm">
           <div class="form-group">
-
             <!-- 아이디 비활성화 -->
+            <span>*</span>
             <label> 아이디</label>
-            <input type="text" class="form-input" :value="state.form.loginId" placeholder="" readonly />
+            <input
+              type="text"
+              class="form-input"
+              :value="state.form.loginId"
+              placeholder=""
+              readonly
+            />
+          </div>
+          <div class="sevLine"></div>
+
+          <!-- 현재 비밀번호 -->
+          <div class="form-group">
+            <span>*</span>
+            <label>현재 비밀번호</label>
+            <input
+              type="password"
+              class="form-input"
+              v-model="state.form.loginPw"
+              placeholder="현재 비밀번호를 입력해주세요."
+              :class="{ error: errors.loginPw }"
+            />
+            <button class="password">비밀번호 확인</button>
+            <p v-if="errors.loginPw" class="error-msg">{{ errors.loginPw }}</p>
           </div>
           <div class="sevLine"></div>
 
           <!-- 새 비밀번호 -->
           <div class="form-group">
+            <span>*</span>
             <label>새 비밀번호</label>
-            <input type="password" class="form-input" v-model="state.form.loginPw" placeholder="현재 비밀번호를 입력해주세요." />
-          </div>
-          <div class="sevLine"></div>
-
-          <!-- 새 비밀번호 -->
-          <div class="form-group">
-            <label>새 비밀번호 확인</label>
-            <input type="password" class="form-input" v-model="confirmPw" placeholder="현재 비밀번호를 입력해주세요." />
+            <input
+              type="password"
+              class="form-input"
+              v-model="confirmPw"
+              placeholder="새로운 비밀번호를 입력해주세요."
+              :class="{ error: errors.confirmPw }"
+            />
+            <p v-if="errors.confirmPw" class="error-msg">
+              {{ errors.confirmPw }}
+            </p>
           </div>
           <div class="sevLine"></div>
 
           <!-- 일반 회원 -->
           <div class="form-group">
+            <span>*</span>
             <label> 이름</label>
             <input type="text" class="form-input" v-model="state.form.name" />
           </div>
@@ -133,71 +285,44 @@ const submitForm = async (e) => {
 
           <!-- 주소 -->
           <div class="form-group address-group">
-            <label> 주소</label>
+            <label> <span class="font-add">* </span> 주소 </label>
             <div class="address-fields">
-
               <!-- 우편번호 + 주소검색 버튼 -->
               <div class="address-row">
-                <input type="text" placeholder="우편번호" v-model="state.form.postcode" />
-                <button type="button"> 주소검색</button>
+                <input
+                  type="text"
+                  placeholder="우편번호"
+                  v-model="state.form.postcode"
+                  readonly
+                />
+                <button type="button" disabled>주소검색</button>
               </div>
 
               <!-- 기본주소 단독 줄 -->
               <div class="address-input-row">
-                <input type="text" placeholder="기본주소" v-model="state.form.address" />
+                <input
+                  type="text"
+                  placeholder="기본주소"
+                  v-model="state.form.address"
+                  readonly
+                />
               </div>
 
               <!-- 상세주소 단독 줄 -->
               <div class="address-input-row">
-                <input type="text" placeholder="상세주소 (선택입력가능)" v-model="state.form.addressDetail" />
+                <input
+                  type="text"
+                  placeholder="상세주소 (선택입력가능)"
+                  v-model="state.form.addressDetail"
+                />
               </div>
-            </div>
-          </div>
-          <div class="sevLine"></div>
-
-          <!-- 일반번호 -->
-          <div class="form-group phone-input-wrap">
-            <label> 일반번호</label>
-            <div class="phone-input">
-              <select>
-                <option>02</option>
-                <option>031</option>
-                <option>032</option>
-                <option>033</option>
-                <option>041</option>
-                <option>042</option>
-                <option>043</option>
-                <option>051</option>
-                <option>052</option>
-                <option>053</option>
-                <option>054</option>
-                <option>055</option>
-                <option>061</option>
-                <option>063</option>
-                <option>064</option>
-                <option>0502</option>
-                <option>0503</option>
-                <option>0504</option>
-                <option>0505</option>
-                <option>0506</option>
-                <option>0507</option>
-                <option>0508</option>
-                <option>070</option>
-                <option>010</option>
-                <option>016</option>
-                <option>017</option>
-                <option>018</option>
-                <option>019</option>
-              </select>
-              <input type="text" />
-              <input type="text" />
             </div>
           </div>
           <div class="sevLine"></div>
 
           <!-- 휴대전화 -->
           <div class="form-group phone-input-wrap">
-            <label> 휴대전화</label>
+            <label> <span class="font-num">*</span> 휴대전화 </label>
             <div class="phone-input">
               <select v-model="phone1">
                 <option>010</option>
@@ -206,18 +331,43 @@ const submitForm = async (e) => {
                 <option>018</option>
                 <option>019</option>
               </select>
-              <input type="text" v-model="phone2" />
-              <input type="text" v-model="phone3" />
+              <input
+                type="text"
+                v-model="phone2"
+                maxlength="4"
+                @input="handlePhoneInput(phone2, 'phone')"
+                @keydown="onPhoneKeydown($event)"
+                :class="{ error: errors.phone }"
+                ref="phone2Input"
+              />
+              <input
+                type="text"
+                v-model="phone3"
+                maxlength="4"
+                @input="handlePhoneInput(phone3, 'phone')"
+                @keydown="onPhoneKeydown($event)"
+                :class="{ error: errors.phone }"
+                ref="phone3Input"
+              />
             </div>
+            <p v-if="errors.phone" class="error-msg">{{ errors.phone }}</p>
           </div>
           <div class="sevLine"></div>
 
           <!-- 이메일 -->
           <div class="form-group">
+            <span>*</span>
             <label> 이메일</label>
-            <input type="email" class="form-input" placeholder="반드시 사용 중인 메일을 @ 형식으로 입력하세요."
-              v-model="state.form.email" />
+            <input
+              type="email"
+              class="form-input"
+              v-model="state.form.email"
+              placeholder="반드시 사용 중인 메일을 @ 형식으로 입력하세요."
+              @input="clearError('email')"
+              :class="{ error: errors.email }"
+            />
           </div>
+          <p v-if="errors.email" class="error-msg">{{ errors.email }}</p>
           <div class="sevLine"></div>
 
           <!-- 제출 버튼 -->
@@ -228,28 +378,60 @@ const submitForm = async (e) => {
       </div>
     </div>
   </div>
+  <!-- 공통 알림 모달 -->
+  <div
+    class="modal fade"
+    id="alertModal"
+    tabindex="-1"
+    role="dialog"
+    aria-hidden="true"
+  >
+    <div class="modal-dialog modal-dialog-centered" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">알림</h5>
+        </div>
+        <div class="modal-body" id="alertModalBody">내용</div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-primary" data-bs-dismiss="modal">
+            확인
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
 </template>
 
 <style lang="scss" scoped>
-@font-face { // 주아체
-  font-family: 'BMJUA';
-  src: url('https://fastly.jsdelivr.net/gh/projectnoonnu/noonfonts_one@1.0/BMJUA.woff') format('woff');
+@font-face {
+  // 주아체
+  font-family: "BMJUA";
+  src: url("https://fastly.jsdelivr.net/gh/projectnoonnu/noonfonts_one@1.0/BMJUA.woff")
+    format("woff");
   font-weight: normal;
   font-style: normal;
 }
-@font-face { // 프리텐다드
-  font-family: 'Pretendard-Regular';
-  src: url('https://fastly.jsdelivr.net/gh/Project-Noonnu/noonfonts_2107@1.1/Pretendard-Regular.woff') format('woff');
+@font-face {
+  // 프리텐다드
+  font-family: "Pretendard-Regular";
+  src: url("https://fastly.jsdelivr.net/gh/Project-Noonnu/noonfonts_2107@1.1/Pretendard-Regular.woff")
+    format("woff");
   font-weight: 400;
   font-style: normal;
 }
+span {
+  color: #ff6666;
+  margin-left: 40px;
+}
 
-.box { // 주소 검색 박스
-  font-family: 'BMJUA';
+.box {
+  // 주소 검색 박스
+  font-family: "BMJUA";
   font-size: 25px;
   letter-spacing: -1.5px;
 
-  .solid { // 정보 수정 메인 선
+  .solid {
+    // 정보 수정 메인 선
     width: 1110px;
     border: 1px #000 solid;
     margin-top: 15px;
@@ -264,7 +446,7 @@ const submitForm = async (e) => {
 }
 
 .container {
-  font-family: 'Pretendard-Regular';
+  font-family: "Pretendard-Regular";
   font-size: 16px;
   display: inline;
 
@@ -272,7 +454,6 @@ const submitForm = async (e) => {
     display: flex;
     flex-direction: column;
   }
-
 }
 
 // form 전체 정렬 정비
@@ -284,9 +465,9 @@ const submitForm = async (e) => {
 }
 
 // 입력창 공통 스타일 (아이디, 비번, 이메일 등)
-input[type='text'],
-input[type='password'],
-input[type='email'] {
+input[type="text"],
+input[type="password"],
+input[type="email"] {
   height: 45px;
   padding: 0 1rem;
   font-size: 16px;
@@ -300,6 +481,10 @@ input[type='email'] {
   align-items: center; // 수직 가운데 정렬
   gap: 1.5rem; // label과 input 간 간격
   margin-bottom: 15px;
+  //에러메세지
+  input.error {
+    background-color: #ffe5e5 !important;
+  }
 
   label {
     width: 150px; // ← 고정 너비로 정렬 맞추기
@@ -307,7 +492,7 @@ input[type='email'] {
     margin-left: 50px;
   }
 
-  // 입력창 공통 사이즈 (아이디, 비번, 이메일 ) 
+  // 입력창 공통 사이즈 (아이디, 비번, 이메일 )
   .form-input {
     width: 459px;
   }
@@ -318,9 +503,25 @@ input[type='email'] {
     flex: 1;
     width: 170px;
   }
+  button.password {
+    width: 120px;
+    height: 50px;
+    margin-left: 10px;
+    background-color: #fff;
+    border: 1px solid #ff6666;
+    border-radius: 8px;
+    color: #ff6666;
+    cursor: pointer;
+
+    &:hover {
+      background-color: #ffe5e5;
+    }
+  }
 }
 
-.form-group:not(.address-group):not(.phone-input-wrap):not(.agreement):not(:has(.radio-group)) {
+.form-group:not(.address-group):not(.phone-input-wrap):not(.agreement):not(
+    :has(.radio-group)
+  ) {
   display: block;
   margin-top: 1rem;
 
@@ -340,9 +541,13 @@ input[type='email'] {
     font-size: 1rem;
     border: 1px solid #c8c8c8;
     border-radius: 8px;
-    margin-left: 20px;// 중앙정렬
+    margin-left: 20px; // 중앙정렬
     vertical-align: middle;
   }
+}
+.font-add {
+  margin-left: -10px;
+  margin-right: 47px;
 }
 
 // 주소 입력 영역 정렬 (주소, 상세주소)
@@ -355,7 +560,7 @@ input[type='email'] {
   label {
     width: 150px;
     font-size: 16px;
-    padding-top: 12px; // 위에 살짝 띄워 정렬
+    padding-top: 23px; // 위에 살짝 띄워 정렬
   }
 
   // 오른쪽 전체 주소 input 그룹
@@ -363,14 +568,15 @@ input[type='email'] {
     display: flex;
     flex-direction: column;
     gap: 0.8rem;
+    margin-left: 50px;
 
     // 1줄: 우편번호 + 주소검색
     .address-row {
       display: flex;
       gap: 0.5rem;
-      margin-left: 80px;// 중앙정렬
+      margin-left: 80px; // 중앙정렬
 
-      input[type='text'] {
+      input[type="text"] {
         margin-top: 1rem;
         width: 390px;
         height: 45px;
@@ -391,15 +597,15 @@ input[type='email'] {
         font-weight: bold;
         cursor: pointer;
 
-        &:hover {
-          background-color: #ffe5e5;
-        }
+        //   &:hover {
+        //     background-color: #ffe5e5;
+        //   }
       }
     }
 
     // 2~3줄: 기본주소 / 상세주소
-    .address-input-row input[type='text'] {
-      margin-left: 80px;// 중앙정렬
+    .address-input-row input[type="text"] {
+      margin-left: 80px; // 중앙정렬
       width: 495px;
       height: 45px;
       padding: 0 1rem;
@@ -409,15 +615,19 @@ input[type='email'] {
     }
   }
 }
-
+.font-num {
+  margin-left: -10px;
+  margin-right: 47px;
+}
 // 전화번호 입력 박스 정렬
 .phone-input-wrap {
   .phone-input {
-    margin-left: 80px;// 중앙정렬
+    margin-left: 80px; // 중앙정렬
     display: inline-flex;
     max-width: 495px;
     gap: 10px;
     align-items: center;
+    margin-left: 130px;
 
     select {
       margin-top: 1rem;
@@ -433,7 +643,6 @@ input[type='email'] {
     }
   }
 }
-
 
 // 수정 버튼 css
 .form-submit {
@@ -458,5 +667,23 @@ input[type='email'] {
       background-color: #ffe5e5;
     }
   }
+}
+// 아이디 비활성화
+input[readonly] {
+  background-color: #f5f5f5;
+  cursor: default; // 마우스 커서 변경
+  border: 1px solid #ccc; // 기본 테두리 유지
+  color: #7d7d7d;
+  pointer-events: none;
+}
+// 에러메세지
+.error-msg {
+  margin-left: 355px;
+  margin-top: 10px;
+  margin-bottom: -7px;
+  color: #ff6666;
+  font-size: 15px;
+  font-weight: 600;
+  transition: color 0.3s ease;
 }
 </style>
