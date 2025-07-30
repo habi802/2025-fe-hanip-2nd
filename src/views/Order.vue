@@ -45,11 +45,11 @@ onMounted(async () => {
     // 
     // 주소창에 입력해서 강제로 들어가는 것을 방지하기 위함
     if (!account.state.loggedIn) {
-        alert('로그인 후 주문이 가능합니다.');
+        showModal("로그인 후 주문이 가능합니다");
         router.push({ path: '/' });
         return;
     } else if (cart.state.items < 1 && items.length < 1) {
-        alert('메뉴를 선택해주세요.');
+        showModal("메뉴를 선택해주세요");
         router.back();
         return;
     }
@@ -57,11 +57,11 @@ onMounted(async () => {
     const res = await getUser();
 
     if (res === undefined) {
-        alert('조회 실패');
+        showModal("조회 실패");
         router.push({ path: '/' });
         return;
     } else if (res.data.resultStatus === 401) {
-        alert(res.data.resultMessage);
+        showModal(res.data.resultMessage);
         router.push({ path: '/' });
         return;
     }
@@ -92,7 +92,7 @@ const decreaseQuantity = async idx => {
         const res = await updateQuantity(params);
 
         if (res === undefined || res.data.resultStatus !== 200) {
-            alert(res.data.resultMessage);
+            showModal(res.data.resultMessage);
             return;
         }
 
@@ -112,7 +112,7 @@ const increaseQuantity = async idx => {
     const res = await updateQuantity(params);
 
     if (res === undefined || res.data.resultStatus !== 200) {
-        alert(res.data.resultMessage);
+        showModal(res.data.resultMessage);
         return;
     }
 
@@ -124,7 +124,7 @@ const deleteItem = async cartId => {
     const res = await removeItem(cartId);
 
     if (res === undefined || res.data.resultStatus !== 200) {
-        alert('삭제 실패');
+        showModal("삭제 실패");
         return;
     }
 
@@ -136,7 +136,7 @@ const deleteItem = async cartId => {
         }
 
         if (state.carts < 1) {
-            alert('메뉴가 전부 삭제되었습니다.');
+            showModal("메뉴가 전부 삭제되었습니다");
             router.back();
         }
     }
@@ -146,23 +146,24 @@ const calculateTotal = () => {
     totalPrice.value = 0;
 
     state.carts.forEach(item => {
-      const price = item.price * item.quantity;
+        const price = item.price * item.quantity;
         totalPrice.value += price;
     });
 };
 
 const submit = async () => {
     if (state.form.address.trim().length === 0) {
-        alert('주소를 입력해주세요.');
+        showModal("주소를 입력해주세요");
         return;
     } else if (state.form.addressDetail.trim().length === 0) {
-        alert('상세 주소를 입력해주세요.');
+        showModal("상세 주소를 입력해주세요");
+
         return;
     } else if (phone2.value.trim().length === 0 || phone3.value.trim().length === 0) {
-        alert('전화번호를 입력해주세요.');
+        showModal("전화번호를 입력해주세요");
         return;
     } else if (!state.form.agree) {
-        alert('결제 약관에 동의해주세요.');
+        showModal("결제 약관에 동의해주세요");
         return;
     }
 
@@ -170,11 +171,11 @@ const submit = async () => {
         menuId: item.menuId,
         quantity: item.quantity
     }));
-    
+
     const res = await addOrder(state.form);
 
     if (res === undefined || res.status !== 200) {
-        alert('등록 실패');
+        showModal("등록 실패");
         return;
     }
 
@@ -188,6 +189,16 @@ const submit = async () => {
     cart.clearCart()
     await router.push({ path: `/stores/${route.params.id}/order/success` });
 };
+
+// 모달창 함수
+const showModal = (message) => {
+    const modalBody = document.getElementById("alertModalBody");
+    if (modalBody) modalBody.textContent = message;
+    const modal = new bootstrap.Modal(document.getElementById("alertModal"));
+    modal.show();
+};
+// 모달 버튼 색상 변경
+
 </script>
 
 <template>
@@ -211,14 +222,16 @@ const submit = async () => {
         <div class="container">
             <form class="row" @submit.prevent="submit">
                 <div class="col-12 col-md-8">
-                    <h4 class="mb-3">배달 정보</h4>
-                    <div class="row mb-2">
+                    <h4 class="mb-5">배달 정보</h4>
+                    <div class="row mb-4">
                         <div class="col-12 col-md-3">
                             <label for="address" class="col-form-label">주소</label>
                         </div>
                         <div class="col-12 col-md-9">
-                            <input id="address" type="text" class="form-control mb-2" placeholder="주소 입력" v-model="state.form.address">
-                            <input id="address-detail" type="text" class="form-control" placeholder="상세주소 입력 (필수)" v-model="state.form.addressDetail">
+                            <input id="address" type="text" class="form-control mb-4" placeholder="주소 입력"
+                                v-model="state.form.address">
+                            <input id="address-detail" type="text" class="form-control" placeholder="상세주소 입력 (필수)"
+                                v-model="state.form.addressDetail">
                         </div>
                     </div>
                     <div class="row mb-2">
@@ -245,12 +258,13 @@ const submit = async () => {
                             </div>
                         </div>
                     </div>
-                    <div class="row mb-2">
+                    <div id="request" class="row mb-4">
                         <div class="col-12">
                             <label for="store-request" class="col-form-label">주문 시 요청사항 (가게)</label>
                         </div>
                         <div class="col-12">
-                            <input id="store-request" type="text" class="form-control" placeholder="가게 요청사항 입력" v-model="state.form.storeRequest">
+                            <input id="store-request" type="text" class="form-control" placeholder="가게 요청사항 입력"
+                                v-model="state.form.storeRequest">
                         </div>
                     </div>
                     <div class="row mb-2">
@@ -258,7 +272,8 @@ const submit = async () => {
                             <label for="rider-request" class="col-form-label">주문 시 요청사항 (라이더)</label>
                         </div>
                         <div class="col-12">
-                            <input id="rider-request" type="text" class="form-control" placeholder="라이더 요청사항 입력" v-model="state.form.riderRequest">
+                            <input id="rider-request" type="text" class="form-control" placeholder="라이더 요청사항 입력"
+                                v-model="state.form.riderRequest">
                         </div>
                     </div>
                     <div class="row mb-2">
@@ -267,33 +282,36 @@ const submit = async () => {
                         </div>
                         <div class="col-12">
                             <div class="form-check">
-                                <input id="card" class="form-check-input" type="radio" value="CARD" v-model="state.form.payment">
+                                <input id="card" class="form-check-input" type="radio" value="CARD"
+                                    v-model="state.form.payment">
                                 <label class="form-check-label" for="card">카드 결제</label>
                             </div>
                         </div>
                         <div class="col-12">
                             <div class="form-check">
-                                <input id="bank" class="form-check-input" type="radio" value="BANK" v-model="state.form.payment">
+                                <input id="bank" class="form-check-input" type="radio" value="BANK"
+                                    v-model="state.form.payment">
                                 <label class="form-check-label" for="bank">무통장 입금</label>
                             </div>
                         </div>
                         <div class="col-12">
                             <div class="form-check">
-                                <input id="on-site" class="form-check-input" type="radio" value="ON_SITE" v-model="state.form.payment">
+                                <input id="on-site" class="form-check-input" type="radio" value="ON_SITE"
+                                    v-model="state.form.payment">
                                 <label class="form-check-label" for="on-site">현장 결제(포장)</label>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <div class="col-12 col-md-4 d-flex flex-column p-3">
-                    <div class="row border rounded p-4 mb-2">
+                <div class="col-12 col-md-4 d-flex flex-column p-4">
+                    <div id="sheet" class="row border rounded p-4 mb-2">
                         <div class="d-flex justify-content-between border-bottom pb-2 mb-2">
                             <span>주문표</span>
                         </div>
                         <div v-if="state.carts.length > 0">
                             <div v-for="(item, idx) in state.carts" :key="item.id">
-                                <div class="p-2" :class="{'border-top': idx !== 0}">
+                                <div class="p-2" :class="{ 'border-top': idx !== 0 }">
                                     <div class="d-flex justify-content-between mb-2">
                                         <span>{{ item.name }}</span>
                                         <span>{{ (item.price * item.quantity).toLocaleString() }}원</span>
@@ -303,12 +321,15 @@ const submit = async () => {
                                             <span>　</span>
                                         </div>
                                         <div>
-                                            <button type="button" class="btn btn-basic btn-quantity" @click="decreaseQuantity(idx)">-</button>
+                                            <button type="button" class="btn btn-basic btn-quantity"
+                                                @click="decreaseQuantity(idx)">-</button>
                                             <span class="p-3">{{ item.quantity }}</span>
-                                            <button type="button" class="btn btn-basic btn-quantity" @click="increaseQuantity(idx)">+</button>
+                                            <button type="button" class="btn btn-basic btn-quantity"
+                                                @click="increaseQuantity(idx)">+</button>
                                         </div>
                                         <div>
-                                            <button type="button" class="btn btn-basic btn-submit" @click="deleteItem(item.id)">X</button>
+                                            <button type="button" class="btn btn-basic btn-submit"
+                                                @click="deleteItem(item.id)">X</button>
                                         </div>
                                     </div>
                                 </div>
@@ -334,34 +355,69 @@ const submit = async () => {
             </form>
         </div>
     </div>
+    <div class="last"></div>
+    <!-- 공통 알림 모달 -->
+    <div class="modal fade" id="alertModal" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">알림</h5>
+                </div>
+                <div class="modal-body" id="alertModalBody">내용</div>
+                <div class="modal-footer">
+                    <button type="button" class="btn " data-bs-dismiss="modal">
+                        확인
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
 </template>
 
 <style lang="scss" scoped>
+@font-face {
+    // 프리텐다드
+    font-family: 'Pretendard-Regular';
+    src: url('https://fastly.jsdelivr.net/gh/Project-Noonnu/noonfonts_2107@1.1/Pretendard-Regular.woff') format('woff');
+    font-weight: 400;
+    font-style: normal;
+}
+
+* {
+    font-family: 'Pretendard-Regular';
+    font-weight: 800;
+}
+
 .cart-empty-wrapper {
     max-width: 1024px;
     margin: 50px auto;
     padding: 20px;
 }
+
 .top-row {
     display: flex;
     justify-content: space-between;
     column-gap: 100px;
     margin-bottom: 60px;
 }
+
 .header-row {
     display: flex;
     align-items: center;
 }
+
 .back-icon {
     width: 24px;
     height: 24px;
     margin-right: 10px;
 }
+
 .div29 {
     font-size: 24px;
     font-weight: bold;
     white-space: nowrap;
 }
+
 .step-horizontal {
     display: flex;
     align-items: center;
@@ -371,19 +427,24 @@ const submit = async () => {
     padding-left: 200px;
     white-space: nowrap;
 }
+
 .arrow img {
     width: 12px;
     height: auto;
 }
+
 .step-text.current {
     font-size: 18px;
-    font-weight:bold;
+    font-weight: bold;
     color: #FF6666;
 }
+
 .arrow {
     font-size: 16px;
 }
-input, select {
+
+input,
+select {
     height: 50px;
     padding: 0.5rem;
     font-size: 1rem;
@@ -391,10 +452,12 @@ input, select {
     border-radius: 8px;
     vertical-align: middle;
 }
+
 .form-control:focus {
     box-shadow: none;
     border: 2px solid #000;
 }
+
 input[type="radio"] {
     appearance: none;
     -webkit-appearance: none;
@@ -408,10 +471,12 @@ input[type="radio"] {
     margin-right: 8px;
     background-color: white;
 }
+
 input[type="radio"]:checked {
     background-color: #fff;
     border-color: #ff6666;
 }
+
 input[type="radio"]:checked::after {
     content: "";
     content: "";
@@ -424,6 +489,7 @@ input[type="radio"]:checked::after {
     border-radius: 50%;
     transform: translate(-50%, -50%);
 }
+
 input[type="checkbox"] {
     appearance: none;
     -webkit-appearance: none;
@@ -449,6 +515,7 @@ input[type="checkbox"] {
         top: 0.5px;
     }
 }
+
 .btn-basic {
     background-color: white;
     border-width: 1px;
@@ -461,7 +528,7 @@ input[type="checkbox"] {
         border-color: #ff6666;
         color: #ff6666;
     }
-    
+
     &.btn-quantity {
         border-color: #000;
         color: #000;
@@ -470,5 +537,13 @@ input[type="checkbox"] {
     &:hover {
         background-color: #ffe5e5;
     }
+}
+
+#request {
+    margin-top: 30px;
+}
+
+#sheet {
+    margin-top: -25px;
 }
 </style>
