@@ -126,7 +126,7 @@ onMounted(async () => {
     console.log("localStorage loginId:", id); // user 로그인 정보를 저장하고 있는지 확인용
 
     if (!id) {
-      showAlertModal("로그인 정보가 없습니다. 로그인 후 이용해주세요.");
+      showModal("로그인 정보가 없습니다. 로그인 후 이용해주세요.");
       router.push("/login");
       return;
     }
@@ -145,11 +145,11 @@ onMounted(async () => {
       phone2.value = phoneParts[1] || "";
       phone3.value = phoneParts[2] || "";
     } else {
-      showAlertModal("사용자 정보를 불러오는데 실패했습니다.");
+      showModal("사용자 정보를 불러오는데 실패했습니다.");
     }
   } catch (err) {
     console.error("사용자 정보 로딩 실패:", err);
-    showAlertModal("사용자 정보 로딩 중 오류가 발생했습니다.");
+    showModal("사용자 정보 로딩 중 오류가 발생했습니다.");
   }
 });
 
@@ -164,7 +164,7 @@ const submitForm = async (e) => {
     const id = localStorage.getItem("id");
 
     if (!id) {
-      showAlertModal("로그인 정보가 없습니다.");
+      showModal("로그인 정보가 없습니다.");
       router.push("/login");
       return;
     }
@@ -172,14 +172,14 @@ const submitForm = async (e) => {
     // API 호출: 사용자 정보 수정
     const res = await update(id, state.form);
     if (res.status === 200) {
-      showAlertModal("정보가 성공적으로 수정되었습니다.");
+      showModal("정보가 성공적으로 수정되었습니다.");
       router.push("/mypage");
     } else {
-      showAlertModal("정보 수정에 실패했습니다.");
+      showModal("정보 수정에 실패했습니다.");
     }
   } catch (err) {
     console.error("정보 수정 실패:", err);
-    showAlertModal("정보 수정 중 오류가 발생했습니다.");
+    showModal("정보 수정 중 오류가 발생했습니다.");
   }
 };
 // 새비밀번호 입력창 아래에 비밀번호 조건 안내 문구
@@ -204,20 +204,25 @@ function handlePhoneInput(modelRef, key) {
     nextTick(() => phone3Input.value?.focus());
   }
 }
-// 모달
-function showAlertModal(message) {
-  if (!alertModal) {
-    console.error("alertModal 인스턴스가 없습니다.");
-    return;
+
+// 모달창
+const showModal = (message) => {
+  const modalBody = document.getElementById("alertModalBody");
+  if (modalBody) modalBody.textContent = message;
+
+  if (alertModal) {
+    alertModal.show();
   }
-  const modalBody = document.querySelector("#alertModal .modal-body");
-  if (!modalBody) {
-    console.error("#alertModal .modal-body 요소를 찾을 수 없습니다.");
-    return;
+
+  const modalButton = document.querySelector(".modal-footer .btn");
+  if (modalButton) {
+    modalButton.style.backgroundColor = "#FF6666";
+    modalButton.style.color = "#fff";
   }
-  modalBody.textContent = message; // 메시지 표시
-  alertModal.show(); // 모달 띄우기
-}
+};
+
+
+
 </script>
 
 <template>
@@ -227,18 +232,12 @@ function showAlertModal(message) {
       <div class="solid"></div>
 
       <div class="container">
-        <form class="information-form" @submit="submitForm">
+        <form class="information-form" @submit.prevent="submitForm">
           <div class="form-group">
             <!-- 아이디 비활성화 -->
             <span>*</span>
             <label> 아이디</label>
-            <input
-              type="text"
-              class="form-input"
-              :value="state.form.loginId"
-              placeholder=""
-              readonly
-            />
+            <input type="text" class="form-input" :value="state.form.loginId" placeholder="" readonly />
           </div>
           <div class="sevLine"></div>
 
@@ -246,13 +245,8 @@ function showAlertModal(message) {
           <div class="form-group">
             <span>*</span>
             <label>현재 비밀번호</label>
-            <input
-              type="password"
-              class="form-input"
-              v-model="state.form.loginPw"
-              placeholder="현재 비밀번호를 입력해주세요."
-              :class="{ error: errors.loginPw }"
-            />
+            <input type="password" class="form-input" v-model="state.form.loginPw" placeholder="현재 비밀번호를 입력해주세요."
+              :class="{ error: errors.loginPw }" />
             <button class="password">비밀번호 확인</button>
             <p v-if="errors.loginPw" class="error-msg">{{ errors.loginPw }}</p>
           </div>
@@ -262,13 +256,8 @@ function showAlertModal(message) {
           <div class="form-group">
             <span>*</span>
             <label>새 비밀번호</label>
-            <input
-              type="password"
-              class="form-input"
-              v-model="confirmPw"
-              placeholder="새로운 비밀번호를 입력해주세요."
-              :class="{ error: errors.confirmPw }"
-            />
+            <input type="password" class="form-input" v-model="confirmPw" placeholder="비밀번호는 영문, 숫자, 특수문자 포함 8~16자"
+              :class="{ error: errors.confirmPw }" />
             <p v-if="errors.confirmPw" class="error-msg">
               {{ errors.confirmPw }}
             </p>
@@ -289,32 +278,18 @@ function showAlertModal(message) {
             <div class="address-fields">
               <!-- 우편번호 + 주소검색 버튼 -->
               <div class="address-row">
-                <input
-                  type="text"
-                  placeholder="우편번호"
-                  v-model="state.form.postcode"
-                  readonly
-                />
+                <input type="text" placeholder="우편번호" v-model="state.form.postcode" readonly />
                 <button type="button" disabled>주소검색</button>
               </div>
 
               <!-- 기본주소 단독 줄 -->
               <div class="address-input-row">
-                <input
-                  type="text"
-                  placeholder="기본주소"
-                  v-model="state.form.address"
-                  readonly
-                />
+                <input type="text" placeholder="기본주소" v-model="state.form.address" readonly />
               </div>
 
               <!-- 상세주소 단독 줄 -->
               <div class="address-input-row">
-                <input
-                  type="text"
-                  placeholder="상세주소 (선택입력가능)"
-                  v-model="state.form.addressDetail"
-                />
+                <input type="text" placeholder="상세주소 (선택입력가능)" v-model="state.form.addressDetail" />
               </div>
             </div>
           </div>
@@ -331,41 +306,24 @@ function showAlertModal(message) {
                 <option>018</option>
                 <option>019</option>
               </select>
-              <input
-                type="text"
-                v-model="phone2"
-                maxlength="4"
-                @input="handlePhoneInput(phone2, 'phone')"
-                @keydown="onPhoneKeydown($event)"
-                :class="{ error: errors.phone }"
-                ref="phone2Input"
-              />
-              <input
-                type="text"
-                v-model="phone3"
-                maxlength="4"
-                @input="handlePhoneInput(phone3, 'phone')"
-                @keydown="onPhoneKeydown($event)"
-                :class="{ error: errors.phone }"
-                ref="phone3Input"
-              />
+              <input type="text" v-model="phone2" maxlength="4" @input="handlePhoneInput(phone2, 'phone')"
+                @keydown="onPhoneKeydown($event)" :class="{ error: errors.phone }" ref="phone2Input" />
+              <input type="text" v-model="phone3" maxlength="4" @input="handlePhoneInput(phone3, 'phone')"
+                @keydown="onPhoneKeydown($event)" :class="{ error: errors.phone }" ref="phone3Input" />
             </div>
-            <p v-if="errors.phone" class="error-msg">{{ errors.phone }}</p>
+            <div class="phone-error-wrapper" v-if="errors.phone">
+              <p class="error-msg">{{ errors.phone }}</p>
+            </div>
           </div>
           <div class="sevLine"></div>
+
 
           <!-- 이메일 -->
           <div class="form-group">
             <span>*</span>
             <label> 이메일</label>
-            <input
-              type="email"
-              class="form-input"
-              v-model="state.form.email"
-              placeholder="반드시 사용 중인 메일을 @ 형식으로 입력하세요."
-              @input="clearError('email')"
-              :class="{ error: errors.email }"
-            />
+            <input type="email" class="form-input" v-model="state.form.email" placeholder="반드시 사용 중인 메일을 @ 형식으로 입력하세요."
+              @input="clearError('email')" :class="{ error: errors.email }" />
           </div>
           <p v-if="errors.email" class="error-msg">{{ errors.email }}</p>
           <div class="sevLine"></div>
@@ -379,13 +337,7 @@ function showAlertModal(message) {
     </div>
   </div>
   <!-- 공통 알림 모달 -->
-  <div
-    class="modal fade"
-    id="alertModal"
-    tabindex="-1"
-    role="dialog"
-    aria-hidden="true"
-  >
+  <div class="modal fade" id="alertModal" tabindex="-1" role="dialog" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered" role="document">
       <div class="modal-content">
         <div class="modal-header">
@@ -393,7 +345,7 @@ function showAlertModal(message) {
         </div>
         <div class="modal-body" id="alertModalBody">내용</div>
         <div class="modal-footer">
-          <button type="button" class="btn btn-primary" data-bs-dismiss="modal">
+          <button type="button" class="btn" data-bs-dismiss="modal">
             확인
           </button>
         </div>
@@ -406,24 +358,29 @@ function showAlertModal(message) {
 @font-face {
   // 주아체
   font-family: "BMJUA";
-  src: url("https://fastly.jsdelivr.net/gh/projectnoonnu/noonfonts_one@1.0/BMJUA.woff")
-    format("woff");
+  src: url("https://fastly.jsdelivr.net/gh/projectnoonnu/noonfonts_one@1.0/BMJUA.woff") format("woff");
   font-weight: normal;
   font-style: normal;
 }
+
 @font-face {
   // 프리텐다드
   font-family: "Pretendard-Regular";
-  src: url("https://fastly.jsdelivr.net/gh/Project-Noonnu/noonfonts_2107@1.1/Pretendard-Regular.woff")
-    format("woff");
+  src: url("https://fastly.jsdelivr.net/gh/Project-Noonnu/noonfonts_2107@1.1/Pretendard-Regular.woff") format("woff");
   font-weight: 400;
   font-style: normal;
 }
+
 span {
   color: #ff6666;
   margin-left: 40px;
 }
-
+// input선택시
+input:focus {
+  outline: none;
+  border-color: #ccc; // 포커스 상태에서도 기존 색상 유지
+  background-color: #fff; // 혹시 다르게 바뀌는 경우 대비
+}
 .box {
   // 주소 검색 박스
   font-family: "BMJUA";
@@ -481,6 +438,7 @@ input[type="email"] {
   align-items: center; // 수직 가운데 정렬
   gap: 1.5rem; // label과 input 간 간격
   margin-bottom: 15px;
+
   //에러메세지
   input.error {
     background-color: #ffe5e5 !important;
@@ -503,6 +461,7 @@ input[type="email"] {
     flex: 1;
     width: 170px;
   }
+
   button.password {
     width: 120px;
     height: 50px;
@@ -519,9 +478,7 @@ input[type="email"] {
   }
 }
 
-.form-group:not(.address-group):not(.phone-input-wrap):not(.agreement):not(
-    :has(.radio-group)
-  ) {
+.form-group:not(.address-group):not(.phone-input-wrap):not(.agreement):not( :has(.radio-group)) {
   display: block;
   margin-top: 1rem;
 
@@ -545,6 +502,7 @@ input[type="email"] {
     vertical-align: middle;
   }
 }
+
 .font-add {
   margin-left: -10px;
   margin-right: 47px;
@@ -615,19 +573,23 @@ input[type="email"] {
     }
   }
 }
+
 .font-num {
   margin-left: -10px;
   margin-right: 47px;
 }
+
 // 전화번호 입력 박스 정렬
 .phone-input-wrap {
+  display: inline;
+
   .phone-input {
     margin-left: 80px; // 중앙정렬
     display: inline-flex;
     max-width: 495px;
     gap: 10px;
     align-items: center;
-    margin-left: 130px;
+    margin-left: 155px;
 
     select {
       margin-top: 1rem;
@@ -637,10 +599,15 @@ input[type="email"] {
       border: 1px solid #ccc;
       padding-left: 10px;
     }
+
     input {
       flex: 1;
       margin-top: 15px;
     }
+  }
+
+  .phone-error-wrapper {
+    margin-left: 0px;
   }
 }
 
@@ -649,7 +616,7 @@ input[type="email"] {
   text-align: center;
 
   button {
-    width: 500px;
+    width: 600px;
     height: 55px;
     background-color: #fff;
     color: #ff6666;
@@ -668,6 +635,7 @@ input[type="email"] {
     }
   }
 }
+
 // 아이디 비활성화
 input[readonly] {
   background-color: #f5f5f5;
@@ -676,6 +644,7 @@ input[readonly] {
   color: #7d7d7d;
   pointer-events: none;
 }
+
 // 에러메세지
 .error-msg {
   margin-left: 355px;
