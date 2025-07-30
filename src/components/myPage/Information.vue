@@ -105,6 +105,33 @@ function onPhoneInput(modelRef, event) {
     nextTick(() => phone3Input.value?.focus());
   }
 }
+// 현재 비밀번호 서버 검증 함수
+const checkPassword = async () => {
+  const id = localStorage.getItem("id");
+
+  if (!state.form.loginPw) {
+    errors.loginPw = "비밀번호를 입력해주세요.";
+    return;
+  }
+
+  try {
+    const res = await verifyPassword({
+      id,
+      password: state.form.loginPw,
+    });
+
+    if (res && res.data && res.data.success) {
+      isPasswordChecked.value = true;
+      showModal("비밀번호가 확인되었습니다.");
+    } else {
+      isPasswordChecked.value = false;
+      showModal("비밀번호가 일치하지 않습니다.");
+    }
+  } catch (err) {
+    console.error("비밀번호 확인 실패:", err);
+    showModal("비밀번호 확인 중 오류가 발생했습니다.");
+  }
+};
 
 // 화살표/백스페이스 제외하고 숫자 외 입력 방지
 function onPhoneKeydown(event) {
@@ -137,6 +164,7 @@ onMounted(async () => {
     if (res && res.data) {
       // 조회된 사용자 정보로 폼 초기화
       Object.assign(state.form, res.data.resultData); // 정보 채우기
+      state.form.id = res.data.resultData.id; // 이 부분 추가
     }
     if (res.data.resultData.phone) {
       // 전화번호 분해해서 phone1/phone2/phone3에 넣어주는 부분
@@ -157,31 +185,45 @@ onMounted(async () => {
 const submitForm = async (e) => {
   e.preventDefault();
 
+  // 1. 폼 유효성 검사 실행, 실패 시 함수 종료
   if (!validateForm()) return; // 유효성 검사 추가
 
   try {
-    // 수정 요청 전 폼 유효성 체크 등 필요시 추가
+    // 2. localStorage에서 로그인한 사용자 ID 가져오기
     const id = localStorage.getItem("id");
 
+    // 3. ID가 없으면 로그인 페이지로 이동 및 알림창 표시
     if (!id) {
       showModal("로그인 정보가 없습니다.");
       router.push("/login");
       return;
     }
 
-    // API 호출: 사용자 정보 수정
-    const res = await update(id, state.form);
+    // 4. API 호출: 사용자 정보 수정
+    //    - 서버에 보낼 데이터에 ID가 포함되어야 하는 경우 포함시키기
+    const payload = {
+      id,           // 사용자 ID
+      ...state.form // 수정할 사용자 정보 전체
+    };
+
+    // 5. update 함수에 ID와 수정 데이터 전달 (userService.js에서 PUT 요청 처리)
+    const res = await update(id, payload);
+
+    // 6. 요청 성공 시 알림창 표시 후 마이페이지로 이동
     if (res.status === 200) {
       showModal("정보가 성공적으로 수정되었습니다.");
       router.push("/mypage");
     } else {
+      // 7. 요청 실패 시 알림창 표시
       showModal("정보 수정에 실패했습니다.");
     }
   } catch (err) {
+    // 8. 네트워크 오류 등 예외 발생 시 콘솔에 에러 기록하고 알림창 표시
     console.error("정보 수정 실패:", err);
     showModal("정보 수정 중 오류가 발생했습니다.");
   }
 };
+
 // 새비밀번호 입력창 아래에 비밀번호 조건 안내 문구
 watch(phone2, (val) => {
   if (val.length === 4) {
@@ -221,7 +263,7 @@ const showModal = (message) => {
   // }
 };
 
-
+const isPasswordChecked = ref(false); // 비밀번호 확인 여부
 
 </script>
 
@@ -246,7 +288,7 @@ const showModal = (message) => {
             <span>*</span>
             <label>현재 비밀번호</label>
             <input type="password" class="form-input" v-model="state.form.loginPw" placeholder="현재 비밀번호를 입력해주세요."
-              :class="{ error: errors.loginPw }" />
+              :class="{ error: errors.loginPw }" @input="clearError('loginPw')" />
             <button class="password">비밀번호 확인</button>
             <p v-if="errors.loginPw" class="error-msg">{{ errors.loginPw }}</p>
           </div>
@@ -257,7 +299,7 @@ const showModal = (message) => {
             <span>*</span>
             <label>새 비밀번호</label>
             <input type="password" class="form-input" v-model="confirmPw" placeholder="비밀번호는 영문, 숫자, 특수문자 포함 8~16자"
-              :class="{ error: errors.confirmPw }" />
+              :class="{ error: errors.confirmPw }" @input="clearError('confirmPw')" />
             <p v-if="errors.confirmPw" class="error-msg">
               {{ errors.confirmPw }}
             </p>
