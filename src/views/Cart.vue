@@ -435,7 +435,7 @@ const menuIgmSrc = items => {
       .step-text.current {
         // 02 장바구니
         color: #ff6666;
-      }
+      } 
     }
   }
   .solid {
