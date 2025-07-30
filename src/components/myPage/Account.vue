@@ -8,6 +8,14 @@ import Favorites from './Favorites.vue';
 import AccountMain from './AccountMain.vue';
 import router from '@/router';
 
+// 화면 상단 이동
+const arrow = () => {
+  window.scrollTo({
+    top: 0,
+    behavior: 'smooth',
+  });
+};
+
 // 컴포넌트 v-if 처리
 let main = ref(true);
 let OrderDetail = ref(false);
@@ -112,7 +120,8 @@ const favorClick = () => {
       </div> -->
     </div>
   </div>
-  <footer></footer>
+  <!-- <footer></footer> -->
+  <img @click="arrow" class="arrow" src="/src/imgs/arrow.png" />
 </template>
 
 <style lang="scss" scoped>
@@ -167,4 +176,13 @@ footer {
     }
   }
 }
+.arrow {
+  position: sticky;
+  width: 3.8%;
+  bottom: 100px;
+  left: 93%;
+  z-index: 999;
+  margin-bottom: 100px;
+}
+
 </style>

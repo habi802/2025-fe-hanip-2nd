@@ -184,6 +184,16 @@ const nightLink = () => {
   font-weight: normal;
   font-style: normal;
 }
+@font-face {
+  // 프리텐다드
+  font-family: 'Pretendard-Regular';
+  src: url('https://fastly.jsdelivr.net/gh/Project-Noonnu/noonfonts_2107@1.1/Pretendard-Regular.woff') format('woff');
+  font-weight: 400;
+  font-style: normal;
+}
+*{
+  font-family: 'Pretendard-Regular';
+}
 
 .all {
   margin-bottom: 100px;
