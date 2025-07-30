@@ -147,7 +147,7 @@ watch(
             <template v-if="account.state.loggedIn">
               <img @click="faivorite" class="faiorites" src="/src/imgs/faivor.png" />
               <img @click="orderRouter" class="order" src="/src/imgs/orders.png" />
-              <img @click="cartRouter" @mouseover="orderBox = true" @mouseleave="orderBox = false" id="menu"
+              <img @click="cartRouter" id="menu"
                 class="shooping" src="/src/imgs/shoop.png" />
               <div id="menu" @click="logoutIn">로그아웃</div>
               <div>|</div>
