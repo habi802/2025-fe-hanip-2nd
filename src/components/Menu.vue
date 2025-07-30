@@ -28,21 +28,24 @@ const props = defineProps({
 // })
 
 const menuSrc = computed(() => {
-  return props.item && props.item?.imagePath && props.item?.imagePath !== 'null'
-  ? `/pic/menu-profile/${props.item.menuId}/${props.item?.imagePath}`
-  : defaultImage;
+    return props.item && props.item?.imagePath && props.item?.imagePath !== 'null'
+        ? `/pic/menu-profile/${props.item.menuId}/${props.item?.imagePath}`
+        : defaultImage;
 })
 
 const addCart = async () => {
     if (!account.state.loggedIn) {
-        alert('로그인 후 주문이 가능합니다.');
+        showModal('로그인 후 주문 가능합니다')
         return;
     }
-
-    const res = await addItem(props.item.menuId);
+    const params = {
+        menuId: props.item.menuId,
+        quantity: 1
+    }
+    const res = await addItem(params);
 
     if (res === undefined) {
-        alert('등록 실패');
+        showModal('등록 실패')
         return;
     } else if (res.status === 500) {
         emit('addCart', props.item);
@@ -52,8 +55,19 @@ const addCart = async () => {
     }
 };
 console.log("props.img", props.item);
-// 
+// 모달창 함수
+const showModal = (message, onCloseCallback) => {
+  const modalBody = document.getElementById("alertModalBody");
+  if (modalBody) modalBody.textContent = message;
+  const modal = new bootstrap.Modal(document.getElementById("alertModal"));
+  modal._element.addEventListener('hidden.bs.modal', () => {
+    if (typeof onCloseCallback === 'function') {
+      onCloseCallback();  
+    }
+  });
+  modal.show();
 
+};
 
 </script>
 
@@ -79,21 +93,54 @@ console.log("props.img", props.item);
             </div>
         </div>
     </div>
+    <!-- 공통 알림 모달 -->
+    <div class="modal fade" id="alertModal" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">알림</h5>
+                </div>
+                <div class="modal-body" id="alertModalBody">내용</div>
+                <div class="modal-footer">
+                    <button type="button" class="btn " data-bs-dismiss="modal">
+                        확인
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade" id="alertModal" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">알림</h5>
+                </div>
+                <div class="modal-body" id="alertModalBody">내용</div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" data-bs-dismiss="modal">
+                        확인
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
 </template>
 
 <style lang="scss" scoped>
 @font-face {
-  // 프리텐다드
-  font-family: 'Pretendard-Regular';
-  src: url('https://fastly.jsdelivr.net/gh/Project-Noonnu/noonfonts_2107@1.1/Pretendard-Regular.woff') format('woff');
-  font-weight: 400;
-  font-style: normal;
+    // 프리텐다드
+    font-family: 'Pretendard-Regular';
+    src: url('https://fastly.jsdelivr.net/gh/Project-Noonnu/noonfonts_2107@1.1/Pretendard-Regular.woff') format('woff');
+    font-weight: 400;
+    font-style: normal;
 }
-*{
+
+* {
     font-family: 'Pretendard-Regular';
     font-size: 20px;
     font-size: 800;
 }
+
 .menu {
     cursor: pointer;
 
@@ -101,7 +148,8 @@ console.log("props.img", props.item);
         border-color: #fcaeae !important;
     }
 }
-#menuImgs{
+
+#menuImgs {
     margin-left: -15px;
     margin-top: 3px;
     display: flex;
@@ -110,20 +158,24 @@ console.log("props.img", props.item);
     overflow: hidden;
     justify-content: center;
     align-items: center;
-    .menuImgBox{
+
+    .menuImgBox {
         width: 170px;
     }
 }
-.bottom-box{
+
+.bottom-box {
     display: flex;
     justify-content: space-between;
 }
-.check{
+
+.check {
     display: flex;
     padding-right: 30px;
     gap: 10px;
 }
-.check-box{
+
+.check-box {
     display: flex;
     justify-content: center;
     align-items: center;
@@ -133,23 +185,32 @@ console.log("props.img", props.item);
     font-size: 23px;
     border-radius: 5px;
 }
-.row{
+
+.row {
     display: flex;
     justify-content: center;
 
 }
+
 .col-8 {
     width: 80%;
     margin-left: -15px;
 }
-.comment{
+
+.comment {
     font-size: 18px;
     margin-top: 10px;
     width: 600px;
     color: #9E9E9E;
-    word-wrap: break-word;      
-    white-space: pre-wrap;      
-    line-height: 1.6;           
-    text-align: left;     
+    word-wrap: break-word;
+    white-space: pre-wrap;
+    line-height: 1.6;
+    text-align: left;
+}
+
+.modal {
+    top: 40%;
+    font-family: 'Pretendard-Regular';
+    font-weight: 800;
 }
 </style>

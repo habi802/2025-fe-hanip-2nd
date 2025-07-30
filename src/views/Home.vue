@@ -49,6 +49,10 @@ const arrow = () => {
   left: 93%;
   z-index: 999;
   margin-bottom: 100px;
+
+  &:hover {
+    opacity: 80%;
+  }
 }
 
 // 반응형
