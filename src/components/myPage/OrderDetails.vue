@@ -86,17 +86,29 @@ const filteredOrders = computed(() =>
 
 // 재주문
 const cartStore = useCartStore();
+const addMenus = [];
 
 const reorder = async (menus) => {
-  console.log("menus: ", menus.orderGetList);
-  const addMenus = menus.orderGetList.map((menu) => ({
-    id: menu.menuId,
-    name: menu.name,
-    price: menu.price,
-    quantity: menu.quantity,
-    storeId: menu.storeId,
-  }));
+  for (let i = 0; i < menus.orderGetList.length; i++) {
+    const item = menus.orderGetList[i];
+    try {
+      const res = await addItem(item.menuId);
+      // console.log("resASDA: ", res.data.resultData);
+      const cartId = res.data.resultData;
+      addMenus.push({
+        id: cartId,
+        menuId: item.menuId,
+        name: item.name,
+        price: item.price,
+        quantity: item.quantity,
+        storeId: item.storeId,
+      });
+    } catch (e) {
+      console.error("addItem 실패:", e);
+    }
+  }
 
+  console.log("menus: ", menus.orderGetList);
   const cartItems = cartStore.state.items;
   if (cartItems.length > 0 && cartItems[0].id !== addMenus[0].id) {
     showModal(
@@ -106,12 +118,6 @@ const reorder = async (menus) => {
   }
 
   cartStore.addMenus(addMenus);
-
-  for (let i = 0; i < menus.orderGetList.length; i++) {
-    console.log(menus.orderGetList[i].menuId);
-    const res = await addItem(menus.orderGetList[i].menuId);
-    console.log(res.data.resultData);
-  }
   router.push("/cart");
 };
 
