@@ -674,7 +674,7 @@ const menuIgmSrc = items => {
 .store-box {
   // 각 음식점별 장바구니 박스
   width: 830px;
-  height: 553px;
+  min-height: 553px;
   margin: 0 auto 0px 50px;
   padding: 50px;
   border: 2px solid #797979;
