@@ -324,6 +324,7 @@ const randomThreeStores = computed(() => {
     </div>
   </div>
   <!--  -->
+  <div class="last"></div>
 </template>
 
 <style lang="scss" scoped>
@@ -476,5 +477,7 @@ const randomThreeStores = computed(() => {
   width: 100px;
   text-align: end;
 }
-
+.last{
+  margin-bottom: 120px;
+}
 </style>
