@@ -279,7 +279,7 @@ const showModal = (message) => {
               <!-- 우편번호 + 주소검색 버튼 -->
               <div class="address-row">
                 <input type="text" placeholder="우편번호" v-model="state.form.postcode" readonly />
-                <button type="button" disabled>주소검색</button>
+                <button type="button">주소검색</button>
               </div>
 
               <!-- 기본주소 단독 줄 -->
@@ -375,12 +375,14 @@ span {
   color: #ff6666;
   margin-left: 40px;
 }
+
 // input선택시
 input:focus {
   outline: none;
   border-color: #ccc; // 포커스 상태에서도 기존 색상 유지
   background-color: #fff; // 혹시 다르게 바뀌는 경우 대비
 }
+
 .box {
   // 주소 검색 박스
   font-family: "BMJUA";
@@ -544,6 +546,7 @@ input[type="email"] {
         border-radius: 8px;
       }
 
+      // 주소검색 버튼
       button {
         margin-top: 1rem;
         width: 90px;
@@ -552,12 +555,11 @@ input[type="email"] {
         border: 1px solid #ff6666;
         border-radius: 8px;
         color: #ff6666;
-        font-weight: bold;
         cursor: pointer;
 
-        //   &:hover {
-        //     background-color: #ffe5e5;
-        //   }
+        &:hover {
+          background-color: #ffe5e5;
+        }
       }
     }
 
