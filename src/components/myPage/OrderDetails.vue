@@ -88,15 +88,6 @@ const filteredOrders = computed(() =>
 const cartStore = useCartStore();
 
 const reorder = async (menus) => {
-  const addMenus = menus.orderGetList.map((menu) => ({
-    id: menu.menuId,
-    name: menu.name,
-    price: menu.price,
-    quantity: menu.quantity,
-    storeId: menu.storeId,
-  }));
-
-  //console.log("menus: ", menus.orderGetList);
   const cartItems = cartStore.state.items;
   if (cartItems.length > 0 && cartItems[0].id !== addMenus[0].id) {
     showModal(
@@ -105,17 +96,27 @@ const reorder = async (menus) => {
     return;
   }
 
-  cartStore.addMenus(addMenus);
-
   for (let i = 0; i < menus.orderGetList.length; i++) {
-    //console.log(menus.orderGetList[i].menuId);
     const params = {
       menuId: menus.orderGetList[i].menuId,
       quantity: menus.orderGetList[i].quantity
     };
+
     const res = await addItem(params);
-    //console.log(res.data.resultData);
+
+    menus.orderGetList[i].cartId = res.data.resultData;
   }
+
+  const addMenus = menus.orderGetList.map((menu) => ({
+    id: menu.cartId,
+    menuId: menu.menuId,
+    name: menu.name,
+    price: menu.price,
+    quantity: menu.quantity,
+    storeId: menu.storeId,
+  }));
+
+  cartStore.addMenus(addMenus);
 
   router.push("/cart");
 };
