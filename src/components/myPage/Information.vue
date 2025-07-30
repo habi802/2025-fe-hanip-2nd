@@ -86,7 +86,7 @@ function validateForm() {
   // 휴대전화 각 자리 검사
   const phoneRegex = /^[0-9]{3,4}$/;
   if (!phoneRegex.test(phone2.value) || !phoneRegex.test(phone3.value)) {
-    errors.phone = "휴대전화 번호는 숫자만 3~4자리 입력해주세요.";
+    errors.phone = "전화번호 다시 한번 확인해주세요.";
     isValid = false;
   } else {
     errors.phone = "";
@@ -214,11 +214,11 @@ const showModal = (message) => {
     alertModal.show();
   }
 
-  const modalButton = document.querySelector(".modal-footer .btn");
-  if (modalButton) {
-    modalButton.style.backgroundColor = "#FF6666";
-    modalButton.style.color = "#fff";
-  }
+  // const modalButton = document.querySelector(".modal-footer .btn");
+  // if (modalButton) {
+  //   modalButton.style.backgroundColor = "#FF6666";
+  //   modalButton.style.color = "#fff";
+  // }
 };
 
 
