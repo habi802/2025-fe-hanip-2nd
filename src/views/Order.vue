@@ -315,7 +315,7 @@ const showModal = (message) => {
                             <div v-for="(item, idx) in state.carts" :key="item.id">
                                 <div class="p-2" :class="{ 'border-top': idx !== 0 }">
                                     <div class="d-flex justify-content-between mb-2">
-                                        <span>{{ item.name }}</span>
+                                        <span class="menuText">{{ item.name }}</span>
                                         <span>{{ (item.price * item.quantity).toLocaleString() }}원</span>
                                     </div>
                                     <div class="d-flex justify-content-between">
@@ -548,5 +548,9 @@ input[type="checkbox"] {
 
 #sheet {
     margin-top: -25px;
+}
+.menuText{
+    width: 130px;
+    text-align: start;
 }
 </style>
