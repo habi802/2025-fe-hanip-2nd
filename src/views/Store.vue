@@ -604,7 +604,7 @@ const arrow = () => {
     <div class="modal-dialog" role="document">
       <div class="modal-content">
         <div class="modal-header">
-          <h5 class="modal-title" id="exampleModalLabel">경고</h5>
+          <h5 class="modal-title" id="exampleModalLabel">알림</h5>
         </div>
         <div class="modal-body">메뉴를 추가해주세요</div>
         <div class="modal-footer">
@@ -621,7 +621,7 @@ const arrow = () => {
     <div class="modal-dialog" role="document">
       <div class="modal-content">
         <div class="modal-header">
-          <h5 class="modal-title" id="exampleModalLabel">경고</h5>
+          <h5 class="modal-title" id="exampleModalLabel">알림</h5>
         </div>
         <div class="modal-body">로그인이 필요합니다</div>
         <div class="modal-footer">
@@ -636,7 +636,7 @@ const arrow = () => {
     <div class="modal-dialog" role="document">
       <div class="modal-content">
         <div class="modal-header">
-          <h5 class="modal-title" id="exampleModalLabel">경고</h5>
+          <h5 class="modal-title" id="exampleModalLabel">알림</h5>
         </div>
         <div class="modal-body">조회에 실패하였습니다</div>
         <div class="modal-footer">
@@ -650,7 +650,7 @@ const arrow = () => {
     <div class="modal-dialog" role="document">
       <div class="modal-content">
         <div class="modal-header">
-          <h5 class="modal-title" id="exampleModalLabel">경고</h5>
+          <h5 class="modal-title" id="exampleModalLabel">알림</h5>
         </div>
         <div class="modal-body">수정에 실패하였습니다</div>
         <div class="modal-footer">
@@ -664,7 +664,7 @@ const arrow = () => {
     <div class="modal-dialog" role="document">
       <div class="modal-content">
         <div class="modal-header">
-          <h5 class="modal-title" id="exampleModalLabel">경고</h5>
+          <h5 class="modal-title" id="exampleModalLabel">알림</h5>
         </div>
         <div class="modal-body">삭제에 실패하였습니다</div>
         <div class="modal-footer">
@@ -678,7 +678,7 @@ const arrow = () => {
     <div class="modal-dialog" role="document">
       <div class="modal-content">
         <div class="modal-header">
-          <h5 class="modal-title" id="exampleModalLabel">경고</h5>
+          <h5 class="modal-title" id="exampleModalLabel">알림</h5>
         </div>
         <div class="modal-body">찜 하기에 실패하였습니다</div>
         <div class="modal-footer">
@@ -907,7 +907,13 @@ const arrow = () => {
 }
 
 .modal {
-  top: 7%;
+  top: 40%;
+  font-family: 'Pretendard-Regular';
+  font-weight: 800;
+}
+.modal-title{
+  font-family: 'Pretendard-Regular';
+  font-weight: 800;
 }
 
 .img-one {
