@@ -49,14 +49,26 @@ const validateEmail = () => {
     ? ""
     : "유효한 이메일 주소를 입력하세요.";
 };
+// 이름 유효성 검사 (2글자 이상)
+const validateName = () => {
+  errors.name =
+    state.form.name.trim().length >= 2 ? "" : "이름은 2자 이상이어야 합니다.";
+};
 
+// 주소 유효성 검사
+const validateAddress = () => {
+  errors.address =
+    state.form.address.trim().length > 0 ? "" : "주소 입력은 필수입니다.";
+};
+
+// 번호 확인
 const validatePhone = () => {
   const middleRegex = /^\d{3,4}$/;
   const lastRegex = /^\d{4}$/;
   errors.phone2 = middleRegex.test(phone2.value)
     ? ""
-    : "중간 번호는 3~4자리 숫자";
-  errors.phone3 = lastRegex.test(phone3.value) ? "" : "끝 번호는 4자리 숫자";
+    : "전화번호 다시 한번 확인해주세요.";
+  errors.phone3 = lastRegex.test(phone3.value) ? "" : "전화번호 다시 한번 확인해주세요.";
 };
 
 const validateOwnerTel = () => {
@@ -64,10 +76,10 @@ const validateOwnerTel = () => {
   const lastRegex = /^\d{4}$/;
   errors.ownerTel2 = middleRegex.test(ownerTel2.value)
     ? ""
-    : "중간 번호는 3~4자리 숫자";
+    : "전화번호 다시 한번 확인해주세요.";
   errors.ownerTel3 = lastRegex.test(ownerTel3.value)
     ? ""
-    : "끝 번호는 4자리 숫자";
+    : "전화번호 다시 한번 확인해주세요.";
 };
 
 const validateOwnerPhone = () => {
@@ -75,10 +87,10 @@ const validateOwnerPhone = () => {
   const lastRegex = /^\d{4}$/;
   errors.ownerPhone2 = middleRegex.test(ownerPhone2.value)
     ? ""
-    : "중간 번호는 3~4자리 숫자";
+    : "전화번호 다시 한번 확인해주세요.";
   errors.ownerPhone3 = lastRegex.test(ownerPhone3.value)
     ? ""
-    : "끝 번호는 4자리 숫자";
+    : "전화번호 다시 한번 확인해주세요.";
 };
 
 const validateBusinessNumber = () => {
@@ -94,6 +106,8 @@ const validateForm = () => {
   validatePassword();
   validateConfirmPw();
   validateEmail();
+  validateName(); // 이름 검사 추가
+  validateAddress(); // 가게 주소 검사 추가
 
   if (memberType.value === "customer") {
     validatePhone();
@@ -284,6 +298,11 @@ const toggleAllAgree = () => {
 };
 
 const submit = async () => {
+  // 아이디 중복 확인
+  if (errors.loginId === "이미 사용 중인 아이디입니다.") {
+    showModal("아이디가 이미 사용 중입니다. 다른 아이디를 선택해주세요.");
+    return; // 중복 아이디가 있을 경우 회원가입 진행하지 않음
+  }
   state.form.role = memberType.value;
 
   if (!validateForm()) {
@@ -344,9 +363,32 @@ const submit = async () => {
 
 // 약관 설명 텍스트
 const termsText = {
-  useTerms: `제1조(목적) 이 약관은...`,
-  privacyPolicy: `개인정보 수집 항목은 다음과 같으며...`,
-  thirdParty: `당사는 다음과 같은 제3자에게 정보를 제공할 수 있습니다...`,
+  useTerms: `한입 배달 서비스 이용약관
+제정일자: 2025년 7월 30일
+시행일자: 2025년 8월 1일
+회사명: 한입(Hanip)
+
+제1조 (목적)
+본 약관은 한입(이하 ‘회사’)이 제공하는 배달 플랫폼 및 관련 서비스(이하 ‘서비스’)의 이용과 관련하여 회사와 회원 간의 권리, 의무, 책임사항 및 기타 필요한 사항을 규정함을 목적으로 합니다.
+
+제2조 (정의)
+‘서비스’란 웹사이트 및 모바일 웹, 앱 등을 통해 제공되는 음식 배달 및 관련 서비스를 의미합니다.
+
+‘회원’이란 회사와 이용계약을 체결하고 서비스를 이용하는 고객을 말합니다.
+
+‘비회원’은 회원가입 없이 일부 서비스를 이용하는 고객입니다.
+
+‘가맹점(업주)’이란 음식 등의 상품을 회원에게 제공하기 위해 플랫폼에 입점한 판매자를 말합니다.
+
+제3조 (약관의 효력 및 변경)
+본 약관은 회원가입 시 동의 절차를 거쳐 효력이 발생합니다.
+
+회사는 관련 법령을 위배하지 않는 범위 내에서 약관을 변경할 수 있으며, 변경 시 서비스 내 공지합니다.
+
+변경된 약관에 동의하지 않을 경우 회원은 서비스 이용을 중단하고 탈퇴할 수 있습니다.`,
+  privacyPolicy: `개인정보보호법에 따라 네이버에 회원가입 신청하시는 분께 수집하는 개인정보의 항목, 개인정보의 수집 및 이용목적, 개인정보의 보유 및 이용기간, 동의 거부권 및 동의 거부 시 불이익에 관한 사항을 안내 드리오니 자세히 읽은 후 동의하여 주시기 바랍니다.`,
+  thirdParty: `제3자 제공에 대한 안내
+당사는 서비스 제공 및 계약 이행을 위해 필요한 범위 내에서 다음과 같은 제3자에게 최소한의 개인정보를 제공할 수 있습니다. 제공되는 정보는 목적 달성 이후 즉시 파기되며, 법령에 따라 안전하게 처리됩니다.`,
 };
 
 // 모달창 함수
@@ -378,6 +420,7 @@ const addressSearch = () => {
     },
   }).open();
 };
+
 </script>
 
 <template>
@@ -386,6 +429,7 @@ const addressSearch = () => {
       <h2 class="join-title">회원가입</h2>
 
       <form class="join-form" @submit.prevent="submit">
+        <strong>* 필수입력칸입니다.</strong>
         <div class="titleLine"></div>
 
         <!-- 회원구분 -->
@@ -394,38 +438,23 @@ const addressSearch = () => {
             <span>*</span>
             <p>회원 구분</p>
             <div class="radio-group">
-              <label id="radio"
-                ><input
-                  type="radio"
-                  class="circle"
-                  name="memberType"
-                  value="customer"
-                  v-model="memberType"
-                />
-                일반</label
-              >
-              <label
-                ><input
-                  type="radio"
-                  class="circle"
-                  name="memberType"
-                  value="owner"
-                  v-model="memberType"
-                />
-                업주</label
-              >
+              <label id="radio"><input type="radio" class="circle" name="memberType" value="customer"
+                  v-model="memberType" />
+                일반</label>
+              <label><input type="radio" class="circle" name="memberType" value="owner" v-model="memberType" />
+                업주</label>
             </div>
           </div>
         </div>
         <div class="sevLine"></div>
 
         <!-- 회원인증 -->
-        <div class="form-certified">
-          <div class="certified">
-            <label>회원인증</label>
-          </div>
-        </div>
-        <div class="sevLine"></div>
+        <!-- <div class="form-certified"> -->
+        <!-- <div class="certified"> -->
+        <!-- <label>회원인증</label> -->
+        <!-- </div> -->
+        <!-- </div> -->
+        <!-- <div class="sevLine"></div> -->
 
         <!-- 기본 정보 -->
         <label class="serveTitle">기본정보</label>
@@ -437,18 +466,12 @@ const addressSearch = () => {
               <span>*</span>
               <p>아이디</p>
               <div class="id">
-                <input
-                  v-model="state.form.loginId"
-                  :class="{ invalid: errors.loginId }"
-                  @input="
-                    () => {
-                      errors.loginId = ''; // 입력 도중 아이디 에러 메시지 초기화
-                      checkResult.value = ''; // 중복 체크 결과 메시지 초기화
-                    }
-                  "
-                  @blur="validateLoginId"
-                  placeholder="영문 소문자/숫자, 4~16자"
-                />
+                <input v-model="state.form.loginId" :class="{ invalid: errors.loginId }" @input="
+                  () => {
+                    errors.loginId = ''; // 입력 도중 아이디 에러 메시지 초기화
+                    checkResult.value = ''; // 중복 체크 결과 메시지 초기화
+                  }
+                " @blur="validateLoginId" placeholder="영문 소문자/숫자, 4~16자" />
                 <button type="button" @click="checkDuplicateId">
                   아이디 중복
                 </button>
@@ -469,14 +492,9 @@ const addressSearch = () => {
             <span>*</span>
             <p>비밀번호</p>
             <div class="password">
-              <input
-                type="password"
-                v-model="state.form.loginPw"
-                :class="{ invalid: errors.loginPw }"
-                @input="() => (errors.loginPw = '')"
-                @blur="validatePassword"
-                placeholder="비밀번호는 영문, 숫자, 특수문자 포함 8~16자"
-              />
+              <input type="password" v-model="state.form.loginPw" :class="{ invalid: errors.loginPw }"
+                @input="() => (errors.loginPw = '')" @blur="validatePassword"
+                placeholder="비밀번호는 영문, 숫자, 특수문자 포함 8~16자" />
               <p v-if="errors.loginPw" class="error-msg">
                 {{ errors.loginPw }}
               </p>
@@ -490,14 +508,8 @@ const addressSearch = () => {
             <span>*</span>
             <p>비밀번호 확인</p>
             <div class="password2">
-              <input
-                type="password"
-                v-model="confirmPw"
-                @input="() => (errors.confirmPw = '')"
-                @blur="validateConfirmPw"
-                :class="{ invalid: errors.confirmPw }"
-                placeholder="비밀번호 재입력"
-              />
+              <input type="password" v-model="confirmPw" @input="() => (errors.confirmPw = '')"
+                @blur="validateConfirmPw" :class="{ invalid: errors.confirmPw }" placeholder="비밀번호 재입력" />
               <p v-if="errors.confirmPw" class="error-msg">
                 {{ errors.confirmPw }}
               </p>
@@ -511,11 +523,7 @@ const addressSearch = () => {
             <div class="label">
               <span>*</span>
               <p>이름</p>
-              <input
-                type="text"
-                v-model="state.form.name"
-                @input="() => (errors.name = '')"
-              />
+              <input type="text" v-model="state.form.name" @input="() => (errors.name = '')" />
             </div>
           </div>
           <div class="sevLine"></div>
@@ -525,27 +533,13 @@ const addressSearch = () => {
               <span>*</span>
               <p>주소</p>
               <div class="address-row">
-                <input
-                  type="text"
-                  v-model="state.form.postcode"
-                  placeholder="우편번호"
-                  readonly
-                />
+                <input type="text" v-model="state.form.postcode" placeholder="우편번호" readonly />
                 <button @click="addressSearch" type="button">주소검색</button>
               </div>
             </div>
             <div class="sev-addres-row">
-              <input
-                type="text"
-                v-model="state.form.address"
-                placeholder="기본주소"
-                readonly
-              />
-              <input
-                type="text"
-                v-model="state.form.addressDetail"
-                placeholder="상세주소 (선택입력가능)"
-              />
+              <input type="text" v-model="state.form.address" placeholder="기본주소" readonly />
+              <input type="text" v-model="state.form.addressDetail" placeholder="상세주소 (선택입력가능)" />
             </div>
           </div>
           <div class="sevLine"></div>
@@ -562,22 +556,10 @@ const addressSearch = () => {
                   <option>018</option>
                   <option>019</option>
                 </select>
-                <input
-                  type="text"
-                  v-model="phone2"
-                  maxlength="4"
-                  @input="onPhoneInput($event, 'phone2', 'phone3')"
-                  :class="{ invalid: errors.phone2 }"
-                  @keydown="onlyNumberInput"
-                />
-                <input
-                  type="text"
-                  v-model="phone3"
-                  maxlength="4"
-                  @input="onPhoneInput($event, 'phone3')"
-                  :class="{ invalid: errors.phone3 }"
-                  @keydown="onlyNumberInput"
-                />
+                <input type="text" v-model="phone2" maxlength="4" @input="onPhoneInput($event, 'phone2', 'phone3')"
+                  :class="{ invalid: errors.phone2 }" @keydown="onlyNumberInput" />
+                <input type="text" v-model="phone3" maxlength="4" @input="onPhoneInput($event, 'phone3')"
+                  :class="{ invalid: errors.phone3 }" @keydown="onlyNumberInput" />
               </div>
             </div>
             <div class="telNum">
@@ -593,13 +575,8 @@ const addressSearch = () => {
               <span>*</span>
               <p>이메일</p>
               <div class="email">
-                <input
-                  v-model="state.form.email"
-                  @input="() => (errors.email = '')"
-                  @blur="validateEmail"
-                  :class="{ invalid: errors.email }"
-                  placeholder="example@example.com"
-                />
+                <input v-model="state.form.email" @input="() => (errors.email = '')" @blur="validateEmail"
+                  :class="{ invalid: errors.email }" placeholder="example@example.com" />
                 <p v-if="errors.email" class="error-msg">{{ errors.email }}</p>
               </div>
             </div>
@@ -614,11 +591,7 @@ const addressSearch = () => {
               <span>*</span>
               <p>대표자 이름</p>
               <div class="owner-name">
-                <input
-                  type="text"
-                  v-model="state.form.name"
-                  @input="() => (errors.name = '')"
-                />
+                <input type="text" v-model="state.form.name" @input="() => (errors.name = '')" />
               </div>
             </div>
           </div>
@@ -629,27 +602,13 @@ const addressSearch = () => {
               <span>*</span>
               <p>가게주소</p>
               <div class="address-row">
-                <input
-                  type="text"
-                  v-model="state.form.postcode"
-                  placeholder="우편번호"
-                  readonly
-                />
+                <input type="text" v-model="state.form.postcode" placeholder="우편번호" readonly />
                 <button @click="addressSearch" type="button">주소검색</button>
               </div>
             </div>
             <div class="sev-addres-row">
-              <input
-                type="text"
-                v-model="state.form.address"
-                placeholder="기본주소"
-                readonly
-              />
-              <input
-                type="text"
-                v-model="state.form.addressDetail"
-                placeholder="상세주소 (선택입력가능)"
-              />
+              <input type="text" v-model="state.form.address" placeholder="기본주소" readonly />
+              <input type="text" v-model="state.form.addressDetail" placeholder="상세주소 (선택입력가능)" />
             </div>
           </div>
           <div class="sevLine"></div>
@@ -689,24 +648,11 @@ const addressSearch = () => {
                   <option>018</option>
                   <option>019</option>
                 </select>
-                <input
-                  type="text"
-                  v-model="ownerTel2"
-                  maxlength="4"
-                  @input="onOwnerTelInput($event, 'ownerTel2', 'ownerTel3')"
-                  :class="{ invalid: errors.ownerTel2 }"
-                  ref="ownerTel2Input"
-                  @keydown="onlyNumberInput"
-                />
-                <input
-                  type="text"
-                  v-model="ownerTel3"
-                  maxlength="4"
-                  @input="onOwnerTelInput($event, 'ownerTel3')"
-                  :class="{ invalid: errors.ownerTel3 }"
-                  ref="ownerTel3Input"
-                  @keydown="onlyNumberInput"
-                />
+                <input type="text" v-model="ownerTel2" maxlength="4"
+                  @input="onOwnerTelInput($event, 'ownerTel2', 'ownerTel3')" :class="{ invalid: errors.ownerTel2 }"
+                  ref="ownerTel2Input" @keydown="onlyNumberInput" />
+                <input type="text" v-model="ownerTel3" maxlength="4" @input="onOwnerTelInput($event, 'ownerTel3')"
+                  :class="{ invalid: errors.ownerTel3 }" ref="ownerTel3Input" @keydown="onlyNumberInput" />
               </div>
             </div>
             <div class="telNum">
@@ -723,11 +669,7 @@ const addressSearch = () => {
               <p>가게 상호명 및 카테고리</p>
               <div class="category-name">
                 <div class="phone-input">
-                  <input
-                    type="text"
-                    v-model="state.owner.name"
-                    @input="() => (errors.ownerName = '')"
-                  />
+                  <input type="text" v-model="state.owner.name" @input="() => (errors.ownerName = '')" />
                   <select v-model="state.owner.category">
                     <option>카테고리</option>
                     <option>한식</option>
@@ -753,13 +695,8 @@ const addressSearch = () => {
               <span>*</span>
               <p>사업자 등록번호</p>
               <div class="upload-row owner-sigin">
-                <input
-                  type="text"
-                  v-model="state.owner.businessNumber"
-                  @input="() => (errors.businessNumber = '')"
-                  @blur="validateBusinessNumber"
-                  :class="{ invalid: errors.businessNumber }"
-                />
+                <input type="text" v-model="state.owner.businessNumber" @input="() => (errors.businessNumber = '')"
+                  @blur="validateBusinessNumber" :class="{ invalid: errors.businessNumber }" />
                 <button type="button">조회</button>
                 <div class="owner-upload-num">
                   <p v-if="errors.businessNumber" class="error-msg owner-up">
@@ -776,15 +713,8 @@ const addressSearch = () => {
               <span>*</span>
               <p>이메일</p>
               <div class="mail">
-                <input
-                  type="email"
-                  id="email"
-                  v-model="state.form.email"
-                  @input="() => (errors.email = '')"
-                  @blur="validateEmail"
-                  :class="{ invalid: errors.email }"
-                  placeholder="example@example.com"
-                />
+                <input type="email" id="email" v-model="state.form.email" @input="() => (errors.email = '')"
+                  @blur="validateEmail" :class="{ invalid: errors.email }" placeholder="example@example.com" />
                 <p v-if="errors.email" class="error-msg">{{ errors.email }}</p>
               </div>
             </div>
@@ -804,34 +734,17 @@ const addressSearch = () => {
                     <option>018</option>
                     <option>019</option>
                   </select>
-                  <input
-                    type="text"
-                    v-model="ownerPhone2"
-                    maxlength="4"
-                    @input="
-                      onOwnerPhoneInput($event, 'ownerPhone2', 'ownerPhone3')
-                    "
-                    :class="{ invalid: errors.ownerPhone2 }"
-                    ref="ownerPhone2Input"
-                    @keydown="onlyNumberInput"
-                  />
-                  <input
-                    type="text"
-                    v-model="ownerPhone3"
-                    maxlength="4"
-                    @input="onOwnerPhoneInput($event, 'ownerPhone3')"
-                    :class="{ invalid: errors.ownerPhone3 }"
-                    ref="ownerPhone3Input"
-                    @keydown="onlyNumberInput"
-                  />
+                  <input type="text" v-model="ownerPhone2" maxlength="4" @input="
+                    onOwnerPhoneInput($event, 'ownerPhone2', 'ownerPhone3')
+                    " :class="{ invalid: errors.ownerPhone2 }" ref="ownerPhone2Input" @keydown="onlyNumberInput" />
+                  <input type="text" v-model="ownerPhone3" maxlength="4"
+                    @input="onOwnerPhoneInput($event, 'ownerPhone3')" :class="{ invalid: errors.ownerPhone3 }"
+                    ref="ownerPhone3Input" @keydown="onlyNumberInput" />
                 </div>
               </div>
             </div>
             <div class="phoneNum">
-              <p
-                v-if="errors.ownerPhone2 || errors.ownerPhone3"
-                class="error-msg"
-              >
+              <p v-if="errors.ownerPhone2 || errors.ownerPhone3" class="error-msg">
                 <span class="telNum">
                   {{ errors.ownerPhone2 || errors.ownerPhone3 }}
                 </span>
@@ -867,88 +780,47 @@ const addressSearch = () => {
           <!-- 전체 동의 -->
           <p class="all-agree">
             <label class="custom-checkbox">
-              <input
-                type="checkbox"
-                class="circle"
-                v-model="agreement.allAgree"
-                @change="toggleAllAgree"
-              />
-              <strong><span class="highlight">전체동의</span></strong>
+              <input type="checkbox" class="circle" v-model="agreement.allAgree" @change="toggleAllAgree" />
+              <strong class="all"><span class="highlight">전체동의</span></strong>
             </label>
           </p>
           <ul class="terms-list">
             <!-- 필수 이용약관 동의 -->
             <li>
-              <label class="custom-checkbox"
-                ><input
-                  type="checkbox"
-                  class="circle"
-                  v-model="agreement.terms.useTerms"
-                /><span class="highlight"> [필수]</span> 이용약관 동의</label
-              >
+              <label class="custom-checkbox"><input type="checkbox" class="circle"
+                  v-model="agreement.terms.useTerms" /><span class="highlight"> [필수]</span> 이용약관 동의</label>
             </li>
             <div class="terms-box">{{ termsText.useTerms }}</div>
             <!-- 필수 개인정보 수집 이용 동의 -->
             <li>
-              <label class="custom-checkbox"
-                ><input
-                  type="checkbox"
-                  class="circle"
-                  v-model="agreement.terms.privacyPolicy"
-                />
+              <label class="custom-checkbox"><input type="checkbox" class="circle"
+                  v-model="agreement.terms.privacyPolicy" />
                 <span class="highlight"> [필수]</span> 개인정보 수집 이용
-                동의</label
-              >
+                동의</label>
             </li>
-            <div class="terms-box">{{ termsText.useTerms }}</div>
+            <div class="terms-box">{{ termsText.privacyPolicy }}</div>
             <!-- 필수 개인정보 제3자 제공 동의 -->
             <li>
-              <label class="custom-checkbox"
-                ><input
-                  type="checkbox"
-                  class="circle"
-                  v-model="agreement.terms.thirdParty"
-                />
+              <label class="custom-checkbox"><input type="checkbox" class="circle"
+                  v-model="agreement.terms.thirdParty" />
                 <span class="highlight"> [필수]</span> 개인정보 제3자 제공
-                동의</label
-              >
+                동의</label>
             </li>
-            <div class="terms-box">{{ termsText.useTerms }}</div>
+            <div class="terms-box">{{ termsText.thirdParty }}</div>
           </ul>
           <!-- 선택 쇼핑정보 수신 동의 -->
           <div class="marketing">
             <p>
-              <label class="custom-checkbox"
-                ><input
-                  type="checkbox"
-                  class="circle"
-                  v-model="agreement.marketing"
-                /><span class="highlight"> [선택]</span> 쇼핑정보 수신
-                동의</label
-              >
+              <label class="custom-checkbox"><input type="checkbox" class="circle" v-model="agreement.marketing" /><span
+                  class="highlight"> [선택]</span> 쇼핑정보 수신
+                동의</label>
             </p>
           </div>
           <div class="sev-marketing">
-            <span
-              ><label class="custom-checkbox"
-                ><input
-                  type="checkbox"
-                  class="circle"
-                  v-model="agreement.sms"
-                />
-                SMS 수신을 동의하십니까?</label
-              ></span
-            >
-            <span
-              ><label class="custom-checkbox"
-                ><input
-                  type="checkbox"
-                  class="circle"
-                  v-model="agreement.email"
-                />
-                이메일 수신을 동의하십니까?</label
-              ></span
-            >
+            <span><label class="custom-checkbox"><input type="checkbox" class="circle" v-model="agreement.sms" />
+                SMS 수신을 동의하십니까?</label></span>
+            <span><label class="custom-checkbox"><input type="checkbox" class="circle" v-model="agreement.email" />
+                이메일 수신을 동의하십니까?</label></span>
           </div>
         </div>
 
@@ -959,15 +831,9 @@ const addressSearch = () => {
       </form>
     </div>
   </div>
-  
+
   <!-- 공통 알림 모달 -->
-  <div
-    class="modal fade"
-    id="alertModal"
-    tabindex="-1"
-    role="dialog"
-    aria-hidden="true"
-  >
+  <div class="modal fade" id="alertModal" tabindex="-1" role="dialog" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered" role="document">
       <div class="modal-content">
         <div class="modal-header">
@@ -975,7 +841,7 @@ const addressSearch = () => {
         </div>
         <div class="modal-body" id="alertModalBody">내용</div>
         <div class="modal-footer">
-          <button type="button" class="btn btn-primary" data-bs-dismiss="modal">
+          <button type="button" class="btn" data-bs-dismiss="modal">
             확인
           </button>
         </div>
@@ -988,8 +854,7 @@ const addressSearch = () => {
 @font-face {
   // 배민 주아체
   font-family: "BMJUA";
-  src: url("https://fastly.jsdelivr.net/gh/projectnoonnu/noonfonts_one@1.0/BMJUA.woff")
-    format("woff");
+  src: url("https://fastly.jsdelivr.net/gh/projectnoonnu/noonfonts_one@1.0/BMJUA.woff") format("woff");
   font-weight: normal;
   font-style: normal;
 }
@@ -997,8 +862,7 @@ const addressSearch = () => {
 @font-face {
   // 프리텐다드
   font-family: "Pretendard-Regular";
-  src: url("https://fastly.jsdelivr.net/gh/Project-Noonnu/noonfonts_2107@1.1/Pretendard-Regular.woff")
-    format("woff");
+  src: url("https://fastly.jsdelivr.net/gh/Project-Noonnu/noonfonts_2107@1.1/Pretendard-Regular.woff") format("woff");
   font-weight: 400;
   font-style: normal;
 }
@@ -1007,6 +871,20 @@ const addressSearch = () => {
   font-family: "Pretendard-Regular";
   letter-spacing: 1px;
   box-sizing: border-box;
+}
+
+// 필수 입력칸입니다
+strong {
+  font-size: 15px;
+  margin-bottom: -10px;
+  margin-left: 40px;
+  color: #ff6666;
+  letter-spacing: 1px;
+}
+
+strong.all {
+  margin-left: -0.1px;
+  font-size: 20px;
 }
 
 // body 기본 설정
@@ -1074,10 +952,12 @@ select.invalid {
   font-size: 15px;
   font-weight: 600;
 }
+
 .owner-upload-num {
   margin-left: -25px;
   margin-top: -10px;
 }
+
 .container {
   .label {
     // 필수 입력 정보 설명
@@ -1304,7 +1184,7 @@ select.invalid {
       cursor: pointer;
 
       &:hover {
-        background-color: #ddd;
+        background-color: #ffe5e5;
       }
     }
   }
@@ -1318,6 +1198,7 @@ select.invalid {
 
     select {
       width: 213px;
+      padding: 10px;
     }
 
     input {
@@ -1329,6 +1210,7 @@ select.invalid {
   .form-group {
     .id {
       margin-left: -15px;
+
       input {
         max-width: 490px;
       }
@@ -1341,14 +1223,13 @@ select.invalid {
     .password2 {
       margin-left: -65px;
     }
+
     .email {
       margin-left: -10px;
     }
   }
 
-  .form-group:not(.address-group):not(.phone-input-wrap):not(.agreement):not(
-      :has(.radio-group)
-    ) {
+  .form-group:not(.address-group):not(.phone-input-wrap):not(.agreement):not( :has(.radio-group)) {
     display: block;
 
     input,
@@ -1388,6 +1269,7 @@ select.invalid {
       margin-left: 138px;
       vertical-align: middle;
     }
+
     .form-group.mail {
       width: 620px !important;
     }
