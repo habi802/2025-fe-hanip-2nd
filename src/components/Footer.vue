@@ -8,7 +8,7 @@
       <div class="footer-menus">
         <div class="footer-column">
           <h4>회사 소개</h4>
-          <p>회사소개</p>
+          <p>배달전문 웹사이트</p>
           <p>팀</p>
           <p>채용</p>
         </div>
@@ -48,7 +48,7 @@
       <div class="copyright">All right reserved.&copy;Hanip Company,2025</div>
     </div>
   </footer>
-  
+
 </template>
 <style lang="scss" scoped>
 @font-face {
@@ -102,7 +102,7 @@
         // 컬럼 항목 
         margin-top: 2rem;
         margin-bottom: -1.5rem;
-        margin-right: 4rem;
+        margin-right: 3rem;
       }
     }
   }
