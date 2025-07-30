@@ -4,7 +4,11 @@ import { onMounted, reactive } from "vue";
 import { getFavoriteList } from "@/services/favoriteService";
 import { useRoute, useRouter } from "vue-router";
 import { watch } from "vue";
-import defaultImage from '@/imgs/owner/owner-service3.png';
+
+import defaultImage from '@/imgs/owner/haniplogo_sample2.png';
+import favoriteImage from '@/imgs/love.png';
+import noFavoriteImage from '@/imgs/loveBoard.png'
+import ratingImage from  '@/imgs/star.png';
 
 const router = useRouter();
 const route = useRoute();
@@ -29,6 +33,13 @@ const fetchFavorites = async () => {
 
   const favoriteIds = state.favorites.map(favorite => favorite.storeId);
   favoriteStore.setFavorites(favoriteIds);
+};
+
+const arrow = () => {
+  window.scrollTo({
+    top: 0,
+    behavior: 'smooth',
+  });
 };
 
 onMounted(() => {
@@ -57,26 +68,44 @@ const toStore = id => {
         <div class="solid"></div>
       </div>
 
-      <div v-if="state.favorites.length > 0">
-        <div class="store-list">
-          <div class="store-card" v-for="store in state.favorites" :key="store.id">
-            <img :src="store.imagePath !== null ? `/pic/store-profile/${store.storeId}/${store.imagePath}` : defaultImage" alt="가게 이미지" class="store-image" />
-            <div class="store-info">
-              <h3 class="store-title">{{ store.name }}</h3>
-              <p class="store-sub">
-                최소 주문 금액 15,000원<br>
-                배달료 0원 ~ 3,000원
-              </p>
-              <div class="store-meta">
-                <span class="rating">⭐ {{ store.rating }}</span>
-                <span class="likes">❤️ {{ store.favorites }}</span>
+      <div class="for" v-if="state.favorites.length > 0">
+
+        <div class="all" v-for="store in state.favorites" :key="store.storeId">
+          <div id="imgBigBox" class="card h-100 shadow-sm">
+            <div id="imgBox" class="card-img-top">
+              <img
+                class="sImg"
+                :src="store.imagePath !== null ? `/pic/store-profile/${store.storeId}/${store.imagePath}` : defaultImage"
+              />
+            </div>
+            <!-- <img src="" class="card-img-top" alt="음식 이미지"> -->
+            <div class="card-body">
+              <h6 class="card-title">{{ store.name }}</h6>
+              <div v-if="store.rating !== 'NaN'">
+                <img class="star" :src="ratingImage" />
+                <span class="small">
+                  {{ store.rating }}&nbsp;({{ store.reviews }})&nbsp;&nbsp;<img class="love" :src="favoriteImage" />
+                  {{ store.favorites }}
+                </span>
               </div>
-              <button class="detail-btn" @click="toStore(store.storeId)">
-                자세히 보기
-              </button>
+              <div v-else>
+                <img class="star" :src="ratingImage" />
+                <span class="small">
+                  0&nbsp;(0)&nbsp;&nbsp;<img class="love" :src="favoriteImage" />
+                  {{ store.favorites }}
+                </span>
+              </div>
+              <p class="mb-1 text-muted small">배달비 0원 ~ 3000원</p>
+              <p class="mb-2 text-muted small">최소 주문 금액 10,000원</p>
+              <div class="d-flex justify-content-center align-items-center">
+                <button @click="toStore(store.storeId)" class="btn btn-outline-danger btn-sm">
+                  자세히보기
+                </button>
+              </div>
             </div>
           </div>
         </div>
+
       </div>
 
       <div v-else>
@@ -89,6 +118,8 @@ const toStore = id => {
       </div>
     </div>
   </div>
+
+  <img @click="arrow" class="arrow" src="/src/imgs/arrow.png" />
 
   <!-- 조회 실패 -->
   <div class="modal fade" id="favorite-error" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
@@ -107,13 +138,12 @@ const toStore = id => {
   </div>
 </template>
 
-
 <style lang="scss" scoped>
 @font-face {
   font-family: "BMJUA";
   src: url("https://fastly.jsdelivr.net/gh/projectnoonnu/noonfonts_one@1.0/BMJUA.woff")
     format("woff");
-  font-weight: normal;
+  font-weight: 600;
   font-style: normal;
 }
 
@@ -130,7 +160,7 @@ const toStore = id => {
   letter-spacing: -1.5px;
   margin-top: 90px;
   margin-bottom: 120px;
-  width: 100%;
+  width: 1400px;
 
   .solid {
     width: 100%;
@@ -140,95 +170,53 @@ const toStore = id => {
   }
 }
 
-.store-list {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  margin: 0 auto;   // 가운데 정렬
-  gap: 20px;
-  width: 1440px;
-  
-}
-
-.store-card {
-  width: 345px;
+.for {
   display: flex;
-  align-items: center;
-  background: #fff;
-  border-radius: 15px;
-  border: 2px solid #797979;
-  overflow: hidden;
-  padding: 20px 16px; // 세로 패딩 ↑
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  flex-wrap: wrap;
+  gap: 64px;
+  margin-bottom: 50px;
+  letter-spacing: .015em;
 }
-
-
-.store-image {
-  width: 110px;
-  height: 110px;
-  border-radius: 12px;
-  object-fit: cover;
-  margin-right: 14px;
-}
-
-.store-info {
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  flex: 1;
-}
-
-.store-title {
-  font-size: 18px;
-  font-weight: 600;
-  margin-bottom: 6px;
-}
-
-.store-sub {
-  font-size: 13px;
-  color: #666;
-  margin-bottom: 12px;
-}
-
-.store-meta {
-  display: flex;
-  gap: 12px;
-  font-size: 14px;
-  margin-bottom: 12px;
-}
-
-.rating {
-  color: #ffb400;
-  font-weight: 500;
-}
-
-.likes {
-  color: #ff6666;
-  font-weight: 500;
-}
-
-.detail-btn {
-  background-color: #fff;
-  color: #ff6666;
-  border: #ff6666 solid 2px;
-  border-radius: 8px;
-  padding: 8px 14px;
-  font-size: 14px;
-  cursor: pointer;
-  font-weight: 500;
-}
-.detail-btn:hover {
-  background-color: #ff6666;
-  color:#FFF;
-}
-.container {
-  margin-bottom: 120px;
-}
-.img-box {
-  width: 100%;
+#imgBox {
   display: flex;
   justify-content: center;
-  
+  align-items: center;
+  width: 300px;
+  height: 251px;
+  overflow: hidden;
 }
+.sImg {
+  width: 310px;
+}
+#imgBigBox {
+  border-radius: 15px !important;
+}
+.small {
+  font-size: .7em;
+}
+.btn {
+  width: 150px;
+  background-color: #ff6666;
+  color: #fff;
+  border-radius: 6px;
+}
+.star {
+  width: 20px;
+  margin-right: 5px;
+}
+.love{
+  width: 20px;
+}
+
+.arrow {
+  position: sticky;
+  width: 3.8%;
+  bottom: 100px;
+  left: 93%;
+  z-index: 999;
+  margin-bottom: 100px;
+}
+
 .text-no {
   text-align: center;
   font-size: 30px;
@@ -241,5 +229,4 @@ const toStore = id => {
   text-align: center;
   margin-bottom: 50px;
 }
-
 </style>
