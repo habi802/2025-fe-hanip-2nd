@@ -205,7 +205,7 @@ const showModal = (message) => {
     <div class="cart-empty-wrapper">
         <div class="top-row">
             <div class="header-row">
-                <img class="back-icon" alt="뒤로가기" src="/src/imgs/cartimgs/arrowios.svg" />
+                <!-- <img class="back-icon" alt="뒤로가기" src="/src/imgs/cartimgs/arrowios.svg" /> -->
                 <div class="div29">장바구니</div>
             </div>
             <div class="step-horizontal">
@@ -416,6 +416,7 @@ const showModal = (message) => {
     font-size: 24px;
     font-weight: bold;
     white-space: nowrap;
+    margin-left: 10px;
 }
 
 .step-horizontal {
