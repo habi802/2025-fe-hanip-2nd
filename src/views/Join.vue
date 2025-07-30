@@ -635,7 +635,7 @@ const addressSearch = () => {
                   placeholder="우편번호"
                   readonly
                 />
-                <button type="button" disabled>주소검색</button>
+                <button @click="addressSearch" type="button">주소검색</button>
               </div>
             </div>
             <div class="sev-addres-row">
