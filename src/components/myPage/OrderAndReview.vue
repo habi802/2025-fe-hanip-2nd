@@ -156,6 +156,7 @@ const idCheck = async () => {
   const revId = await getReviewOne(props.order?.id);
   revCheck.value = revId.data.resultData;
 };
+
 </script>
 
 <template>
@@ -168,11 +169,7 @@ const idCheck = async () => {
       <div class="boardLeft">
         <div class="created">{{ formatDateTime(props.order.created) }}</div>
         <div class="imgBox">
-          <img
-            class="img"
-            :src="imgSrc"
-            @error="(e) => (e.target.src = defaultImage)"
-          />
+          <img class="img" :src="imgSrc" @error="(e) => (e.target.src = defaultImage)" />
         </div>
         <div class="textBox">
           <div>{{ props.order?.storeName || "null" }}</div>
@@ -181,11 +178,7 @@ const idCheck = async () => {
       <!-- 카드 중앙 [ 메뉴 이름, 갯수, 가격 ] -->
       <div class="boardMiddle">
         <div class="menuBox">
-          <div
-            class="menu"
-            v-for="(menu, index) in props.order.orderGetList.slice(0, 3)"
-            :key="menu.id || index"
-          >
+          <div class="menu" v-for="(menu, index) in props.order.orderGetList.slice(0, 3)" :key="menu.id || index">
             <div class="name">{{ menu.name || "ㅎㅇ" }}</div>
             <div class="num">{{ menu.quantity || 0 }}개</div>
             <div class="price">{{ menu.price * menu.quantity }}원</div>
@@ -257,6 +250,7 @@ const idCheck = async () => {
 :hover.bigBoard {
   border: #ff6666 2px solid;
 }
+
 .bigBoard {
   width: 1440px !important;
   min-height: 330px; // 최소 높이
@@ -322,20 +316,24 @@ const idCheck = async () => {
 
       .menuBox {
         margin-right: 50px;
+
         .menu {
           display: flex;
           justify-content: space-between;
           font-family: "BMJUA";
           margin-top: 10px;
+
           .name {
             width: 200px;
             text-align: left;
           }
+
           .num {
             width: 50px;
             margin-left: 10px;
             text-align: right;
           }
+
           .price {
             width: 120px;
             text-align: right;
@@ -343,6 +341,7 @@ const idCheck = async () => {
         }
       }
     }
+
     .boardRigth {
       display: flex;
       gap: 80px;
@@ -352,6 +351,7 @@ const idCheck = async () => {
         font-size: 20px;
         color: #797979;
       }
+
       .amountNum {
         margin-top: 10px;
         font-size: 24px;
@@ -448,6 +448,7 @@ const idCheck = async () => {
       }
     }
   }
+
   .btns {
     display: flex;
     width: 100%;
@@ -468,6 +469,7 @@ const idCheck = async () => {
       border: #ff6666 2px solid;
       border-radius: 8px;
     }
+
     :hover.btn {
       background-color: #ff6666;
       border: #ff6666 2px solid;
@@ -489,7 +491,8 @@ const idCheck = async () => {
 .filled {
   color: yellow !important;
 }
-.last{
+
+.last {
   margin-bottom: 100px;
 }
 

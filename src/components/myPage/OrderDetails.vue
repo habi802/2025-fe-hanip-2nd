@@ -128,6 +128,13 @@ const showMore = () => {
 const visibleCards = computed(() => {
   return state.orders.slice(0, visibleCount.value);
 });
+//화면 상단 이동
+const arrow = () => {
+  window.scrollTo({
+    top: 0,
+    behavior: 'smooth',
+  });
+};
 </script>
 
 
@@ -173,16 +180,8 @@ const visibleCards = computed(() => {
           <div class="solid"></div>
         </div>
       </div>
-      <div
-        v-for="order in visibleCards"
-        :key="order.id"
-        style="margin-bottom: 10px"
-      >
-        <order-and-review
-          :order="order"
-          @delete-order="deleteOrderOne"
-          @reorder="reorder"
-        />
+      <div v-for="order in visibleCards" :key="order.id" style="margin-bottom: 10px">
+        <order-and-review :order="order" @delete-order="deleteOrderOne" @reorder="reorder" />
       </div>
     </div>
 
@@ -258,14 +257,8 @@ const visibleCards = computed(() => {
     </div> -->
 
     <!-- 장바구니 모달 -->
-    <div
-      class="modal fade"
-      id="orderF"
-      tabindex="-1"
-      role="dialog"
-      aria-labelledby="exampleModalLabel"
-      aria-hidden="true"
-    >
+    <div class="modal fade" id="orderF" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+      aria-hidden="true">
       <div class="modal-dialog" role="document">
         <div class="modal-content">
           <div class="modal-header">
@@ -281,14 +274,7 @@ const visibleCards = computed(() => {
   </div>
 
   <!-- 장바구니 모달 -->
-  <div
-    class="modal fade"
-    id="cartF"
-    tabindex="-1"
-    role="dialog"
-    aria-labelledby="exampleModalLabel"
-    aria-hidden="true"
-  >
+  <div class="modal fade" id="cartF" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
     <div class="modal-dialog" role="document">
       <div class="modal-content">
         <div class="modal-header">
@@ -306,12 +292,13 @@ const visibleCards = computed(() => {
       </div>
     </div>
   </div>
-  <div v-if="state.orders.length >0" class="btnBox">
+  <div v-if="state.orders.length > 0" class="btnBox">
     <div v-if="visibleCount < state.orders.length" class="btn" @click="showMore">
-  더보기
-  </div>
+      더보기
+    </div>
   </div>
   <!-- <div class=""></div> -->
+  <img @click="arrow" class="arrow" src="/src/imgs/arrow.png" />
 </template>
 
 <style lang="scss" scoped>
@@ -321,8 +308,7 @@ const visibleCards = computed(() => {
 
 @font-face {
   font-family: "BMJUA";
-  src: url("https://fastly.jsdelivr.net/gh/projectnoonnu/noonfonts_one@1.0/BMJUA.woff")
-    format("woff");
+  src: url("https://fastly.jsdelivr.net/gh/projectnoonnu/noonfonts_one@1.0/BMJUA.woff") format("woff");
   font-weight: normal;
   font-style: normal;
   font-family: "Pretendard-Regular";
@@ -647,14 +633,17 @@ const visibleCards = computed(() => {
     }
   }
 }
-.board-box{
+
+.board-box {
   overflow: clip;
 }
-.btnBox{
+
+.btnBox {
   display: flex;
   justify-content: center;
 }
-.btn{
+
+.btn {
   display: flex;
   justify-content: center;
   align-items: center;
@@ -664,5 +653,14 @@ const visibleCards = computed(() => {
   margin-left: -5px;
   margin-bottom: 120px;
   margin-top: -20px;
+}
+
+.arrow {
+  position: sticky;
+  width: 3.8%;
+  bottom: 100px;
+  left: 93%;
+  z-index: 999;
+  margin-bottom: 100px;
 }
 </style>
