@@ -912,7 +912,7 @@ const arrow = () => {
   font-weight: 800;
 }
 .modal-title{
-  font-family: 'Pretendard-Regular';
+    font-family: 'Pretendard-Regular';
   font-weight: 800;
 }
 
