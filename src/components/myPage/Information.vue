@@ -1,7 +1,7 @@
 <script setup>
 import { onMounted, reactive, ref, watch } from "vue";
 import { useRouter } from "vue-router";
-import { getUser, update } from "@/services/userService";
+import { getUser, checkPassword, update } from "@/services/userService";
 import { nextTick } from "vue";
 
 const router = useRouter();
@@ -26,6 +26,9 @@ const errors = reactive({
   email: "",
   phone: "",
 });
+
+// 비밀번호 확인 유효성 코드
+const checkResult = ref("");
 
 //일반 회원용 전화번호 필드
 const phone1 = ref("010");
@@ -106,31 +109,45 @@ function onPhoneInput(modelRef, event) {
   }
 }
 // 현재 비밀번호 서버 검증 함수
-const checkPassword = async () => {
-  const id = localStorage.getItem("id");
-
+const checkCorrectPassword = async () => {
   if (!state.form.loginPw) {
     errors.loginPw = "비밀번호를 입력해주세요.";
     return;
   }
 
-  try {
-    const res = await verifyPassword({
-      id,
-      password: state.form.loginPw,
-    });
+  const res = await checkPassword(state.form.loginPw);
 
-    if (res && res.data && res.data.success) {
-      isPasswordChecked.value = true;
-      showModal("비밀번호가 확인되었습니다.");
-    } else {
-      isPasswordChecked.value = false;
-      showModal("비밀번호가 일치하지 않습니다.");
-    }
-  } catch (err) {
-    console.error("비밀번호 확인 실패:", err);
+  if (res === undefined || res.data.resultStatus !== 200) {
     showModal("비밀번호 확인 중 오류가 발생했습니다.");
+    return;
   }
+
+  if (res.data.resultData !== 1) {
+    errors.loginPw = "비밀번호가 일치하지 않습니다.";
+  } else {
+    checkResult.value = "비밀번호가 확인되었습니다.";
+  }
+};
+
+// 주소 검색
+const addressSearch = () => {
+  new window.daum.Postcode({
+    oncomplete: (data) => {
+      console.log("선택된 주소: ", data);
+
+      // 예: 도로명 주소 기준으로 세팅
+      state.form.postcode = data.zonecode;
+      state.form.address = data.roadAddress;
+
+      // 포커스 이동
+      nextTick(() => {
+        const detailInput = document.querySelector(
+          "input[placeholder='상세 주소 (선택 입력 가능)']"
+        );
+        detailInput?.focus();
+      });
+    },
+  }).open();
 };
 
 // 화살표/백스페이스 제외하고 숫자 외 입력 방지
@@ -199,26 +216,19 @@ const submitForm = async (e) => {
       return;
     }
 
-    // 4. API 호출: 사용자 정보 수정
-    //    - 서버에 보낼 데이터에 ID가 포함되어야 하는 경우 포함시키기
-    const payload = {
-      id,           // 사용자 ID
-      ...state.form // 수정할 사용자 정보 전체
-    };
+    // 4. update 함수에 수정 데이터 전달 (userService.js에서 PUT 요청 처리)
+    const res = await update(state.form);
 
-    // 5. update 함수에 ID와 수정 데이터 전달 (userService.js에서 PUT 요청 처리)
-    const res = await update(id, payload);
-
-    // 6. 요청 성공 시 알림창 표시 후 마이페이지로 이동
+    // 5. 요청 성공 시 알림창 표시 후 마이페이지로 이동
     if (res.status === 200) {
       showModal("정보가 성공적으로 수정되었습니다.");
-      router.push("/mypage");
+      router.push({ path: '/' });
     } else {
-      // 7. 요청 실패 시 알림창 표시
+      // 6. 요청 실패 시 알림창 표시
       showModal("정보 수정에 실패했습니다.");
     }
   } catch (err) {
-    // 8. 네트워크 오류 등 예외 발생 시 콘솔에 에러 기록하고 알림창 표시
+    // 7. 네트워크 오류 등 예외 발생 시 콘솔에 에러 기록하고 알림창 표시
     console.error("정보 수정 실패:", err);
     showModal("정보 수정 중 오류가 발생했습니다.");
   }
@@ -233,6 +243,10 @@ watch(phone2, (val) => {
 // 에러 지우기 (email, phone 등 key값 전달)
 function clearError(key) {
   errors[key] = "";
+
+  if (key === 'loginPw') {
+    checkResult.value = '';
+  }
 }
 
 // 전화번호 입력 시 에러 초기화 + 숫자만 필터 + 자동 이동
@@ -289,8 +303,9 @@ const isPasswordChecked = ref(false); // 비밀번호 확인 여부
             <label>현재 비밀번호</label>
             <input type="password" class="form-input" v-model="state.form.loginPw" placeholder="현재 비밀번호를 입력해주세요."
               :class="{ error: errors.loginPw }" @input="clearError('loginPw')" />
-            <button class="password">비밀번호 확인</button>
+            <button class="password" @click.prevent="checkCorrectPassword()">비밀번호 확인</button>
             <p v-if="errors.loginPw" class="error-msg">{{ errors.loginPw }}</p>
+            <p v-else-if="checkResult" class="success-msg">{{ checkResult }}</p>
           </div>
           <div class="sevLine"></div>
 
@@ -321,7 +336,7 @@ const isPasswordChecked = ref(false); // 비밀번호 확인 여부
               <!-- 우편번호 + 주소검색 버튼 -->
               <div class="address-row">
                 <input type="text" placeholder="우편번호" v-model="state.form.postcode" readonly />
-                <button type="button">주소검색</button>
+                <button type="button" @click="addressSearch()">주소검색</button>
               </div>
 
               <!-- 기본주소 단독 줄 -->
@@ -697,6 +712,18 @@ input[readonly] {
   color: #ff6666;
   font-size: 15px;
   font-weight: 600;
+  transition: color 0.3s ease;
+}
+
+// 성공 메세지
+.success-msg {
+  color: #2f57db;
+  font-size: 15px;
+  font-weight: 600;
+  margin-top: 10px;
+  margin-left: 355px;
+  margin-bottom: -7px;
+  user-select: none;
   transition: color 0.3s ease;
 }
 </style>
