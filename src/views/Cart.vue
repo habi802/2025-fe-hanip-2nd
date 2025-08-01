@@ -189,25 +189,21 @@ const showModal = (message) => {
 </script>
 
 <template>
-  <div class="cart-empty-wrapper">
-    <div class="top-row">
-      <div class="header-row">
-        <div class="title-wrap">
-          <img class="back-icon" alt="뒤로가기" src="/src/imgs/cartimgs/arrowios.svg" />
-          <div class="div29">장바구니</div>
-        </div>
-      </div>
-      <div class="step-horizontal">
-        <span class="step-text">01 음식선택</span>
-        <span class="arrow"><img src="/src/imgs/cartimgs/arrow-back.png" /></span>
-        <span class="step-text current">02 장바구니</span>
-        <span class="arrow"><img src="/src/imgs/cartimgs/arrow-back.png" /></span>
-        <span class="step-text">03 주문/결제</span>
-        <span class="arrow"><img src="/src/imgs/cartimgs/arrow-back.png" /></span>
-        <span class="step-text">04 주문완료</span>
-      </div>
+<div class="section-header">
+  <div class="section-title">
+    <div class="text-top">장바구니</div>
+    <div class="step-horizontal">
+      <span class="step-text">01 음식선택</span>
+      <span class="arrow"><img src="/src/imgs/cartimgs/arrow-back.png" /></span>
+      <span class="step-text current">02 장바구니</span>
+      <span class="arrow"><img src="/src/imgs/cartimgs/arrow-back.png" /></span>
+      <span class="step-text">03 주문/결제</span>
+      <span class="arrow"><img src="/src/imgs/cartimgs/arrow-back.png" /></span>
+      <span class="step-text">04 주문완료</span>
     </div>
   </div>
+  <div class="solid"></div>
+</div>  
 
   <!-- 1. 로그인 안 했고 장바구니 비었을 때 -->
   <div v-if="!loggedIn && state.items.length === 0">
@@ -430,6 +426,56 @@ const showModal = (message) => {
   font-style: normal;
 }
 
+
+//섹션 헤더영역
+.section-header {
+  width: 100%;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  font-family: "BMJUA";
+  width: 100%;
+  font-weight: normal;
+  text-align: center;
+  margin-top: 95px;
+  font-size: 25px;
+  
+  .section-title{
+    width: 1470px;
+    display: flex;
+    justify-content: space-between;  /* 왼쪽과 오른쪽 끝 정렬 */
+    align-items: center;
+    position: relative;
+    margin: 5px 0;
+    .text-top{
+      position: absolute;
+      left: 50%;
+      transform: translateX(-50%);
+    }
+    // 01 음식선택 > 02 장바구니 > 03 주문/결제 > 04 주문 완료
+    .step-horizontal {
+    width: 100%;
+    display: flex;
+    justify-content: right;
+    align-items: center;
+    gap: 8px;
+    font-family: "BMJUA";
+    font-size: 16px;
+      .step-text.current {
+        // 02 장바구니
+        color: #ff6666;
+      } 
+    }
+  }
+  .solid {
+  width: 1470px;
+  border: 1px #000 solid;
+  margin: 50px 0 80px;
+  }
+}
+
+
+
 .cart-empty-wrapper {
   max-width: 1024px;
   margin: 50px auto 0 auto;
@@ -457,18 +503,8 @@ const showModal = (message) => {
     font-size: 50px;
   }
 }
-.step-horizontal {
-  // 01 음식선택 > 02 장바구니 > 03 주문/결제 > 04 주문 완료
-  font-family: "BMJUA";
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 20px;
-  .step-text.current {
-    // 02 장바구니
-    color: #ff6666;
-  }
-}
+
+
 
 .top-row {
   display: flex;
@@ -557,15 +593,17 @@ const showModal = (message) => {
   margin-bottom: 40px;
 }
 
+
+// 음식 담으러 가기 버튼
 .div19 {
-  // 음식 담으러 가기 버튼
   width: 400px;
   height: 80px;
   border: 2px solid #ff6666;
   color: #ff6666;
   background-color: #fff;
-  border-radius: 8px;
+  border-radius: 15px;
   font-size: 32px;
+  font-family: "BMJUA";
   margin-bottom: 80px;
   margin-top: 80px;
   cursor: pointer;
@@ -577,25 +615,27 @@ const showModal = (message) => {
   text-align: center;
 
   &:hover {
-    background-color: #ffe5e5;
+    background-color: #ff6666;
+    color:#fff;
   }
 }
 
 // 박스 정렬
 .store-layout {
-  max-width: 1251px;
-  margin: 40px auto 0 auto; // 전체 가운데 정렬
+  max-width: 1200px;
+  margin: auto; // 전체 가운데 정렬
   display: flex;
   justify-content: center;
-  align-items: flex-start;
-  gap: 40px;
+  align-items: flex-start; 
+  gap: 15px;
   flex-wrap: nowrap; // 줄바꿈 방지
 }
+
 
 // 음식점 가게 카드
 .store-card {
   width: 368px; // 카드 전체 너비
-  border: 1px solid #d7d7d7;
+  border: 2px solid #797979;
   border-radius: 25px;
   overflow: hidden; // 내부 요소 넘칠 경우 숨김
   cursor: pointer;
@@ -663,11 +703,11 @@ const showModal = (message) => {
 .store-box {
   // 각 음식점별 장바구니 박스
   width: 830px;
-  height: 553px;
+  min-height: 553px;
   margin: 0 auto 0px 50px;
   padding: 50px;
-  border: 1px solid #e0e0e0;
-  border-radius: 16px;
+  border: 2px solid #797979;
+  border-radius: 15px;
   background-color: #fff;
   display: flex;
   flex-direction: column; // 세로 정렬
@@ -679,17 +719,18 @@ const showModal = (message) => {
 
   .cart-footer {
     // 총금액 구역박스
-    margin-top: auto;
+    margin: auto;
     display: flex;
     justify-content: flex-end;
-    gap: 20px;
-    text-align: right;
+    gap: 50px;
 
     .total {
       // 총 금액
       font-family: "BMJUA";
       font-size: 30px;
       margin-right: 40px;
+      color: #ff6666;
+      margin: 0 !important;
     }
   }
 }

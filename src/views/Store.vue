@@ -81,9 +81,11 @@ const loadStore = async (id) => {
 };
 
 // 지도를 보여주는 함수
+let lat = 37.5665;
+let lon = 126.9780;
 const showMap = address => {
   const map = new naver.maps.Map('map', {
-    center: new naver.maps.LatLng(37.5665, 126.9780),
+    center: new naver.maps.LatLng(lat, lon),
     zoom: 15,
   });
 
@@ -100,6 +102,8 @@ const showMap = address => {
       }
 
       const point = new naver.maps.LatLng(result.y, result.x);
+      lat = result.x;
+      lon = result.y;
 
       map.setCenter(point);
 
@@ -189,10 +193,6 @@ const loadReviews = async (id) => {
   // console.log("comLeng: ", comLeng);
 
   // 조회 성공 시 장바구니 조회 함수 호출
-
-
-
-
   loadCarts(id);
 };
 
@@ -233,9 +233,10 @@ const toggleFavorite = async (id) => {
     // Pinia store에도 업데이트
     favoriteStore.toggleFavorite(storeId);
     console.log('찜 상태 저장됨:', favoriteStore.state.storeIds);
+
+    loadReviews(id);
+    loadStore(id);
   }
-  loadReviews(id);
-  loadStore(id);
 };
 
 // 장바구니 추가 함수(Menu.vue 컴포넌트에서 받아옴)

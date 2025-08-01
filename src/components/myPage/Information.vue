@@ -1,7 +1,7 @@
 <script setup>
 import { onMounted, reactive, ref, watch } from "vue";
 import { useRouter } from "vue-router";
-import { getUser, update } from "@/services/userService";
+import { getUser, checkPassword, update } from "@/services/userService";
 import { nextTick } from "vue";
 
 const router = useRouter();
@@ -26,6 +26,9 @@ const errors = reactive({
   email: "",
   phone: "",
 });
+
+// 비밀번호 확인 유효성 코드
+const checkResult = ref("");
 
 //일반 회원용 전화번호 필드
 const phone1 = ref("010");
@@ -86,7 +89,7 @@ function validateForm() {
   // 휴대전화 각 자리 검사
   const phoneRegex = /^[0-9]{3,4}$/;
   if (!phoneRegex.test(phone2.value) || !phoneRegex.test(phone3.value)) {
-    errors.phone = "휴대전화 번호는 숫자만 3~4자리 입력해주세요.";
+    errors.phone = "전화번호 다시 한번 확인해주세요.";
     isValid = false;
   } else {
     errors.phone = "";
@@ -105,6 +108,47 @@ function onPhoneInput(modelRef, event) {
     nextTick(() => phone3Input.value?.focus());
   }
 }
+// 현재 비밀번호 서버 검증 함수
+const checkCorrectPassword = async () => {
+  if (!state.form.loginPw) {
+    errors.loginPw = "비밀번호를 입력해주세요.";
+    return;
+  }
+
+  const res = await checkPassword(state.form.loginPw);
+
+  if (res === undefined || res.data.resultStatus !== 200) {
+    showModal("비밀번호 확인 중 오류가 발생했습니다.");
+    return;
+  }
+
+  if (res.data.resultData !== 1) {
+    errors.loginPw = "비밀번호가 일치하지 않습니다.";
+  } else {
+    checkResult.value = "비밀번호가 확인되었습니다.";
+  }
+};
+
+// 주소 검색
+const addressSearch = () => {
+  new window.daum.Postcode({
+    oncomplete: (data) => {
+      console.log("선택된 주소: ", data);
+
+      // 예: 도로명 주소 기준으로 세팅
+      state.form.postcode = data.zonecode;
+      state.form.address = data.roadAddress;
+
+      // 포커스 이동
+      nextTick(() => {
+        const detailInput = document.querySelector(
+          "input[placeholder='상세 주소 (선택 입력 가능)']"
+        );
+        detailInput?.focus();
+      });
+    },
+  }).open();
+};
 
 // 화살표/백스페이스 제외하고 숫자 외 입력 방지
 function onPhoneKeydown(event) {
@@ -137,6 +181,7 @@ onMounted(async () => {
     if (res && res.data) {
       // 조회된 사용자 정보로 폼 초기화
       Object.assign(state.form, res.data.resultData); // 정보 채우기
+      state.form.id = res.data.resultData.id; // 이 부분 추가
     }
     if (res.data.resultData.phone) {
       // 전화번호 분해해서 phone1/phone2/phone3에 넣어주는 부분
@@ -157,31 +202,38 @@ onMounted(async () => {
 const submitForm = async (e) => {
   e.preventDefault();
 
+  // 1. 폼 유효성 검사 실행, 실패 시 함수 종료
   if (!validateForm()) return; // 유효성 검사 추가
 
   try {
-    // 수정 요청 전 폼 유효성 체크 등 필요시 추가
+    // 2. localStorage에서 로그인한 사용자 ID 가져오기
     const id = localStorage.getItem("id");
 
+    // 3. ID가 없으면 로그인 페이지로 이동 및 알림창 표시
     if (!id) {
       showModal("로그인 정보가 없습니다.");
       router.push("/login");
       return;
     }
 
-    // API 호출: 사용자 정보 수정
-    const res = await update(id, state.form);
+    // 4. update 함수에 수정 데이터 전달 (userService.js에서 PUT 요청 처리)
+    const res = await update(state.form);
+
+    // 5. 요청 성공 시 알림창 표시 후 마이페이지로 이동
     if (res.status === 200) {
       showModal("정보가 성공적으로 수정되었습니다.");
-      router.push("/mypage");
+      router.push({ path: '/' });
     } else {
+      // 6. 요청 실패 시 알림창 표시
       showModal("정보 수정에 실패했습니다.");
     }
   } catch (err) {
+    // 7. 네트워크 오류 등 예외 발생 시 콘솔에 에러 기록하고 알림창 표시
     console.error("정보 수정 실패:", err);
     showModal("정보 수정 중 오류가 발생했습니다.");
   }
 };
+
 // 새비밀번호 입력창 아래에 비밀번호 조건 안내 문구
 watch(phone2, (val) => {
   if (val.length === 4) {
@@ -191,6 +243,10 @@ watch(phone2, (val) => {
 // 에러 지우기 (email, phone 등 key값 전달)
 function clearError(key) {
   errors[key] = "";
+
+  if (key === 'loginPw') {
+    checkResult.value = '';
+  }
 }
 
 // 전화번호 입력 시 에러 초기화 + 숫자만 필터 + 자동 이동
@@ -214,14 +270,14 @@ const showModal = (message) => {
     alertModal.show();
   }
 
-  const modalButton = document.querySelector(".modal-footer .btn");
-  if (modalButton) {
-    modalButton.style.backgroundColor = "#FF6666";
-    modalButton.style.color = "#fff";
-  }
+  // const modalButton = document.querySelector(".modal-footer .btn");
+  // if (modalButton) {
+  //   modalButton.style.backgroundColor = "#FF6666";
+  //   modalButton.style.color = "#fff";
+  // }
 };
 
-
+const isPasswordChecked = ref(false); // 비밀번호 확인 여부
 
 </script>
 
@@ -246,9 +302,10 @@ const showModal = (message) => {
             <span>*</span>
             <label>현재 비밀번호</label>
             <input type="password" class="form-input" v-model="state.form.loginPw" placeholder="현재 비밀번호를 입력해주세요."
-              :class="{ error: errors.loginPw }" />
-            <button class="password">비밀번호 확인</button>
+              :class="{ error: errors.loginPw }" @input="clearError('loginPw')" />
+            <button class="password" @click.prevent="checkCorrectPassword()">비밀번호 확인</button>
             <p v-if="errors.loginPw" class="error-msg">{{ errors.loginPw }}</p>
+            <p v-else-if="checkResult" class="success-msg">{{ checkResult }}</p>
           </div>
           <div class="sevLine"></div>
 
@@ -257,7 +314,7 @@ const showModal = (message) => {
             <span>*</span>
             <label>새 비밀번호</label>
             <input type="password" class="form-input" v-model="confirmPw" placeholder="비밀번호는 영문, 숫자, 특수문자 포함 8~16자"
-              :class="{ error: errors.confirmPw }" />
+              :class="{ error: errors.confirmPw }" @input="clearError('confirmPw')" />
             <p v-if="errors.confirmPw" class="error-msg">
               {{ errors.confirmPw }}
             </p>
@@ -279,7 +336,7 @@ const showModal = (message) => {
               <!-- 우편번호 + 주소검색 버튼 -->
               <div class="address-row">
                 <input type="text" placeholder="우편번호" v-model="state.form.postcode" readonly />
-                <button type="button" disabled>주소검색</button>
+                <button type="button" @click="addressSearch()">주소검색</button>
               </div>
 
               <!-- 기본주소 단독 줄 -->
@@ -375,12 +432,14 @@ span {
   color: #ff6666;
   margin-left: 40px;
 }
+
 // input선택시
 input:focus {
   outline: none;
   border-color: #ccc; // 포커스 상태에서도 기존 색상 유지
   background-color: #fff; // 혹시 다르게 바뀌는 경우 대비
 }
+
 .box {
   // 주소 검색 박스
   font-family: "BMJUA";
@@ -544,6 +603,7 @@ input[type="email"] {
         border-radius: 8px;
       }
 
+      // 주소검색 버튼
       button {
         margin-top: 1rem;
         width: 90px;
@@ -552,12 +612,11 @@ input[type="email"] {
         border: 1px solid #ff6666;
         border-radius: 8px;
         color: #ff6666;
-        font-weight: bold;
         cursor: pointer;
 
-        //   &:hover {
-        //     background-color: #ffe5e5;
-        //   }
+        &:hover {
+          background-color: #ffe5e5;
+        }
       }
     }
 
@@ -653,6 +712,18 @@ input[readonly] {
   color: #ff6666;
   font-size: 15px;
   font-weight: 600;
+  transition: color 0.3s ease;
+}
+
+// 성공 메세지
+.success-msg {
+  color: #2f57db;
+  font-size: 15px;
+  font-weight: 600;
+  margin-top: 10px;
+  margin-left: 355px;
+  margin-bottom: -7px;
+  user-select: none;
   transition: color 0.3s ease;
 }
 </style>
