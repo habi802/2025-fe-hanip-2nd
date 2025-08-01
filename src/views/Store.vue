@@ -13,6 +13,8 @@ import Review from "@/components/Review.vue";
 import { useFavoriteStore } from "@/stores/favoriteStore";
 import defaultImage from '@/imgs/owner/owner-service3.png';
 
+
+
 // 하트 이미지
 import lovet from '@/imgs/loveFull.png';
 import lovef from '@/imgs/loveBoard.png'

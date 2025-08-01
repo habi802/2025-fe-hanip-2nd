@@ -118,7 +118,7 @@ const goToMain = () => router.push("/");
 
 const goToOrder = (group) => {
   if (!group || !group.items || group.items.length === 0) {
-    alert("주문할 메뉴가 없습니다.");
+    showModal("주문할 메뉴가 없습니다")
     return;
   }
 
@@ -178,6 +178,13 @@ const menuIgmSrc = items => {
     : defaultImage;  
 }
 
+// 모달창 함수
+const showModal = (message) => {
+  const modalBody = document.getElementById("alertModalBody");
+  if (modalBody) modalBody.textContent = message;
+  const modal = new bootstrap.Modal(document.getElementById("alertModal"));
+  modal.show();
+};
 
 </script>
 
@@ -378,6 +385,28 @@ const menuIgmSrc = items => {
     </div>
   </div>
 
+<!--  -->
+<div
+    class="modal fade"
+    id="alertModal"
+    tabindex="-1"
+    role="dialog"
+    aria-hidden="true"
+  >
+    <div class="modal-dialog modal-dialog-centered" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">알림</h5>
+        </div>
+        <div class="modal-body" id="alertModalBody">내용</div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-primary" data-bs-dismiss="modal">
+            확인
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
 </template>
 
 <style lang="scss" scoped>

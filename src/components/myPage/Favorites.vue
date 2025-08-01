@@ -9,7 +9,9 @@ import { watch } from "vue";
 import defaultImage from '@/imgs/owner/haniplogo_sample2.png';
 import favoriteImage from '@/imgs/love.png';
 import noFavoriteImage from '@/imgs/loveBoard.png'
-import ratingImage from  '@/imgs/star.png';
+import ratingImage from '@/imgs/star.png';
+
+
 
 const router = useRouter();
 const route = useRoute();
@@ -103,7 +105,9 @@ const toStore = id => {
     <div class="box">
       <div>
         <div class="text-top">내가 찜한 가게</div>
-        <div class="solid"></div>
+        <div class="top">
+          <div class="solid"></div>
+        </div>
       </div>
 
       <div v-if="state.favorites.length > 0">
@@ -112,10 +116,8 @@ const toStore = id => {
           <div class="all" v-for="store in visibleCards" :key="store.storeId">
             <div id="imgBigBox" class="card h-100 shadow-sm">
               <div id="imgBox" class="card-img-top">
-                <img
-                  class="sImg"
-                  :src="store.imagePath !== null ? `/pic/store-profile/${store.storeId}/${store.imagePath}` : defaultImage"
-                />
+                <img class="sImg"
+                  :src="store.imagePath !== null ? `/pic/store-profile/${store.storeId}/${store.imagePath}` : defaultImage" />
               </div>
               <!-- <img src="" class="card-img-top" alt="음식 이미지"> -->
               <div class="card-body">
@@ -124,8 +126,7 @@ const toStore = id => {
                   <img class="star" :src="ratingImage" />
                   <span class="small">
                     {{ store.rating }}&nbsp;({{ store.reviews }})&nbsp;&nbsp;
-                    <img class="love"
-                      :src="store.favorite ? favoriteImage : noFavoriteImage"
+                    <img class="love" :src="store.favorite ? favoriteImage : noFavoriteImage"
                       @click="toggleFavorite(store)" />
                     {{ store.favorites }}
                   </span>
@@ -134,8 +135,7 @@ const toStore = id => {
                   <img class="star" :src="ratingImage" />
                   <span class="small">
                     0&nbsp;(0)&nbsp;&nbsp;
-                    <img class="love"
-                      :src="store.favorite ? favoriteImage : noFavoriteImage"
+                    <img class="love" :src="store.favorite ? favoriteImage : noFavoriteImage"
                       @click="toggleFavorite(store)" />
                     {{ store.favorites }}
                   </span>
@@ -208,8 +208,7 @@ const toStore = id => {
 <style lang="scss" scoped>
 @font-face {
   font-family: "BMJUA";
-  src: url("https://fastly.jsdelivr.net/gh/projectnoonnu/noonfonts_one@1.0/BMJUA.woff")
-    format("woff");
+  src: url("https://fastly.jsdelivr.net/gh/projectnoonnu/noonfonts_one@1.0/BMJUA.woff") format("woff");
   font-weight: 600;
   font-style: normal;
 }
@@ -217,23 +216,28 @@ const toStore = id => {
 .all-box {
   display: flex;
   justify-content: center;
-  padding: 0 20px; // 양쪽 여백
+
   width: 100%;
 }
 
+.top {
+  display: flex;
+  justify-content: center;
+}
+
 .box {
+  display: block;
   font-family: "BMJUA";
   font-size: 1.4em;
   letter-spacing: -1.5px;
   margin-top: 90px;
   margin-bottom: 120px;
-  width: 1400px;
+  width: 1470px;
 
   .solid {
-    width: 100%;
-    max-width: 1470px;
+    width: 1470px;
     border: 1px #000 solid;
-    margin: 50px auto 80px auto;
+    margin-bottom: 70px;
   }
 }
 
@@ -241,10 +245,11 @@ const toStore = id => {
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
-  gap: 30px;
+  gap: 75px;
   margin-bottom: 100px;
   letter-spacing: .015em;
 }
+
 #imgBox {
   display: flex;
   justify-content: center;
@@ -253,26 +258,32 @@ const toStore = id => {
   height: 251px;
   overflow: hidden;
 }
+
 .sImg {
   width: 310px;
 }
+
 #imgBigBox {
   border-radius: 15px !important;
 }
+
 .small {
   font-size: .7em;
 }
+
 .btn {
   width: 150px;
   background-color: #ff6666;
   color: #fff;
   border-radius: 6px;
 }
+
 .star {
   width: 20px;
   margin-right: 5px;
 }
-.love{
+
+.love {
   width: 20px;
   cursor: pointer;
 }
@@ -311,6 +322,7 @@ const toStore = id => {
   color: #5f5f5f;
   margin-bottom: 20px;
 }
+
 .text-top {
   font-size: 25px;
   text-align: center;
