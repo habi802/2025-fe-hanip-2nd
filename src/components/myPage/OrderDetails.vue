@@ -100,7 +100,7 @@ const reorder = async menus => {
   }
 
   const carts = res.data.resultData;
-  if (carts !== null && menus[0].storeId === carts[0].storeId) {
+  if (carts !== null && menus.storeId === carts[0].storeId) {
     showModal('이미 다른 가게의 메뉴가 장바구니에 담겨 있습니다.')
     return;
   }
