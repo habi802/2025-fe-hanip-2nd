@@ -6,7 +6,7 @@ import { getReviewsByStoreId } from "@/services/reviewServices";
 import { useRouter } from "vue-router";
 import { getStore } from "@/services/storeService";
 //import { useCartStore } from "@/stores/cart";
-import { addItem, getItem } from "@/services/cartService";
+import { addItem, getItem, removeCart } from "@/services/cartService";
 
 //라우터
 const router = useRouter();
@@ -100,10 +100,16 @@ const reorder = async menus => {
   }
 
   const carts = res.data.resultData;
-  if (carts !== null && menus.storeId === carts[0].storeId) {
+  if (carts !== null && menus.storeId !== carts[0].storeId) {
     showModal('이미 다른 가게의 메뉴가 장바구니에 담겨 있습니다.')
     return;
   }
+
+  // 같은 가게의 메뉴가 이미 장바구니에 담겨져 있을 경우,
+  // 장바구니의 데이터를 다 지우고 새로 등록할지,
+  // 기존의 장바구니에 더 추가를 할지는 생각 해봐야 됨.
+  // 일단은 장바구니에 있는 데이터를 다 지우고 새로 등록하게 했음.
+  await removeCart();
 
   for (let i = 0; i < menus.orderGetList.length; i++) {
     const params = {
