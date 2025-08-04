@@ -94,10 +94,10 @@ const { userAddr } = storeToRefs(userInfo);
 
 //유저정보 불러오기 비동기실행
 onMounted(async () => {
-  console.log("🟡 onMounted 진입");
+  //console.log("🟡 onMounted 진입");
 
   if (account.state.loggedIn) {
-    console.log("🟢 로그인 상태, fetchStore 실행");
+    //console.log("🟢 로그인 상태, fetchStore 실행");
     userInfo.fetchStore();
   }
 });
@@ -107,7 +107,7 @@ watch(
   () => account.state.loggedIn,
   (val) => {
     if (val) {
-      console.log("👀 로그인 감지됨 → fetchStore 실행");
+      //console.log("👀 로그인 감지됨 → fetchStore 실행");
       userInfo.fetchStore();
     }
   }
