@@ -14,7 +14,7 @@ const account = useAccountStore();
 
 const checkAcconut = async () => {
   const res = await check();
-  console.log('res:', res);
+  //console.log('res:', res);
   if (res == undefined || res.status != 200) {
     account.setChecked(false);
     return;

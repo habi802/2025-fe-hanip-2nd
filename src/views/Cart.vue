@@ -1,38 +1,50 @@
 <script setup>
 import { reactive, onMounted, computed, ref } from "vue";
 import { useRouter } from "vue-router";
-import { getItem, removeItem } from "@/services/cartService";
+import { getItem, removeItem, updateQuantity } from "@/services/cartService";
 import { useAccountStore } from "@/stores/account";
 import { getStore } from "@/services/storeService";
-import { useCartStore } from "@/stores/cart";
+//import { useCartStore } from "@/stores/cart";
 import { getReviewsByStoreId } from "@/services/reviewServices";
 import { getFavoriteList } from "@/services/favoriteService";
 // 에러 이미지
 import defaultImage from '@/imgs/owner/owner-service3.png';
 
-
-const cartStore = useCartStore();
+//const cartStore = useCartStore();
 
 const router = useRouter();
 const account = useAccountStore();
 
 const state = reactive({
-  items: cartStore.state.items,
+  items: [],
   reviews: [],
   reviewNum: 0,
   favorites: [],
   store: {},
 });
 
-const storeMap = reactive({});
+// 장바구니 목록 불러오는 함수
+const load = async () => {
+  if (!account.state.loggedIn) return;
+  const res = await getItem();
+  if (res === undefined || res.status !== 200 || res.data.resultStatus !== 200)
+    return;
 
+  state.items = res.data.resultData || [];
+
+  fetchStoreDetails();
+};
+
+// 가게 정보 불러오는 함수(가 맞겠지? 최초로 쓴 사람만 알고 있다..)
+const storeMap = reactive({});
 const fetchStoreDetails = async () => {
-  const storeIds = [...new Set(state.items.map(item => item.storeId))];
-  for (const storeId of storeIds) {
+  const storeId = state.items[0].storeId;
+
     if (!storeMap[storeId]) {
       const res = await getStore(storeId);
+
       // 리뷰 찾을려고 추기작성
-      const rev = await getReviewsByStoreId(storeIds);
+      const rev = await getReviewsByStoreId(storeId);
       if (rev?.status === 200 && rev.data?.resultStatus === 200) {
         state.reviews = rev.data.resultData;
       }
@@ -40,7 +52,6 @@ const fetchStoreDetails = async () => {
       const ref = await getFavoriteList(storeId);
       if (ref?.status === 200 && ref.data?.resultStatus === 200) {
         state.favorites = ref.data.resultData;
-        console.log("fav", state.favorites);
       }
 
       if (res?.status === 200 && res.data?.resultStatus === 200) {
@@ -48,83 +59,40 @@ const fetchStoreDetails = async () => {
         state.store = res.data.resultData;
       }
     }
-  }
+
+  loadReviews();
 };
 
-
-// 가게 리뷰 조회 함수
+// 가게 평균 별점 및 리뷰 수를 보여주기 위한 함수
 const loadReviews = () => {
-
-  console.log("reviews", state.reviews)
   // 리뷰 총점 구하기
   let ratingNumCal = 0;
-  console.log("state.reviews: ", state.reviews);
+
   for (let i = 0; i < state.reviews.length; i++) {
     ratingNumCal += state.reviews[i].rating;
   }
-  const count = (ratingNumCal / state.reviews.length).toFixed(1)
-  // console.log("ratingNumCal", ratingNumCal);
+  const count = (ratingNumCal / state.reviews.length).toFixed(1);
 
-  state.reviewNum = count
+  state.reviewNum = count;
 
-
-  // console.log("comLeng: ", comLeng);
-
-  // 조회 성공 시 장바구니 조회 함수 호출
-
+  calculateTotal();
 };
 
-
-
-const loggedIn = computed(() => account.state.loggedIn);
-
-onMounted(async () => {
-  await load();
-  await fetchStoreDetails();
-  loadReviews();
-  console.log("item", state.items[0])
-});
-
-const load = async () => {
-  if (!loggedIn.value) return;
-  const res = await getItem();
-  if (res === undefined || res.status !== 200 || res.data.resultStatus !== 200)
-    return;
-
-  state.items = res.data.resultData || [];
-};
-
-const remove = async (cartId) => {
-  const res = await removeItem(cartId);
-  if (res === undefined || res.status !== 200) return;
+onMounted(() => {
   load();
-  cartStore.clearCart()
-};
-
-const increaseQty = (item) => {
-  item.quantity++;
-};
-
-const decreaseQty = (item) => {
-  if (item.quantity > 1) item.quantity--;
-};
-
-const totalPrice = computed(() =>
-  state.items.reduce((sum, item) => sum + item.price * item.quantity, 0)
-);
+});
 
 const goToLogin = () => router.push("/login");
 const goToMain = () => router.push("/");
-
-const goToOrder = (group) => {
-  if (!group || !group.items || group.items.length === 0) {
-    showModal("주문할 메뉴가 없습니다")
+const goToOrder = (items) => {
+  if (items.length === 0) {
+    showModal("주문한 메뉴가 없습니다.")
     return;
   }
 
   const orderItems = group.items.map((item) => ({
     id: item.id,
-    menuId: item.menuId || item.menu_id || item.id,
+    menuId: item.menuId,
     quantity: item.quantity,
     price: item.price,
     name: item.name,
@@ -132,47 +100,130 @@ const goToOrder = (group) => {
   }));
 
   localStorage.setItem("orderItems", JSON.stringify(orderItems));
-  router.push(`/stores/${group.items[0].storeId}/order`);
+  router.push(`/stores/${items[0].storeId}/order`);
 };
 
-const groupedItems = computed(() => {
-  const groups = {};
-  for (const item of state.items) {
-    if (!groups[item.storeName]) {
-      groups[item.storeName] = {
-        storeId: item.storeId,
-        storeName: item.storeName,
-        storeNotice: item.storeNotice,
-        items: [],
-      };
-    }
-    groups[item.storeName].items.push(item);
-  }
-  return Object.values(groups);
-});
+// const groupedItems = computed(() => {
+//   const groups = {};
+//   for (const item of state.items) {
+//     if (!groups[item.storeName]) {
+//       groups[item.storeName] = {
+//         storeId: item.storeId,
+//         storeName: item.storeName,
+//         storeNotice: item.storeNotice,
+//         items: [],
+//       };
+//     }
+//     groups[item.storeName].items.push(item);
+//   }
+//   return Object.values(groups);
+// });
 
-// 총가격
-const grandTotalPrice = computed(() => {
-  return groupedItems.value.reduce((groupSum, group) => {
-    return (
-      groupSum +
-      group.items.reduce((sum, item) => sum + item.price * item.quantity, 0)
-    );
-  }, 0);
-});
+// 장바구니 총 금액 표시하기 위한 변수
+const totalPrice = ref(0);
+
+// 장바구니 삭제 함수
+const deleteItem = async (cartId) => {
+  const res = await removeItem(cartId);
+  if (res === undefined || res.status !== 200) return;
+  // cartStore.clearCart();
+
+  if (res.data.resultData === 1) {
+    const deleteIdx = state.items.findIndex((item) => item.id === cartId);
+    if (deleteIdx > -1) {
+      state.items.splice(deleteIdx, 1);
+      calculateTotal();
+    }
+  }
+};
+
+// 장바구니 메뉴 개수 증가시키는 함수
+const increaseQuantity = async idx => {
+  if (state.items[idx].quantity > 1) {
+    const params = {
+      cartId: state.items[idx].id,
+      quantity: state.items[idx].quantity + 1,
+    };
+
+    // 메뉴 개수 수정하는 API 함수 호출
+    const res = await updateQuantity(params);
+
+    if (res === undefined) {
+      const modal = new bootstrap.Modal(document.getElementById("putF"));
+      modal.show();
+      return;
+    } else if (res.data.resultStatus !== 200) {
+      // alert(res.data.resultMessage);
+      const modal = new bootstrap.Modal(document.getElementById("putF"));
+      modal.show();
+      return;
+    }
+
+    state.items[idx].quantity++;
+    calculateTotal();
+  } else if (state.items[idx].quantity == 1) {
+    deleteItem(state.items[idx].id);
+  }
+};
+
+// 장바구니 메뉴 개수 감소시키는 함수
+const decreaseQuantity = async idx => {
+  if (state.items[idx].quantity > 1) {
+    const params = {
+      cartId: state.items[idx].id,
+      quantity: state.items[idx].quantity - 1,
+    };
+
+    // 메뉴 개수 수정하는 API 함수 호출
+    const res = await updateQuantity(params);
+
+    if (res === undefined) {
+      const modal = new bootstrap.Modal(document.getElementById("putF"));
+      modal.show();
+      return;
+    } else if (res.data.resultStatus !== 200) {
+      // alert(res.data.resultMessage);
+      const modal = new bootstrap.Modal(document.getElementById("putF"));
+      modal.show();
+      return;
+    }
+
+    state.items[idx].quantity--;
+    calculateTotal();
+  } else if (state.items[idx].quantity == 1) {
+    deleteItem(state.items[idx].id);
+  }
+};
+
+// 장바구니 총 금액 계산하는 함수
+const calculateTotal = () => {
+  totalPrice.value = 0;
+
+  state.items.forEach((item) => {
+    const price = item.price * item.quantity;
+    totalPrice.value += price;
+  });
+};
+
+// 총 가격
+// const grandTotalPrice = computed(() => {
+//   return groupedItems.value.reduce((groupSum, group) => {
+//     return (
+//       groupSum +
+//       group.items.reduce((sum, item) => sum + item.price * item.quantity, 0)
+//     );
+//   }, 0);
+// });
 
 // 가게 이미지
 const imgSrc = computed(() => {
-
   return state.store.id && state.store.imagePath && state.store.imagePath !== 'null'
     ? `/pic/store-profile/${state.store.id}/${state.store.imagePath}`
     : defaultImage;
-
 })
 // 메뉴 이미지
 
 const menuIgmSrc = items => {
-
   return items?.menuId && items?.imagePath && items?.imagePath !== 'null'
     ? `/pic/menu-profile/${items?.menuId}/${items?.imagePath}`
     : defaultImage;  
@@ -206,7 +257,7 @@ const showModal = (message) => {
 </div>  
 
   <!-- 1. 로그인 안 했고 장바구니 비었을 때 -->
-  <div v-if="!loggedIn && state.items.length === 0">
+  <div v-if="!account.state.loggedIn && state.items.length === 0">
     <div class="div18">장바구니에 담은 음식이 없습니다.</div>
     <div class="groupContainer">
       <div class="div19" @click="goToLogin">로그인 하러 가기</div>
@@ -214,12 +265,12 @@ const showModal = (message) => {
   </div>
 
   <!-- 2. 비로그인 상태로 장바구니 담겼을떄  -->
-  <div v-else-if="!loggedIn" class="unlogin">
+  <div v-else-if="!account.state.loggedIn" class="unlogin">
     <div class="store-layout">
       <div class="store-card">
         <img class="thumbnail" src="@/imgs/chicken.png" />
         <div class="store-content">
-          <h3 class="store-name">가게이름</h3>
+          <h3 class="store-name">가게 이름</h3>
 
           <div class="store-meta">
             <div class="rating">
@@ -253,7 +304,7 @@ const showModal = (message) => {
             <p class="item-comment"></p>
             <div class="qty-box">
               <!-- ❌ 수량이 1일 때는 X버튼으로 삭제 -->
-              <button v-if="item.quantity === 1" @click="remove(item.id)"
+              <button v-if="item.quantity === 1" @click="deleteItem(item.id)"
                 :class="{ 'delete-button': true, danger: true }">
                 x
               </button>
@@ -302,14 +353,11 @@ const showModal = (message) => {
     <!-- 음식점 가게 카드 -->
     <div class="store-layout">
       <!-- 가게 대표 카드 -->
-      <div class="store-card" v-if="groupedItems.length > 0">
+      <!-- <div class="store-card" v-if="groupedItems.length > 0"> -->
+      <div class="store-card" v-if="state.items.length > 0">
         <img class="thumbnail" :src="imgSrc" @error="e => e.target.src = defaultImage" />
-        <!-- <img :src='`/pic/store-profile/${state.store.id}/${state.store.imagePath}` '/> -->
         <div class="store-content">
-          <h3 class="store-name">
-            {{ storeMap[groupedItems[0].storeId]?.name || groupedItems[0].storeName }}
-          </h3>
-
+          <h3 class="store-name">{{ state.store.name }}</h3>
           <div class="store-meta">
             <div class="rating">
               <img id="icon" src="/src/imgs/star.png" alt="별점" />
@@ -331,38 +379,39 @@ const showModal = (message) => {
           <div class="store-info">
             <p>
               최소 주문 금액
-              {{ storeMap[groupedItems[0].storeId]?.minOrderAmount?.toLocaleString() || '10,000' }}원
+              {{ storeMap[state.items[0].storeId]?.minOrderAmount?.toLocaleString() || '10,000' }}원
             </p>
             <p>
               배달료
-              {{ storeMap[groupedItems[0].storeId]?.deliveryFeeRange || '0원 ~ 3,000원' }}
+              {{ storeMap[state.items[0].storeId]?.deliveryFeeRange || '0원 ~ 3,000원' }}
             </p>
           </div>
         </div>
       </div>
 
       <!-- 그룹 반복 렌더링 -->
-      <div v-for="group in groupedItems" :key="group.storeName" class="store-box">
+      <!-- <div v-for="group in groupedItems" :key="group.storeName" class="store-box"> -->
+      <div class="store-box">
         <!-- 가게 음식 정보 -->
         <div class="store-info">
-          <p class="store-name">{{ group.storeName }}</p>
-          <p class="store-sub">{{ group.storeNotice }}</p>
+          <p class="store-name">{{ state.store.name }}</p>
+          <!-- <p class="store-sub">{{ group.storeNotice }}</p> -->
         </div>
 
         <!-- 장바구니 음식 리스트 -->
-        <div v-for="item in group.items" :key="item.id" class="cart-item">
-          <img  :src="menuIgmSrc(item)" @error="e => e.target.src = defaultImage" />
+        <div v-for="(item, idx) in state.items" :key="item.id" class="cart-item">
+          <img :src="menuIgmSrc(item)" @error="e => e.target.src = defaultImage" />
           <div class="item-content">
             <p class="item-name">{{ item.name }}</p>
             <p class="item-comment"></p>
             <div class="qty-box">
-              <button v-if="item.quantity === 1" @click="remove(item.id)"
+              <button v-if="item.quantity === 1" @click="deleteItem(item.id)"
                 :class="{ 'delete-button': true, danger: true }">
-                x
+                X
               </button>
-              <button v-else @click="decreaseQty(item)" class="qty-button">-</button>
+              <button v-else @click="decreaseQuantity(idx)" class="qty-button">-</button>
               <span>{{ item.quantity }}</span>
-              <button @click="increaseQty(item)">+</button>
+              <button @click="increaseQuantity(idx)">+</button>
             </div>
             <p class="item-price">
               {{ (item.price * item.quantity).toLocaleString() }}원
@@ -373,15 +422,13 @@ const showModal = (message) => {
         <!-- 총 금액 표시만 -->
         <div class="cart-footer">
           <p class="total">총 결제 금액:</p>
-          <p class="total">
-            {{group.items.reduce((sum, item) => sum + item.price * item.quantity, 0).toLocaleString()}}원
-          </p>
+          <p class="total">{{ totalPrice.toLocaleString() }}원</p>
         </div>
       </div>
     </div>
 
     <div class="groupContainer">
-      <div class="div19" @click="goToOrder(groupedItems[0])">주문하기</div>
+      <div class="div19" @click="goToOrder(state.items)">주문하기</div>
     </div>
   </div>
 

@@ -196,8 +196,6 @@ const loadReviews = async (id) => {
   loadCarts(id);
 };
 
-
-
 // 고객 유저 장바구니 조회
 const loadCarts = async (id) => {
   // 원래 다른 가게 메뉴를 장바구니에 추가했는지 여부까지 조회해야 하지만
