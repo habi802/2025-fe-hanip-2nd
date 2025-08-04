@@ -42,13 +42,10 @@ const props = defineProps({
   order: Object,
 });
 
-// console.log("props", props.order);
-
 // 버튼
 let on = ref(true);
 const boardBtn = () => {
   on.value = !on.value;
-  //   console.log(on.value);
 };
 
 // 리뷰 별점
@@ -58,18 +55,23 @@ const stars = [1, 2, 3, 4, 5];
 const selectStar = (index) => {
   selected.value = index + 1;
 };
-// console.log("props.order", props.order);
 
 // 날짜 파싱
-const formatDateTime = (isoStr) => {
-  return new Date(isoStr).toLocaleString("ko-KR", {
-    timeZone: "Asia/Seoul",
-    year: "numeric",
-    month: "2-digit",
-    day: "2-digit",
-    hour: "2-digit",
-    minute: "2-digit",
-  });
+const formatDateTime = (created) => {
+  const date = new Date(created);
+
+  // DB에는 한국 시간으로 등록되어 있지 않아서,
+  // 부득이하게 자바스크립트에서 +9시간으로 표시하게 하였음.
+  const koreanDate = new Date(date.getTime() + 9 * 60 * 60 * 1000);
+
+  const yyyy = koreanDate.getFullYear();
+  const mm = String(koreanDate.getMonth() + 1).padStart(2, '0');
+  const dd = String(koreanDate.getDate()).padStart(2, '0');
+  const hh = String(koreanDate.getHours()).padStart(2, '0');
+  const min = String(koreanDate.getMinutes()).padStart(2, '0');
+  const ss = String(koreanDate.getSeconds()).padStart(2, '0');
+
+  return `${yyyy}-${mm}-${dd} ${hh}:${min}:${ss}`;
 };
 
 // 배달상태 파싱
@@ -181,7 +183,7 @@ const idCheck = async () => {
           <div class="menu" v-for="(menu, index) in props.order.orderGetList.slice(0, 3)" :key="menu.id || index">
             <div class="name">{{ menu.name || "ㅎㅇ" }}</div>
             <div class="num">{{ menu.quantity || 0 }}개</div>
-            <div class="price">{{ menu.price * menu.quantity }}원</div>
+            <div class="price">{{ (menu.price * menu.quantity).toLocaleString() }}원</div>
           </div>
           <!-- 메뉴가 많으면 필요함,  -->
           <div v-if="props.order.orderGetList.length > 3" class="more">
