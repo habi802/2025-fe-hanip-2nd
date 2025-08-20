@@ -144,6 +144,7 @@ const showModal = (message) => {
       </form>
     </div>
   </div>
+
   <!-- 공통 알림 모달 -->
   <div class="modal fade" id="alertModal" tabindex="-1" role="dialog" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered" role="document">

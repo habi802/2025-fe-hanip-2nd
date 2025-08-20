@@ -1,7 +1,13 @@
 <script setup>
-import router from "@/router/index";
 import { reactive, ref, watch, nextTick } from "vue";
-import { join, findId } from "@/services/userService";
+import { useRouter } from "vue-router";
+import { join, findId } from "@/services/userService.js";
+import CustomerForm from "@/components/join/CustomerForm.vue";
+import OwnerForm from "@/components/join/OwnerForm.vue";
+
+const router = useRouter();
+const memberType = ref("customer"); // 회원 구분 상태
+const confirmPw = ref(""); // 비밀번호 확인
 
 // 유효성 검사 에러 메세지
 const errors = reactive({
@@ -19,6 +25,41 @@ const errors = reactive({
   ownerPhone2: "",
   ownerPhone3: "",
 });
+
+// form 데이터 상태 관리
+const state = reactive({
+  form: {
+    name: "",
+    loginId: "",
+    loginPw: "",
+    postcode: "",
+    address: "",
+    addressDetail: "",
+    phone: {
+      phone1: "010",
+      phone2: "",
+      phone3: ""
+    },
+    email: "",
+    role: "",
+  },
+  owner: {
+    name: "",
+    category: "",
+    ownerTel1: "",
+    ownerTel2: "",
+    ownerTel3: "",
+    businessNumber: "",
+    licenesPath: "",
+    imagePath: "",
+  },
+});
+
+// 아이디 중복 검사 유효성 코드
+const checkResult = ref("");
+
+// 아이디 중복 체크 버튼 눌렀는지 여부
+const isIdChecked = ref(false);
 
 // 유효성 검사 함수들
 const validateLoginId = () => {
@@ -61,27 +102,30 @@ const validateAddress = () => {
     state.form.address.trim().length > 0 ? "" : "주소 입력은 필수입니다.";
 };
 
-// 번호 확인
+// 일반 고객 번호 확인
 const validatePhone = () => {
   const middleRegex = /^\d{3,4}$/;
   const lastRegex = /^\d{4}$/;
-  errors.phone2 = middleRegex.test(phone2.value)
+  errors.phone2 = middleRegex.test(state.form.phone.phone2)
     ? ""
-    : "전화번호 다시 한번 확인해주세요.";
-  errors.phone3 = lastRegex.test(phone3.value) ? "" : "전화번호 다시 한번 확인해주세요.";
+    : "중간 번호는 3~4자리 숫자여야 합니다.";
+  errors.phone3 = lastRegex.test(state.form.phone.phone3)
+    ? ""
+    : "끝 번호는 4자리 숫자여야 합니다.";
 };
 
+// 가게 전화
 const validateOwnerTel = () => {
   const middleRegex = /^\d{3,4}$/;
   const lastRegex = /^\d{4}$/;
-  errors.ownerTel2 = middleRegex.test(ownerTel2.value)
+  errors.ownerTel2 = middleRegex.test(state.owner.tel2)
     ? ""
-    : "전화번호 다시 한번 확인해주세요.";
-  errors.ownerTel3 = lastRegex.test(ownerTel3.value)
+    : "가게 전화 중간 번호는 3~4자리 숫자여야 합니다.";
+  errors.ownerTel3 = lastRegex.test(state.owner.tel3)
     ? ""
-    : "전화번호 다시 한번 확인해주세요.";
+    : "가게 전화 끝 번호는 4자리 숫자여야 합니다.";
 };
-
+// 오너 개인 전화
 const validateOwnerPhone = () => {
   const middleRegex = /^\d{3,4}$/;
   const lastRegex = /^\d{4}$/;
@@ -120,99 +164,16 @@ const validateForm = () => {
   return Object.values(errors).every((msg) => msg === "");
 };
 
-// 아이디 중복 검사 유효성 코드
-const checkResult = ref("");
-// 아이디 중복 체크 버튼 눌렀는지 여부
-const isIdChecked = ref(false);
+// 전화번호 입력 시 즉시 유효성 검사 + 숫자만 허용
+function handlePhoneInput(event, field) {
+  let value = event.target.value.replace(/\D/g, "");
+  if (value.length > 4) value = value.slice(0, 4);
+  state.form.phone[field] = value;
 
-// 아이디 중복 확인 함수
-const checkDuplicateId = async () => {
-  // 1. 아이디 유효성 검사 먼저 수행
-  validateLoginId();
-  if (errors.loginId !== "") return; // 유효성 에러가 있으면 중복 검사 중단
-
-  isIdChecked.value = true; // 중복 체크 버튼이 눌렸음을 표시
-
-  try {
-    // 2. 서버에 아이디와 회원 역할(role)을 전달하여 중복 여부 확인
-    const response = await findId({
-      loginId: state.form.loginId,
-      role: memberType.value,
-    });
-
-    // 3. 서버가 200 OK를 반환했을 경우 정상 처리
-    if (response.status === 200) {
-      // resultData가 null이면 사용 가능한 아이디로 간주
-      const available = response.data.resultData === null;
-
-      if (available) {
-        checkResult.value = "사용 가능한 아이디입니다."; // 성공 메시지 출력
-        errors.loginId = ""; // 에러 메시지 초기화
-      } else {
-        checkResult.value = ""; // 성공 메시지 초기화
-        errors.loginId = "이미 사용 중인 아이디입니다."; // 중복 아이디 메시지 출력
-      }
-    }
-    // 4. 서버가 400 Bad Request를 반환했을 경우도 중복 아이디로 간주
-    else if (response.status === 400) {
-      checkResult.value = ""; // 성공 메시지 초기화
-      // 서버에서 보내준 메시지가 있으면 사용, 없으면 기본 메시지 출력
-      errors.loginId =
-        response.data?.resultMessage || "이미 사용 중인 아이디입니다.";
-    }
-    // 5. 그 외 상태 코드는 중복 확인 실패로 처리
-    else {
-      checkResult.value = ""; // 성공 메시지 초기화
-      errors.loginId = "중복 확인 실패";
-    }
-  } catch (err) {
-    // 6. 네트워크 오류 등 예외 발생 시 에러 처리
-    checkResult.value = "";
-    errors.loginId = "서버 오류로 확인에 실패했습니다.";
-    console.error("중복 검사 에러:", err);
-  }
-};
-
-// 회원 타입
-const memberType = ref("customer");
-
-// 입력 필드
-const confirmPw = ref("");
-// 일반전화
-const phone1 = ref("010");
-const phone2 = ref("");
-const phone3 = ref("");
-const phone2Input = ref(null);
-const phone3Input = ref(null);
-// 가게전화
-const ownerTel1 = ref("02");
-const ownerTel2 = ref("");
-const ownerTel3 = ref("");
-const ownerTel2Input = ref(null);
-const ownerTel3Input = ref(null);
-// 사장전화
-const ownerPhone1 = ref("010");
-const ownerPhone2 = ref("");
-const ownerPhone3 = ref("");
-const ownerPhone2Input = ref(null);
-const ownerPhone3Input = ref(null);
-
-// 공통 전화번호 입력 처리 함수, 숫자만 입력, 최대4자리, 4자리 입력시 다음 으로 이동
-function handlePhoneInput(event, model, currentRef, nextRef = null) {
-  const value = event.target.value.replace(/\D/g, ""); // 숫자만 허용
-  if (value.length > 4) value = value.slice(0, 4); // 4자리 제한
-
-  // 모델 값 동기화
-  model.value = value;
-
-  // input 요소의 실제 값도 수동으로 설정
-  event.target.value = value;
-
-  // 다음 input으로 포커스 이동
-  if (value.length === 4 && nextRef?.value) {
-    nextRef.value.focus();
-  }
+  // 입력 중 즉시 유효성 검사
+  validatePhone();
 }
+
 // 숫자 이외 키 입력 차단 함수
 function onlyNumberInput(event) {
   const allowedKeys = ["Backspace", "ArrowLeft", "ArrowRight", "Tab"];
@@ -222,29 +183,39 @@ function onlyNumberInput(event) {
     event.preventDefault();
   }
 }
-// 상태
-const state = reactive({
-  form: {
-    name: "",
-    loginId: "",
-    loginPw: "",
-    postcode: "",
-    address: "",
-    addressDetail: "",
-    phone: "",
-    email: "",
-    role: "",
-  },
-  owner: {
-    name: "",
-    category: "",
-    tel: "",
-    businessNumber: "",
-    licenesPath: "",
-    imagePath: "",
-  },
+
+// 아이디 중복 검사 함수
+const checkDuplicateId = async () => {
+  validateLoginId();
+  if (errors.loginId) {
+    showModal("아이디 형식을 확인해주세요.");
+    return;
+  }
+
+  try {
+    const res = await findId(state.form.loginId);
+    if (res.data.exists) {
+      checkResult.value = "";
+      errors.loginId = "이미 사용 중인 아이디입니다.";
+      isIdChecked.value = false;
+    } else {
+      checkResult.value = "사용 가능한 아이디입니다.";
+      errors.loginId = "";
+      isIdChecked.value = true;
+    }
+  } catch (err) {
+    console.error(err);
+    showModal("아이디 중복 확인 중 오류가 발생했습니다.");
+  }
+};
+
+// 아이디 입력 수정 시 중복 체크 초기화
+watch(() => state.form.loginId, () => {
+  checkResult.value = "";
+  isIdChecked.value = false;
 });
 
+// 약관 동의 상태
 const agreement = reactive({
   allAgree: false,
   terms: {
@@ -257,81 +228,84 @@ const agreement = reactive({
   email: false,
 });
 
-// 아이디 초기화
-watch(
-  () => state.form.loginId,
-  () => {
-    checkResult.value = ""; // 중복 확인 성공 메시지 제거
-
-    // 중복 검사 실패 메시지일 경우에만 제거
-    if (errors.loginId === "이미 사용 중인 아이디입니다.") {
-      errors.loginId = "";
-    }
-  }
-);
-
 // 회원구분
 watch(memberType, (val) => {
   state.form.role = val;
 });
-// 전화번호(일반)
-watch([phone1, phone2, phone3], () => {
-  state.form.phone = `${phone1.value}-${phone2.value}-${phone3.value}`;
-});
-// 가게전화
-watch([ownerTel1, ownerTel2, ownerTel3], () => {
-  state.owner.tel = `${ownerTel1.value}-${ownerTel2.value}-${ownerTel3.value}`;
-});
-// 전화번호(업주)
-watch([ownerPhone1, ownerPhone2, ownerPhone3], () => {
-  state.owner.phone = `${ownerPhone1.value}-${ownerPhone2.value}-${ownerPhone3.value}`;
-});
 
-const toggleAllAgree = () => {
-  const val = agreement.allAgree;
-  agreement.terms.useTerms = val;
-  agreement.terms.privacyPolicy = val;
-  agreement.terms.thirdParty = val;
-  agreement.marketing = val;
-  agreement.sms = val;
-  agreement.email = val;
+// input 이벤트 핸들러
+const handleLoginIdInput = () => {
+  errors.loginId = "";
+  checkResult.value = "";
 };
 
-const submit = async () => {
-  // 아이디 중복 확인
-  if (errors.loginId === "이미 사용 중인 아이디입니다.") {
-    showModal("아이디가 이미 사용 중입니다. 다른 아이디를 선택해주세요.");
-    return; // 중복 아이디가 있을 경우 회원가입 진행하지 않음
-  }
-  state.form.role = memberType.value;
+const clearConfirmPwError = () => {
+  errors.confirmPw = "";
+};
 
+const clearPasswordError = () => {
+  errors.loginPw = "";
+};
+
+// 주소 검색
+const addressSearch = () => {
+  new window.daum.Postcode({
+    oncomplete: (data) => {
+      state.form.postcode = data.zonecode;
+      state.form.address = data.roadAddress;
+
+      // 상세주소 input에 포커스
+      nextTick(() => {
+        const detailInput = document.querySelector(
+          "input[placeholder='상세주소 (선택 입력 가능)']"
+        );
+        detailInput?.focus();
+      });
+    },
+  }).open();
+};
+
+// 약관 전체동의 toggle
+function toggleAllAgree() {
+  const checked = agreement.allAgree;
+  agreement.terms.useTerms = checked;
+  agreement.terms.privacyPolicy = checked;
+  agreement.terms.thirdParty = checked;
+  agreement.marketing = checked;
+  agreement.sms = checked;
+  agreement.email = checked;
+}
+
+// 유저 정보 제출
+const submit = async () => {
+  // 1. 기본 폼 유효성 검사
   if (!validateForm()) {
     showModal("입력값을 다시 확인해주세요.");
     return;
   }
 
+  // 2. 필수 항목 체크
   if (!state.form.loginId || !state.form.loginPw || !state.form.email) {
     showModal("아이디, 비밀번호, 이메일은 필수입니다.");
     return;
   }
 
-  if (memberType.value === "customer") {
-    if (!state.form.name) {
-      showModal("이름은 필수입니다.");
-      return;
-    }
-  } else {
-    if (!state.owner.name || !state.owner.category) {
-      showModal("가게명 및 카테고리는 필수입니다.");
-      return;
-    }
+  if (!isIdChecked.value) {
+    showModal("아이디 중복 확인을 해주세요.");
+    return;
   }
 
-  if (
-    !agreement.terms.useTerms ||
-    !agreement.terms.privacyPolicy ||
-    !agreement.terms.thirdParty
-  ) {
+  if (memberType.value === "customer" && !state.form.name) {
+    showModal("이름은 필수입니다.");
+    return;
+  }
+
+  if (memberType.value === "owner" && (!state.owner.name || !state.owner.category)) {
+    showModal("가게명 및 카테고리는 필수입니다.");
+    return;
+  }
+
+  if (!agreement.terms.useTerms || !agreement.terms.privacyPolicy || !agreement.terms.thirdParty) {
     showModal("필수 약관에 동의해주세요.");
     return;
   }
@@ -341,80 +315,53 @@ const submit = async () => {
     return;
   }
 
+  // 3. 전화번호 합치기 (customer)
+  const phoneStr = `${state.form.phone.phone1}-${state.form.phone.phone2}-${state.form.phone.phone3}`;
+  // 4. 업주일 경우 tel 합치기
+  let ownerPayload = null;
+  if (memberType.value === "owner") {
+    const telStr = `${state.owner.tel1}-${state.owner.tel2}-${state.owner.tel3}`;
+    ownerPayload = { ...state.owner, tel: telStr };
+  }
+
+  // 5. 최종 payload 구성
   const payload = {
-    ...state.form,
-    owner: memberType.value === "owner" ? state.owner : null,
+    id: 0, // 서버에서 auto-increment면 보내도 되고, 안 보내도 무방
+    name: state.form.name,
+    loginId: state.form.loginId,
+    loginPw: state.form.loginPw,
+    postcode: state.form.postcode,
+    address: state.form.address,
+    addressDetail: state.form.addressDetail,
+    phone: phoneStr,
+    email: state.form.email ?? "", // null 방지
+    imagePath: "", // 아직 업로드 없다면 빈 문자열
+    role: memberType.value === "owner" ? "OWNER" : "CUSTOMER",
+    ...(memberType.value === "owner" ? { owner: ownerPayload } : {}),
   };
 
   try {
+    // 6. 서버 요청
     const res = await join(payload);
     if (res.status === 200) {
       showModal("회원가입 완료!");
       localStorage.setItem("user", JSON.stringify(res.data.resultData));
-      router.push("/");
+      router.push("/"); // 메인 페이지로 이동
     } else {
       showModal("입력 정보를 다시 확인해 주세요.");
     }
   } catch (err) {
+    // 7. 오류 처리
     console.error(err);
     showModal("회원가입 중 오류 발생");
   }
 };
 
-// 약관 설명 텍스트
+// 약관 설명 텍스트 (마지막에 내용 다 넣기)
 const termsText = {
-  useTerms: `한입 배달 서비스 이용약관
-제정일자: 2025년 7월 30일
-시행일자: 2025년 8월 1일
-회사명: 한입(Hanip)
-
-제1조 (목적)
-본 약관은 한입(이하 ‘회사’)이 제공하는 배달 플랫폼 및 관련 서비스(이하 ‘서비스’)의 이용과 관련하여 회사와 회원 간의 권리, 의무, 책임사항 및 기타 필요한 사항을 규정함을 목적으로 합니다.
-
-제2조 (정의)
-‘서비스’란 웹사이트 및 모바일 웹, 앱 등을 통해 제공되는 음식 배달 및 관련 서비스를 의미합니다.
-
-‘회원’이란 회사와 이용계약을 체결하고 서비스를 이용하는 고객을 말합니다.
-
-‘비회원’은 회원가입 없이 일부 서비스를 이용하는 고객입니다.
-
-‘가맹점(업주)’이란 음식 등의 상품을 회원에게 제공하기 위해 플랫폼에 입점한 판매자를 말합니다.
-
-제3조 (약관의 효력 및 변경)
-본 약관은 회원가입 시 동의 절차를 거쳐 효력이 발생합니다.
-
-회사는 관련 법령을 위배하지 않는 범위 내에서 약관을 변경할 수 있으며, 변경 시 서비스 내 공지합니다.
-
-변경된 약관에 동의하지 않을 경우 회원은 서비스 이용을 중단하고 탈퇴할 수 있습니다.`,
-  privacyPolicy: `개인정보보호법에 따라 네이버에 회원가입 신청하시는 분께 수집하는 개인정보의 항목, 개인정보의 수집 및 이용목적, 개인정보의 보유 및 이용기간, 동의 거부권 및 동의 거부 시 불이익에 관한 사항을 안내 드리오니 자세히 읽은 후 동의하여 주시기 바랍니다.
-
-1. 수집하는 개인정보
-이용자는 회원가입을 하지 않아도 정보 검색, 뉴스 보기 등 대부분의 네이버 서비스를 회원과 동일하게 이용할 수 있습니다. 이용자가 메일, 캘린더, 카페, 블로그 등과 같이 개인화 혹은 회원제 서비스를 이용하기 위해 회원가입을 할 경우, 네이버는 서비스 이용을 위해 필요한 최소한의 개인정보를 수집합니다.
-
-회원가입 시점에 네이버가 이용자로부터 수집하는 개인정보는 아래와 같습니다.
-- 회원 가입 시 필수항목으로 아이디, 비밀번호, 이름, 생년월일, 성별, 휴대전화번호를, 선택항목으로 본인확인 이메일주소를 수집합니다. 실명 인증된 아이디로 가입 시, 암호화된 동일인 식별정보(CI), 중복가입 확인정보(DI), 내외국인 정보를 함께 수집합니다. 만 14세 미만 아동의 경우, 법정대리인의 동의를 받고 있으며, 휴대전화번호 또는 아이핀 인증을 통해 법정대리인의 동의를 확인하고 있습니다. 이 과정에서 법정대리인의 정보(법정대리인의 이름, 중복가입확인정보(DI), 휴대전화번호(아이핀 인증인 경우 아이핀번호))를 추가로 수집합니다.
-- 비밀번호 없이 회원 가입 시에는 필수항목으로 아이디, 이름, 생년월일, 휴대전화번호를, 선택항목으로 비밀번호를 수집합니다.
-- 단체 회원가입 시 필수 항목으로 단체아이디, 비밀번호, 단체이름, 이메일주소, 휴대전화번호를, 선택항목으로 단체 대표자명을 수집합니다.
-서비스 이용 과정에서 이용자로부터 수집하는 개인정보는 아래와 같습니다.
-- 회원정보 또는 개별 서비스에서 프로필 정보(별명, 프로필 사진)를 설정할 수 있습니다. 회원정보에 별명을 입력하지 않은 경우에는 마스킹 처리된 아이디가 별명으로 자동 입력됩니다.
-- 네이버 내의 개별 서비스 이용, 이벤트 응모 및 경품 신청 과정에서 해당 서비스의 이용자에 한해 추가 개인정보 수집이 발생할 수 있습니다. 추가로 개인정보를 수집할 경우에는 해당 개인정보 수집 시점에서 이용자에게 ‘수집하는 개인정보 항목, 개인정보의 수집 및 이용목적, 개인정보의 보관기간’에 대해 안내 드리고 동의를 받습니다.
-
-
-
-서비스 이용 과정에서 IP 주소, 쿠키, 서비스 이용 기록, 기기정보, 위치정보가 생성되어 수집될 수 있습니다. 또한 이미지 및 음성을 이용한 검색 서비스 등에서 이미지나 음성이 수집될 수 있습니다.
-구체적으로 1) 서비스 이용 과정에서 이용자에 관한 정보를 자동화된 방법으로 생성하거나 이용자가 입력한 정보를 저장(수집)하거나, 2) 이용자 기기의 고유한 정보를 원래의 값을 확인하지 못 하도록 안전하게 변환하여 수집합니다.
-서비스 이용 과정에서 위치정보가 수집될 수 있으며,
-네이버에서 제공하는 위치기반 서비스에 대해서는 '네이버 위치기반서비스 이용약관'에서 자세하게 규정하고 있습니다.
-이와 같이 수집된 정보는 개인정보와의 연계 여부 등에 따라 개인정보에 해당할 수 있고, 개인정보에 해당하지 않을 수도 있습니다.
-생성정보 수집에 대한 추가 설명
-- IP(Internet Protocol) 주소란?
-IP 주소는 인터넷 망 사업자가 인터넷에 접속하는 이용자의 PC 등 기기에 부여하는 온라인 주소정보 입니다. IP 주소가 개인정보에 해당하는지 여부에 대해서는 각국마다 매우 다양한 견해가 있습니다.
-- 서비스 이용기록이란?
-네이버 접속 일시, 이용한 서비스 목록 및 서비스 이용 과정에서 발생하는 정상 또는 비정상 로그 일체,메일 수발신 과정에서 기록되는 이메일주소, 친구 초대하기 또는 선물하기 등에서 입력하는 휴대전화번호, 스마트스토어 판매자와 구매자간 상담내역(네이버톡톡 및 상품 Q&A 게시글) 등을 의미합니다. 정보주체가 식별되는 일부 서비스 이용기록(행태정보 포함)과 관련한 처리 목적 등에 대해서는 본 개인정보 처리방침에서 규정하고 있는 수집하는 개인정보, 수집한 개인정보의 이용, 개인정보의 파기 등에서 설명하고 있습니다. 이는 서비스 제공을 위해 수반되는 것으로 이를 거부하시는 경우 서비스 이용에 제한이 있을 수 있으며, 관련하여서는 고객센터로 문의해주시길 바랍니다. 이 외에 정보주체를 식별하지 않고 행태정보를 처리하는 경우와 관련하여서는 '네이버 맞춤형 광고 안내'에서 확인하실 수 있습니다.
-- 기기정보란?
-본 개인정보처리방침에 기재된 기기정보는 생산 및 판매 과정에서 기기에 부여된 정보뿐 아니라, 기기의 구동을 위해 사용되는 S/W를 통해 확인 가능한 정보를 모두 일컫습니다. OS(Windows, MAC OS 등) 설치 과정에서 이용자가 PC에 부여하는 컴퓨터의 이름, PC에 장착된 주변기기의 일련번호, 스마트폰의 통신에 필요한 고유한 식별값(IMEI, IMSI), AAID 혹은 IDFA, 설정언어 및 설정 표준시, USIM의 통신사 코드 등을 의미합니다. 단, 네이버는 IMEI와 같은 기기의 고유한 식별값을 수집할 필요가 있는 경우, 이를 수집하기 전에 네이버도 원래의 값을 알아볼 수 없는 방식으로 암호화 하여 식별성(Identifiability)을 제거한 후에 수집합니다.`,
-  thirdParty: `제3자 제공에 대한 안내
-당사는 서비스 제공 및 계약 이행을 위해 필요한 범위 내에서 다음과 같은 제3자에게 최소한의 개인정보를 제공할 수 있습니다. 제공되는 정보는 목적 달성 이후 즉시 파기되며, 법령에 따라 안전하게 처리됩니다.`,
+  useTerms: "한입 이용약관 내용...",
+  privacyPolicy: "개인정보 처리방침 내용...",
+  thirdParty: "제3자 제공 안내 내용...",
 };
 
 // 모달창 함수
@@ -426,44 +373,23 @@ const showModal = (message) => {
   modal.show();
 };
 
-// 주소 검색
-const addressSearch = () => {
-  new window.daum.Postcode({
-    oncomplete: (data) => {
-      console.log("선택된 주소: ", data);
-
-      // 예: 도로명 주소 기준으로 세팅
-      state.form.postcode = data.zonecode;
-      state.form.address = data.roadAddress;
-
-      // 포커스 이동
-      nextTick(() => {
-        const detailInput = document.querySelector(
-          "input[placeholder='상세 주소 (선택 입력 가능)']"
-        );
-        detailInput?.focus();
-      });
-    },
-  }).open();
-};
-
 </script>
 
 <template>
   <div class="join">
     <div class="container">
       <h2 class="join-title">회원가입</h2>
-
       <form class="join-form" @submit.prevent="submit">
         <strong>* 필수입력칸입니다.</strong>
         <div class="titleLine"></div>
-
         <!-- 회원구분 -->
         <div class="form-group">
           <div class="label">
-            <span>*</span>
-            <p>회원 구분</p>
-            <div class="radio-group">
+            <div class="sortation">
+              <span>*</span>
+              <p>회원 구분</p>
+            </div>
+            <div class="radio-group ">
               <label id="radio"><input type="radio" class="circle" name="memberType" value="customer"
                   v-model="memberType" />
                 일반</label>
@@ -473,40 +399,29 @@ const addressSearch = () => {
           </div>
         </div>
         <div class="sevLine"></div>
-
-        <!-- 회원인증 -->
-        <!-- <div class="form-certified"> -->
-        <!-- <div class="certified"> -->
-        <!-- <label>회원인증</label> -->
-        <!-- </div> -->
-        <!-- </div> -->
-        <!-- <div class="sevLine"></div> -->
-
-        <!-- 기본 정보 -->
+        <!-- 기본 정보 (아이디/비밀번호는 공용) -->
         <label class="serveTitle">기본정보</label>
         <div class="titleLine"></div>
         <div class="form-group">
           <!-- 아이디 -->
           <div class="id-from address-row">
             <div class="label">
-              <span>*</span>
-              <p>아이디</p>
+              <div class="sortation">
+                <span>*</span>
+                <p>아이디</p>
+              </div>
               <div class="id">
-                <input v-model="state.form.loginId" :class="{ invalid: errors.loginId }" @input="
-                  () => {
-                    errors.loginId = ''; // 입력 도중 아이디 에러 메시지 초기화
-                    checkResult.value = ''; // 중복 체크 결과 메시지 초기화
-                  }
-                " @blur="validateLoginId" placeholder="영문 소문자/숫자, 4~16자" />
-                <button type="button" @click="checkDuplicateId">
-                  아이디 중복
-                </button>
-                <p v-if="errors.loginId" class="error-msg">
-                  {{ errors.loginId }}
-                </p>
-                <p v-else-if="checkResult" class="success-msg">
-                  {{ checkResult }}
-                </p>
+                <div class="id-input-group">
+                  <input v-model="state.form.loginId" :class="{ invalid: errors.loginId }" @input="handleLoginIdInput"
+                    placeholder="영문 소문자/숫자, 4~16자" />
+                  <button class="idbox" type="button" @click="checkDuplicateId">
+                    아이디 중복
+                  </button>
+                </div>
+                <div class="id-message">
+                  <p v-if="errors.loginId" class="error-msg">{{ errors.loginId }}</p>
+                  <p v-else-if="checkResult" class="success-msg">{{ checkResult }}</p>
+                </div>
               </div>
             </div>
           </div>
@@ -515,8 +430,10 @@ const addressSearch = () => {
         <!-- 비밀번호 -->
         <div class="form-group">
           <div class="label">
-            <span>*</span>
-            <p>비밀번호</p>
+            <div class="sortation">
+              <span>*</span>
+              <p>비밀 번호</p>
+            </div>
             <div class="password">
               <input type="password" v-model="state.form.loginPw" :class="{ invalid: errors.loginPw }"
                 @input="() => (errors.loginPw = '')" @blur="validatePassword"
@@ -531,8 +448,10 @@ const addressSearch = () => {
         <!-- 비밀번호 확인 -->
         <div class="form-group">
           <div class="label">
-            <span>*</span>
-            <p>비밀번호 확인</p>
+            <div class="sortation">
+              <span>*</span>
+              <p>비밀번호 확인</p>
+            </div>
             <div class="password2">
               <input type="password" v-model="confirmPw" @input="() => (errors.confirmPw = '')"
                 @blur="validateConfirmPw" :class="{ invalid: errors.confirmPw }" placeholder="비밀번호 재입력" />
@@ -543,262 +462,16 @@ const addressSearch = () => {
           </div>
         </div>
         <div class="sevLine"></div>
-        <!-- 일반 회원 전용 form -->
-        <template v-if="memberType === 'customer'">
-          <div class="form-group">
-            <div class="label">
-              <span>*</span>
-              <p>이름</p>
-              <input type="text" v-model="state.form.name" @input="() => (errors.name = '')" />
-            </div>
-          </div>
-          <div class="sevLine"></div>
-          <!-- 주소 -->
-          <div class="form-group address-group">
-            <div class="label">
-              <span>*</span>
-              <p>주소</p>
-              <div class="address-row">
-                <input type="text" v-model="state.form.postcode" placeholder="우편번호" readonly />
-                <button @click="addressSearch" type="button">주소검색</button>
-              </div>
-            </div>
-            <div class="sev-addres-row">
-              <input type="text" v-model="state.form.address" placeholder="기본주소" readonly />
-              <input type="text" v-model="state.form.addressDetail" placeholder="상세주소 (선택입력가능)" />
-            </div>
-          </div>
-          <div class="sevLine"></div>
-          <!-- 휴대전화 -->
-          <div class="form-group phone-input-wrap">
-            <div class="label">
-              <span>*</span>
-              <p>전화번호</p>
-              <div class="phone-input">
-                <select v-model="phone1">
-                  <option>010</option>
-                  <option>016</option>
-                  <option>017</option>
-                  <option>018</option>
-                  <option>019</option>
-                </select>
-                <input type="text" v-model="phone2" maxlength="4" @input="onPhoneInput($event, 'phone2', 'phone3')"
-                  :class="{ invalid: errors.phone2 }" @keydown="onlyNumberInput" />
-                <input type="text" v-model="phone3" maxlength="4" @input="onPhoneInput($event, 'phone3')"
-                  :class="{ invalid: errors.phone3 }" @keydown="onlyNumberInput" />
-              </div>
-            </div>
-            <div class="telNum">
-              <p v-if="errors.phone2 || errors.phone3" class="error-msg">
-                {{ errors.phone2 || errors.phone3 }}
-              </p>
-            </div>
-          </div>
-          <div class="sevLine"></div>
-          <!-- 이메일 -->
-          <div class="form-group email-group">
-            <div class="label">
-              <span>*</span>
-              <p>이메일</p>
-              <div class="email">
-                <input v-model="state.form.email" @input="() => (errors.email = '')" @blur="validateEmail"
-                  :class="{ invalid: errors.email }" placeholder="example@example.com" />
-                <p v-if="errors.email" class="error-msg">{{ errors.email }}</p>
-              </div>
-            </div>
-          </div>
-          <div class="sevLine"></div>
-        </template>
-        <!-- 업주 회원 -->
-        <template v-if="memberType === 'owner'">
-          <!-- 대표자 이름 -->
-          <div class="form-group owner-form">
-            <div class="label">
-              <span>*</span>
-              <p>대표자 이름</p>
-              <div class="owner-name">
-                <input type="text" v-model="state.form.name" @input="() => (errors.name = '')" />
-              </div>
-            </div>
-          </div>
-          <div class="sevLine"></div>
-          <!-- 가게주소 -->
-          <div class="owner-form form-group address-group">
-            <div class="label">
-              <span>*</span>
-              <p>가게주소</p>
-              <div class="address-row">
-                <input type="text" v-model="state.form.postcode" placeholder="우편번호" readonly />
-                <button @click="addressSearch" type="button">주소검색</button>
-              </div>
-            </div>
-            <div class="sev-addres-row">
-              <input type="text" v-model="state.form.address" placeholder="기본주소" readonly />
-              <input type="text" v-model="state.form.addressDetail" placeholder="상세주소 (선택입력가능)" />
-            </div>
-          </div>
-          <div class="sevLine"></div>
-          <!-- 가게전화 -->
-          <div class="form-group phone-input-wrap">
-            <div class="label">
-              <span>*</span>
-              <p>가게전화</p>
-              <div class="phone-input">
-                <select v-model="ownerTel1">
-                  <option>02</option>
-                  <option>031</option>
-                  <option>032</option>
-                  <option>033</option>
-                  <option>041</option>
-                  <option>042</option>
-                  <option>043</option>
-                  <option>051</option>
-                  <option>052</option>
-                  <option>053</option>
-                  <option>054</option>
-                  <option>055</option>
-                  <option>061</option>
-                  <option>063</option>
-                  <option>064</option>
-                  <option>0502</option>
-                  <option>0503</option>
-                  <option>0504</option>
-                  <option>0505</option>
-                  <option>0506</option>
-                  <option>0507</option>
-                  <option>0508</option>
-                  <option>070</option>
-                  <option>010</option>
-                  <option>016</option>
-                  <option>017</option>
-                  <option>018</option>
-                  <option>019</option>
-                </select>
-                <input type="text" v-model="ownerTel2" maxlength="4"
-                  @input="onOwnerTelInput($event, 'ownerTel2', 'ownerTel3')" :class="{ invalid: errors.ownerTel2 }"
-                  ref="ownerTel2Input" @keydown="onlyNumberInput" />
-                <input type="text" v-model="ownerTel3" maxlength="4" @input="onOwnerTelInput($event, 'ownerTel3')"
-                  :class="{ invalid: errors.ownerTel3 }" ref="ownerTel3Input" @keydown="onlyNumberInput" />
-              </div>
-            </div>
-            <div class="telNum">
-              <p v-if="errors.ownerTel2 || errors.ownerTel3" class="error-msg">
-                {{ errors.ownerTel2 || errors.ownerTel3 }}
-              </p>
-            </div>
-          </div>
-          <div class="sevLine"></div>
-          <!-- 가게 상호명 및 카테고리 -->
-          <div class="owner-form form-group phone-input-wrap">
-            <div class="label">
-              <span>*</span>
-              <p>가게 상호명 및 카테고리</p>
-              <div class="category-name">
-                <div class="phone-input">
-                  <input type="text" v-model="state.owner.name" @input="() => (errors.ownerName = '')" />
-                  <select v-model="state.owner.category">
-                    <option>카테고리</option>
-                    <option>한식</option>
-                    <option>일식</option>
-                    <option>중식</option>
-                    <option>양식</option>
-                    <option>아시안</option>
-                    <option>분식</option>
-                    <option>카페</option>
-                    <option>패스트푸드</option>
-                    <option>치킨</option>
-                    <option>피자</option>
-                    <option>야식</option>
-                  </select>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div class="sevLine"></div>
-          <!-- 사업자 등록번호 -->
-          <div class="owner-upload owner-form">
-            <div class="label">
-              <span>*</span>
-              <p>사업자 등록번호</p>
-              <div class="upload-row owner-sigin">
-                <input type="text" v-model="state.owner.businessNumber" @input="() => (errors.businessNumber = '')"
-                  @blur="validateBusinessNumber" :class="{ invalid: errors.businessNumber }" />
-                <button type="button">조회</button>
-                <div class="owner-upload-num">
-                  <p v-if="errors.businessNumber" class="error-msg owner-up">
-                    {{ errors.businessNumber }}
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div class="sevLine"></div>
-          <!-- 이메일 -->
-          <div class="owner-form form-group">
-            <div class="label">
-              <span>*</span>
-              <p>이메일</p>
-              <div class="mail">
-                <input type="email" id="email" v-model="state.form.email" @input="() => (errors.email = '')"
-                  @blur="validateEmail" :class="{ invalid: errors.email }" placeholder="example@example.com" />
-                <p v-if="errors.email" class="error-msg">{{ errors.email }}</p>
-              </div>
-            </div>
-          </div>
-          <div class="sevLine"></div>
-          <!-- 휴대전화 -->
-          <div class="form-group phone-input-wrap">
-            <div class="label">
-              <span>*</span>
-              <p>전화번호</p>
-              <div class="owner-num">
-                <div class="phone-input">
-                  <select v-model="ownerPhone1">
-                    <option>010</option>
-                    <option>016</option>
-                    <option>017</option>
-                    <option>018</option>
-                    <option>019</option>
-                  </select>
-                  <input type="text" v-model="ownerPhone2" maxlength="4" @input="
-                    onOwnerPhoneInput($event, 'ownerPhone2', 'ownerPhone3')
-                    " :class="{ invalid: errors.ownerPhone2 }" ref="ownerPhone2Input" @keydown="onlyNumberInput" />
-                  <input type="text" v-model="ownerPhone3" maxlength="4"
-                    @input="onOwnerPhoneInput($event, 'ownerPhone3')" :class="{ invalid: errors.ownerPhone3 }"
-                    ref="ownerPhone3Input" @keydown="onlyNumberInput" />
-                </div>
-              </div>
-            </div>
-            <div class="phoneNum">
-              <p v-if="errors.ownerPhone2 || errors.ownerPhone3" class="error-msg">
-                <span class="telNum">
-                  {{ errors.ownerPhone2 || errors.ownerPhone3 }}
-                </span>
-              </p>
-            </div>
-          </div>
-          <div class="sevLine"></div>
-          <!-- 사업자 등록증 업로드 -->
-          <div class="owner-form owner-upload">
-            <div class="label">
-              <span>*</span>
-              <p>사업자 등록증 업로드</p>
-              <div class="upload-row upload-box">
-                <button type="button">업로드</button>
-                <li>
-                  등록증 전체가 선명하게 촬영된 이미지 또는 PDF 파일을
-                  업로드해야 합니다.
-                </li>
-                <li>
-                  사업자등록상의 대표자명과 가입자 정보가 다를 경우, 추가 인증이
-                  필요합니다.
-                </li>
-              </div>
-            </div>
-          </div>
-          <div class="sevLine"></div>
-        </template>
 
+        <!-- 회원 구분에 따른 폼 분기 -->
+        <CustomerForm v-if="memberType === 'customer'" :form="state.form" :errors="errors"
+          @update:form="state.form = $event" @update:errors="Object.assign(errors, $event)"
+          @addressSearch="addressSearch" />
+
+        <OwnerForm v-if="memberType === 'owner'" v-model:form="state.form" v-model:owner="state.owner"
+          v-model:errors="errors" />
+
+        <!-- 약관 동의 및 제출 -->
         <!-- 약관동의 -->
         <label class="serveTitle">약관동의</label>
         <div class="titleLine"></div>
@@ -849,11 +522,7 @@ const addressSearch = () => {
                 이메일 수신을 동의하십니까?</label></span>
           </div>
         </div>
-
-        <!-- 제출 버튼 -->
-        <div class="form-submit">
-          <button type="submit">회원가입</button>
-        </div>
+        <button type="submit">회원가입</button>
       </form>
     </div>
   </div>
@@ -877,29 +546,31 @@ const addressSearch = () => {
 </template>
 
 <style lang="scss" scoped>
-@font-face {
-  // 배민 주아체
-  font-family: "BMJUA";
-  src: url("https://fastly.jsdelivr.net/gh/projectnoonnu/noonfonts_one@1.0/BMJUA.woff") format("woff");
-  font-weight: normal;
-  font-style: normal;
-}
-
-@font-face {
-  // 프리텐다드
-  font-family: "Pretendard-Regular";
-  src: url("https://fastly.jsdelivr.net/gh/Project-Noonnu/noonfonts_2107@1.1/Pretendard-Regular.woff") format("woff");
-  font-weight: 400;
-  font-style: normal;
-}
-
 * {
   font-family: "Pretendard-Regular";
-  letter-spacing: 1px;
   box-sizing: border-box;
 }
 
-// 필수 입력칸입니다
+.sortation {
+  display: inline-flex; // 옆으로 나란히
+  align-items: center; // 세로 정렬 맞추기
+  gap: 0;
+  margin-left: 40px; // 사이 간격 제거
+  width: 255px;
+  height: 50px;
+
+  span {
+    color: #ff6666; // * 강조 색상 
+    margin-right: 10px; // 살짝만 띄우고 싶으면
+  }
+
+  p {
+    font-size: 1rem;
+    color: #000;
+  }
+}
+
+// 필수 입력칸 강조
 strong {
   font-size: 15px;
   margin-bottom: -10px;
@@ -908,53 +579,80 @@ strong {
   letter-spacing: 1px;
 }
 
+// 전체동의
 strong.all {
   margin-left: -0.1px;
   font-size: 20px;
 }
 
-// body 기본 설정
-body {
-  margin: 0;
-  padding: 0;
+.radio-group {
+  display: flex; // 가로 정렬
+  align-items: center; // 수직 중앙
+  gap: 30px; // 라벨 간격
+
+  label {
+    display: flex;
+    align-items: center; // 라디오와 텍스트 중앙 정렬
+    gap: 8px; // 라디오와 텍스트 간격
+    cursor: pointer;
+    font-size: 1rem;
+    color: #000;
+  }
+
+  input[type="radio"].circle {
+    appearance: none;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    border: 1px solid #7d7d7d;
+    position: relative;
+    cursor: pointer;
+    background-color: white;
+
+    &:checked {
+      border-color: #ff6666;
+
+      &::after {
+        content: "";
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        width: 10px;
+        height: 10px;
+        background-color: #ff6666;
+        border-radius: 50%;
+        transform: translate(-50%, -50%);
+      }
+    }
+  }
 }
 
-// 메인 선
+// 메인 구분 선 
 .titleLine {
   width: 1130px;
   border-bottom: 3px solid #7d7d7d;
-  margin-top: 0.5em;
 }
 
-// 구분 선
+// 섹션 구분 선
 .sevLine {
   width: 1130px;
   border-bottom: 0.5px solid #c8c8c8;
+
 }
 
-// 섹션 제목 라벨 스타일
+// 섹션 제목 라벨
 label.serveTitle {
   font-size: 20px !important;
   font-weight: 600 !important;
   margin-left: 10px;
 }
 
-.certified {
-  // 회원인증
-  margin-left: 67px;
-}
-
-// 유효성 검사
+// 입력 필드 기본 스타일
 input[type="text"],
 input[type="password"],
 select {
   width: 100%;
-  max-width: 400px;
-  padding: 10px 12px;
-  border: 1px solid #ccc;
-  border-radius: 6px;
-  font-size: 15px;
-  transition: border 0.2s ease;
+  max-width: 621px;
 }
 
 input:focus,
@@ -963,72 +661,74 @@ select:focus {
   outline: none;
 }
 
+// 유효성 검사 스타일
 input.invalid,
 select.invalid {
   box-shadow: 0 0 3px #ff6666(233, 0, 0, 0.3) !important;
-  //border-color: #ff6666;
   background-color: #ffe5e5;
 }
 
-// 전화번호 에러메세지 정렬
-.telNum {
+.id {
   display: flex;
-  margin: 10px 0 -13px 300px;
-  color: #ff6666;
-  font-size: 15px;
-  font-weight: 600;
+  flex-direction: column; // input+버튼 위, 메시지 아래
+  gap: 5px;
+
+  .id-input-group {
+    display: flex;
+    flex-direction: row;
+    align-items: baseline;
+    gap: 10px;
+    margin-top: -100px;
+    margin-bottom: -205px;
+  }
+
+  input {
+    flex: 1; // 남는 공간 다 차지
+    height: 50px;
+  }
+
+  button.idbox {
+    flex: none; // 버튼 고정
+    width: 115px;
+    height: 50px;
+  }
+
+  .id-message {
+    width: 100%;
+    p {
+      margin: 5px 0 0 0; // 위쪽 간격만 조금
+      font-size: 14px;
+    }
+  }
 }
 
-.owner-upload-num {
-  margin-left: -25px;
-  margin-top: -10px;
-}
-
+// 에러 메시지 스타일
 .container {
   .label {
-    // 필수 입력 정보 설명
     display: flex;
-    align-items: flex-start;
-    gap: 23px; // *와 텍스트 사이 간격
-    margin-left: 40px;
-    align-items: center; // 수직 정렬
+    align-items: center;
 
-    // 에러 메세지
-    p.error-msg {
-      margin-top: 10px;
-      margin-left: 170px;
-      color: #ff6666;
-      font-size: 15px;
-      font-weight: 600;
-      transition: color 0.3s ease;
+    // 에러 메시지
+    p.error-msg,
+    p.success-msg {
+      margin: 10px 0 -5px 5px; // 위쪽 5px, 좌우 0
+      color: #ff6666; // error-msg는 red
+      font-size: 14px;
+      font-weight: 500;
     }
 
-    span.owner-upload-num {
-      margin-top: -5px;
-    }
-
-    // 아이디 중복 확인
+    // 성공 메시지 (아이디 중복 확인 등)
     p.success-msg {
       color: #2f57db;
       font-size: 15px;
       font-weight: 600;
       margin-top: 10px;
-      margin-left: 170px;
       user-select: none;
       transition: color 0.3s ease;
     }
 
-    .label {
-      display: flex;
-      align-items: flex-start;
-
-      span.telNum {
-        display: flex;
-      }
-    }
-
     span {
-      color: #ff6666; // 별표 강조용
+      color: #ff6666; // 필수 표시 별표
       font-size: 1rem;
     }
 
@@ -1038,62 +738,34 @@ select.invalid {
       color: #000;
     }
   }
-
-  .id-input {
-    width: 494px !important; // 기존보다 줄임
-  }
-
-  .label-input {
-    display: flex;
-    align-items: center; // input/select 기준 정렬
-    flex: 1; // 나머지 영역을 채움
-
-    input,
-    select {
-      width: 620px;
-      height: 50px;
-      padding: 0.5rem;
-      font-size: 1rem;
-      border: 1px solid #c8c8c8;
-      border-radius: 8px;
-    }
-  }
 }
 
-.join-wrap {
-  // 칸 넓이
-  width: 100%;
-  max-width: 1130px;
-  margin: 0 auto;
-  padding: 3rem 2rem;
-  background-color: #fff;
-}
-
+// 회원가입 전체 영역
 .join {
   max-width: 1130px;
   margin: 0 auto;
   padding: 3rem 1rem;
   background: #fff;
 
+  // 메인 타이틀 (회원가입)
   .join-title {
-    // 메인 타이틀(회원가입) 스타일
     font-family: "BMJUA";
     font-size: 50px;
-    text-align: center; // 텍스트 가운데 정렬
+    text-align: center;
     margin-top: 3rem;
     margin-bottom: 60px;
   }
 
+  // 섹션 제목 (기본 정보, 약관동의)
   .serveTitle {
-    // 기본 정보, 약관 동의
     font-size: 1.3rem;
     margin-top: 2rem;
     margin-bottom: -1rem;
     font-weight: 500;
   }
 
+  // 회원가입 폼 전체 스타일
   .join-form {
-    // 칸 label,input 위아래 정렬
     width: 1130px;
     display: flex;
     flex-direction: column;
@@ -1101,22 +773,12 @@ select.invalid {
     margin-top: -10px;
   }
 
-  label {
-    font-size: 17px;
-  }
-
+  // 각 입력 그룹
   .form-group,
   .form-certified {
     display: inline-block;
     flex-direction: column;
-    gap: 0.5rem;
 
-    label {
-      font-weight: 300;
-      margin-right: 1rem;
-    }
-
-    // radio, checkbox 제외한 input
     input:not([type="radio"]):not([type="checkbox"]),
     select {
       padding: 0.5rem;
@@ -1124,257 +786,19 @@ select.invalid {
       border: 1px solid #c8c8c8;
       border-radius: 8px;
       height: 50px;
+      width: 621px;
       box-sizing: border-box;
     }
 
     button {
       width: 115px;
       border-radius: 8px;
-    }
-
-    .address-row input {
-      width: 494px;
-      height: 50px;
-      margin-right: 10px;
-    }
-
-    .sev-addres-row input {
-      display: flex;
-      width: 620px;
-      margin-left: 292px;
-      margin-top: 16px;
+      margin-left: 10px;
     }
   }
 
-  .radio-group {
-    display: inline;
 
-    label {
-      font-weight: 400;
-    }
-
-    input[type="radio"].circle {
-      appearance: none;
-      -webkit-appearance: none;
-      width: 18px;
-      height: 18px;
-      border-radius: 50%;
-      border: 1px solid #7d7d7d;
-      position: relative;
-      cursor: pointer;
-      vertical-align: middle;
-      margin-right: 8px;
-      background-color: white;
-    }
-
-    input[type="radio"].circle:checked {
-      background-color: #fff;
-      border-color: #ff6666;
-    }
-
-    input[type="radio"].circle:checked::after {
-      content: "";
-      content: "";
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      width: 10px;
-      height: 10px;
-      background-color: #ff6666;
-      border-radius: 50%;
-      transform: translate(-50%, -50%);
-    }
-  }
-
-  // 주소창 정렬
-  .address-row {
-    display: inline-block;
-    gap: 1rem;
-    align-items: center;
-
-    input {
-      flex: 1;
-      width: 210px;
-      margin-left: 168px;
-    }
-
-    button {
-      flex-shrink: 0;
-      font-size: 15px;
-      height: 50px;
-      padding: 0.5rem 1rem;
-      background-color: #fff;
-      color: #ff6666;
-      border: 1px solid #ff6666;
-      font-weight: 600;
-      cursor: pointer;
-
-      &:hover {
-        background-color: #ffe5e5;
-      }
-    }
-  }
-
-  .phone-input {
-    display: inline-flex;
-    max-width: 620px;
-    gap: 0.5rem;
-    align-items: center;
-    margin-left: 140px;
-
-    select {
-      width: 213px;
-      padding: 10px;
-    }
-
-    input {
-      flex: 1;
-    }
-  }
-
-  // 디테일 여백 조절
-  .form-group {
-    .id {
-      margin-left: -15px;
-
-      input {
-        max-width: 490px;
-      }
-    }
-
-    .password {
-      margin-left: -30px;
-    }
-
-    .password2 {
-      margin-left: -65px;
-    }
-
-    .email {
-      margin-left: -10px;
-    }
-  }
-
-  .form-group:not(.address-group):not(.phone-input-wrap):not(.agreement):not( :has(.radio-group)) {
-    display: block;
-
-    input,
-    select {
-      display: inline-block;
-      width: 621px;
-      height: 50px;
-      padding: 0.5rem;
-      font-size: 1rem;
-      border: 1px solid #c8c8c8;
-      border-radius: 8px;
-      margin-left: 165px;
-      vertical-align: middle;
-    }
-  }
-
-  // 업주 회원칸
-  .owner-form {
-    display: block;
-
-    label {
-      display: inline-block;
-      width: 240px;
-      text-align: left;
-      margin-left: 0px;
-      vertical-align: middle;
-    }
-
-    input {
-      display: inline-block;
-      width: 610px;
-      height: 50px;
-      padding: 0.5rem;
-      font-size: 1rem;
-      border: 1px solid #c8c8c8;
-      border-radius: 8px;
-      margin-left: 138px;
-      vertical-align: middle;
-    }
-
-    .form-group.mail {
-      width: 620px !important;
-    }
-  }
-
-  .owner-upload {
-    // 업로드
-    display: flex;
-    align-items: flex-start;
-    gap: 1rem;
-    margin-top: 1rem;
-
-    button {
-      height: 50px;
-    }
-
-    label.upload {
-      width: 235px; // 일반 label과 동일
-      text-align: left;
-      margin-left: 0;
-      margin-top: 15px;
-    }
-
-    input.upload-box {
-      display: inline-block;
-      width: 260px;
-    }
-
-    .upload-row {
-      display: inline;
-      flex-direction: column;
-      gap: 0.3rem;
-
-      button {
-        background-color: #eee;
-        border: 1px solid #ccc;
-        cursor: pointer;
-        width: 115px;
-        height: 50px;
-        border-radius: 8px;
-        margin-left: 25px;
-        margin-bottom: 15px;
-      }
-
-      li {
-        font-weight: 100;
-        font-size: 14px;
-        list-style: disc;
-        margin-left: 30px;
-      }
-    }
-  }
-
-  // owner-form 여백 디테일
-  .owner-name {
-    margin-left: -50px;
-  }
-
-  .category-name {
-    margin-left: -240px;
-  }
-
-  .owner-sigin {
-    margin-left: -45px;
-  }
-
-  .email {
-    margin-left: -5px;
-  }
-
-  .owner-num {
-    margin-left: 5px;
-  }
-
-  .upload-box {
-    margin-left: 35px;
-  }
-
-  // 약관 동의
+  // 약관동의
   .agreement {
     display: flex;
     flex-direction: column;
@@ -1398,36 +822,28 @@ select.invalid {
       flex-direction: column;
       gap: 0.4rem;
 
-      li {
-        font-size: 0.95rem;
-        margin-bottom: 10px;
-      }
-
-      // 약관 내용 박스 스타일
+      // 약관 내용 박스
       .terms-box {
-        width: 850px; // 너가 원하는 너비로 조절
-        height: 85px; // 고정 높이로 스크롤 가능하게
+        width: 850px;
+        height: 105px;
         border: 1px solid #ccc;
-        padding: 10px;
-        margin-top: 8px;
+        padding: 15px;
+        margin-top: 25px;
+        margin-bottom: 25px;
         border-radius: 8px;
         background-color: #fff;
-        overflow-y: scroll; // 세로 스크롤
+        overflow-y: scroll;
         font-size: 14px;
-        white-space: pre-line; // \n 줄바꿈 처리
+        white-space: pre-line;
       }
     }
 
-    .marketing {
-      // 쇼핑정보 수신 동의
-      font-weight: 400;
-      display: flex;
-      flex-direction: column;
+    .marketing,
+    .sev-marketing {
       margin-left: 40px;
     }
 
     .sev-marketing {
-      margin-left: 40px;
       display: flex;
       flex-direction: column;
       gap: 10px;
@@ -1449,40 +865,15 @@ select.invalid {
     }
   }
 
-  // 회원가입 완료 버튼
-  .form-submit {
-    margin-top: 1rem;
-    text-align: center;
-
-    button {
-      width: 620px;
-      background-color: #fff;
-      color: #ff6666;
-      font-weight: 600;
-      border: 1px solid #ff6666;
-      padding: 1rem;
-      border-radius: 6px;
-      cursor: pointer;
-      transition: background-color 0.2s;
-      margin-bottom: 10rem;
-
-      &:hover {
-        background-color: #ffe5e5;
-      }
-    }
-  }
-
-  // 약관동의 체크박스
+  // 체크박스 스타일
   input[type="checkbox"].circle {
     appearance: none;
-    -webkit-appearance: none;
     width: 18px;
     height: 18px;
     border-radius: 50%;
     border: 1px solid #7d7d7d;
     position: relative;
     cursor: pointer;
-    vertical-align: middle;
     margin-right: 8px;
 
     &:checked {
@@ -1500,12 +891,23 @@ select.invalid {
     }
   }
 }
-// 아이디 비활성화
-input[readonly] {
-  background-color: #f5f5f5;
-  cursor: default; // 마우스 커서 변경
-  border: 1px solid #ccc; // 기본 테두리 유지
-  color: #7d7d7d;
-  pointer-events: none;
+
+// 회원가입 완료 버튼
+button {
+  background-color: #fff;
+  color: #ff6666;
+  font-weight: 600;
+  border: 1px solid #ff6666;
+  padding: 0.7rem;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  margin: 100px auto 200px auto; // 상단 10px, 좌우 auto, 하단 10rem
+  width: 620px;
+  display: block; // auto margin이 적용되려면 block 필요
+
+  &:hover {
+    background-color: #ffe5e5;
+  }
 }
 </style>
