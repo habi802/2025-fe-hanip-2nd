@@ -1,10 +1,12 @@
 <script setup>
-import { reactive, onMounted } from 'vue';
+import { reactive, onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { login } from '@/services/userService';
 import { getStore } from '@/services/storeService';
 import { useOwnerStore } from '@/stores/account';
+import AlertModal from '@/components/modal/AlertModal.vue';
 
+const alertModal = ref(null);
 
 const router = useRouter();
 
@@ -67,13 +69,13 @@ const submit = async () => {
         router.push('/'); // 고객용 메인화면
       }
     } else if (res.status === 401) {
-      showModal('아이디/비밀번호를 확인해 주세요.');
+      alertModal.value.showModal('아이디/비밀번호를 확인해주세요.');
     } else {
-      showModal('알 수 없는 오류가 발생했습니다.');
+      alertModal.value.showModal('알 수 없는 오류가 발생했습니다.');
     }
   } catch (error) {
     console.error('로그인 오류:', error);
-    showModal('서버 오류가 발생했습니다.');
+    alertModal.value.showModal('서버 오류가 발생했습니다.');
   }
 };
 
@@ -85,19 +87,7 @@ onMounted(() => {
     state.saveId = true;
   }
 });
-// 모달창 함수
-const showModal = (message) => {
-  const modalBody = document.getElementById("alertModalBody");
-  if (modalBody) modalBody.textContent = message;
-  const modal = new bootstrap.Modal(document.getElementById("alertModal"));
-  modal.show();
-  // 모달 버튼 색상 변경
-  const modalButton = document.querySelector('.modal-footer .btn');
-  if (modalButton) {
-    modalButton.style.backgroundColor = '#FF6666';  // 빨간색으로 변경
-    modalButton.style.color = '#fff';  // 글씨 색상 흰색
-  }
-};
+
 </script>
 
 <template>
@@ -144,23 +134,8 @@ const showModal = (message) => {
       </form>
     </div>
   </div>
-
-  <!-- 공통 알림 모달 -->
-  <div class="modal fade" id="alertModal" tabindex="-1" role="dialog" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered" role="document">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title">알림</h5>
-        </div>
-        <div class="modal-body" id="alertModalBody">내용</div>
-        <div class="modal-footer">
-          <button type="button" class="btn" data-bs-dismiss="modal">
-            확인
-          </button>
-        </div>
-      </div>
-    </div>
-  </div>
+  <!-- 모달창 -->
+  <alert-modal ref="alertModal"></alert-modal>
 </template>
 
 <style scoped lang="scss">
