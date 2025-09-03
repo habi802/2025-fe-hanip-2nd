@@ -49,11 +49,6 @@ H A N I P 은 앱 설치 없이 웹에서 바로 접속해 주문할 수 있고,
       <td>Framework</td>
       <td>Vue 3</td>
     </tr>
-    <tr style="background-color:#ffffff">
-      <td>Frontend</td>
-      <td>언어</td>
-      <td>JavaScript</td>
-    </tr>
     <tr style="background-color:#f9f9f9">
      <td>Frontend</td>
       <td>스타일링</td>
@@ -109,46 +104,22 @@ H A N I P 은 앱 설치 없이 웹에서 바로 접속해 주문할 수 있고,
 
 ## 🔗 프로젝트 자료
 
-<a class="notion-btn" href="https://www.notion.so/2025-7-15-10-31-MSA-JAVA-23a720c7237a802482a3f8554835cae4?source=copy_link" >NOTION</a> <a class="figma-btn" href="https://www.figma.com/design/drRLuIrJlJLy69HP5jJssz/Untitled?node-id=0-1&p=f&t=RyJmlspkvpZ2xTgN-0" >FIGMA</a> <a class="erd-btn" href="https://www.erdcloud.com/d/GoRPuTcMd2JJEcr7i" >ERDCLOUD</a>
+<span>
+<a class="notion-btn" href="https://www.notion.so/2025-7-15-10-31-MSA-JAVA-23a720c7237a802482a3f8554835cae4?source=copy_link" >
+<img src="/src/imgs/icon/Notion.png"/>
+</a> 
+</span>
 
-<style>
-.notion-btn{
-    display: inline-block;
-    background-color: #FFEADD;
-    text-decoration: none;
-    border-radius: 5px;
-    padding : 3px;
-    color: black;
-}
-.notion-btn:hover{
-    color: black;
-    outline: none;
-}
+<span>
+<a class="figma-btn" href="https://www.figma.com/design/drRLuIrJlJLy69HP5jJssz/Untitled?node-id=0-1&p=f&t=RyJmlspkvpZ2xTgN-0" >
+<img src="/src/imgs/icon/Figma.png"/>
+</a>
+</span>
 
-.figma-btn{
-    display: inline-block;
-    background-color: #FF6666;
-    text-decoration: none;
-    border-radius: 5px;
-    padding : 3px;
-    color: white;
-}
-.figma-btn:hover{
-    color: white;
-    outline: none;
-}
-
-.erd-btn{
-    display: inline-block;
-    background-color: #000000;
-    text-decoration: none;
-    border-radius: 5px;
-    padding : 3px;
-    color: white;
-}
-.erd-btn:hover{
-    color: white;
-    outline: none;
-}
+<span>
+<a class="erd-btn" href="https://www.erdcloud.com/d/GoRPuTcMd2JJEcr7i" >
+<img src="/src/imgs/icon/Erdcloud.png"/>
+</a>
+</span>
 
 </style>
