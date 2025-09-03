@@ -1,4 +1,6 @@
-# 이미지 제작중
+<div>
+<img src="/src/imgs/icon/Artboard 2.png"/>
+</div>
 
 # H A N I P
 
