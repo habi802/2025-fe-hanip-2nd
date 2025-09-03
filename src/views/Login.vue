@@ -1,7 +1,12 @@
 <script setup>
-import { reactive, onMounted } from 'vue';
+import { reactive, onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { login } from '@/services/userService';
+import { getStore } from '@/services/storeService';
+import { useOwnerStore } from '@/stores/account';
+import AlertModal from '@/components/modal/AlertModal.vue';
+
+const alertModal = ref(null);
 
 const router = useRouter();
 
@@ -13,6 +18,10 @@ const state = reactive({
   },
   saveId: false // 아이디 저장용
 });
+
+const store = reactive({
+  form: {}
+})
 
 // 로그인 여부
 const submit = async () => {
@@ -43,19 +52,30 @@ const submit = async () => {
       }
 
       if (role === "OWNER") {
-        router.push('/owner'); // 업주용 메인화면
-        
+        try {
+          const ownerStore = useOwnerStore();
+          const res = await ownerStore.fetchStoreInfo();
+          const isActive = ownerStore.storeData?.isActive;
+          if (isActive === 0) {
+            router.push('/owner');
+          } else {
+            router.push('/owner/dashboard');
+          }
+        } catch (err) {
+          console.error("가게 정보 조회 실패", err);
+          router.push('/owner'); // fallback
+        }
       } else {
         router.push('/'); // 고객용 메인화면
       }
     } else if (res.status === 401) {
-      alert('아이디/비밀번호를 확인해 주세요.');
+      alertModal.value.showModal('아이디/비밀번호를 확인해주세요.');
     } else {
-      alert('알 수 없는 오류가 발생했습니다.');
+      alertModal.value.showModal('알 수 없는 오류가 발생했습니다.');
     }
   } catch (error) {
     console.error('로그인 오류:', error);
-    alert('서버 오류가 발생했습니다.');
+    alertModal.value.showModal('서버 오류가 발생했습니다.');
   }
 };
 
@@ -114,6 +134,8 @@ onMounted(() => {
       </form>
     </div>
   </div>
+  <!-- 모달창 -->
+  <alert-modal ref="alertModal"></alert-modal>
 </template>
 
 <style scoped lang="scss">
@@ -121,6 +143,14 @@ onMounted(() => {
   font-family: 'BMJUA';
   src: url('https://fastly.jsdelivr.net/gh/projectnoonnu/noonfonts_one@1.0/BMJUA.woff') format('woff');
   font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  // 프리텐다드
+  font-family: "Pretendard-Regular";
+  src: url("https://fastly.jsdelivr.net/gh/Project-Noonnu/noonfonts_2107@1.1/Pretendard-Regular.woff") format("woff");
+  font-weight: 400;
   font-style: normal;
 }
 
@@ -255,7 +285,7 @@ onMounted(() => {
           -webkit-appearance: none;
           width: 18px;
           height: 18px;
-          border-radius: 50%;
+          border-radius: 25%;
           border: 1px solid #7d7d7d;
           position: relative;
           cursor: pointer;
@@ -268,7 +298,9 @@ onMounted(() => {
           }
 
           &:checked::after {
+            font-family: "Pretendard-Regular";
             content: "v";
+            font-weight: 600;
             color: #fff;
             font-size: 12px;
             position: absolute;

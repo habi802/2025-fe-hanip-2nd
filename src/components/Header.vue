@@ -2,7 +2,7 @@
 import { useRouter } from "vue-router";
 import { useUserInfo, useAccountStore } from "@/stores/account";
 import { getUser, logout } from "@/services/userService";
-import { reactive, ref, computed , onMounted , watch } from "vue";
+import { reactive, ref, computed, onMounted, watch } from "vue";
 import { storeToRefs } from 'pinia';
 import Menu from "@/components/Menu.vue";
 import { getOrder } from "@/services/storeService";
@@ -48,6 +48,12 @@ const myPageRouter = () => {
 
 //카트 페이지로 이동
 const cartRouter = () => {
+  if (!account.state.loggedIn) {
+    showModal('로그인 후 이용 가능합니다.', () => {
+      router.push("/login");
+    })
+    return;
+  }
   router.push("/cart");
 };
 //찜 목록 이동
@@ -63,6 +69,19 @@ const orderRouter = () => {
 let orderBox = ref(false);
 
 const totalPrice = ref(0);
+// 모달창 함수
+const showModal = (message, onCloseCallback) => {
+  const modalBody = document.getElementById("alertModalBody");
+  if (modalBody) modalBody.textContent = message;
+  const modal = new bootstrap.Modal(document.getElementById("alertModal"));
+  modal._element.addEventListener('hidden.bs.modal', () => {
+    if (typeof onCloseCallback === 'function') {
+      onCloseCallback();  // 모달이 닫힌 후 콜백 실행
+    }
+  });
+  modal.show();
+
+};
 
 
 //유저 정보에 따른 주소표시
@@ -75,10 +94,10 @@ const { userAddr } = storeToRefs(userInfo);
 
 //유저정보 불러오기 비동기실행
 onMounted(async () => {
-  console.log("🟡 onMounted 진입");
+  //console.log("🟡 onMounted 진입");
 
   if (account.state.loggedIn) {
-    console.log("🟢 로그인 상태, fetchStore 실행");
+    //console.log("🟢 로그인 상태, fetchStore 실행");
     userInfo.fetchStore();
   }
 });
@@ -88,7 +107,7 @@ watch(
   () => account.state.loggedIn,
   (val) => {
     if (val) {
-      console.log("👀 로그인 감지됨 → fetchStore 실행");
+      //console.log("👀 로그인 감지됨 → fetchStore 실행");
       userInfo.fetchStore();
     }
   }
@@ -112,11 +131,11 @@ watch(
         <template v-if="account.state.loggedIn">
           <div class="searchBar">
             <img @click="caLink" class="searchImg" src="/src/imgs/weui_location-filled.png" />
-            <div class="addressText2" >{{  userAddr || '주소 없음' }}</div>
+            <div class="addressText2">{{ userAddr || '주소 없음' }}</div>
           </div>
         </template>
 
-                <!-- 비로그인 -->
+        <!-- 비로그인 -->
         <template v-else>
           <div class="searchBar">
             <img @click="caLink" class="searchImg" src="/src/imgs/weui_location-filled.png" />
@@ -128,7 +147,7 @@ watch(
             <template v-if="account.state.loggedIn">
               <img @click="faivorite" class="faiorites" src="/src/imgs/faivor.png" />
               <img @click="orderRouter" class="order" src="/src/imgs/orders.png" />
-              <img @click="cartRouter" @mouseover="orderBox = true" @mouseleave="orderBox = false" id="menu"
+              <img @click="cartRouter" id="menu"
                 class="shooping" src="/src/imgs/shoop.png" />
               <div id="menu" @click="logoutIn">로그아웃</div>
               <div>|</div>
@@ -185,9 +204,32 @@ watch(
       </div>
     </div>
   </header>
+  <div class="modal fade" id="alertModal" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">알림</h5>
+        </div>
+        <div class="modal-body" id="alertModalBody">내용</div>
+        <div class="modal-footer">
+          <button type="button" class="btn" data-bs-dismiss="modal">
+            확인
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
 </template>
 
 <style lang="scss" scoped>
+@font-face {
+  // 프리텐다드
+  font-family: 'Pretendard-Regular';
+  src: url('https://fastly.jsdelivr.net/gh/Project-Noonnu/noonfonts_2107@1.1/Pretendard-Regular.woff') format('woff');
+  font-weight: 400;
+  font-style: normal;
+}
+
 .navbar {
   height: 90px;
   background-color: #fff;
@@ -301,6 +343,11 @@ watch(
   text-decoration: none;
   font-weight: 800;
   color: #ff6666;
+}
+
+.modal {
+  font-family: 'Pretendard-Regular';
+  font-weight: 800;
 }
 
 @media (max-width: 1650px) {

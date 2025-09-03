@@ -20,6 +20,7 @@ import { getStoreList } from "@/services/storeService";
 import { reactive, onMounted, nextTick, ref } from "vue";
 import StoreList from "@/components/StoreList.vue";
 import { useRouter, useRoute } from "vue-router";
+import Review from "@/components/Review.vue";
 
 const router = useRouter();
 const route = useRoute();
@@ -235,145 +236,80 @@ const caLink = async () => {
       <div class="swiperLeft">
         <img class="left" src="/src/imgs/NavigationLeft.png" />
       </div>
-      <swiper
-        :navigation="{
-          nextEl: '.swiperRight',
-          prevEl: '.swiperLeft',
-        }"
-        :slides-per-view="6"
-        :modules="[Navigation, Pagination, Scrollbar, A11y, Autoplay]"
-        :speed="100"
-        :loop="true"
-      >
+      <swiper :navigation="{
+        nextEl: '.swiperRight',
+        prevEl: '.swiperLeft',
+      }" :slides-per-view="6" :modules="[Navigation, Pagination, Scrollbar, A11y, Autoplay]" :speed="100"
+        :loop="true">
         <swiper-slide>
           <div class="imgBox">
-            <img
-              @click="searchAll"
-              id="cImg"
-              src="/src/imgs/allImg.png"
-              alt="allImg"
-            />
+            <img @click="searchAll" id="cImg" src="/src/imgs/allImg.png" alt="allImg" />
           </div>
           <div id="cName">전체</div>
         </swiper-slide>
         <swiper-slide>
           <div class="imgBox">
-            <img
-              @click="searchKoreanFood"
-              id="cImg"
-              src="/src/imgs/koreanfood.png"
-              alt="koreanImg"
-            />
+            <img @click="searchKoreanFood" id="cImg" src="/src/imgs/koreanfood.png" alt="koreanImg" />
           </div>
           <div id="cName">한식</div>
         </swiper-slide>
         <swiper-slide>
           <div class="imgBox">
-            <img
-              @click="searchChina"
-              id="cImg"
-              src="/src/imgs/jjajangmyeon.png"
-              alt="ChinaImg"
-            />
+            <img @click="searchChina" id="cImg" src="/src/imgs/jjajangmyeon.png" alt="ChinaImg" />
           </div>
           <div id="cName">중식</div>
         </swiper-slide>
         <swiper-slide>
           <div class="imgBox">
-            <img
-              @click="searchJapanese"
-              id="cImg"
-              src="/src/imgs/porkcutlet.png"
-              alt="japanese"
-            />
+            <img @click="searchJapanese" id="cImg" src="/src/imgs/porkcutlet.png" alt="japanese" />
           </div>
           <div id="cName">일식</div>
         </swiper-slide>
         <swiper-slide>
           <div class="imgBox">
-            <img
-              @click="searchWesternFood"
-              id="cImg"
-              src="/src/imgs/pasta.png"
-              alt="westernFood"
-            />
+            <img @click="searchWesternFood" id="cImg" src="/src/imgs/pasta.png" alt="westernFood" />
           </div>
           <div id="cName">양식</div>
         </swiper-slide>
         <swiper-slide>
           <div class="imgBox">
-            <img
-              @click="searchDessert"
-              id="cImg"
-              src="/src/imgs/dessert.png"
-              alt="dessert"
-            />
+            <img @click="searchDessert" id="cImg" src="/src/imgs/dessert.png" alt="dessert" />
           </div>
           <div id="cName">카페/디저트</div>
         </swiper-slide>
         <swiper-slide>
           <div class="imgBox">
-            <img
-              @click="searchSnackFood"
-              id="cImg"
-              src="/src/imgs/tteokbokki.png"
-              alt="snackFood"
-            />
+            <img @click="searchSnackFood" id="cImg" src="/src/imgs/tteokbokki.png" alt="snackFood" />
           </div>
           <div id="cName">분식</div>
         </swiper-slide>
         <swiper-slide>
           <div class="imgBox">
-            <img
-              @click="searchFastFood"
-              id="cImg"
-              src="/src/imgs/hamburger.png"
-              alt="fastFood"
-            />
+            <img @click="searchFastFood" id="cImg" src="/src/imgs/hamburger.png" alt="fastFood" />
           </div>
           <div id="cName">패스트푸드</div>
         </swiper-slide>
         <swiper-slide>
           <div class="imgBox">
-            <img
-              @click="searchAsian"
-              id="cImg"
-              src="/src/imgs/nd.png"
-              alt="asian"
-            />
+            <img @click="searchAsian" id="cImg" src="/src/imgs/nd.png" alt="asian" />
           </div>
           <div id="cName">아시안</div>
         </swiper-slide>
         <swiper-slide>
           <div class="imgBox">
-            <img
-              @click="searchChick"
-              id="cImg"
-              src="/src/imgs/chicken.png"
-              alt="chick"
-            />
+            <img @click="searchChick" id="cImg" src="/src/imgs/chicken.png" alt="chick" />
           </div>
           <div id="cName">치킨</div>
         </swiper-slide>
         <swiper-slide>
           <div class="imgBox">
-            <img
-              @click="searchPizza"
-              id="cImg"
-              src="/src/imgs/pizza.png"
-              alt="pizza"
-            />
+            <img @click="searchPizza" id="cImg" src="/src/imgs/pizza.png" alt="pizza" />
           </div>
           <div id="cName">피자</div>
         </swiper-slide>
         <swiper-slide>
           <div class="imgBox">
-            <img
-              @click="searchLateNight"
-              id="cImg"
-              src="/src/imgs/pigfeet.png"
-              alt="lateNight"
-            />
+            <img @click="searchLateNight" id="cImg" src="/src/imgs/pigfeet.png" alt="lateNight" />
           </div>
           <div id="cName">야식</div>
         </swiper-slide>
@@ -384,25 +320,16 @@ const caLink = async () => {
     </div>
   </div>
   <div class="searchBar">
-    <input
-      v-model="search"
-      @keyup.enter="caLink"
-      type="text"
-      id="title"
-      class="searchBox"
-      placeholder="찾는 맛집 이름,메뉴가 무엇인가요?"
-    />
+    <input v-model="search" @keyup.enter="caLink" type="text" id="title" class="searchBox"
+      placeholder="찾는 맛집 이름,메뉴가 무엇인가요?" />
     <img @click="caLink" class="searchImg" src="/src//imgs/fluent_search.png" />
   </div>
   <div class="guideBox">
     <!-- root : 검색 결과가 없을 시 나타내는 이미지 일단 임시로-->
     <div class="position-relative" v-if="state.stores.length === 0">
-      <img
-        src="/src/imgs/owner/owner-service2.png"
-        style="position: absolute; transform: translateX(540px)"
-      />
+      <img src="/src/imgs/owner/owner-service2.png" style="position: absolute; transform: translateX(540px)" />
     </div>
-    <div v-for="stores in state.stores" :key="stores.id">
+    <div v-for="stores in state.stores" :key="stores.storeId">
       <StoreList :stores="stores" />
     </div>
     <!--  -->
@@ -439,8 +366,7 @@ const caLink = async () => {
 <style lang="scss" scoped>
 @font-face {
   font-family: "BMJUA";
-  src: url("https://fastly.jsdelivr.net/gh/projectnoonnu/noonfonts_one@1.0/BMJUA.woff")
-    format("woff");
+  src: url("https://fastly.jsdelivr.net/gh/projectnoonnu/noonfonts_one@1.0/BMJUA.woff") format("woff");
   font-weight: normal;
   font-style: normal;
 }
@@ -489,10 +415,12 @@ const caLink = async () => {
       object-fit: cover; // 이미지가 비율 유지
       border-radius: 50%;
       transition: transform 0.3s ease-in-out;
+
       &:hover {
         transform: scale(1.2); // 확대비율
       }
     }
+
     // 카테고리 이름
     #cName {
       font-size: 24px;
@@ -541,11 +469,13 @@ const caLink = async () => {
 .footer {
   margin-bottom: 300px;
 }
+
 .imgBox {
   width: 125px;
   border-radius: 50%;
   overflow: hidden;
 }
+
 .arrow {
   position: sticky;
   width: 3.8%;
@@ -579,6 +509,7 @@ const caLink = async () => {
   border-radius: 50px;
   position: relative;
   background-color: white;
+
   input {
     padding-left: 43px;
   }
@@ -614,6 +545,7 @@ const caLink = async () => {
 .searchBar::placeholder {
   color: #ff6666;
 }
+
 .searchBar::-moz-focus-inner {
   outline: none;
   box-shadow: none;

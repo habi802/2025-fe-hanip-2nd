@@ -1,37 +1,50 @@
 <script setup>
 import { reactive, onMounted, computed, ref } from "vue";
 import { useRouter } from "vue-router";
-import { getItem, removeItem } from "@/services/cartService";
+import { getItem, removeItem, updateQuantity } from "@/services/cartService";
 import { useAccountStore } from "@/stores/account";
 import { getStore } from "@/services/storeService";
-import { useCartStore } from "@/stores/cart";
+//import { useCartStore } from "@/stores/cart";
 import { getReviewsByStoreId } from "@/services/reviewServices";
 import { getFavoriteList } from "@/services/favoriteService";
 // 에러 이미지
 import defaultImage from '@/imgs/owner/owner-service3.png';
 
-const cartStore = useCartStore();
+//const cartStore = useCartStore();
 
 const router = useRouter();
 const account = useAccountStore();
 
 const state = reactive({
-  items: cartStore.state.items,
+  items: [],
   reviews: [],
   reviewNum: 0,
   favorites: [],
   store: {},
 });
 
-const storeMap = reactive({});
+// 장바구니 목록 불러오는 함수
+const load = async () => {
+  if (!account.state.loggedIn) return;
+  const res = await getItem();
+  if (res === undefined || res.status !== 200 || res.data.resultStatus !== 200)
+    return;
 
+  state.items = res.data.resultData || [];
+
+  fetchStoreDetails();
+};
+
+// 가게 정보 불러오는 함수(가 맞겠지? 최초로 쓴 사람만 알고 있다..)
+const storeMap = reactive({});
 const fetchStoreDetails = async () => {
-  const storeIds = [...new Set(state.items.map(item => item.storeId))];
-  for (const storeId of storeIds) {
+  const storeId = state.items[0].storeId;
+
     if (!storeMap[storeId]) {
       const res = await getStore(storeId);
+
       // 리뷰 찾을려고 추기작성
-      const rev = await getReviewsByStoreId(storeIds);
+      const rev = await getReviewsByStoreId(storeId);
       if (rev?.status === 200 && rev.data?.resultStatus === 200) {
         state.reviews = rev.data.resultData;
       }
@@ -39,7 +52,6 @@ const fetchStoreDetails = async () => {
       const ref = await getFavoriteList(storeId);
       if (ref?.status === 200 && ref.data?.resultStatus === 200) {
         state.favorites = ref.data.resultData;
-        console.log("fav", state.favorites);
       }
 
       if (res?.status === 200 && res.data?.resultStatus === 200) {
@@ -47,83 +59,40 @@ const fetchStoreDetails = async () => {
         state.store = res.data.resultData;
       }
     }
-  }
+
+  loadReviews();
 };
 
-
-// 가게 리뷰 조회 함수
+// 가게 평균 별점 및 리뷰 수를 보여주기 위한 함수
 const loadReviews = () => {
-
-  console.log("reviews", state.reviews)
   // 리뷰 총점 구하기
   let ratingNumCal = 0;
-  console.log("state.reviews: ", state.reviews);
+
   for (let i = 0; i < state.reviews.length; i++) {
     ratingNumCal += state.reviews[i].rating;
   }
-  const count = (ratingNumCal / state.reviews.length).toFixed(1)
-  // console.log("ratingNumCal", ratingNumCal);
+  const count = (ratingNumCal / state.reviews.length).toFixed(1);
 
-  state.reviewNum = count
+  state.reviewNum = count;
 
-
-  // console.log("comLeng: ", comLeng);
-
-  // 조회 성공 시 장바구니 조회 함수 호출
-
+  calculateTotal();
 };
 
-
-
-const loggedIn = computed(() => account.state.loggedIn);
-
-onMounted(async () => {
-  await load();
-  await fetchStoreDetails();
-  loadReviews();
-  console.log("item", state.items[0])
-});
-
-const load = async () => {
-  if (!loggedIn.value) return;
-  const res = await getItem();
-  if (res === undefined || res.status !== 200 || res.data.resultStatus !== 200)
-    return;
-
-  state.items = res.data.resultData || [];
-};
-
-const remove = async (cartId) => {
-  const res = await removeItem(cartId);
-  if (res === undefined || res.status !== 200) return;
+onMounted(() => {
   load();
-  cartStore.clearCart()
-};
-
-const increaseQty = (item) => {
-  item.quantity++;
-};
-
-const decreaseQty = (item) => {
-  if (item.quantity > 1) item.quantity--;
-};
-
-const totalPrice = computed(() =>
-  state.items.reduce((sum, item) => sum + item.price * item.quantity, 0)
-);
+});
 
 const goToLogin = () => router.push("/login");
 const goToMain = () => router.push("/");
-
-const goToOrder = (group) => {
-  if (!group || !group.items || group.items.length === 0) {
-    alert("주문할 메뉴가 없습니다.");
+const goToOrder = (items) => {
+  if (items.length === 0) {
+    showModal("주문한 메뉴가 없습니다.")
     return;
   }
 
   const orderItems = group.items.map((item) => ({
     id: item.id,
-    menuId: item.menuId || item.menu_id || item.id,
+    menuId: item.menuId,
     quantity: item.quantity,
     price: item.price,
     name: item.name,
@@ -131,91 +100,177 @@ const goToOrder = (group) => {
   }));
 
   localStorage.setItem("orderItems", JSON.stringify(orderItems));
-  router.push(`/stores/${group.items[0].storeId}/order`);
+  router.push(`/stores/${items[0].storeId}/order`);
 };
 
-const groupedItems = computed(() => {
-  const groups = {};
-  for (const item of state.items) {
-    if (!groups[item.storeName]) {
-      groups[item.storeName] = {
-        storeId: item.storeId,
-        storeName: item.storeName,
-        storeNotice: item.storeNotice,
-        items: [],
-      };
-    }
-    groups[item.storeName].items.push(item);
-  }
-  return Object.values(groups);
-});
+// const groupedItems = computed(() => {
+//   const groups = {};
+//   for (const item of state.items) {
+//     if (!groups[item.storeName]) {
+//       groups[item.storeName] = {
+//         storeId: item.storeId,
+//         storeName: item.storeName,
+//         storeNotice: item.storeNotice,
+//         items: [],
+//       };
+//     }
+//     groups[item.storeName].items.push(item);
+//   }
+//   return Object.values(groups);
+// });
 
-// 총가격
-const grandTotalPrice = computed(() => {
-  return groupedItems.value.reduce((groupSum, group) => {
-    return (
-      groupSum +
-      group.items.reduce((sum, item) => sum + item.price * item.quantity, 0)
-    );
-  }, 0);
-});
+// 장바구니 총 금액 표시하기 위한 변수
+const totalPrice = ref(0);
+
+// 장바구니 삭제 함수
+const deleteItem = async (cartId) => {
+  const res = await removeItem(cartId);
+  if (res === undefined || res.status !== 200) return;
+  // cartStore.clearCart();
+
+  if (res.data.resultData === 1) {
+    const deleteIdx = state.items.findIndex((item) => item.id === cartId);
+    if (deleteIdx > -1) {
+      state.items.splice(deleteIdx, 1);
+      calculateTotal();
+    }
+  }
+};
+
+// 장바구니 메뉴 개수 증가시키는 함수
+const increaseQuantity = async idx => {
+  if (state.items[idx].quantity > 1) {
+    const params = {
+      cartId: state.items[idx].id,
+      quantity: state.items[idx].quantity + 1,
+    };
+
+    // 메뉴 개수 수정하는 API 함수 호출
+    const res = await updateQuantity(params);
+
+    if (res === undefined) {
+      const modal = new bootstrap.Modal(document.getElementById("putF"));
+      modal.show();
+      return;
+    } else if (res.data.resultStatus !== 200) {
+      // alert(res.data.resultMessage);
+      const modal = new bootstrap.Modal(document.getElementById("putF"));
+      modal.show();
+      return;
+    }
+
+    state.items[idx].quantity++;
+    calculateTotal();
+  } else if (state.items[idx].quantity == 1) {
+    deleteItem(state.items[idx].id);
+  }
+};
+
+// 장바구니 메뉴 개수 감소시키는 함수
+const decreaseQuantity = async idx => {
+  if (state.items[idx].quantity > 1) {
+    const params = {
+      cartId: state.items[idx].id,
+      quantity: state.items[idx].quantity - 1,
+    };
+
+    // 메뉴 개수 수정하는 API 함수 호출
+    const res = await updateQuantity(params);
+
+    if (res === undefined) {
+      const modal = new bootstrap.Modal(document.getElementById("putF"));
+      modal.show();
+      return;
+    } else if (res.data.resultStatus !== 200) {
+      // alert(res.data.resultMessage);
+      const modal = new bootstrap.Modal(document.getElementById("putF"));
+      modal.show();
+      return;
+    }
+
+    state.items[idx].quantity--;
+    calculateTotal();
+  } else if (state.items[idx].quantity == 1) {
+    deleteItem(state.items[idx].id);
+  }
+};
+
+// 장바구니 총 금액 계산하는 함수
+const calculateTotal = () => {
+  totalPrice.value = 0;
+
+  state.items.forEach((item) => {
+    const price = item.price * item.quantity;
+    totalPrice.value += price;
+  });
+};
+
+// 총 가격
+// const grandTotalPrice = computed(() => {
+//   return groupedItems.value.reduce((groupSum, group) => {
+//     return (
+//       groupSum +
+//       group.items.reduce((sum, item) => sum + item.price * item.quantity, 0)
+//     );
+//   }, 0);
+// });
 
 // 가게 이미지
 const imgSrc = computed(() => {
-
   return state.store.id && state.store.imagePath && state.store.imagePath !== 'null'
     ? `/pic/store-profile/${state.store.id}/${state.store.imagePath}`
     : defaultImage;
-
 })
 // 메뉴 이미지
 
-const menuIgmSrc = computed(()=>{
-
-  return state.items[0]?.menuId && state.items[0]?.imagePath && state.items[0]?.imagePath !== 'null'
-    ? `/pic/store-profile/${state.items[0]?.menuId}/${state.items[0]?.imagePath}`
+const menuIgmSrc = items => {
+  return items?.menuId && items?.imagePath && items?.imagePath !== 'null'
+    ? `/pic/menu-profile/${items?.menuId}/${items?.imagePath}`
     : defaultImage;  
-})
+}
 
+// 모달창 함수
+const showModal = (message) => {
+  const modalBody = document.getElementById("alertModalBody");
+  if (modalBody) modalBody.textContent = message;
+  const modal = new bootstrap.Modal(document.getElementById("alertModal"));
+  modal.show();
+};
 
 </script>
 
 <template>
-  <div class="cart-empty-wrapper">
-    <div class="top-row">
-      <div class="header-row">
-        <div class="title-wrap">
-          <img class="back-icon" alt="뒤로가기" src="/src/imgs/cartimgs/arrowios.svg" />
-          <div class="div29">장바구니</div>
-        </div>
-      </div>
-      <div class="step-horizontal">
-        <span class="step-text">01 음식선택</span>
-        <span class="arrow"><img src="/src/imgs/cartimgs/arrow-back.png" /></span>
-        <span class="step-text current">02 장바구니</span>
-        <span class="arrow"><img src="/src/imgs/cartimgs/arrow-back.png" /></span>
-        <span class="step-text">03 주문/결제</span>
-        <span class="arrow"><img src="/src/imgs/cartimgs/arrow-back.png" /></span>
-        <span class="step-text">04 주문완료</span>
-      </div>
+<div class="section-header">
+  <div class="section-title">
+    <div class="text-top">장바구니</div>
+    <div class="step-horizontal">
+      <span class="step-text">01 음식선택</span>
+      <span class="arrow"><img src="/src/imgs/cartimgs/arrow-back.png" /></span>
+      <span class="step-text current">02 장바구니</span>
+      <span class="arrow"><img src="/src/imgs/cartimgs/arrow-back.png" /></span>
+      <span class="step-text">03 주문/결제</span>
+      <span class="arrow"><img src="/src/imgs/cartimgs/arrow-back.png" /></span>
+      <span class="step-text">04 주문완료</span>
     </div>
   </div>
+  <div class="solid"></div>
+</div>  
 
   <!-- 1. 로그인 안 했고 장바구니 비었을 때 -->
-  <div v-if="!loggedIn && state.items.length === 0">
+  <div v-if="!account.state.loggedIn && state.items.length === 0">
     <div class="div18">장바구니에 담은 음식이 없습니다.</div>
     <div class="groupContainer">
-      <div class="div19" @click="goToMain">음식 담으러 가기</div>
+      <div class="div19" @click="goToLogin">로그인 하러 가기</div>
     </div>
   </div>
 
   <!-- 2. 비로그인 상태로 장바구니 담겼을떄  -->
-  <div v-else-if="!loggedIn" class="unlogin">
+  <div v-else-if="!account.state.loggedIn" class="unlogin">
     <div class="store-layout">
       <div class="store-card">
         <img class="thumbnail" src="@/imgs/chicken.png" />
         <div class="store-content">
-          <h3 class="store-name">가게이름</h3>
+          <h3 class="store-name">가게 이름</h3>
 
           <div class="store-meta">
             <div class="rating">
@@ -249,7 +304,7 @@ const menuIgmSrc = computed(()=>{
             <p class="item-comment"></p>
             <div class="qty-box">
               <!-- ❌ 수량이 1일 때는 X버튼으로 삭제 -->
-              <button v-if="item.quantity === 1" @click="remove(item.id)"
+              <button v-if="item.quantity === 1" @click="deleteItem(item.id)"
                 :class="{ 'delete-button': true, danger: true }">
                 x
               </button>
@@ -298,14 +353,11 @@ const menuIgmSrc = computed(()=>{
     <!-- 음식점 가게 카드 -->
     <div class="store-layout">
       <!-- 가게 대표 카드 -->
-      <div class="store-card" v-if="groupedItems.length > 0">
-        <img class="thumbnail" :src="menuIgmSrc" @error="e => e.target.src = defaultImage" />
-        <!-- <img :src='`/pic/store-profile/${state.store.id}/${state.store.imagePath}` '/> -->
+      <!-- <div class="store-card" v-if="groupedItems.length > 0"> -->
+      <div class="store-card" v-if="state.items.length > 0">
+        <img class="thumbnail" :src="imgSrc" @error="e => e.target.src = defaultImage" />
         <div class="store-content">
-          <h3 class="store-name">
-            {{ storeMap[groupedItems[0].storeId]?.name || groupedItems[0].storeName }}
-          </h3>
-
+          <h3 class="store-name">{{ state.store.name }}</h3>
           <div class="store-meta">
             <div class="rating">
               <img id="icon" src="/src/imgs/star.png" alt="별점" />
@@ -327,38 +379,39 @@ const menuIgmSrc = computed(()=>{
           <div class="store-info">
             <p>
               최소 주문 금액
-              {{ storeMap[groupedItems[0].storeId]?.minOrderAmount?.toLocaleString() || '10,000' }}원
+              {{ storeMap[state.items[0].storeId]?.minOrderAmount?.toLocaleString() || '10,000' }}원
             </p>
             <p>
               배달료
-              {{ storeMap[groupedItems[0].storeId]?.deliveryFeeRange || '0원 ~ 3,000원' }}
+              {{ storeMap[state.items[0].storeId]?.deliveryFeeRange || '0원 ~ 3,000원' }}
             </p>
           </div>
         </div>
       </div>
 
       <!-- 그룹 반복 렌더링 -->
-      <div v-for="group in groupedItems" :key="group.storeName" class="store-box">
+      <!-- <div v-for="group in groupedItems" :key="group.storeName" class="store-box"> -->
+      <div class="store-box">
         <!-- 가게 음식 정보 -->
         <div class="store-info">
-          <p class="store-name">{{ group.storeName }}</p>
-          <p class="store-sub">{{ group.storeNotice }}</p>
+          <p class="store-name">{{ state.store.name }}</p>
+          <!-- <p class="store-sub">{{ group.storeNotice }}</p> -->
         </div>
 
         <!-- 장바구니 음식 리스트 -->
-        <div v-for="item in group.items" :key="item.id" class="cart-item">
-          <img  :src="imgSrc" @error="e => e.target.src = defaultImage" />
+        <div v-for="(item, idx) in state.items" :key="item.id" class="cart-item">
+          <img :src="menuIgmSrc(item)" @error="e => e.target.src = defaultImage" />
           <div class="item-content">
             <p class="item-name">{{ item.name }}</p>
             <p class="item-comment"></p>
             <div class="qty-box">
-              <button v-if="item.quantity === 1" @click="remove(item.id)"
+              <button v-if="item.quantity === 1" @click="deleteItem(item.id)"
                 :class="{ 'delete-button': true, danger: true }">
-                x
+                X
               </button>
-              <button v-else @click="decreaseQty(item)" class="qty-button">-</button>
+              <button v-else @click="decreaseQuantity(idx)" class="qty-button">-</button>
               <span>{{ item.quantity }}</span>
-              <button @click="increaseQty(item)">+</button>
+              <button @click="increaseQuantity(idx)">+</button>
             </div>
             <p class="item-price">
               {{ (item.price * item.quantity).toLocaleString() }}원
@@ -369,18 +422,38 @@ const menuIgmSrc = computed(()=>{
         <!-- 총 금액 표시만 -->
         <div class="cart-footer">
           <p class="total">총 결제 금액:</p>
-          <p class="total">
-            {{group.items.reduce((sum, item) => sum + item.price * item.quantity, 0).toLocaleString()}}원
-          </p>
+          <p class="total">{{ totalPrice.toLocaleString() }}원</p>
         </div>
       </div>
     </div>
 
     <div class="groupContainer">
-      <div class="div19" @click="goToOrder(groupedItems[0])">주문하기</div>
+      <div class="div19" @click="goToOrder(state.items)">주문하기</div>
     </div>
   </div>
 
+<!--  -->
+<div
+    class="modal fade"
+    id="alertModal"
+    tabindex="-1"
+    role="dialog"
+    aria-hidden="true"
+  >
+    <div class="modal-dialog modal-dialog-centered" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">알림</h5>
+        </div>
+        <div class="modal-body" id="alertModalBody">내용</div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-primary" data-bs-dismiss="modal">
+            확인
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
 </template>
 
 <style lang="scss" scoped>
@@ -399,6 +472,56 @@ const menuIgmSrc = computed(()=>{
   font-weight: 400;
   font-style: normal;
 }
+
+
+//섹션 헤더영역
+.section-header {
+  width: 100%;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  font-family: "BMJUA";
+  width: 100%;
+  font-weight: normal;
+  text-align: center;
+  margin-top: 95px;
+  font-size: 25px;
+  
+  .section-title{
+    width: 1470px;
+    display: flex;
+    justify-content: space-between;  /* 왼쪽과 오른쪽 끝 정렬 */
+    align-items: center;
+    position: relative;
+    margin: 5px 0;
+    .text-top{
+      position: absolute;
+      left: 50%;
+      transform: translateX(-50%);
+    }
+    // 01 음식선택 > 02 장바구니 > 03 주문/결제 > 04 주문 완료
+    .step-horizontal {
+    width: 100%;
+    display: flex;
+    justify-content: right;
+    align-items: center;
+    gap: 8px;
+    font-family: "BMJUA";
+    font-size: 16px;
+      .step-text.current {
+        // 02 장바구니
+        color: #ff6666;
+      } 
+    }
+  }
+  .solid {
+  width: 1470px;
+  border: 1px #000 solid;
+  margin: 50px 0 80px;
+  }
+}
+
+
 
 .cart-empty-wrapper {
   max-width: 1024px;
@@ -427,18 +550,8 @@ const menuIgmSrc = computed(()=>{
     font-size: 50px;
   }
 }
-.step-horizontal {
-  // 01 음식선택 > 02 장바구니 > 03 주문/결제 > 04 주문 완료
-  font-family: "BMJUA";
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 20px;
-  .step-text.current {
-    // 02 장바구니
-    color: #ff6666;
-  }
-}
+
+
 
 .top-row {
   display: flex;
@@ -527,15 +640,17 @@ const menuIgmSrc = computed(()=>{
   margin-bottom: 40px;
 }
 
+
+// 음식 담으러 가기 버튼
 .div19 {
-  // 음식 담으러 가기 버튼
   width: 400px;
   height: 80px;
   border: 2px solid #ff6666;
   color: #ff6666;
   background-color: #fff;
-  border-radius: 8px;
+  border-radius: 15px;
   font-size: 32px;
+  font-family: "BMJUA";
   margin-bottom: 80px;
   margin-top: 80px;
   cursor: pointer;
@@ -547,25 +662,27 @@ const menuIgmSrc = computed(()=>{
   text-align: center;
 
   &:hover {
-    background-color: #ffe5e5;
+    background-color: #ff6666;
+    color:#fff;
   }
 }
 
 // 박스 정렬
 .store-layout {
-  max-width: 1251px;
-  margin: 40px auto 0 auto; // 전체 가운데 정렬
+  max-width: 1200px;
+  margin: auto; // 전체 가운데 정렬
   display: flex;
   justify-content: center;
-  align-items: flex-start;
-  gap: 40px;
+  align-items: flex-start; 
+  gap: 15px;
   flex-wrap: nowrap; // 줄바꿈 방지
 }
+
 
 // 음식점 가게 카드
 .store-card {
   width: 368px; // 카드 전체 너비
-  border: 1px solid #d7d7d7;
+  border: 2px solid #797979;
   border-radius: 25px;
   overflow: hidden; // 내부 요소 넘칠 경우 숨김
   cursor: pointer;
@@ -633,11 +750,11 @@ const menuIgmSrc = computed(()=>{
 .store-box {
   // 각 음식점별 장바구니 박스
   width: 830px;
-  height: 553px;
+  min-height: 553px;
   margin: 0 auto 0px 50px;
   padding: 50px;
-  border: 1px solid #e0e0e0;
-  border-radius: 16px;
+  border: 2px solid #797979;
+  border-radius: 15px;
   background-color: #fff;
   display: flex;
   flex-direction: column; // 세로 정렬
@@ -649,17 +766,18 @@ const menuIgmSrc = computed(()=>{
 
   .cart-footer {
     // 총금액 구역박스
-    margin-top: auto;
+    margin: auto;
     display: flex;
     justify-content: flex-end;
-    gap: 20px;
-    text-align: right;
+    gap: 50px;
 
     .total {
       // 총 금액
       font-family: "BMJUA";
       font-size: 30px;
       margin-right: 40px;
+      color: #ff6666;
+      margin: 0 !important;
     }
   }
 }

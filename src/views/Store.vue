@@ -12,11 +12,16 @@ import Menu from "@/components/Menu.vue";
 import Review from "@/components/Review.vue";
 import { useFavoriteStore } from "@/stores/favoriteStore";
 import defaultImage from '@/imgs/owner/owner-service3.png';
+import AlertModal from "@/components/modal/AlertModal.vue";
+
+
 
 // 하트 이미지
 import lovet from '@/imgs/loveFull.png';
 import lovef from '@/imgs/loveBoard.png'
 
+// 모달 창 함수
+const alertModal = ref(null); 
 
 const favoriteStore = useFavoriteStore();
 
@@ -54,15 +59,14 @@ const loadStore = async (id) => {
   // 가게 상세 조회 실패 시(API에 알 수 없는 오류가 발생하거나 가게 테이블에 없는 데이터를 조회하려고 할 경우) 홈으로 돌아감
   // 주소창에 입력해서 강제로 들어가는 것을 방지하기 위함
   if (res === undefined || res.data.resultStatus !== 200) {
-    const modal = new bootstrap.Modal(document.getElementById("storeF"));
-    modal.show();
+    alertModal.value.showModal('조회에 실패하였습니다.');
     router.push({ path: "/" });
     return;
   }
 
   state.store = res.data.resultData;
   console.log("state", state.store);
-  
+
   showMap(state.store.address);
 
   //
@@ -79,9 +83,11 @@ const loadStore = async (id) => {
 };
 
 // 지도를 보여주는 함수
+let lat = 37.5665;
+let lon = 126.9780;
 const showMap = address => {
   const map = new naver.maps.Map('map', {
-    center: new naver.maps.LatLng(37.5665, 126.9780),
+    center: new naver.maps.LatLng(lat, lon),
     zoom: 15,
   });
 
@@ -91,13 +97,15 @@ const showMap = address => {
       if (status !== naver.maps.Service.Status.OK) {
         console.log('address: 주소를 찾을 수 없습니다.');
       }
-      
+
       const result = response.v2.addresses[0];
       if (result.total === 0) {
         console.log('address: 검색 결과가 없습니다.');
       }
 
       const point = new naver.maps.LatLng(result.y, result.x);
+      lat = result.x;
+      lon = result.y;
 
       map.setCenter(point);
 
@@ -119,8 +127,7 @@ const loadFavorite = async (id) => {
   const res = await getFavorite(id);
 
   if (res === undefined || res.data.resultStatus !== 200) {
-    const modal = new bootstrap.Modal(document.getElementById("storeF"));
-    modal.show();
+    alertModal.value.showModal('조회에 실패하였습니다.');
     return;
   }
 
@@ -134,13 +141,11 @@ const loadMenus = async (id) => {
   const res = await getOneMenu(id);
 
   if (res === undefined) {
-    const modal = new bootstrap.Modal(document.getElementById("storeF"));
-    modal.show();
+    alertModal.value.showModal('조회에 실패하였습니다.');
     return;
   } else if (res.data.resultStatus !== 200) {
     // alert(res.data.resultMessage);
-    const modal = new bootstrap.Modal(document.getElementById("storeF"));
-    modal.show();
+    alertModal.value.showModal('조회에 실패하였습니다.');
     return;
   }
   state.menus = res.data.resultData;
@@ -153,8 +158,7 @@ const loadReviews = async (id) => {
   const res = await getReviewsByStoreId(id);
 
   if (res === undefined || res.data.resultStatus !== 200) {
-    const modal = new bootstrap.Modal(document.getElementById("storeF"));
-    modal.show();
+    alertModal.value.showModal('조회에 실패하였습니다.');
     return;
   }
 
@@ -187,14 +191,8 @@ const loadReviews = async (id) => {
   // console.log("comLeng: ", comLeng);
 
   // 조회 성공 시 장바구니 조회 함수 호출
-
-
-
-
   loadCarts(id);
 };
-
-
 
 // 고객 유저 장바구니 조회
 const loadCarts = async (id) => {
@@ -221,8 +219,7 @@ const toggleFavorite = async (id) => {
 
     if (res === undefined || res.data.resultStatus !== 200) {
       // alert("찜 상태 변경 실패");
-      const modal = new bootstrap.Modal(document.getElementById("faiF"));
-      modal.show();
+      alertModal.value.showModal('찜하기에 실패하였습니다.');
       return;
     }
 
@@ -231,9 +228,10 @@ const toggleFavorite = async (id) => {
     // Pinia store에도 업데이트
     favoriteStore.toggleFavorite(storeId);
     console.log('찜 상태 저장됨:', favoriteStore.state.storeIds);
+
+    loadReviews(id);
+    loadStore(id);
   }
-  loadReviews(id);
-  loadStore(id);
 };
 
 // 장바구니 추가 함수(Menu.vue 컴포넌트에서 받아옴)
@@ -261,13 +259,11 @@ const decreaseQuantity = async (idx) => {
     const res = await updateQuantity(params);
 
     if (res === undefined) {
-      const modal = new bootstrap.Modal(document.getElementById("putF"));
-      modal.show();
+      alertModal.value.showModal('수정에 실패하였습니다.');
       return;
     } else if (res.data.resultStatus !== 200) {
       // alert(res.data.resultMessage);
-      const modal = new bootstrap.Modal(document.getElementById("putF"));
-      modal.show();
+      alertModal.value.showModal('수정에 실패하였습니다.');
       return;
     }
 
@@ -289,13 +285,11 @@ const increaseQuantity = async (idx) => {
   const res = await updateQuantity(params);
 
   if (res === undefined) {
-    const modal = new bootstrap.Modal(document.getElementById("putF"));
-    modal.show();
+    alertModal.value.showModal('수정에 실패하였습니다.');
     return;
   } else if (res.data.resultStatus !== 200) {
     // alert(res.data.resultMessage);
-    const modal = new bootstrap.Modal(document.getElementById("putF"));
-    modal.show();
+    alertModal.value.showModal('수정에 실패하였습니다.');
     return;
   }
 
@@ -308,8 +302,7 @@ const deleteItem = async (cartId) => {
   const res = await removeItem(cartId);
 
   if (res === undefined || res.data.resultStatus !== 200) {
-    const modal = new bootstrap.Modal(document.getElementById("delF"));
-    modal.show();
+    alertModal.value.showModal('삭제에 실패하였습니다.');
     return;
   }
 
@@ -328,13 +321,11 @@ const deleteCart = async () => {
     const res = await removeCart();
 
     if (res === undefined) {
-      const modal = new bootstrap.Modal(document.getElementById("delF"));
-      modal.show();
+      alertModal.value.showModal('삭제에 실패하였습니다.');
       return;
     } else if (res.data.resultStatus === 401) {
       // alert(res.data.resultMessage);
-      const modal = new bootstrap.Modal(document.getElementById("delF"));
-      modal.show();
+      alertModal.value.showModal('삭제에 실패하였습니다.');
       return;
     }
 
@@ -356,12 +347,10 @@ const calculateTotal = () => {
 // 주문 확인 화면으로 넘어가는 함수
 const toOrder = () => {
   if (!account.state.loggedIn) {
-    const modal = new bootstrap.Modal(document.getElementById("loginF"));
-    modal.show();
+    alertModal.value.showModal('로그인이 필요합니다');
     return;
   } else if (state.carts.length < 1) {
-    const modal = new bootstrap.Modal(document.getElementById("orderF"));
-    modal.show();
+    alertModal.value.showModal('메뉴를 추가해주세요.');
     return;
   }
 
@@ -414,8 +403,23 @@ const imgSrc = computed(() => {
 
 })
 
+// 더보기
+const visibleCount = ref(3);
+const visibleReview = computed(() => {
+  return state.reviews
+    .slice(0, visibleCount.value);
+});
+const loadMore = () => {
+  visibleCount.value += 5;
+};
 
-
+// 위로 가기
+const arrow = () => {
+  window.scrollTo({
+    top: 0,
+    behavior: 'smooth',
+  });
+};
 </script>
 
 <template>
@@ -437,11 +441,13 @@ const imgSrc = computed(() => {
               <h3>{{ state.store.name }}</h3>
               <p>최소 주문 금액 15,000원</p>
               <p>배달료 0원 ~ 3,000원</p>
-              <span><img class="restar" src="/src/imgs/starBoard.png"/> {{ state.reviewNum !== 'NaN' ? state.reviewNum : 0 }}({{ state.reviews.length }})
-                <img class="favorite" @click="toggleFavorite(state.store.id)" :src="state.store.favorite ? lovet : lovef"/>
+              <span><img class="restar" src="/src/imgs/starBoard.png" /> {{ state.reviewNum !== 'NaN' ? state.reviewNum
+                : 0 }}({{ state.reviews.length }})
+                <img class="favorite" @click="toggleFavorite(state.store.id)"
+                  :src="state.store.favorite ? lovet : lovef" />
                 {{ state.storeInfo[0]?.favorites }}</span>
             </div>
-            <div class="col-12 col-md-4">
+            <div class="col-12 col-md-4 pt-4">
               <div id="map" class="border rounded mb-2"></div>
               <span class="addressText">{{ state.store.address }}</span>
             </div>
@@ -516,7 +522,10 @@ const imgSrc = computed(() => {
                   <Menu :item="item" @addCart="addCart" />
                 </div>
               </div>
-              <div v-else>메뉴 준비중입니다.</div>
+              <div v-else class="d-flex mt-5 justify-content-center align-items-center w-100"
+                style="font-size: 40px; flex-direction: column;"> 등록된 메뉴가 없습니다.
+                <img src="/src/imgs/owner/owner-service5.png" alt="메뉴없엉">
+              </div>
             </div>
 
             <!-- 리뷰보기 리스트 -->
@@ -532,10 +541,18 @@ const imgSrc = computed(() => {
                     <div class="review-data">
                       <!-- 왼쪽 별/점수 -->
                       <div>
-                        <span class="star" v-for="n in Math.floor(state.reviewNum || 0)" :key="n">
-                        <img class="starImg" src="/src/imgs/starBoard.png"/>
+                        <span class="star" v-for="n in Math.floor(state.reviewNum || 0)" :key="n"
+                          v-if="state.reviewNum && state.reviewNum > 0">
+                          <img class="starImg" src="/src/imgs/starBoard.png" />
                         </span>
-                        <div class="review-num">{{ state.reviewNum }}</div>
+                        <span class="star" v-else>
+                          <img class="starImg" src="/src/imgs/starNull.png" />
+                          <img class="starImg" src="/src/imgs/starNull.png" />
+                          <img class="starImg" src="/src/imgs/starNull.png" />
+                          <img class="starImg" src="/src/imgs/starNull.png" />
+                          <img class="starImg" src="/src/imgs/starNull.png" />
+                        </span>
+                        <div class="review-num">{{ isNaN(state.reviewNum) ? 0 : state.reviewNum }}</div>
                       </div>
                       <!-- 오른쪽 텍스트 -->
                       <div class="left-box">
@@ -547,11 +564,20 @@ const imgSrc = computed(() => {
                 </div>
                 <!-- 리뷰 리스트 조회 -->
                 <div v-if="state.reviews.length > 0">
-                  <div v-for="item in state.reviews" :key="item.id">
+                  <div v-for="item in visibleReview" :key="item.id">
                     <Review :item="item" />
                   </div>
                 </div>
-                <div v-else>등록된 리뷰가 없습니다.</div>
+                <div v-else class="d-flex mt-5 justify-content-center align-items-center w-100"
+                  style="font-size: 40px; flex-direction: column;"> 등록된 리뷰가 없습니다.
+                  <img src="/src/imgs/owner/owner-service5.png" alt="리뷰없엉">
+                </div>
+                <div class="d-flex justify-content-center">
+                  <button v-if="visibleReview.length > 0 && visibleCount < state.reviews.length" @click="loadMore"
+                    class="btn btn-secondary btn-review">
+                    더보기
+                  </button>
+                </div>
               </div>
             </div>
           </div>
@@ -559,97 +585,11 @@ const imgSrc = computed(() => {
       </div>
     </div>
   </div>
-  <!-- 메뉴 없이 주문하면.. -->
-  <div class="modal fade" id="orderF" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
-    aria-hidden="true">
-    <div class="modal-dialog" role="document">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title" id="exampleModalLabel">경고</h5>
-        </div>
-        <div class="modal-body">메뉴를 추가해주세요</div>
-        <div class="modal-footer">
-          <a class="btn" id="modalY" href="#" data-bs-dismiss="modal">닫기</a>
-        </div>
-      </div>
-    </div>
-  </div>
+  <img @click="arrow" class="arrow" src="/src/imgs/arrow.png" />
 
 
-  <!-- 로그인이 안 되어 있으면.. -->
-  <div class="modal fade" id="loginF" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
-    aria-hidden="true">
-    <div class="modal-dialog" role="document">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title" id="exampleModalLabel">경고</h5>
-        </div>
-        <div class="modal-body">로그인이 필요합니다</div>
-        <div class="modal-footer">
-          <a class="btn" id="modalY" href="#" data-bs-dismiss="modal">닫기</a>
-        </div>
-      </div>
-    </div>
-  </div>
-  <!-- 조회 실패 -->
-  <div class="modal fade" id="storeF" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
-    aria-hidden="true">
-    <div class="modal-dialog" role="document">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title" id="exampleModalLabel">경고</h5>
-        </div>
-        <div class="modal-body">조회에 실패하였습니다</div>
-        <div class="modal-footer">
-          <a class="btn" id="modalY" href="#" data-bs-dismiss="modal">닫기</a>
-        </div>
-      </div>
-    </div>
-  </div>
-  <!--  수정 실패 -->
-  <div class="modal fade" id="putF" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
-    <div class="modal-dialog" role="document">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title" id="exampleModalLabel">경고</h5>
-        </div>
-        <div class="modal-body">수정에 실패하였습니다</div>
-        <div class="modal-footer">
-          <a class="btn" id="modalY" href="#" data-bs-dismiss="modal">닫기</a>
-        </div>
-      </div>
-    </div>
-  </div>
-  <!-- 삭제 실패 -->
-  <div class="modal fade" id="delF" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
-    <div class="modal-dialog" role="document">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title" id="exampleModalLabel">경고</h5>
-        </div>
-        <div class="modal-body">삭제에 실패하였습니다</div>
-        <div class="modal-footer">
-          <a class="btn" id="modalY" href="#" data-bs-dismiss="modal">닫기</a>
-				</div>
-			</div>
-		</div>
-	</div>
-    <!-- 찜 실패 -->
-    <div class="modal fade" id="faiF" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
-		<div class="modal-dialog" role="document">
-			<div class="modal-content">
-				<div class="modal-header">
-					<h5 class="modal-title" id="exampleModalLabel">경고</h5>
-				</div>
-				<div class="modal-body">찜 하기에 실패하였습니다</div>
-				<div class="modal-footer">
-          <a class="btn" id="modalY" href="#" data-bs-dismiss="modal">닫기</a>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!--  -->
+  <!--  공용 모달창 -->
+  <alert-modal ref="alertModal"></alert-modal>
 </template>
 
 <style lang="scss" scoped>
@@ -659,8 +599,43 @@ const imgSrc = computed(() => {
   font-weight: normal;
   font-style: normal;
 }
-.top{
+
+.arrow {
+  position: sticky;
+  width: 3.8%;
+  bottom: 100px;
+  left: 93%;
+  z-index: 999;
+  margin-bottom: 100px;
+
+  &:hover {
+    opacity: 80%;
+  }
+}
+
+
+// 버튼
+.btn-review {
+  width: 250px;
+  font-size: 30px;
+  height: 50px;
+  margin-top: 10px;
+  border: none;
+  cursor: pointer;
+  background: #f66463;
+}
+
+.btn-review:hover {
+  background: #d44b4a;
+}
+
+.btn-review:active {
+  background: #b23837;
+}
+
+.top {
   font-family: "BMJUA";
+  font-size: 18px;
 }
 
 .container {
@@ -668,11 +643,11 @@ const imgSrc = computed(() => {
 }
 
 #map {
-  height: 125px;
+  height: 180px;
 }
 
 .favorite {
-width: 20px;
+  width: 20px;
   cursor: pointer;
 }
 
@@ -756,6 +731,7 @@ width: 20px;
 #store-box {
   display: flex;
   align-items: center;
+
   width: 860px;
   height: 303px;
 }
@@ -770,6 +746,7 @@ width: 20px;
   overflow: hidden;
   background-color: #f5f5f5;
   margin-top: 20px;
+
   .img-one {
     width: 250px;
   }
@@ -825,7 +802,7 @@ width: 20px;
   font-family: "BMJUA";
   font-size: 30px;
   color: #FAC729;
-  
+
 }
 
 .left-box {
@@ -836,7 +813,13 @@ width: 20px;
 }
 
 .modal {
-  top: 7%;
+  top: 40%;
+  font-family: 'Pretendard-Regular';
+  font-weight: 800;
+}
+.modal-title{
+    font-family: 'Pretendard-Regular';
+  font-weight: 800;
 }
 
 .img-one {
@@ -848,22 +831,27 @@ width: 20px;
     width: 270px;
   }
 }
-.starImg{
+
+.starImg {
   width: 30px;
   padding: 3px;
 }
-.restar{
+
+.restar {
   width: 20px;
 }
-#order{
+
+#order {
   font-family: "BMJUA" !important;
   margin-top: -15px;
 }
-.addressText{
+
+.addressText {
   text-align: center;
-  margin-left: 25px;
+  margin-left: 14px;
 }
-#orderBtn{
+
+#orderBtn {
   margin-top: 20px;
   margin-left: -12px;
   font-size: 25px;

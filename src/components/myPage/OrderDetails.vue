@@ -1,5 +1,3 @@
-<!-- 주문내역 전체 화면 -->
-
 <script setup>
 import { reactive, ref, onMounted, computed } from "vue";
 import OrderAndReview from "./OrderAndReview.vue";
@@ -7,8 +5,8 @@ import { getOrder, deleteOrder } from "@/services/orderService";
 import { getReviewsByStoreId } from "@/services/reviewServices";
 import { useRouter } from "vue-router";
 import { getStore } from "@/services/storeService";
-import { useCartStore } from "@/stores/cart";
-import { addItem } from "@/services/cartService";
+//import { useCartStore } from "@/stores/cart";
+import { addItem, getItem, removeCart } from "@/services/cartService";
 
 //라우터
 const router = useRouter();
@@ -26,22 +24,19 @@ const user = reactive({
 });
 
 // onMounted
-onMounted(async () => {
-  await findorder();
-  console.log("dfdf: ", cartStore.state.items);
+onMounted( () => {
+  findorder();
 });
 
 // 주문 목록 조회
 const findorder = async () => {
   const res = await getOrder();
-  console.log(res.data.resultData);
   state.orders = res.data.resultData;
 };
 
 // 리뷰 목록 조회
 const findReview = async (storeId) => {
   const res = await getReviewsByStoreId(storeId);
-  console.log("review", res.data.resultData);
 };
 
 //
@@ -49,7 +44,6 @@ let on = ref(true);
 
 const boardBtn = () => {
   on.value = !on.value;
-  console.log(on.value);
 };
 
 // 리뷰 별점
@@ -62,19 +56,22 @@ const selectStar = (index) => {
 
 // 주문 삭제
 const deleteOrderOne = async (order) => {
-  console.log("order: ", order);
   if (
     order.status === "ORDERED" ||
     order.status === "DELIVERING" ||
     order.status === "PREPARING"
   ) {
-    const modal = new bootstrap.Modal(document.getElementById("orderF"));
-    modal.show();
+    showModal('진행 중인 주문은 취소할 수 없습니다.')
     return;
   }
+
   try {
-    await deleteOrder(order.orederId);
-    state.orders = state.orders.filter((order) => order.id !== order.orderId);
+    await deleteOrder(order.id);
+
+    const deleteIdx = state.orders.findIndex((item) => item.id === order.id);
+    if (deleteIdx > -1) {
+      state.orders.splice(deleteIdx, 1);
+    }
   } catch (e) {
     console.error("삭제 실패", e);
   }
@@ -85,33 +82,57 @@ const filteredOrders = computed(() =>
   state.orders.filter((order) => order.isdeleted !== 0)
 );
 
-// 재주문
-const cartStore = useCartStore();
-
-const reorder = async (menus) => {
-  console.log("menus: ", menus.orderGetList);
-  const addMenus = menus.orderGetList.map((menu) => ({
-    id: menu.menuId,
-    name: menu.name,
-    price: menu.price,
-    quantity: menu.quantity,
-    storeId: menu.storeId,
-  }));
-
-  const cartItems = cartStore.state.items;
-  if (cartItems.length > 0 && cartItems[0].id !== addMenus[0].id) {
-    const modal = new bootstrap.Modal(document.getElementById("cartF"));
-    modal.show();
+// 재주문을 하기 위한 함수
+//const cartStore = useCartStore();
+const reorder = async menus => {
+  //const cartItems = cartStore.state.items;
+  // if (cartItems.length > 0 && cartItems[0].id !== addMenus[0].id) {
+  //   showModal('이미 다른 가게의 메뉴가 장바구니에 담겨 있습니다.')
+  //   return;
+  // }
+  const res = await getItem();
+  if (res === undefined) {
+    showModal('장바구니 조회 실패');
+    return;
+  } else if (res.data.resultStatus === 401) {
+    showModal(res.data.resultMessage);
     return;
   }
 
-  cartStore.addMenus(addMenus);
+  const carts = res.data.resultData;
+  if (carts !== null && menus.storeId !== carts[0].storeId) {
+    showModal('이미 다른 가게의 메뉴가 장바구니에 담겨 있습니다.')
+    return;
+  }
+
+  // 같은 가게의 메뉴가 이미 장바구니에 담겨져 있을 경우,
+  // 장바구니의 데이터를 다 지우고 새로 등록할지,
+  // 기존의 장바구니에 더 추가를 할지는 생각 해봐야 됨.
+  // 일단은 장바구니에 있는 데이터를 다 지우고 새로 등록하게 했음.
+  await removeCart();
 
   for (let i = 0; i < menus.orderGetList.length; i++) {
-    console.log(menus.orderGetList[i].menuId);
-    const res = await addItem(menus.orderGetList[i].menuId);
-    console.log(res.data.resultData);
+    const params = {
+      menuId: menus.orderGetList[i].menuId,
+      quantity: menus.orderGetList[i].quantity
+    };
+
+    const res = await addItem(params);
+
+    //menus.orderGetList[i].cartId = res.data.resultData;
   }
+
+  // const addMenus = menus.orderGetList.map((menu) => ({
+  //   id: menu.cartId,
+  //   menuId: menu.menuId,
+  //   name: menu.name,
+  //   price: menu.price,
+  //   quantity: menu.quantity,
+  //   storeId: menu.storeId,
+  // }));
+
+  //cartStore.addMenus(addMenus);
+
   router.push("/cart");
 };
 
@@ -128,9 +149,22 @@ const showMore = () => {
 const visibleCards = computed(() => {
   return state.orders.slice(0, visibleCount.value);
 });
+//화면 상단 이동
+const arrow = () => {
+  window.scrollTo({
+    top: 0,
+    behavior: 'smooth',
+  });
+};
+
+const showModal = (message) => {
+  const modalBody = document.getElementById("alertModalBody");
+  if (modalBody) modalBody.textContent = message;
+  const modal = new bootstrap.Modal(document.getElementById("alertModal"));
+
+  modal.show();
+};
 </script>
-
-
 
 <template>
   <div class="all-box" :style="{ height: allBoxHeight + 'px' }">
@@ -173,16 +207,8 @@ const visibleCards = computed(() => {
           <div class="solid"></div>
         </div>
       </div>
-      <div
-        v-for="order in visibleCards"
-        :key="order.id"
-        style="margin-bottom: 10px"
-      >
-        <order-and-review
-          :order="order"
-          @delete-order="deleteOrderOne"
-          @reorder="reorder"
-        />
+      <div v-for="order in visibleCards" :key="order.id" style="margin-bottom: 10px">
+        <order-and-review :order="order" @delete-order="deleteOrderOne" @reorder="reorder" />
       </div>
     </div>
 
@@ -258,18 +284,12 @@ const visibleCards = computed(() => {
     </div> -->
 
     <!-- 장바구니 모달 -->
-    <div
-      class="modal fade"
-      id="orderF"
-      tabindex="-1"
-      role="dialog"
-      aria-labelledby="exampleModalLabel"
-      aria-hidden="true"
-    >
+    <div class="modal fade" id="orderF" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+      aria-hidden="true">
       <div class="modal-dialog" role="document">
         <div class="modal-content">
           <div class="modal-header">
-            <h5 class="modal-title" id="exampleModalLabel">경고</h5>
+            <h5 class="modal-title" id="exampleModalLabel">알림</h5>
           </div>
           <div class="modal-body">진행 중인 주문은 삭제하실 수 없습니다.</div>
           <div class="modal-footer">
@@ -281,18 +301,11 @@ const visibleCards = computed(() => {
   </div>
 
   <!-- 장바구니 모달 -->
-  <div
-    class="modal fade"
-    id="cartF"
-    tabindex="-1"
-    role="dialog"
-    aria-labelledby="exampleModalLabel"
-    aria-hidden="true"
-  >
+  <div class="modal fade" id="cartF" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
     <div class="modal-dialog" role="document">
       <div class="modal-content">
         <div class="modal-header">
-          <h5 class="modal-title" id="exampleModalLabel">경고</h5>
+          <h5 class="modal-title" id="exampleModalLabel">알림</h5>
         </div>
 
         <div class="modal-body">
@@ -306,23 +319,49 @@ const visibleCards = computed(() => {
       </div>
     </div>
   </div>
-  <div v-if="state.orders.length >0" class="btnBox">
-    <div v-if="visibleCount < state.orders.length" class="btn" @click="showMore">
-  더보기
-  </div>
+  <div v-if="state.orders.length > 0" class="btnBox">
+    <div id="btnB" v-if="visibleCount < state.orders.length" class="btn" @click="showMore">
+      더보기
+    </div>
   </div>
   <!-- <div class=""></div> -->
+  <!--  -->
+  <div class="modal fade" id="alertModal" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">알림</h5>
+        </div>
+        <div class="modal-body" id="alertModalBody">내용</div>
+        <div class="modal-footer">
+          <button type="button" class="btn" data-bs-dismiss="modal">
+            확인
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!--  -->
+  <img @click="arrow" class="arrow" src="/src/imgs/arrow.png" />
 </template>
 
 <style lang="scss" scoped>
 .modal {
-  top: 20%;
+  font-family: 'Pretendard-Regular';
+  font-weight: 800;
+}
+
+@font-face {
+  // 프리텐다드
+  font-family: 'Pretendard-Regular';
+  src: url('https://fastly.jsdelivr.net/gh/Project-Noonnu/noonfonts_2107@1.1/Pretendard-Regular.woff') format('woff');
+  font-weight: 400;
+  font-style: normal;
 }
 
 @font-face {
   font-family: "BMJUA";
-  src: url("https://fastly.jsdelivr.net/gh/projectnoonnu/noonfonts_one@1.0/BMJUA.woff")
-    format("woff");
+  src: url("https://fastly.jsdelivr.net/gh/projectnoonnu/noonfonts_one@1.0/BMJUA.woff") format("woff");
   font-weight: normal;
   font-style: normal;
   font-family: "Pretendard-Regular";
@@ -370,7 +409,7 @@ const visibleCards = computed(() => {
   margin-top: 70px;
 }
 
-.btn {
+.btn-t {
   font-family: "BMJUA";
   font-size: 1em;
   text-align: center;
@@ -647,22 +686,42 @@ const visibleCards = computed(() => {
     }
   }
 }
-.board-box{
+
+.board-box {
   overflow: clip;
 }
-.btnBox{
+
+.btnBox {
   display: flex;
   justify-content: center;
 }
-.btn{
+
+#btnB {
   display: flex;
   justify-content: center;
   align-items: center;
+  border-radius: 10px;
   font-size: 40px;
-  width: 76.9%;
+  width: 60% !important;
   height: 50px;
   margin-left: -5px;
   margin-bottom: 120px;
   margin-top: -20px;
+  border: none;
 }
+
+.arrow {
+  position: sticky;
+  width: 3.8%;
+  bottom: 100px;
+  left: 93%;
+  z-index: 999;
+  margin-bottom: 100px;
+
+  &:hover {
+    opacity: 80%;
+  }
+}
+
+
 </style>

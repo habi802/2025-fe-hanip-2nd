@@ -40,22 +40,28 @@ onMounted(async () => {
     router.push({ path: "/" });
     return;
   }
-  
+  const orderId = Number(route.query.id);
   // 넘어온 쿼리가 있다면 ?
-  if (route.query.id > 0) {
+  let res = null;
+  if (!isNaN(orderId) && orderId > 0) {
     const ress = await getStore(route.params.id);
     state.store = ress.data.resultData;
-    const res = await getOwnerOrder2(route.query.id);
+    res = await getOwnerOrder2(route.query.id);
+    
     state.order = res.data.resultData;
-    console.log("res.ingo", state.order);
+    console.log("난 주문 상세야: ", state.order);
     console.log("total", totalPrice.value);
     randomList();
     calculateTotal();
     status();
   } else {
-    const res = await getStore(route.params.id);
+    res = await getStore(route.params.id);
     state.store = res.data.resultData;
-    state.carts = cart.state.items;
+    console.log("난 주문이야: ", res);
+    state.carts = cart.state.latestOrder;
+    console.log("state.order", cart.order);
+    console.log("cart.state.items", cart.state);
+    console.log(localStorage.getItem('cart-items'));
     calculateTotal();
     randomList();
   }
@@ -64,7 +70,7 @@ onMounted(async () => {
     alert("조회 실패");
     router.push({ path: "/" });
     return;
-  } else if (res.data.resultStatus !== 200) {
+  } else if (res.status !== 200) {
     alert(res.data.resultMessage);
     router.push({ path: "/" });
     return;
@@ -162,7 +168,7 @@ const randomThreeStores = computed(() => {
           </div>
         </div>
         <div id="img-big-box" class="">
-          <div class="col-4">
+          <div id="leftBox" class="col-4">
             <div class="store-image">
               <img
                 class="storeImg"
@@ -178,11 +184,11 @@ const randomThreeStores = computed(() => {
                 <div class="p-2" :class="{ 'border-top': idx !== 0 }">
                   <div class="d-flex justify-content-between mb-2">
                     <div class="row">
-                      <span>{{ item.menuName }}</span>
+                      <span class="itme-name">{{ item.menuName }}</span>
                       <span>　</span>
                     </div>
                     <span>{{ item.quantity }}개</span>
-                    <span
+                    <span class="item-price"
                       >{{
                         (item.price * item.quantity).toLocaleString()
                       }}원</span
@@ -197,11 +203,11 @@ const randomThreeStores = computed(() => {
                 <div class="p-2" :class="{ 'border-top': idx !== 0 }">
                   <div class="d-flex justify-content-between mb-2">
                     <div class="row">
-                      <span>{{ item.name }}</span>
+                      <span class="itme-name">{{ item.name }}</span>
                       <span>　</span>
                     </div>
                     <span>{{ item.quantity }}개</span>
-                    <span
+                    <span class="item-price"
                       >{{
                         (item.price * item.quantity).toLocaleString()
                       }}원</span
@@ -318,6 +324,7 @@ const randomThreeStores = computed(() => {
     </div>
   </div>
   <!--  -->
+  <div class="last"></div>
 </template>
 
 <style lang="scss" scoped>
@@ -391,7 +398,6 @@ const randomThreeStores = computed(() => {
 #img-big-box {
   display: flex;
   justify-content: space-between;
-  align-items: center;
   width: 100%;
 
   border-radius: 20px;
@@ -460,6 +466,18 @@ const randomThreeStores = computed(() => {
   gap: 20px;
   margin-bottom: 50px;
 }
-
-
+#leftBox{
+  display: flex;
+  
+}
+.itme-name{
+  width: 200px;
+}
+.item-price{
+  width: 100px;
+  text-align: end;
+}
+.last{
+  margin-bottom: 120px;
+}
 </style>

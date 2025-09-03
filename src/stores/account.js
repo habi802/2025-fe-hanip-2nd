@@ -29,10 +29,10 @@ export const useUserInfo = defineStore('userInfo', {
   }),
   actions: {
     async fetchStore() {
-      console.log("📣 fetchStore 호출됨");
+      //console.log("📣 fetchStore 호출됨");
       try {
         const res = await getUser();
-        console.log("🤢유저 정보", res);
+        //console.log("🤢유저 정보", res);
         if (res?.status === 200 && res?.data?.resultData) {
           const data = res.data.resultData;
           const address = (data.address ?? '') + (data.address_detail ?? '');
@@ -40,7 +40,7 @@ export const useUserInfo = defineStore('userInfo', {
           this.userName = data.name;
           this.userAddr = address;
         }
-                console.log("🟢 저장된 주소:", this.userAddr);
+        //console.log("🟢 저장된 주소:", this.userAddr);
       } catch (err) {
         console.error('유저 정보 불러오기 실패', err);
       }
@@ -58,12 +58,19 @@ export const useOwnerStore = defineStore('owner', {
   }),
   actions: {
     async fetchStoreInfo() {
-      const res = await getOwnerStore();
-      if (res.status === 200) {
-        this.storeId = res.data.resultData.id;
-        console.log("storeID: 여기도? : ㅇㅇ ", this.storeId)
-      } else {
-        console.error('가게 정보 불러오기 실패', res);
+      try {
+        const res = await getOwnerStore();
+        console.log("📦 getOwnerStore 응답:", res);
+
+        if (res.status === 200 && res.data.resultData) {
+          this.storeData = res.data.resultData; // ✅ 추가
+          this.storeId = res.data.resultData.id;
+          console.log("✅ 저장된 storeData:", this.storeData);
+        } else {
+          console.error('가게 정보 불러오기 실패', res);
+        }
+      } catch (err) {
+        console.error("가게 정보 오류", err);
       }
     }
   }

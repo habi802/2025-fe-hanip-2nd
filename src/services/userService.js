@@ -30,7 +30,14 @@ export const getUser = () => {
     return axios.get(`${path}`).catch(e => e.response);
 }
 
-export const update = () => {
-    return axios.put(`${path}`).catch(e => e.response);
+export const checkPassword = password => {
+    return axios.post(`${path}/check-password`, password, {
+        headers: {
+            'Content-Type': 'text/plain'
+        }}).catch(e => e.response);
+}
+
+export const update = args => {
+    return axios.put(`${path}`, args).catch(e => e.response);
 }
 
