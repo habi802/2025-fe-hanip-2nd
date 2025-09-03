@@ -106,19 +106,19 @@ H A N I P 은 앱 설치 없이 웹에서 바로 접속해 주문할 수 있고,
 ## 🔗 프로젝트 자료
 
 <div>
-<a href="https://www.notion.so/2025-7-15-10-31-MSA-JAVA-23a720c7237a802482a3f8554835cae4?source=copy_link" target="_blank" style="text-decoration: none; outline: none;" >
+<a href="https://www.notion.so/2025-7-15-10-31-MSA-JAVA-23a720c7237a802482a3f8554835cae4?source=copy_link" target="_blank">
 <img src="/src/imgs/icon/Notion.png" alt="Notion Icon"/>
 </a> 
 </div>
 
 <div>
-<a href="https://www.figma.com/design/drRLuIrJlJLy69HP5jJssz/Untitled?node-id=0-1&p=f&t=RyJmlspkvpZ2xTgN-0" target="_blank" style="text-decoration: none; outline: none;" >
+<a href="https://www.figma.com/design/drRLuIrJlJLy69HP5jJssz/Untitled?node-id=0-1&p=f&t=RyJmlspkvpZ2xTgN-0" target="_blank"  >
 <img src="/src/imgs/icon/Figma.png" alt="Figma Icon"/>
 </a>
 </div>
 
 <div>
-<a href="https://www.erdcloud.com/d/GoRPuTcMd2JJEcr7i" target="_blank" style="text-decoration: none; outline: none;" >
+<a href="https://www.erdcloud.com/d/GoRPuTcMd2JJEcr7i" target="_blank" >
 <img src="/src/imgs/icon/Erdcloud.png"alt="Erdcloud Icon" >
 </a>
 </div>
