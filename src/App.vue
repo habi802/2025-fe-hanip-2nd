@@ -1,10 +1,10 @@
 <script setup>
-import MainLayout from './layouts/MainLayout.vue';
+import CustomerLayout from './layouts/CustomerLayout.vue';
 import { computed, onMounted, watch } from 'vue';
 import { useRoute } from 'vue-router';
 const route = useRoute();
 const layout = computed(() => {
-  return route.meta.layout || MainLayout;
+  return route.meta.layout || CustomerLayout;
 });
 // 로그인 체크 확인용
 import { check } from './services/userService';
