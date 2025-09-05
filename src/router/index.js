@@ -133,11 +133,6 @@ const router = createRouter({
       component: () => import("@/components/myPage/ReviewRouter.vue"),
       meta: { layout: MainLayout },
     },
-    {
-      path: "/contact",
-      component: () => import("@/components/customerService/contactMain.vue"),
-      meta: { layout: MainLayout },
-    },
   ],
 });
 export default router;
