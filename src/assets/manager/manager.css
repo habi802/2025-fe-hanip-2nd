@@ -1,0 +1,8 @@
+@font-face {
+    font-family: 'NanumGothic';
+    src: url('fonts/NanumGothic.ttf');
+}
+
+body {
+    font-family: 'NanumGothic';
+}

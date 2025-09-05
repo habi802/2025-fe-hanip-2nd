@@ -9,8 +9,11 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@vuepic/vue-datepicker": "^11.0.2",
     "axios": "^1.10.0",
     "bootstrap": "^5.3.7",
+    "bootstrap-vue-3": "^0.5.1",
+    "chart.js": "^4.5.0",
     "pinia": "^3.0.3",
     "swiper": "^11.2.10",
     "vue": "^3.5.17",
