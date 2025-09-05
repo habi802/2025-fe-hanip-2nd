@@ -4,19 +4,26 @@ import Footer from "@/components/Footer.vue";
 </script>
 
 <template>
-  <Header class="header" />
-  <div class="router">
-    <RouterView />
-  </div>
-  <Footer />
+    <header>
+        <Header />
+    </header>
+    
+    <main>
+        <RouterView />
+    </main>
+
+    <footer>
+        <Footer />
+    </footer>
 </template>
 
 <style scoped>
-.header {
-  position: fixed;
-  z-index: 9999;
+header {
+    position: fixed;
+    z-index: 9999;
 }
-.router {
-  padding-top: 90px;
+
+main {
+    padding-top: 90px;
 }
 </style>

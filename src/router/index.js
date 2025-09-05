@@ -15,42 +15,42 @@ const router = createRouter({
     {
       path: "/",
       name: "home",
-      component: () => import("@/views/Home.vue"),
+      component: () => import("@/views/customer/Home.vue"),
       meta: { layout: CustomerLayout },
     },
     {
       path: "/login",
-      component: () => import("@/views/Login.vue"),
+      component: () => import("@/views/customer/Login.vue"),
       meta: { layout: CustomerLayout },
     },
     {
       path: "/join",
-      component: () => import("@/views/Join.vue"),
+      component: () => import("@/views/customer/Join.vue"),
       meta: { layout: CustomerLayout },
     },
     {
       path: "/my-page",
-      component: () => import("@/views/Mypage.vue"),
+      component: () => import("@/views/customer/Mypage.vue"),
       meta: { layout: CustomerLayout },
     },
     {
       path: "/categoryList",
-      component: () => import("@/views/Category.vue"),
+      component: () => import("@/views/customer/Category.vue"),
       meta: { layout: CustomerLayout },
     },
     {
       path: "/stores/:id",
-      component: () => import("@/views/Store.vue"),
+      component: () => import("@/views/customer/Store.vue"),
       meta: { layout: CustomerLayout },
     },
     {
       path: "/stores/:id/order",
-      component: () => import("@/views/Order.vue"),
+      component: () => import("@/views/customer/Order.vue"),
       meta: { layout: CustomerLayout },
     },
     {
       path: "/stores/:id/order/success",
-      component: () => import("@/views/OrderSuccess.vue"),
+      component: () => import("@/views/customer/OrderSuccess.vue"),
       meta: { layout: CustomerLayout },
     },
     {
@@ -60,7 +60,7 @@ const router = createRouter({
     },
     {
       path: "/cart",
-      component: () => import("@/views/Cart.vue"),
+      component: () => import("@/views/customer/Cart.vue"),
       meta: { layout: CustomerLayout },
     },
     {
