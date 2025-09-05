@@ -172,6 +172,10 @@ const router = createRouter({
       component: () => import("@/views/manager/Contact.vue"),
       meta: { layout: ManagerLayout }
     },
+    {
+      path: "/address",
+      component: () => import("@/views/address.vue"),
+    },
   ],
 });
 export default router;
