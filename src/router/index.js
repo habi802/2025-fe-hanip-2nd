@@ -1,5 +1,8 @@
 import MainLayout from "@/layouts/MainLayout.vue";
 import OwnerLayout from "@/layouts/OwnerLayout.vue";
+import ManagerLayout from "@/layouts/ManagerLayout.vue";
+import EmptyLayout from "@/layouts/EmptyLayout.vue";
+
 import { compile } from "sass";
 import { createRouter, createWebHistory } from "vue-router";
 const router = createRouter({
@@ -132,6 +135,42 @@ const router = createRouter({
       path: "/review/ok",
       component: () => import("@/components/myPage/ReviewRouter.vue"),
       meta: { layout: MainLayout },
+    },
+    {
+      path: "/hanip-manager/login",
+      name: "manager-login",
+      component: () => import("@/views/manager/Login.vue"),
+      meta: { layout: EmptyLayout }
+    },
+    {
+      path: "/hanip-manager",
+      name: "manager-dashboard",
+      component: () => import("@/views/manager/Dashboard.vue"),
+      meta: { layout: ManagerLayout }
+    },
+    {
+      path: "/hanip-manager/user",
+      name: "manager-user",
+      component: () => import("@/views/manager/User.vue"),
+      meta: { layout: ManagerLayout }
+    },
+    {
+      path: "/hanip-manager/store",
+      name: "manager-store",
+      component: () => import("@/views/manager/Store.vue"),
+      meta: { layout: ManagerLayout }
+    },
+    {
+      path: "/hanip-manager/review",
+      name: "manager-review",
+      component: () => import("@/views/manager/Review.vue"),
+      meta: { layout: ManagerLayout }
+    },
+    {
+      path: "/hanip-manager/contact",
+      name: "manager-contact",
+      component: () => import("@/views/manager/Contact.vue"),
+      meta: { layout: ManagerLayout }
     },
   ],
 });
