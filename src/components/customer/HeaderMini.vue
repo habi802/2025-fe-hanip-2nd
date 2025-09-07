@@ -1,10 +1,11 @@
 <script setup>
-import { ref } from 'vue';
-import { useRouter } from "vue-router";
+import { ref, watch } from 'vue';
+import { useRouter, useRoute } from "vue-router";
 import { useUserInfo, useAccountStore } from "@/stores/account";
 import AlertModal from "../modal/AlertModal.vue";
 
 const router = useRouter();
+const route = useRoute();
 
 // 유저 정보
 const account = useAccountStore();
@@ -30,6 +31,14 @@ const signOut = async () => {
     account.setLoggedIn(false);
     router.push({ path: '/' });
 };
+
+// 다른 페이지로 이동하면 메뉴 숨기기
+watch(
+    () => route.fullPath,
+    () => {
+        isMenuOpen.value = false;
+    }
+);
 </script>
 
 <template>
