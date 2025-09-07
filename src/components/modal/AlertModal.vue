@@ -7,7 +7,7 @@ const router = useRouter();
 const show = ref(false);
 const body = ref('');
 
-// 부모 컴포넌트에서 ref.value.??? 형태로 호출했을 때 실행되는 함수
+// defineExpose: 부모 컴포넌트에서 (ref로 된 변수 이름).value.(defineExpose에서 실행될 함수 이름) 형태로 호출했을 때 실행됨
 defineExpose({
     open(message) {
         body.value = message;
@@ -15,10 +15,11 @@ defineExpose({
     }
 });
 
-// 모달 창을 닫고 (메세지에 '로그인' 이 포함되어 있으면) 로그인 화면으로 이동하는 함수
+// 모달 창을 닫는 함수
 const hide = () => {
     show.value = false;
 
+    // 메세지에 '로그인' 이 포함되어 있으면 로그인 화면으로 이동
     if (body.value.includes('로그인')) {
         router.push("/login");
     }

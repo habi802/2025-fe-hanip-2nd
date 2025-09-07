@@ -1,20 +1,18 @@
 <script setup>
+import { reactive, ref, computed, onMounted, watch } from "vue";
 import { useRouter } from "vue-router";
+import { storeToRefs } from 'pinia';
 import { useUserInfo, useAccountStore } from "@/stores/account";
 import { getUser, logout } from "@/services/userService";
-import { reactive, ref, computed, onMounted, watch } from "vue";
-import { storeToRefs } from 'pinia';
-import Menu from "@/components/Menu.vue";
 import { getOrder } from "@/services/storeService";
-import AlertModal from "./modal/AlertModal.vue";
+import Menu from "@/components/customer/Menu.vue";
+import AlertModal from "../modal/AlertModal.vue";
 
-const account = useAccountStore();
-// 유저 정보
-const userInfo = useUserInfo()
 const router = useRouter();
-const homeRouter = () => {
-    router.push("/");
-};
+
+// 유저 정보
+const account = useAccountStore();
+const userInfo = useUserInfo()
 
 const state = reactive({
     user: Object
@@ -35,34 +33,10 @@ const toOrder = () => {
 };
 
 // 로그아웃
-const logoutIn = async () => {
+const signOut = async () => {
     const res = await logout();
     account.setLoggedIn(false);
-    location.href = "/";
-};
-
-// 마이 페이지 이동
-const myPageRouter = () => {
-    router.push("/my-page");
-};
-
-// 카트 페이지로 이동
-const cartRouter = () => {
-    if (!account.state.loggedIn) {
-        showModal('로그인 후 이용 가능합니다.');
-        return;
-    }
-    router.push("/cart");
-};
-
-// 찜 목록 이동
-const faivorite = () => {
-    router.push("/favorites");
-};
-
-// 주문내역 페이지로 이동
-const orderRouter = () => {
-    router.push("/orders");
+    router.push({ path: '/' });
 };
 
 // 주문 내역 페이지 on off
@@ -77,56 +51,93 @@ const showModal = message => {
     alertModalRef.value.open(message);
 };
 
-// 유저 정보에 따른 주소표시
+// 로그인한 유저 주소에 따라 주소를 표시하는 함수
 // const userAddr = computed(() => {
 //      return (userInfo.userAddr ?? '') + (userInfo.userAddrDetail ?? '');
 // });
 //const userAddr = computed(() => userInfo.userAddr ?? '주소 없음');
 const { userAddr } = storeToRefs(userInfo);
 
-// 유저 정보 불러오기 비동기실행
+// 유저 정보 불러오기 비동기 실행
 onMounted(async () => {
-    //console.log("🟡 onMounted 진입");
-
     if (account.state.loggedIn) {
-        //console.log("🟢 로그인 상태, fetchStore 실행");
         userInfo.fetchStore();
     }
 });
 
-// 로그인 상태가 바뀌면 자동으로 fetchStore 실행
+// 로그인 상태가 바뀌면 fetchStore 실행
 watch(
     () => account.state.loggedIn,
     (val) => {
         if (val) {
-            //console.log("👀 로그인 감지됨 → fetchStore 실행");
             userInfo.fetchStore();
         }
     }
 );
-
-//userAddr.value = userInfo.userAddr ?? '';
-//피니아에서 실행되기때문에 아래 두 코드는필요없지만 일반 보류!
-//const res = await getUser();
-//console.log("유저 정보", res?.data?.resultData);
 </script>
 
 <template>
-    <div class="navbar">
+    <b-navbar toggleable="lg" class="w-100">
+        <b-container class="d-flex justify-content-between align-items-center w-100">
+            <!-- (왼쪽) 로고 -->
+            <b-navbar-brand class="d-flex align-items-center">
+                <img class="logo-image d-inline-block align-top" src="/src/imgs/hanipLogogroup.png" @click="router.push({ path: '/' })" />
+            </b-navbar-brand>
+
+            <!-- (가운데) 주소 -->
+            <b-navbar-nav class="d-flex align-items-center mx-auto">
+                <div class="d-flex align-items-center position-absolute start-50 translate-middle-x">
+                    <img class="address-image" src="/src/imgs/weui_location-filled.png" />
+                    <!-- 비로그인, 로그인에 따라 달라지는 부분은 template v-if, v-else 같은 걸로 -->
+                    <!-- 따로 코드 적지 말고 span 안에다가 적어도 됨 -->
+                    <span class="address-text ms-3">
+                        주소를 입력해주세요
+                    </span>
+                </div>
+            </b-navbar-nav>
+
+            <!-- 햄버거 버튼 (작은 화면에서만 보임) -->
+            <b-navbar-toggle target="header-right" />
+
+            <!-- (오른쪽) 로그인 등 이동 버튼 -->
+            <b-collapse is-nav id="header-right" class="d-flex ml-auto">
+                <b-navbar-nav class="d-flex align-items-center ms-auto">
+                    <!-- 비로그인 시 버튼 -->
+                    <template v-if="account.state.loggedIn">
+                        <!-- 여러 개의 요소에 같은 스타일 줄 거면 id로 하지 말고 class로 할것 -->
+                        <img class="menu-image me-4" src="/src/imgs/shoop.png" @click="showModal('로그인 후 이용 가능합니다.')" alt="장바구니" />
+                        <router-link class="menu-text me-3" to="/login">로그인</router-link>
+                        <span class="menu-text me-3">|</span>
+                        <router-link class="menu-text" to="/join">회원가입</router-link>
+                    </template>
+
+                    <!-- 로그인 시 버튼 -->
+                    <template v-else>
+                        <img class="menu-image me-4" src="/src/imgs/faivor.png" @click="router.push({ path: '/favorites' })" alt="장바구니" />
+                        <img class="menu-image me-4" src="/src/imgs/orders.png" @click="router.push({ path: '/orders' })" alt="장바구니" />
+                        <img class="menu-image me-4" src="/src/imgs/shoop.png" @click="router.push({ path: '/cart' })" alt="장바구니" />
+                        <span class="menu-text me-3" @click="signOut">로그아웃</span>
+                        <span class="menu-text me-3">|</span>
+                        <router-link class="menu-text" to="/my-page">마이페이지</router-link>
+                    </template>
+                </b-navbar-nav>
+            </b-collapse>
+        </b-container>
+    </b-navbar>
+
+    <!-- <div class="navbar">
         <div class="naverBox">
             <div class="logoBox">
                 <img @click="homeRouter" class="logo" src="/src/imgs/hanipLogogroup.png" />
             </div>
 
-            <!-- 로그인된 경우 -->
             <template v-if="account.state.loggedIn">
-            <div class="searchBar">
-                <img @click="caLink" class="searchImg" src="/src/imgs/weui_location-filled.png" />
-                <div class="addressText2">{{ userAddr || '주소 없음' }}</div>
-            </div>
+                <div class="searchBar">
+                    <img @click="caLink" class="searchImg" src="/src/imgs/weui_location-filled.png" />
+                    <div class="addressText2">{{ userAddr || '주소 없음' }}</div>
+                </div>
             </template>
 
-            <!-- 비로그인 -->
             <template v-else>
                 <div class="searchBar">
                     <img @click="caLink" class="searchImg" src="/src/imgs/weui_location-filled.png" />
@@ -157,7 +168,6 @@ watch(
             </div>
         </div>
 
-        <!-- 주문표 부분 -->
         <div v-if="orderBox" class="col-12 col-md-4 d-flex flex-column p-3">
             <div class="row border rounded p-4 mb-2">
                 <div class="d-flex justify-content-between border-bottom pb-2 mb-2">
@@ -195,70 +205,63 @@ watch(
                 </div>
             </div>
         </div>
-    </div>
+    </div> -->
 
+    <!-- 모달 -->
     <AlertModal ref="alertModalRef" />
 </template>
 
 <style lang="scss" scoped>
-@font-face {
-    // 프리텐다드
-    font-family: 'Pretendard-Regular';
-    src: url('https://fastly.jsdelivr.net/gh/Project-Noonnu/noonfonts_2107@1.1/Pretendard-Regular.woff') format('woff');
-    font-weight: 400;
-    font-style: normal;
-}
+// .navbar {
+//     height: 90px;
+//     background-color: #fff;
+//     color: #000;
+//     display: flex;
+//     align-items: center;
+//     justify-content: center;
+//     padding: 0 1rem;
+//     -webkit-box-shadow: 1px 9px 13px -1px rgba(0, 0, 0, 0.12);
+//     box-shadow: 1px 9px 13px -1px rgba(0, 0, 0, 0.12);
+//     //
+//     position: fixed;
+//     top: 0;
+//     left: 0;
+//     width: 100%;
+//     z-index: 9999;
+// }
 
-.navbar {
-    height: 90px;
-    background-color: #fff;
-    color: #000;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 0 1rem;
-    -webkit-box-shadow: 1px 9px 13px -1px rgba(0, 0, 0, 0.12);
-    box-shadow: 1px 9px 13px -1px rgba(0, 0, 0, 0.12);
-    //
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    z-index: 9999;
-}
+// .naverBox {
+//     width: 1500px;
+//     display: flex;
+//     justify-content: space-between;
+// }
 
-.naverBox {
-    width: 1500px;
-    display: flex;
-    justify-content: space-between;
-}
+// .containerOne {
+//     width: 400px;
+//     margin-bottom: 30px;
+//     margin-top: -5px;
 
-.containerOne {
-    width: 400px;
-    margin-bottom: 30px;
-    margin-top: -5px;
+//     .shooping {
+//         width: 45px;
+//         margin-right: 14px;
+//     }
 
-    .shooping {
-        width: 45px;
-        margin-right: 14px;
-    }
+//     .order {
+//         width: 45px;
 
-    .order {
-        width: 45px;
+//         cursor: pointer;
+//     }
 
-        cursor: pointer;
-    }
+//     .myPage {
+//         margin-right: 14px;
+//         cursor: pointer;
+//     }
 
-    .myPage {
-        margin-right: 14px;
-        cursor: pointer;
-    }
-
-    .faiorites {
-        width: 34px;
-        margin-right: 2px;
-    }
-}
+//     .faiorites {
+//         width: 34px;
+//         margin-right: 2px;
+//     }
+// }
 
 .logoBox {
     display: flex;
@@ -266,88 +269,75 @@ watch(
     width: 400px;
 }
 
-.logo {
+.logo-image {
     width: 190px;
-    height: auto;
+    height: 38px;
     object-fit: contain;
     cursor: pointer;
 }
 
-.menus {
-    justify-content: end;
-    color: #ff6666;
-    font-weight: 800;
-    font-size: 13px;
-    display: flex;
-    gap: 1rem;
-    align-items: center;
-    margin-top: 30px;
+// .menus {
+//     justify-content: end;
+//     color: #ff6666;
+//     font-weight: 800;
+//     font-size: 13px;
+//     display: flex;
+//     gap: 1rem;
+//     align-items: center;
+//     margin-top: 30px;
+// }
+
+// .searchBar {
+//     display: flex;
+//     justify-content: center;
+//     align-items: center;
+//     width: 400px;
+// }
+
+.address-image {
+    width: 20px;
 }
 
-.searchBar {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    width: 400px;
-
-    .searchImg {
-        width: 20px;
-    }
-}
-
-.addressText {
-    margin-left: 15px;
+.address-text {
     color: #fdbdbd;
+    font-size: 16px;
     font-weight: 800;
 }
 
-.addressText2 {
-    margin-left: 15px;
-    color: #fdbdbd;
-}
-
-.col-12 {
-    background-color: #fff;
-    margin-left: auto;
-    margin-top: -10px;
-}
-
-.faiorites {
+.menu-image {
     cursor: pointer;
+    width: 45px;
+    height: 40px;
 }
 
-#menu {
+.menu-text {
     cursor: pointer;
     text-decoration: none;
-    font-weight: 800;
     color: #ff6666;
-}
-
-.modal {
-    font-family: 'Pretendard-Regular';
+    font-size: 13px;
     font-weight: 800;
 }
 
-@media (max-width: 1650px) {
-    .searchBar {
-        display: none;
-    }
-}
+// @media (max-width: 1650px) {
+//     .searchBar {
+//         display: none;
+//     }
+// }
 
-@media (max-width: 1200px) {
-    .containerOne {
-        display: none;
-    }
+// @media (max-width: 1200px) {
+//     .containerOne {
+//         display: none;
+//     }
 
-    .navbar {
-        display: flex;
-        justify-content: center;
-        position: fixed;
-        margin-left: 0px;
+//     .navbar {
+//         display: flex;
+//         justify-content: center;
+//         position: fixed;
+//         margin-left: 0px;
 
-        img.logo {
-            margin-left: 0px;
-        }
-    }
-}
+//         img.logo {
+//             margin-left: 0px;
+//         }
+//     }
+// }
 </style>

@@ -18,9 +18,9 @@ import "swiper/css/scrollbar";
 //
 import { getStoreList } from "@/services/storeService";
 import { reactive, onMounted, nextTick, ref } from "vue";
-import StoreList from "@/components/StoreList.vue";
+import StoreList from "@/components/customer/StoreList.vue";
 import { useRouter, useRoute } from "vue-router";
-import Review from "@/components/Review.vue";
+import Review from "@/components/customer/Review.vue";
 
 const router = useRouter();
 const route = useRoute();
