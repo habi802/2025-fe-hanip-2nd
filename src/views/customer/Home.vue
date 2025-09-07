@@ -1,9 +1,11 @@
 <script setup>
+import '@/assets/customer/customer.css'
+
 import { onMounted } from 'vue';
-import Category from '@/components/Category.vue';
-import HomeImg from '@/components/HomeImg.vue';
-import Guide from '@/components/Guide.vue';
-import RecommendStore from '@/components/RecommendStore.vue';
+import Category from '@/components/customer/Category.vue';
+import HomeImg from '@/components/customer/HomeImg.vue';
+import Guide from '@/components/customer/Guide.vue';
+import RecommendStore from '@/components/customer/RecommendStore.vue';
 
 // onMounted(() => {
 //     window.addEventListener('scroll', handleScroll);

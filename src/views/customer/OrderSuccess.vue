@@ -6,7 +6,7 @@ import { useAccountStore } from "@/stores/account";
 import { useCartStore } from "@/stores/cart";
 import { getOwnerOrder2 } from "@/services/orderService";
 import defaultImage from "@/imgs/owner/haniplogo_sample2.png";
-import Randomstore from "@/components/RandomStore.vue";
+import Randomstore from "@/components/customer/RandomStore.vue";
 
 const route = useRoute();
 const router = useRouter();
