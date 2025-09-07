@@ -1,10 +1,17 @@
 <script setup>
 import Header from "@/components/customer/Header.vue";
+import HeaderMini from "@/components/customer/HeaderMini.vue";
 import Footer from "@/components/customer/Footer.vue";
 </script>
 
 <template>
-    <header class="d-flex align-items-center bg-white">
+    <!-- 헤더 (작은 화면에서만 보임) -->
+    <header class="d-lg-none bg-white">
+        <HeaderMini />
+    </header>
+
+    <!-- 헤더 (큰 화면에서만 보임) -->
+    <header class="d-none d-lg-block bg-white">
         <Header />
     </header>
     

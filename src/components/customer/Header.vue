@@ -3,7 +3,7 @@ import { reactive, ref, computed, onMounted, watch } from "vue";
 import { useRouter } from "vue-router";
 import { storeToRefs } from 'pinia';
 import { useUserInfo, useAccountStore } from "@/stores/account";
-import { getUser, logout } from "@/services/userService";
+import { logout } from "@/services/userService";
 import { getOrder } from "@/services/storeService";
 import Menu from "@/components/customer/Menu.vue";
 import AlertModal from "../modal/AlertModal.vue";
@@ -19,18 +19,18 @@ const state = reactive({
 });
 
 // 주문하기로 이동하는 함수
-const toOrder = () => {
-    if (!account.state.loggedIn) {
-        alert("로그인 후 주문이 가능합니다.");
-        return;
-    } else if (state.carts.length < 1) {
-        alert("메뉴를 선택해주세요.");
-        return;
-    }
+// const toOrder = () => {
+//     if (!account.state.loggedIn) {
+//         alert("로그인 후 주문이 가능합니다.");
+//         return;
+//     } else if (state.carts.length < 1) {
+//         alert("메뉴를 선택해주세요.");
+//         return;
+//     }
 
-    carts.state.items = state.carts;
-    router.push({ path: `/stores/${route.params.id}/order` });
-};
+//     carts.state.items = state.carts;
+//     router.push({ path: `/stores/${route.params.id}/order` });
+// };
 
 // 로그아웃
 const signOut = async () => {
@@ -40,9 +40,9 @@ const signOut = async () => {
 };
 
 // 주문 내역 페이지 on off
-let orderBox = ref(false);
+//let orderBox = ref(false);
 
-const totalPrice = ref(0);
+//const totalPrice = ref(0);
 
 const alertModalRef = ref(null);
 
@@ -77,53 +77,42 @@ watch(
 </script>
 
 <template>
-    <b-navbar toggleable="lg" class="w-100">
-        <b-container class="d-flex justify-content-between align-items-center w-100">
-            <!-- (왼쪽) 로고 -->
-            <b-navbar-brand class="d-flex align-items-center">
-                <img class="logo-image d-inline-block align-top" src="/src/imgs/hanipLogogroup.png" @click="router.push({ path: '/' })" />
-            </b-navbar-brand>
+    <b-container class="d-flex align-items-center justify-content-between h-100">
+        <!-- (왼쪽) 로고 -->
+        <div>
+            <img class="logo-image" src="/src/imgs/hanipLogogroup.png" @click="router.push({ path: '/' })" />
+        </div>
 
-            <!-- (가운데) 주소 -->
-            <b-navbar-nav class="d-flex align-items-center mx-auto">
-                <div class="d-flex align-items-center position-absolute start-50 translate-middle-x">
-                    <img class="address-image" src="/src/imgs/weui_location-filled.png" />
-                    <!-- 비로그인, 로그인에 따라 달라지는 부분은 template v-if, v-else 같은 걸로 -->
-                    <!-- 따로 코드 적지 말고 span 안에다가 적어도 됨 -->
-                    <span class="address-text ms-3">
-                        주소를 입력해주세요
-                    </span>
-                </div>
-            </b-navbar-nav>
+        <!-- (가운데) 주소 -->
+        <div class="mx-auto flex-grow-1 text-center">
+            <img class="address-image" src="/src/imgs/weui_location-filled.png" />
+            <span class="address-text ms-3">
+                주소를 입력해주세요
+            </span>
+        </div>
 
-            <!-- 햄버거 버튼 (작은 화면에서만 보임) -->
-            <b-navbar-toggle target="header-right" />
+        <!-- (오른쪽) 로그인 등 이동 버튼 -->
+        <div>
+            <!-- 비로그인 시 버튼 -->
+            <template v-if="!account.state.loggedIn">
+                <!-- 여러 개의 요소에 같은 스타일 줄 거면 id로 하지 말고 class로 할것 -->
+                <img class="menu-image me-4" src="/src/imgs/shoop.png" @click="showModal('로그인 후 이용 가능합니다.')" alt="장바구니" />
+                <router-link class="menu-text me-3" to="/login">로그인</router-link>
+                <span class="menu-text me-3">|</span>
+                <router-link class="menu-text" to="/join">회원가입</router-link>
+            </template>
 
-            <!-- (오른쪽) 로그인 등 이동 버튼 -->
-            <b-collapse is-nav id="header-right" class="d-flex ml-auto">
-                <b-navbar-nav class="d-flex align-items-center ms-auto">
-                    <!-- 비로그인 시 버튼 -->
-                    <template v-if="account.state.loggedIn">
-                        <!-- 여러 개의 요소에 같은 스타일 줄 거면 id로 하지 말고 class로 할것 -->
-                        <img class="menu-image me-4" src="/src/imgs/shoop.png" @click="showModal('로그인 후 이용 가능합니다.')" alt="장바구니" />
-                        <router-link class="menu-text me-3" to="/login">로그인</router-link>
-                        <span class="menu-text me-3">|</span>
-                        <router-link class="menu-text" to="/join">회원가입</router-link>
-                    </template>
-
-                    <!-- 로그인 시 버튼 -->
-                    <template v-else>
-                        <img class="menu-image me-4" src="/src/imgs/faivor.png" @click="router.push({ path: '/favorites' })" alt="장바구니" />
-                        <img class="menu-image me-4" src="/src/imgs/orders.png" @click="router.push({ path: '/orders' })" alt="장바구니" />
-                        <img class="menu-image me-4" src="/src/imgs/shoop.png" @click="router.push({ path: '/cart' })" alt="장바구니" />
-                        <span class="menu-text me-3" @click="signOut">로그아웃</span>
-                        <span class="menu-text me-3">|</span>
-                        <router-link class="menu-text" to="/my-page">마이페이지</router-link>
-                    </template>
-                </b-navbar-nav>
-            </b-collapse>
-        </b-container>
-    </b-navbar>
+            <!-- 로그인 시 버튼 -->
+            <template v-else>
+                <img class="menu-image me-4" src="/src/imgs/faivor.png" @click="router.push({ path: '/favorites' })" alt="장바구니" />
+                <img class="menu-image me-4" src="/src/imgs/orders.png" @click="router.push({ path: '/orders' })" alt="장바구니" />
+                <img class="menu-image me-4" src="/src/imgs/shoop.png" @click="router.push({ path: '/cart' })" alt="장바구니" />
+                <span class="menu-text me-3" @click="signOut">로그아웃</span>
+                <span class="menu-text me-3">|</span>
+                <router-link class="menu-text" to="/my-page">마이페이지</router-link>
+            </template>
+        </div>
+    </b-container>
 
     <!-- <div class="navbar">
         <div class="naverBox">
@@ -306,6 +295,7 @@ watch(
 
 .menu-image {
     cursor: pointer;
+    object-fit: contain;
     width: 45px;
     height: 40px;
 }
