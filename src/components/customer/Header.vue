@@ -91,9 +91,9 @@ watch(
             </span>
         </div>
 
-        <!-- (오른쪽) 로그인 등 이동 버튼 -->
+        <!-- (오른쪽) 메뉴 -->
         <div>
-            <!-- 비로그인 시 버튼 -->
+            <!-- 비로그인 시 메뉴 -->
             <template v-if="!account.state.loggedIn">
                 <!-- 여러 개의 요소에 같은 스타일 줄 거면 id로 하지 말고 class로 할것 -->
                 <img class="menu-image me-4" src="/src/imgs/shoop.png" @click="showModal('로그인 후 이용 가능합니다.')" alt="장바구니" />
@@ -102,10 +102,10 @@ watch(
                 <router-link class="menu-text" to="/join">회원가입</router-link>
             </template>
 
-            <!-- 로그인 시 버튼 -->
+            <!-- 로그인 시 메뉴 -->
             <template v-else>
-                <img class="menu-image me-4" src="/src/imgs/faivor.png" @click="router.push({ path: '/favorites' })" alt="장바구니" />
-                <img class="menu-image me-4" src="/src/imgs/orders.png" @click="router.push({ path: '/orders' })" alt="장바구니" />
+                <img class="menu-image me-4" src="/src/imgs/faivor.png" @click="router.push({ path: '/favorites' })" alt="찜목록" />
+                <img class="menu-image me-4" src="/src/imgs/orders.png" @click="router.push({ path: '/orders' })" alt="주문내역" />
                 <img class="menu-image me-4" src="/src/imgs/shoop.png" @click="router.push({ path: '/cart' })" alt="장바구니" />
                 <span class="menu-text me-3" @click="signOut">로그아웃</span>
                 <span class="menu-text me-3">|</span>
@@ -252,11 +252,11 @@ watch(
 //     }
 // }
 
-.logoBox {
-    display: flex;
-    align-items: center;
-    width: 400px;
-}
+// .logoBox {
+//     display: flex;
+//     align-items: center;
+//     width: 400px;
+// }
 
 .logo-image {
     width: 190px;
