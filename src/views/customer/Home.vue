@@ -1,5 +1,5 @@
 <script setup>
-import '@/assets/customer/customer.css'
+import '@/assets/customer/customer.css'
 
 import { onMounted } from 'vue';
 import Category from '@/components/customer/Category.vue';
