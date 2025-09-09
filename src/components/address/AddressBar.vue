@@ -3,52 +3,99 @@
 <template>
   <div class="address-bar">
     <div class="container">
-      <input
-        type="text"
-        placeholder="검색바 : 지번, 도로명, 건물명으로 검색"
-        class="search-input"
-      />
-      <button class="location-btn">현재 위치</button>
+      <!-- 검색 input -->
+      <div class="search-wrapper">
+        <img src="@/imgs/location.png" alt="검색" class="search-icon" />
+        <input
+          type="text"
+          placeholder="검색바 : 지번, 도로명, 건물명으로 검색"
+          class="search-input"
+        />
+      </div>
+
+      <!-- 현재 위치 버튼 -->
+      <button class="location-btn">
+        현재 위치
+        <img src="@/imgs/gps.png" alt="위치" class="location-icon" />
+      </button>
     </div>
   </div>
 </template>
 
 <style lang="scss" scoped>
 @font-face {
-  // 프리텐다드
   font-family: "Pretendard-Regular";
-  src: url("https://fastly.jsdelivr.net/gh/Project-Noonnu/noonfonts_2107@1.1/Pretendard-Regular.woff")
-    format("woff");
+  src: url("https://fastly.jsdelivr.net/gh/Project-Noonnu/noonfonts_2107@1.1/Pretendard-Regular.woff") format("woff");
   font-weight: 400;
   font-style: normal;
 }
+
 * {
-    font-family: "Pretendard-Regular";
+  font-family: "Pretendard-Regular";
 }
+
 .address-bar {
   display: flex;
-  gap: 0.5rem;
+  justify-content: center;
   margin-bottom: 2rem;
 
-  .search-input {
-    flex: 1;
-    padding: 0.75rem 1rem;
-    border: 1px solid #ccc;
-    border-radius: 8px;
-    font-size: 0.95rem;
+  .container {
+    display: flex;
+    align-items: center;
   }
 
+  /* 검색 input 래퍼 */
+  .search-wrapper {
+    position: relative;
+    flex: 1;
+    width: 1000px;
+    margin-right: 20px;
+
+    .search-icon {
+      position: absolute;
+      left: 30px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 24px;
+      height: 30px;
+      pointer-events: none; // 아이콘 클릭 시 input이 클릭되도록
+    }
+
+    .search-input {
+      width: 100%;
+      height: 60px;
+      padding: 0.75rem 1rem 0.75rem 50px; // 왼쪽 padding 넉넉히
+      border: 2px solid #ff6666;
+      border-radius: 20px;
+      text-align: center;
+
+      &::placeholder {
+        color: #ff6666;
+      }
+    }
+  }
+
+  /* 현재 위치 버튼 */
   .location-btn {
-    background-color: #f75a5a;
+    height: 60px;
+    width: 200px;
+    background-color: #ff6666;
     color: #fff;
     border: none;
-    padding: 0 1.25rem;
-    border-radius: 8px;
+    border-radius: 20px;
     cursor: pointer;
-    font-weight: bold;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px; // 버튼 텍스트와 아이콘 사이 간격
+
+    .location-icon {
+      width: 24px;
+      height: 24px;
+    }
 
     &:hover {
-      background-color: #e14b4b;
+      background-color: darken(#ff6666, 5%);
     }
   }
 }
