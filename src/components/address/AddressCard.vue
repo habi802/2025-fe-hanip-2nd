@@ -2,31 +2,82 @@
 import { reactive, ref, onMounted } from "vue";
 import { addAddress } from "@/services/addressService";
 import AlertModal from "@/components/modal/AlertModal.vue";
+import EditAddress from "@/components/address/EditAddress.vue";
 
 const alertModal = ref(null);
-
-// 반복용 주소 리스트 상태
-const state = reactive({
-  addresses: [], // 서버에서 불러올 주소 리스트
-  currentAddressId: null, // 현재 주소 선택
-  add: {
-    // 새 주소 입력용 폼
-    title: "",
-    postcode: "",
-    address: "",
-    addressDetail: "",
+// 임시 데이터 (나중에 API 연동 가능)
+const addresses = [
+  {
+    address_id: 1,
+    title: "우리집",
+    postcode: "414987",
+    address: "대구 중구 국채보상로 55",
+    address_detail: "제일빌딩 그린컴퓨터아카데미 5층 502호",
   },
-});
+  {
+    address_id: 2,
+    title: "회사",
+    postcode: "414987",
+    address: "대구 중구 국채보상로 55",
+    address_detail: "제일빌딩 그린컴퓨터아카데미 5층 502호",
+  },
+  {
+    address_id: 3,
+    title: "어디로든 문",
+    postcode: "414987",
+    address: "대구 중구 국채보상로 55",
+    address_detail: "제일빌딩 그린컴퓨터아카데미 5층 502호",
+  },
+  {
+    address_id: 4,
+    title: "뽱",
+    postcode: "414987",
+    address: "대구 중구 국채보상로 55",
+    address_detail: "제일빌딩 그린컴퓨터아카데미 5층 502호",
+  },
+];
+
+// // 반복용 주소 리스트 상태
+// const state = reactive({
+//   addresses: [], // 서버에서 불러올 주소 리스트
+//   currentAddressId: null, // 현재 주소 선택
+//   add: {
+//     // 새 주소 입력용 폼
+//     title: "",
+//     postcode: "",
+//     address: "",
+//     addressDetail: "",
+//   },
+// });
+// 모달 표시 여부
+const showModal = ref(false);
+
+// 수정할 주소 데이터
+const selectedAddress = ref(null);
+
+// 수정 모달 열기
+const openEditModal = (addr) => {
+  selectedAddress.value = { ...addr };
+  showModal.value = true;
+};
+
+// 수정 저장 처리
+const saveAddress = (updatedAddr) => {
+  const index = addresses.findIndex((a) => a.address_id === updatedAddr.address_id);
+  if (index !== -1) {
+    addresses[index] = updatedAddr;
+  }
+};
 </script>
 
 <template>
   <div class="address">
     <div class="container">
       <div class="address-list">
-        <div v-for="addr in state.addresses" :key="addr.address_id" class="address-card">
+        <div v-for="addr in addresses" :key="addr.address_id" class="address-card">
           <!-- 수정: 카드 헤더 추가 (제목 + 버튼 나란히) -->
           <div class="card-header">
-            <h3 class="card-title">{{ add.title }}</h3>
+            <h3 class="card-title">{{ addr.title }}</h3>
             <button
               class="current-btn"
               :class="{ active: addr.address_id === currentAddressId }"
@@ -37,20 +88,27 @@ const state = reactive({
           </div>
 
           <!-- 카드 내용 -->
-          <h3 class="card-title">{{ addr.title }}</h3>
           <p>우편번호 {{ addr.postcode }}</p>
           <p>{{ addr.address }}</p>
           <p>{{ addr.addressDetail }}</p>
 
           <!-- 카드 액션 버튼 -->
           <div class="card-actions">
-            <button class="primary-btn">수정</button>
+            <button class="primary-btn" @click="openEditModal(addr)">수정</button>
             <button class="secondary-btn">삭제</button>
           </div>
         </div>
       </div>
     </div>
   </div>
+
+  <!-- 수정 모달 -->
+  <EditAddress
+    :show="showModal"
+    :address="selectedAddress"
+    @close="showModal = false"
+    @save="saveAddress"
+  />
 </template>
 
 <style lang="scss" scoped>
