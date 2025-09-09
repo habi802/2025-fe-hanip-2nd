@@ -8,8 +8,8 @@ import { getFavorite, addFavorite, deleteFavorite } from "@/services/favoriteSer
 import { updateQuantity, removeItem, removeCart } from "@/services/cartService";
 import { useAccountStore } from "@/stores/account";
 import { useCartStore } from "@/stores/cart";
-import Menu from "@/components/Menu.vue";
-import Review from "@/components/Review.vue";
+import Menu from "@/components/customer/Menu.vue";
+import Review from "@/components/customer/Review.vue";
 import { useFavoriteStore } from "@/stores/favoriteStore";
 import defaultImage from '@/imgs/owner/owner-service3.png';
 import AlertModal from "@/components/modal/AlertModal.vue";
