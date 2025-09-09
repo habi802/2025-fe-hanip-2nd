@@ -178,7 +178,7 @@ const router = createRouter({
     },
     {
       path: "/address",
-      component: () => import("@/views/address.vue"),
+      component: () => import("@/views/customer/Address.vue"),
     },
   ],
 });

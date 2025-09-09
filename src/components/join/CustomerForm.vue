@@ -19,7 +19,6 @@ const localForm = reactive({
     phone1: props.form.phone1 ?? '010', // 기본값 010
     phone2: props.form.phone2 ?? '',
     phone3: props.form.phone3 ?? '',
-    email: props.form.email ?? ''
 });
 
 // input 변경 시 localForm 업데이트 + 부모 emit
@@ -56,7 +55,6 @@ watch(
             phone1: newVal.phone?.phone1 ?? "010",
             phone2: newVal.phone?.phone2 ?? "",
             phone3: newVal.phone?.phone3 ?? "",
-            email: newVal.email ?? ""
         });
     },
     { deep: true }
@@ -160,18 +158,6 @@ function validatePhone(field) {
         <p class="error-msg" v-if="errors.phone2 || errors.phone3">{{ errors.phone2 || errors.phone3 }}</p>
         <div class="sevLine"></div>
 
-        <!-- 이메일 -->
-        <div class="form-group">
-            <div class="sortation">
-                <span>*</span>
-                <p>이메일</p>
-            </div>
-            <input type="text" :value="localForm.email" @input="e => updateField('email', e.target.value)"
-                @focus="() => clearError('email')" :class="{ invalid: errors.email }"
-                placeholder="example@example.com" />
-            </div>
-            <p class="error-msg" v-if="errors.email">{{ errors.email }}</p>
-        <div class="sevLine"></div>
     </div>
 </template>
 

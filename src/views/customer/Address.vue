@@ -31,11 +31,10 @@ import AddressCard from "@/components/address/AddressCard.vue";
   margin-top: 5rem;
   margin-bottom: 40px;
 }
-  // 메인 구분 선
-  .titleLine {
-    width: 100%;
-    border-bottom: 3px solid #000;
-    margin: 0 auto 3rem;
-  }
-
+// 메인 구분 선
+.titleLine {
+  width: 100%;
+  border-bottom: 3px solid #000;
+  margin: 0 auto 3rem;
+}
 </style>
