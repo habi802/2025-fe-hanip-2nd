@@ -67,60 +67,50 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="box p-4">
+  <div class="box">
     <div class="total-wrap" > 
-      <div class="dateTime white-card text-center p-4" style="grid-row: span 2;">
+      <div class="datetime white-card text-center p-4" style="grid-row: span 2;">
         <span class="font-xxlg"> 0월 0일 (금) </span>
-        <br/>
         <span class="font-xxlg"> 14:00:00 </span>
       </div>
-        <div class="total-box white-card">
-            <span class="total-title font-nomal">오늘 주문 수</span>
-            <span class="font-xxlg">{{ totalOrderCount }}</span>
-        </div>
-  
-        <div class="total-box white-card">
-            <span class="total-title font-nomal">오늘 배달 수</span>
-            <span class="font-xxlg">{{ totalDeliveryCount }}</span>
-        </div>
-  
-        <div class="total-box white-card">
-            <span class="total-title font-nomal">취소된 주문</span>
-            <span class="font-xxlg">{{ totalCanceledCount }}</span>
-        </div>
-  
-        <div class="total-box white-card">
-            <span class="total-title font-nomal">총 매출</span>
-            <span class="font-xxlg">{{ totalPrice }}만</span>
-        </div>
-        <button class="green-btn font-xxlg" style="grid-column: span 2;">영업 중</button>
-        <RouterLink to="/owner/orders" class="total-box whitepink-btn"> <span class="font-xxlg">주문관리</span> </RouterLink>
-        <RouterLink to="/owner/status" class="total-box whitepink-btn"> <span class="font-xxlg">가게상태</span> </RouterLink>
+      <div class="total-box white-card">
+          <span class="total-title font-nomal">오늘 주문 수</span>
+          <span class="font-xxlg">{{ totalOrderCount }}</span>
+      </div>
+      <div class="total-box white-card">
+          <span class="total-title font-nomal">오늘 배달 수</span>
+          <span class="font-xxlg">{{ totalDeliveryCount }}</span>
+      </div>
+      <div class="total-box white-card">
+          <span class="total-title font-nomal">취소된 주문</span>
+          <span class="font-xxlg">{{ totalCanceledCount }}</span>
+      </div>
+      <div class="total-box white-card">
+          <span class="total-title font-nomal">총 매출</span>
+          <span class="font-xxlg">{{ totalPrice }}만</span>
+      </div>
+      <button class="green-btn font-xxlg" style="grid-column: span 2;">영업 중</button>
+      <RouterLink to="/owner/orders" class="total-box whitepink-btn"> <span class="font-xxlg">주문관리</span> </RouterLink>
+      <RouterLink to="/owner/status" class="total-box whitepink-btn"> <span class="font-xxlg">가게상태</span> </RouterLink>
     </div>
 
-    <div style="padding-left: 12px;">
-      <div class="d-flex board">
-        <div>
-          <OrderCard :orders="orderStore.orderedList" />
-        </div>
-    <!--         <div style="width: 450px;">
-          <OrderPrepare :orders="orderStore.preparingList" />
-        </div>
-        <div style="width: 450px;">
-          <OrderDelivery :orders="orderStore.deliveringList" />
-        </div>-->
-      </div>
-    </div> 
+    <div class="order-status d-flex flex-column gap-2" style="margin-bottom: 10px; ">
+      <OrderCard title="주문대기" :orders="orderStore.orderedList"/>
+      <OrderCard title="조리대기" :orders="orderStore.preparingList"/>
+      <OrderCard title="배달현황" :orders="orderStore.deliveringList"/>
+    </div>
   </div> 
 </template>
 
 <style scoped lang="scss">
-.board {
-  gap: 70px;
+.box{
+  width: 100vh;
+  padding-right: 5px;
 }
 
 
-/* 상단 통계 */
+/* 상단 8개 카드 */
+
 
 .total-wrap {
   font-family: "Pretendard", sans-serif;
@@ -130,8 +120,15 @@ onMounted(() => {
   grid-template-columns: repeat(5, 1fr); /* 한 줄에 4개 */
   gap: 15px; /* 카드 사이 간격 */
 
+
+  .datetime{
+    display: grid;
+    place-items: center; /* 가로 + 세로 중앙 정렬 */
+    text-align: center;
+  }
+
   .total-box {
-    width: 280px;
+    //width: 280px;
     height: 90px;
     display: flex;
     align-items: center;
@@ -139,43 +136,6 @@ onMounted(() => {
     .total-title {
       color: #c6c6c6;
     }
-
-    //up & down 표시 : ↑ 4% 
-    // .change-rate {
-    //   display: flex;
-    //   align-items: center;
-    //   gap: 5px;
-    //   .icon-up {
-    //     width: 16px;
-    //     height: 16px;
-    //     background-color: #e0f9f1;
-    //     border-radius: 100%;
-    //     display: flex;
-    //     align-items: center;
-    //     justify-content: center;
-    //     text-align: center;
-    //     font-size: 10px !important;
-    //     font-weight: 800;
-    //     color: #00a389;
-    //   }
-    //   .icon-down {
-    //     width: 16px;
-    //     height: 16px;
-    //     background-color: #ffe7e7;
-    //     border-radius: 100%;
-    //     display: flex;
-    //     align-items: center;
-    //     justify-content: center;
-    //     text-align: center;
-    //     font-size: 10px !important;
-    //     font-weight: 800;
-    //     color: #ff5b5b;
-    //   }
-    //   span {
-    //     color: #c6c6c6;
-    //     font-size: 12px;
-    //   }
-    // }
   }
 }
 </style>

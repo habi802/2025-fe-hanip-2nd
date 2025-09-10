@@ -72,7 +72,8 @@
     --card-font-size-nomal: 16px;
 
     --card-bg: #ffffff;
-    --card-radius: 15px;
+    --card-lg-radius: 0.75rem;
+    --card-small-radius: 0.5rem;
     --card-padding: 20px;
     --card-shadow: 0 6px 18px rgba(16,24,40,0.06);
     --card-border: rgb(0,0,0);
@@ -80,6 +81,7 @@
     --page-bg: #f3f4f6;
     --fg: #111827;
     --primary: #ff6666;
+    
   }
   
   /* 다크 모드 예시 */
@@ -110,7 +112,7 @@
   .white-card{
     background-color: var(--card-bg);
     padding: var(--card-padding);
-    border-radius: var(--card-radius);
+    border-radius: var(--card-lg-radius);
     box-shadow: 2px 2px 5px 1px #c6c6c6;
   }
 
@@ -118,7 +120,7 @@
   .green-btn{
     background-color: #BEFFA7;
     padding: var(--card-padding);
-    border-radius: var(--card-radius);
+    border-radius: var(--card-lg-radius);
     box-shadow: 2px 2px 5px 1px #c6c6c6;
     border: none;
     color: #2B6118;
@@ -128,7 +130,7 @@
   .whitepink-btn{
     background-color: var(--card-bg);
     padding: var(--card-padding);
-    border-radius: var(--card-radius);
+    border-radius: var(--card-lg-radius);
     box-shadow: 2px 2px 5px 1px #c6c6c6;
     border: none;
     text-decoration: none;
@@ -147,7 +149,7 @@
   background-color: white;
   color: #ff6666;
   border: 1px solid #ff6666;
-  border-radius: 6px;
+  border-radius: var(--card-small-radius);;
   cursor: pointer;
   transition: background-color 0.2s ease, color 0.2s ease;
   &:hover {
@@ -164,7 +166,7 @@
   padding: 5px 15px 5px 15px;
   color: #fff;
   border: 1px solid #fff;
-  border-radius: 6px;
+  border-radius: --card-small-radius;
   cursor: pointer;
   transition: background-color 0.2s ease, color 0.2s ease;
   &:hover {
@@ -173,3 +175,61 @@
   }
 
 }
+
+.btn-cancle {
+    background-color: #fff;
+    display: inline-block;
+    width: auto;
+    padding: 5px 15px 5px 15px;
+    color: #797979;
+    border: 1px solid #797979;
+    border-radius: --card-small-radius;
+    cursor: pointer;
+    transition: background-color 0.2s ease, color 0.2s ease;
+    &:hover {
+      background-color: #797979;
+      color: #fff;
+    } 
+}
+
+
+
+
+//삭제된 css (혹시모르니 보관용)
+
+//up & down 표시 : ↑ 4% 
+// .change-rate {
+//   display: flex;
+//   align-items: center;
+//   gap: 5px;
+//   .icon-up {
+//     width: 16px;
+//     height: 16px;
+//     background-color: #e0f9f1;
+//     border-radius: 100%;
+//     display: flex;
+//     align-items: center;
+//     justify-content: center;
+//     text-align: center;
+//     font-size: 10px !important;
+//     font-weight: 800;
+//     color: #00a389;
+//   }
+//   .icon-down {
+//     width: 16px;
+//     height: 16px;
+//     background-color: #ffe7e7;
+//     border-radius: 100%;
+//     display: flex;
+//     align-items: center;
+//     justify-content: center;
+//     text-align: center;
+//     font-size: 10px !important;
+//     font-weight: 800;
+//     color: #ff5b5b;
+//   }
+//   span {
+//     color: #c6c6c6;
+//     font-size: 12px;
+//   }
+// }
