@@ -49,6 +49,12 @@ const addresses = [
 //     addressDetail: "",
 //   },
 // });
+
+// 현재 주소지 설정 버튼 선택
+const currentAddressId = ref(null); // 현재 주소 ID 저장
+const setCurrentAddress = (id) => {
+  currentAddressId.value = id; // 클릭 시 현재 주소 변경
+};
 // 모달 표시 여부
 const showModal = ref(false);
 

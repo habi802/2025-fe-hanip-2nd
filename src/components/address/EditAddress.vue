@@ -1,5 +1,5 @@
 <script setup>
-import { ref, watch } from "vue";
+import { ref, watch, nextTick } from "vue";
 
 const props = defineProps({
   show: Boolean, // 모달 표시 여부
@@ -23,6 +23,22 @@ const handleSave = () => {
   emits("save", form.value);
   emits("close");
 };
+
+// 주소 검색
+const addressSearch = () => {
+  new window.daum.Postcode({
+    oncomplete: (data) => {
+      form.value.postcode = data.zonecode; // 우편번호 채우기
+      form.value.address = data.roadAddress; // 도로명 주소 채우기
+
+      // 상세주소 input에 포커스
+      nextTick(() => {
+        const detailInput = document.querySelector("input[placeholder='상세 주소']");
+        detailInput?.focus();
+      });
+    },
+  }).open();
+};
 </script>
 
 <template>
@@ -31,10 +47,15 @@ const handleSave = () => {
       <h2>주소 수정</h2>
       <input v-model="form.title" placeholder="주소 제목" />
       <div class="postcode-wrapper">
-        <input class="postcode-input" v-model="form.postcode" placeholder="우편번호" />
-        <button class="location-btn">주소 검색</button>
+        <input
+          class="postcode-input"
+          v-model="form.postcode"
+          placeholder="우편번호"
+          readonly
+        />
+        <button @click="addressSearch" class="location-btn">주소 검색</button>
       </div>
-      <input v-model="form.address" placeholder="주소" />
+      <input v-model="form.address" placeholder="주소" readonly />
       <input v-model="form.address_detail" placeholder="상세 주소" />
       <span
         >입력된 공동 현관 비밀 번호는 원활한 배달을 위해 필요한 정보로, 배달을 진행하는
@@ -69,17 +90,24 @@ const handleSave = () => {
     padding: 2rem;
     border-radius: 20px;
     width: 850px;
-    height: 1000px;
+    height: 900px;
     flex-direction: column;
     align-items: center;
-    input {
+    input:not(.postcode-input) {
       width: 700px;
       height: 60px;
-      border: 1px solid #797979;
+      border: 1px solid #c8c8c8;
       margin-bottom: 20px;
       border-radius: 8px;
       padding: 15px 15px;
     }
+    input:read-only {
+      background-color: #f5f5f5;
+      cursor: default;
+      pointer-events: none;
+      color: #7d7d7d;
+    }
+
     .location-btn {
       width: 130px;
       height: 60px;
@@ -97,10 +125,10 @@ const handleSave = () => {
       display: flex;
       justify-content: flex-end;
       margin-top: 1rem;
-      gap: 10px;
+      gap: 30px;
 
       .cancle-btn {
-        width: 320px;
+        width: 330px;
         height: 70px;
         background-color: #ff6666;
         color: white;
@@ -114,7 +142,7 @@ const handleSave = () => {
       }
 
       .save-btn {
-        width: 320px;
+        width: 330px;
         height: 70px;
         background-color: white;
         color: #ff6666;
@@ -141,9 +169,9 @@ const handleSave = () => {
   margin-bottom: 20px;
 
   .postcode-input {
-    width: 200px; // 원하는 너비로 설정
+    width: 560px; // 원하는 너비로 설정
     height: 60px;
-    border: 1px solid #797979;
+    border: 1px solid #c8c8c8;
     border-radius: 8px;
     padding: 15px;
   }
