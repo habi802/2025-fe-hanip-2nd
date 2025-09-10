@@ -1,0 +1,175 @@
+@font-face {
+  font-family: 'Pretendard';
+  src: url('https://cdn.jsdelivr.net/gh/Project-Noonnu/noonfonts_2107@1.1/Pretendard-Thin.woff') format('woff');
+  font-weight: 100;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Pretendard';
+  src: url('https://cdn.jsdelivr.net/gh/Project-Noonnu/noonfonts_2107@1.1/Pretendard-ExtraLight.woff') format('woff');
+  font-weight: 200;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Pretendard';
+  src: url('https://cdn.jsdelivr.net/gh/Project-Noonnu/noonfonts_2107@1.1/Pretendard-Light.woff') format('woff');
+  font-weight: 300;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Pretendard';
+  src: url('https://cdn.jsdelivr.net/gh/Project-Noonnu/noonfonts_2107@1.1/Pretendard-Regular.woff') format('woff');
+  font-weight: 400;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Pretendard';
+  src: url('https://cdn.jsdelivr.net/gh/Project-Noonnu/noonfonts_2107@1.1/Pretendard-Medium.woff') format('woff');
+  font-weight: 500;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Pretendard';
+  src: url('https://cdn.jsdelivr.net/gh/Project-Noonnu/noonfonts_2107@1.1/Pretendard-SemiBold.woff') format('woff');
+  font-weight: 600;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Pretendard';
+  src: url('https://cdn.jsdelivr.net/gh/Project-Noonnu/noonfonts_2107@1.1/Pretendard-Bold.woff') format('woff');
+  font-weight: 700;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Pretendard';
+  src: url('https://cdn.jsdelivr.net/gh/Project-Noonnu/noonfonts_2107@1.1/Pretendard-ExtraBold.woff') format('woff');
+  font-weight: 800;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Pretendard';
+  src: url('https://cdn.jsdelivr.net/gh/Project-Noonnu/noonfonts_2107@1.1/Pretendard-Black.woff') format('woff');
+  font-weight: 900;
+  font-display: swap;
+}
+
+* {
+    font-family: 'Pretendard', sans-serif;
+}
+
+/* 디자인 토큰: 런타임 테마 변경을 위해 CSS 변수로 정의 */
+:root {
+    --card-font-size-xxlg: 36px;
+    --card-font-size-lg: 24px;
+    --card-font-size-nomal: 16px;
+
+    --card-bg: #ffffff;
+    --card-radius: 15px;
+    --card-padding: 20px;
+    --card-shadow: 0 6px 18px rgba(16,24,40,0.06);
+    --card-border: rgb(0,0,0);
+  
+    --page-bg: #f3f4f6;
+    --fg: #111827;
+    --primary: #ff6666;
+  }
+  
+  /* 다크 모드 예시 */
+  :root[data-theme="dark"] {
+    --card-bg: #0b1020;
+    --fg: #e5e7eb;
+    --card-shadow: 0 6px 18px rgba(0,0,0,0.5);
+  }
+
+
+  .font-xxlg{
+    font-size: var(--card-font-size-xxlg);
+    font-weight: 800;
+    line-height: 1;
+  }
+  .font-lg{
+    font-size: var(--card-font-size-lg);
+    font-weight: 800;
+    line-height: 1;
+  }
+  .font-nomal{
+    font-size: var(--card-font-size-nomal);
+    font-weight: normal;
+    line-height: 1;
+  }
+
+  //흰색둥근카드
+  .white-card{
+    background-color: var(--card-bg);
+    padding: var(--card-padding);
+    border-radius: var(--card-radius);
+    box-shadow: 2px 2px 5px 1px #c6c6c6;
+  }
+
+  //그린버튼
+  .green-btn{
+    background-color: #BEFFA7;
+    padding: var(--card-padding);
+    border-radius: var(--card-radius);
+    box-shadow: 2px 2px 5px 1px #c6c6c6;
+    border: none;
+    color: #2B6118;
+  }
+  
+  //흰색카드핑크글씨버튼
+  .whitepink-btn{
+    background-color: var(--card-bg);
+    padding: var(--card-padding);
+    border-radius: var(--card-radius);
+    box-shadow: 2px 2px 5px 1px #c6c6c6;
+    border: none;
+    text-decoration: none;
+    color: var(--primary);
+  }
+.card-wrap-hr{
+  display: flex;
+}
+
+
+//핑크버튼
+.hn-btn-white {
+  display: inline-block;
+  width: auto;
+  padding: 5px 20px 5px 20px;
+  background-color: white;
+  color: #ff6666;
+  border: 1px solid #ff6666;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.2s ease, color 0.2s ease;
+  &:hover {
+    background-color: #ff6666;
+    color: #fff;
+  }
+
+}
+
+.hn-btn-pink {
+  background-color: #ff6666;
+  display: inline-block;
+  width: auto;
+  padding: 5px 15px 5px 15px;
+  color: #fff;
+  border: 1px solid #fff;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.2s ease, color 0.2s ease;
+  &:hover {
+    background-color: #e74e4e;
+    color: #fff;
+  }
+
+}

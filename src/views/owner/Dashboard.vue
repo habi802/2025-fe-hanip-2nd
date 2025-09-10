@@ -67,183 +67,115 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="d-flex">
-    <div class="owner-title1">대시보드</div>
-    <div class="owner-title3">- {{ currentTime }}</div>
-  </div>
-  <div class="owner-title2">
-    어서오세요! {{ ownerName }} 사장님, 관리자 페이지에 다시 오신 것을
-    환영합니다!
-  </div>
-
-  <div class="total-wrap">
-    <div class="total-box">
-      <div @click="b" class="circle"></div>
-      <div>
-        <span>{{ totalOrderCount }}</span>
-        <span>오늘 주문 수</span>
-        <div class="change-rate">
-          <span class="icon-up">↑</span><span>4%</span>
+  <div class="box p-4">
+    <div class="total-wrap" > 
+      <div class="dateTime white-card text-center p-4" style="grid-row: span 2;">
+        <span class="font-xxlg"> 0월 0일 (금) </span>
+        <br/>
+        <span class="font-xxlg"> 14:00:00 </span>
+      </div>
+        <div class="total-box white-card">
+            <span class="total-title font-nomal">오늘 주문 수</span>
+            <span class="font-xxlg">{{ totalOrderCount }}</span>
         </div>
-      </div>
-    </div>
-
-    <div class="total-box">
-      <div @click="b" class="circle"></div>
-      <div>
-        <span>{{ totalDeliveryCount }}</span>
-        <span>오늘 배달 수</span>
-        <div class="change-rate">
-          <span class="icon-up">↑</span><span>4%</span>
+  
+        <div class="total-box white-card">
+            <span class="total-title font-nomal">오늘 배달 수</span>
+            <span class="font-xxlg">{{ totalDeliveryCount }}</span>
         </div>
-      </div>
-    </div>
-
-    <div class="total-box">
-      <div class="circle"></div>
-      <div>
-        <span>{{ totalCanceledCount }}</span>
-        <span>취소된 주문</span>
-        <div class="change-rate">
-          <span class="icon-up">↑</span><span>4%</span>
+  
+        <div class="total-box white-card">
+            <span class="total-title font-nomal">취소된 주문</span>
+            <span class="font-xxlg">{{ totalCanceledCount }}</span>
         </div>
-      </div>
-    </div>
-
-    <div class="total-box">
-      <div class="circle"></div>
-      <div>
-        <span>{{ totalPrice }}만</span>
-        <span>총 매출</span>
-        <div class="change-rate">
-          <span class="icon-down">↓</span><span>12%</span>
+  
+        <div class="total-box white-card">
+            <span class="total-title font-nomal">총 매출</span>
+            <span class="font-xxlg">{{ totalPrice }}만</span>
         </div>
-      </div>
+        <button class="green-btn font-xxlg" style="grid-column: span 2;">영업 중</button>
+        <RouterLink to="/owner/orders" class="total-box whitepink-btn"> <span class="font-xxlg">주문관리</span> </RouterLink>
+        <RouterLink to="/owner/status" class="total-box whitepink-btn"> <span class="font-xxlg">가게상태</span> </RouterLink>
     </div>
-  </div>
 
-  <div class="padding">
-    <div class="d-flex board">
-      <div style="width: 450px">
-        <OrderCard :orders="orderStore.orderedList" />
+    <div style="padding-left: 12px;">
+      <div class="d-flex board">
+        <div>
+          <OrderCard :orders="orderStore.orderedList" />
+        </div>
+    <!--         <div style="width: 450px;">
+          <OrderPrepare :orders="orderStore.preparingList" />
+        </div>
+        <div style="width: 450px;">
+          <OrderDelivery :orders="orderStore.deliveringList" />
+        </div>-->
       </div>
-      <div style="width: 450px">
-        <OrderPrepare :orders="orderStore.preparingList" />
-      </div>
-      <div style="width: 450px">
-        <OrderDelivery :orders="orderStore.deliveringList" />
-      </div>
-    </div>
-  </div>
+    </div> 
+  </div> 
 </template>
 
 <style scoped lang="scss">
 .board {
-  gap: 77px;
-  font-family: "Pretendard", sans-serif;
+  gap: 70px;
 }
 
-.owner-title1 {
-  font-size: 30px;
-  font-weight: bold;
-  padding-left: 12px;
-  padding-bottom: 2px;
-}
 
-.owner-title2 {
-  padding-left: 12px;
-  padding-bottom: 10px;
-  color: #686868;
-}
-
-.owner-title3 {
-  font-size: 25px;
-  font-weight: bold;
-  padding-left: 12px;
-  padding-top: 5px;
-  text-align: center;
-  color: #414141;
-}
-
-.padding {
-  padding-left: 12px;
-}
-
-/* 차트 */
+/* 상단 통계 */
 
 .total-wrap {
   font-family: "Pretendard", sans-serif;
-  display: flex;
-  padding-left: 13px;
-  gap: 50px;
   margin-top: 5px;
   margin-bottom: 20px;
-  .circle {
-    background-color: #ff6666;
-    border-radius: 100%;
-    width: 85px;
-    height: 85px;
-    margin-left: 65px;
-    margin-right: 30px;
-  }
+  display: grid;
+  grid-template-columns: repeat(5, 1fr); /* 한 줄에 4개 */
+  gap: 15px; /* 카드 사이 간격 */
+
   .total-box {
-    align-items: center;
-    background-color: #fff;
-    border-radius: 15px;
-    box-shadow: 2px 2px 5px 1px #c6c6c6;
+    width: 280px;
+    height: 90px;
     display: flex;
-    height: 137px;
-    width: 337px;
-    :last-child {
-      display: block;
-    }
-    span {
-      display: block;
-    }
-    span:nth-of-type(1) {
-      line-height: 1;
-      font-size: 40px;
-      font-weight: 800;
-    }
-    span:nth-of-type(3) {
+    align-items: center;
+    justify-content: space-around;
+    .total-title {
       color: #c6c6c6;
     }
 
-    .change-rate {
-      display: flex;
-      align-items: center;
-      gap: 5px;
-      .icon-up {
-        width: 16px;
-        height: 16px;
-        background-color: #e0f9f1;
-        border-radius: 100%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        text-align: center;
-        font-size: 10px !important;
-        font-weight: 800;
-        color: #00a389;
-      }
-      .icon-down {
-        width: 16px;
-        height: 16px;
-        background-color: #ffe7e7;
-        border-radius: 100%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        text-align: center;
-        font-size: 10px !important;
-        font-weight: 800;
-        color: #ff5b5b;
-      }
-      span {
-        color: #c6c6c6;
-        font-size: 12px;
-      }
-    }
+    //up & down 표시 : ↑ 4% 
+    // .change-rate {
+    //   display: flex;
+    //   align-items: center;
+    //   gap: 5px;
+    //   .icon-up {
+    //     width: 16px;
+    //     height: 16px;
+    //     background-color: #e0f9f1;
+    //     border-radius: 100%;
+    //     display: flex;
+    //     align-items: center;
+    //     justify-content: center;
+    //     text-align: center;
+    //     font-size: 10px !important;
+    //     font-weight: 800;
+    //     color: #00a389;
+    //   }
+    //   .icon-down {
+    //     width: 16px;
+    //     height: 16px;
+    //     background-color: #ffe7e7;
+    //     border-radius: 100%;
+    //     display: flex;
+    //     align-items: center;
+    //     justify-content: center;
+    //     text-align: center;
+    //     font-size: 10px !important;
+    //     font-weight: 800;
+    //     color: #ff5b5b;
+    //   }
+    //   span {
+    //     color: #c6c6c6;
+    //     font-size: 12px;
+    //   }
+    // }
   }
 }
 </style>

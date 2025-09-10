@@ -90,7 +90,7 @@ const start = async () => {
   </div>
 
   <!-- 메인 -->
-    <div class="container-fluid d-flex mb-5" style="height: 921px; padding-top: 81px;">
+    <div class="container-fluid d-flex" style="height: 100vh; padding:40px;">
       <div class="card shadow p-5 w-100 text-center d-flex justify-content-center align-items-center flex-column" style="max-width: 1501px;">
         <div class="ps-4 pt-5">
           <div class="text-date">{{ today }}</div>
