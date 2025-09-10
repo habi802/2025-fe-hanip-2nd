@@ -1,6 +1,46 @@
 <script setup>
+import { ref, computed } from "vue";
 import AddressBar from "@/components/address/AddressBar.vue";
 import AddressCard from "@/components/address/AddressCard.vue";
+import EditAddress from "@/components/address/EditAddress.vue";
+
+// 임시 주소 데이터
+const addresses = [
+  { address_id: 1, title: "우리집", postcode: "414987", address: "대구 중구 국채보상로 55", address_detail: "502호" },
+  { address_id: 2, title: "회사", postcode: "414987", address: "대구 중구 국채보상로 56", address_detail: "502호" },
+  { address_id: 3, title: "어디로든 문", postcode: "414987", address: "대구 중구 국채보상로 57", address_detail: "502호" },
+  { address_id: 4, title: "뽱", postcode: "414987", address: "대구 중구 국채보상로 58", address_detail: "502호" },
+  { address_id: 5, title: "친구집", postcode: "414987", address: "대구 중구 국채보상로 59", address_detail: "502호" },
+];
+
+// 보여줄 개수
+const showCount = ref(4);
+// 현재 주소지 선택
+const currentAddressId = ref(null);
+const setCurrentAddress = (id) => currentAddressId.value = id;
+
+// 수정 모달 관리
+const showModal = ref(false);
+const selectedAddress = ref(null);
+const openEditModal = (addr) => { selectedAddress.value = { ...addr }; showModal.value = true; };
+const saveAddress = (updatedAddr) => {
+  const index = addresses.findIndex((a) => a.address_id === updatedAddr.address_id);
+  if (index !== -1) addresses[index] = updatedAddr;
+};
+
+// 현재 선택 주소 맨 앞으로 정렬
+const sortedAddresses = computed(() => {
+  if (!currentAddressId.value) return addresses;
+  const current = addresses.filter(a => a.address_id === currentAddressId.value);
+  const others = addresses.filter(a => a.address_id !== currentAddressId.value);
+  return [...current, ...others];
+});
+
+// 보여줄 주소 리스트 (showCount만큼)
+const visibleAddresses = computed(() => sortedAddresses.value.slice(0, showCount.value));
+
+// 더보기 버튼
+const loadMore = () => showCount.value += 4;
 </script>
 
 <template>
@@ -8,9 +48,35 @@ import AddressCard from "@/components/address/AddressCard.vue";
     <div class="container">
       <h2 class="add-title">주소 설정</h2>
       <div class="titleLine"></div>
+
+      <!-- 검색바 -->
       <AddressBar />
-      <AddressCard />
+
+      <!-- 주소 카드 리스트 -->
+      <div class="address-list">
+        <AddressCard
+          v-for="addr in visibleAddresses"
+          :key="addr.address_id"
+          :address="addr"
+          :currentAddressId="currentAddressId"
+          @setCurrent="setCurrentAddress"
+          @edit="openEditModal"
+        />
+      </div>
+
+      <!-- 더보기 버튼 -->
+      <div class="plus" v-if="showCount < addresses.length">
+        <button class="plus-btn" @click="loadMore">더보기</button>
+      </div>
     </div>
+
+    <!-- 수정 모달 -->
+    <EditAddress
+      :show="showModal"
+      :address="selectedAddress"
+      @close="showModal = false"
+      @save="saveAddress"
+    />
   </div>
 </template>
 
@@ -36,5 +102,34 @@ import AddressCard from "@/components/address/AddressCard.vue";
   width: 100%;
   border-bottom: 3px solid #000;
   margin: 0 auto 3rem;
+}
+// 카드 리스트 배치
+.address-list {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 2rem;
+  justify-items: center;
+  margin-bottom: 5rem;
+}
+// 더보기 버튼
+.plus {
+  display: flex;
+  justify-content: center;
+  .plus-btn {
+    font-family: "BMJUA";
+    width: 150px;
+    height: 60px;
+    background-color: #ff6666;
+    color: white;
+    border: none;
+    border-radius: 18px;
+    margin-bottom: 5rem;
+    cursor: pointer;
+    font-size: 20px;
+
+    &:hover {
+      background-color: darken(#ff6666, 5%);
+    }
+  }
 }
 </style>
