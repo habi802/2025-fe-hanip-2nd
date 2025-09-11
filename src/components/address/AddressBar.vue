@@ -1,4 +1,30 @@
-<script setup></script>
+<script setup>
+import { ref } from "vue";
+import EditAddress from "@/components/address/EditAddress.vue";
+
+// 🔹 모달 열림 상태 (추가용)
+const addModalOpen = ref(false);
+
+// 🔹 부모에게 emit할 이벤트 정의
+const emit = defineEmits(["add"]);
+
+// 🔹 새 주소 초기값 (모달 전달용)
+const newAddress = ref({ title: "", postcode: "", address: "", address_detail: "" });
+
+// 🔹 추가 버튼 클릭 → 부모에게 emit
+const openAddModal = () => {
+  // 모달 초기화
+  newAddress.value = { title: "", postcode: "", address: "", address_detail: "" };
+  addModalOpen.value = true;
+};
+
+// 🔹 모달 저장 이벤트 → 부모에게 emit
+const handleAddAddress = (address) => {
+  console.log("추가된 주소:", address);
+  emit("add", address); // 부모(Address.vue)에 주소 전달
+  addModalOpen.value = false; // 모달 닫기
+};
+</script>
 
 <template>
   <div class="address-bar">
@@ -14,24 +40,35 @@
       </div>
 
       <!-- 현재 위치 버튼 -->
-      <button class="location-btn">
-        현재 위치
+      <button class="location-btn" @click="addModalOpen = true">
+        주소 추가
         <img src="@/imgs/gps.png" alt="위치" class="location-icon" />
       </button>
     </div>
   </div>
+
+  <!-- 주소 추가 모달 -->
+  <EditAddress
+    :show="addModalOpen"
+    :address="newAddress"
+    mode="add"
+    @close="addModalOpen = false"
+    @save="handleAddAddress"
+  />
 </template>
 
 <style lang="scss" scoped>
 @font-face {
   font-family: "Pretendard-Regular";
-  src: url("https://fastly.jsdelivr.net/gh/Project-Noonnu/noonfonts_2107@1.1/Pretendard-Regular.woff") format("woff");
+  src: url("https://fastly.jsdelivr.net/gh/Project-Noonnu/noonfonts_2107@1.1/Pretendard-Regular.woff")
+    format("woff");
   font-weight: 400;
   font-style: normal;
 }
 
 * {
   font-family: "Pretendard-Regular";
+  font-size: 20px;
 }
 
 .address-bar {

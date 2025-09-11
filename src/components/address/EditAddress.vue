@@ -5,11 +5,12 @@ import { ref, watch, nextTick } from "vue";
 const props = defineProps({
   show: Boolean, // 모달 표시 여부
   address: Object, // 수정할 주소 데이터
+  mode: { type: String, default: "edit" }, // edit: 수정, add: 추가
 });
 
 const emits = defineEmits(["close", "save"]);
 
-// 로컬 상태 (수정용)
+// 로컬 상태 (수정용 또는 추가용)
 const form = ref({ ...props.address });
 
 // 기본 지도 좌표 (서울시청)
@@ -20,7 +21,10 @@ let lon = 126.978;
 watch(
   () => props.address,
   (newVal) => {
-    form.value = { ...newVal };
+    // edit 모드일 때만 form 초기화
+    if (props.mode === "edit") {
+      form.value = { ...newVal };
+    }
   },
   { immediate: true }
 );
@@ -31,16 +35,25 @@ watch(
   (newVal) => {
     if (newVal) {
       nextTick(() => {
-        showMap(form.value.address || "서울시청"); // 기존 주소가 있으면 표시
+        // edit 모드: 기존 주소 표시, add 모드: 서울시청 기본 지도
+        const targetAddress =
+          props.mode === "edit"
+            ? form.value.address || "서울시청"
+            : "서울시청";
+        showMap(targetAddress); 
       });
     }
   }
 );
 
-// 저장 버튼 클릭
+// 저장/추가 버튼 클릭
 const handleSave = () => {
-  emits("save", form.value);
-  emits("close");
+  try {
+    emits("save", { ...form.value, mode: props.mode });
+    emits("close"); // save 이벤트 처리 후 모달 닫기
+  } catch (err) {
+    console.error("주소 저장 실패:", err);
+  }
 };
 
 // 주소 검색
@@ -65,6 +78,7 @@ const addressSearch = () => {
 
 const markerRef = ref(null); // 마커를 저장
 
+// 지도 표시
 const showMap = (address) => {
   // 먼저 지도 생성 (초기 좌표는 서울시청)
   const map = new naver.maps.Map("map", {
@@ -103,25 +117,13 @@ const showMap = (address) => {
     });
   });
 };
-
-// 지도 표시
-watch(
-  () => props.show,
-  (newVal) => {
-    if (newVal) {
-      nextTick(() => {
-        const targetAddress = form.value.address || "서울시청";
-        showMap(targetAddress); // 기존 주소 있으면 마커 표시
-      });
-    }
-  }
-);
 </script>
 
 <template>
   <div v-if="show" class="modal-overlay">
     <div class="modal-content">
-      <h2>주소 수정</h2>
+      <!-- 모드에 따라 제목 변경 -->
+      <h2>{{ props.mode === "edit" ? "주소 수정" : "주소 추가" }}</h2>
 
       <!-- 지도 영역 -->
       <div id="map"></div>
@@ -149,7 +151,10 @@ watch(
       <!-- 버튼 영역 -->
       <div class="modal-actions">
         <button class="cancle-btn" @click="$emit('close')">취소</button>
-        <button class="save-btn" @click="handleSave">저장</button>
+        <!-- 모드에 따라 버튼 텍스트 변경 -->
+        <button class="save-btn" @click="handleSave">
+          {{ props.mode === "edit" ? "저장" : "추가" }}
+        </button>
       </div>
     </div>
   </div>

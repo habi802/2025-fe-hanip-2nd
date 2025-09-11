@@ -9,7 +9,9 @@ const emit = defineEmits(["setCurrent", "edit"]);
 // 현재 주소지로 설정(버튼 클릭 시 진행)
 const setCurrent = () => emit("setCurrent", props.address.address_id);
 // 수정 모달 열기
-const openEdit = () => emit("edit", props.address);
+const openEdit = () => emit("edit", { ...props.address });
+//삭제 버튼 클릭 시 emit 이벤트 추가
+const deleteAddress = () => emit("delete", props.address.address_id);
 </script>
 
 <template>
@@ -29,7 +31,7 @@ const openEdit = () => emit("edit", props.address);
     <p>{{ address.address_detail }}</p>
     <div class="card-actions">
       <button class="primary-btn" @click="openEdit">수정</button>
-      <button class="secondary-btn">삭제</button>
+      <button class="secondary-btn" @click="deleteAddress">삭제</button>
     </div>
   </div>
 </template>
