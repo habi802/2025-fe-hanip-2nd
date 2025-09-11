@@ -67,9 +67,11 @@
 
 /* 디자인 토큰: 런타임 테마 변경을 위해 CSS 변수로 정의 */
 :root {
-    --card-font-size-xxlg: 36px;
-    --card-font-size-lg: 24px;
-    --card-font-size-nomal: 16px;
+  // html기준폰트 16px
+    --card-font-size-xxlg: 2.5rem;
+    --card-font-size-xlg: 2rem;
+    --card-font-size-lg: 1.5rem; 
+    --card-font-size-nomal: 1rem;
 
     --card-bg: #ffffff;
     --card-lg-radius: 0.75rem;
@@ -94,6 +96,11 @@
 
   .font-xxlg{
     font-size: var(--card-font-size-xxlg);
+    font-weight: 800;
+    line-height: 1;
+  }
+  .font-xlg{
+    font-size: var(--card-font-size-xlg);
     font-weight: 800;
     line-height: 1;
   }
@@ -190,6 +197,57 @@
       background-color: #797979;
       color: #fff;
     } 
+}
+
+
+
+// 토글버튼
+.toggle-container {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-weight: bold;
+  color: #403f57;
+  margin: 10px 0;
+  font-size: 17px;
+}
+
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 66px;
+  height: 32px;
+}
+
+.switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.slider {
+  position: absolute;
+  cursor: pointer;
+  background-color: #c4c4c4;
+  border: 1px solid #403f57;
+  border-radius: 34px;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  transition: 0.4s;
+}
+
+.slider::before {
+  position: absolute;
+  content: "";
+  height: 30px;
+  width: 30px;
+  left: 0px;
+  bottom: 0px;
+  background-color: white;
+  transition: 0.4s;
+  border-radius: 50%;
 }
 
 

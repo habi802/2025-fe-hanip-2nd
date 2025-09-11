@@ -276,7 +276,7 @@ onUnmounted(() => {
 
 
     <!-- 오른쪽 화면 -->
-    <div class="content flex-grow-1" style="background-color: #e8e8e8">
+    <div class="flex-grow-1" style="background-color: #e8e8e8">
       <!-- 헤더 시작 -->
        <!-- 검색 + 영업 버튼 -->
        <!-- 드랍다운 -->
@@ -298,7 +298,6 @@ onUnmounted(() => {
 
 .box {
   font-family: "Pretendard", sans-serif;
-  overflow: hidden; // 스크롤 막기
 }
 
 .section {
@@ -306,7 +305,7 @@ onUnmounted(() => {
   display: flex;
   justify-content: center;  // 가로 가운데
   align-items: center;      // 세로 가운데
-  height: 100%;             // 부모 높이 꽉 차게
+  height: 100%;           // 부모 높이 꽉 차게
 }
 
 .paddingSearch {
@@ -361,54 +360,6 @@ onUnmounted(() => {
   background-color: #d1d1d1;
 }
 
-// 토글버튼
-.toggle-container {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  font-weight: bold;
-  color: #403f57;
-  margin: 10px 0;
-  font-size: 17px;
-}
-
-.switch {
-  position: relative;
-  display: inline-block;
-  width: 66px;
-  height: 32px;
-}
-
-.switch input {
-  opacity: 0;
-  width: 0;
-  height: 0;
-}
-
-.slider {
-  position: absolute;
-  cursor: pointer;
-  background-color: #c4c4c4;
-  border: 1px solid #403f57;
-  border-radius: 34px;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  transition: 0.4s;
-}
-
-.slider::before {
-  position: absolute;
-  content: "";
-  height: 30px;
-  width: 30px;
-  left: 0px;
-  bottom: 0px;
-  background-color: white;
-  transition: 0.4s;
-  border-radius: 50%;
-}
 
 input:checked + .slider {
   background-color: #ff6666;

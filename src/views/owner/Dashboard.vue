@@ -69,9 +69,9 @@ onMounted(() => {
 <template>
   <div class="box">
     <div class="total-wrap" > 
-      <div class="datetime white-card text-center p-4" style="grid-row: span 2;">
-        <span class="font-xxlg"> 0월 0일 (금) </span>
-        <span class="font-xxlg"> 14:00:00 </span>
+      <div class="datetime white-card text-center" style="grid-row: span 2;">
+        <span class="font-xlg"> 0월 0일 (금) </span>
+        <span class="font-xlg"> 14:00:00 </span>
       </div>
       <div class="total-box white-card">
           <span class="total-title font-nomal">오늘 주문 수</span>
@@ -103,15 +103,8 @@ onMounted(() => {
 </template>
 
 <style scoped lang="scss">
-.box{
-  width: 100vh;
-  padding-right: 5px;
-}
-
 
 /* 상단 8개 카드 */
-
-
 .total-wrap {
   font-family: "Pretendard", sans-serif;
   margin-top: 5px;
@@ -122,9 +115,17 @@ onMounted(() => {
 
 
   .datetime{
-    display: grid;
-    place-items: center; /* 가로 + 세로 중앙 정렬 */
-    text-align: center;
+    width: 280px;
+    display: flex;
+    flex-direction: column; /* 세로 정렬 */
+    justify-content: center; /* 수직 가운데 정렬 */
+    align-items: center;     /* 수평 가운데 정렬 */
+    height: 100%; /* 높이 확실히 잡아줘야 잘 먹힘 */
+
+    span.font-lg {
+    display: block;
+    line-height: 1.1;  /* 여기서 간격 조절해. 기본보다 확 줄임 */
+  }
   }
 
   .total-box {
