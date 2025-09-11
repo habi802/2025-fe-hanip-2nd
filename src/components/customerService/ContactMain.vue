@@ -1,90 +1,63 @@
 <script setup>
 import { ref } from "vue";
-import ContactHeader from "@/components/customerService/ContactHeader.vue";
 
-// const activeTab = ref("faq");
-
-// function setTab(tabName) {
-//   activeTab.value = tabName;
-// }
-
-// 확인용 임시 더미 데이터
-const inquiries = [
-  { no: 10, title: "쿠폰등록 입금 가능한가요?", writer: "맛집찾기", date: "2025-08-23" },
-  { no: 9, title: "현금 결제 가능한가요?", writer: "밥이최고", date: "2025-08-23" },
-  { no: 8, title: "무통장 입금 가능한가요?", writer: "맛집천국", date: "2025-08-23" },
-  { no: 7, title: "세일 기간 언제까지 인가요", writer: "맛집레이더", date: "2025-08-23" },
-  { no: 6, title: "환불해주세요. ", writer: "대구일짱", date: "2025-08-23" },
-  { no: 5, title: "현금 결제 가능한가요?", writer: "집순이", date: "2025-08-23" },
-  { no: 4, title: "쿠폰등록 입금 가능한가요?", writer: "리뷰의달인", date: "2025-08-23" },
-  { no: 3, title: "쿠폰등록 입금 가능한가요?", writer: "늘배고파", date: "2025-08-23" },
-  { no: 2, title: "현금 결제 가능한가요?", writer: "오늘은 뭐먹지", date: "2025-08-23" },
-  { no: 1, title: "쿠폰등록 입금 가능한가요?", writer: "맛집장인", date: "2025-08-23" },
-];
-
-// 페이지네이션
-const currentPage = ref(1);
-const totalPages = 5;
-
-function goPrev() {
-  if (currentPage.value > 1) currentPage.value--;
-}
-
-function goNext() {
-  if (currentPage.value < totalPages) currentPage.value++;
-}
+// FAQ 더미데이터
+const faqs = ref([
+  {
+    question: "회원가입은 어떻게 하나요?",
+    answer:
+      "홈페이지 우측 상단 '회원가입' 버튼을 클릭하고, 이메일 또는 SNS 계정으로 가입할 수 있습니다.",
+  },
+  {
+    question: "비밀번호를 잊어버렸을 때는 어떻게 하나요?",
+    answer:
+      "로그인 화면에서 '비밀번호 찾기'를 클릭하고, 이메일 인증을 통해 새 비밀번호를 설정할 수 있습니다.",
+  },
+  {
+    question: "결제 수단에는 어떤 것이 있나요?",
+    answer:
+      "신용카드, 체크카드, 휴대폰 결제, 카카오페이 등 다양한 결제 수단을 지원합니다.",
+  },
+  {
+    question: "주문 상태는 어디서 확인할 수 있나요?",
+    answer:
+      "마이페이지 > 주문내역에서 현재 주문 상태와 배송 정보를 확인할 수 있습니다.",
+  },
+  {
+    question: "환불은 어떻게 진행되나요?",
+    answer:
+      "결제 수단에 따라 환불 절차가 달라지며, 고객센터 (1600-1234)를 통해 안내받으실 수 있습니다.",
+  },
+  {
+    question: "가게에 문의하고 싶으면 어떻게 하나요?",
+    answer:
+      "가게 상세 페이지의 가게 정보에서 전화번호를 확인 후 직접 문의하실 수 있습니다.",
+  },
+  {
+    question: "배달이 지연될 경우 어떻게 하나요?",
+    answer:
+      "주문 내역에서 배송 상태를 확인하고, 지연 시 고객센터 (1600-1234)로 문의해주세요.",
+  },
+  {
+    question: "리뷰 작성 시 사진 첨부는 가능한가요?",
+    answer:
+      "주문 완료 후 리뷰 작성 시 사진 첨부가 가능하며, 최대 5장까지 업로드할 수 있습니다.",
+  },
+]);
 </script>
 
 <template>
-  <div>
-  <ContactHeader/>
-  </div>
   <div class="customer-service">
     <div class="container">
       <!-- 문의 리스트 테이블 -->
       <div class="inquiry-list">
-      <div class="titleLine"></div>
-        <table>
-          <thead>
-            <tr>
-              <th>No</th>
-              <th>제목</th>
-              <th>글쓴이</th>
-              <th>작성시간</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr v-for="item in inquiries" :key="item.no">
-              <td>{{ item.no }}</td>
-              <td class="title">
-                <span class="lock">🔒</span>
-                {{ item.title }}
-              </td>
-              <td>{{ item.writer }}</td>
-              <td>{{ item.date }}</td>
-            </tr>
-          </tbody>
-        </table>
 
-        <!-- 페이지네이션 -->
-        <div class="pagination">
-          <span @click="goPrev" class="arrow">&lt;</span>
-          <span
-            v-for="n in totalPages"
-            :key="n"
-            class="page"
-            :class="{ active: currentPage === n }"
-            @click="currentPage = n"
-          >
-            {{ n }}
-          </span>
-          <span @click="goNext" class="arrow">&gt;</span>
-        </div>
-
-        <!-- 글쓰기 버튼 -->
-        <div class="btn-wrapper">
-          <button class="write-btn">글쓰기</button>
-        </div>
+        <div class="faq-list">
+      <div v-for="(item, index) in faqs" :key="index" class="faq-item">
+        <p class="faq-question">Q. {{ item.question }}</p>
+        <p class="faq-answer">A. {{ item.answer }}</p>
+      </div>
+    </div>
       </div>
     </div>
   </div>
@@ -103,119 +76,34 @@ function goNext() {
   font-family: "Pretendard-Regular";
   letter-spacing: 1px;
   box-sizing: border-box;
+  font-size: 25px;
 }
 
 .customer-service {
+  justify-content: center;
   .container {
-    width: 80%;
-    margin: 0 auto;
+    margin-bottom: 300px;
+    
+  }}
+  .faq-list {
+    width: 1480px;
+    .faq-item {
+      padding: 20px 0;
+      border-bottom: 1px solid #ddd;
+      margin-bottom: 20px;
 
-// 메인 선
-.titleLine {
-  border-bottom: 2px solid #000;
-  
-  margin-top: 5rem;
-}
-    // 문의 리스트
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-bottom: 1.5rem;
-      
-      // 구분선
-      th,
-      td {
-        border-bottom: 2px solid #6C6C6C;
-        padding: 15px;
-        text-align: center;
-      }
-      // 리스트 헤더
-      th {
-        //background-color: #fafafa;
+      .faq-question {
+        color: #ff6666; 
         font-weight: bold;
-      }
-      // 제목
-      .title {
-        text-align: center;
-        // 자물쇠
-        .lock {
-          margin-right: 0.3rem;
-          color: #888;
-        }
-      }
-    }
-    // 페이지네이션
-    .pagination {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      gap: 0.5rem;
-      margin-bottom: 1em;
-      // 각 페이지 숫자
-      .page {
-        position: relative;
-        cursor: pointer;
-        font-size: 15px;
-        font-weight: 600;
-        padding: 5px 5px;
-        line-height: 1;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-
-        &:hover {
-          color: #ff6666;
-        }
-
-        &.active {
-          color: #ff6666;
-
-          &::after {
-            content: "";
-            position: absolute;
-            bottom: 0; // 숫자 바로 밑
-            left: 50%;
-            transform: translateX(-50%);
-            width: 65%; // 밑줄 길이
-            height: 0.1em;
-            background-color: #ff6666;
-          }
-        }
+        margin-bottom: 30px;
+        margin-left: 180px;
       }
 
-      // 이전/다음 화살표 버튼
-      .arrow {
-        font-weight: bold;
-        font-size: 16px;
-        padding: 5px 10px;
-        line-height: 1; // 숫자와 같은 기준선
-        display: flex;
-        align-items: center;
-
-        &:hover {
-          color: #ff6666;
-        }
-      }
-    }
-    // 글쓰기 버튼
-    .btn-wrapper {
-      text-align: right;
-
-      .write-btn {
-        padding: 0.6rem 1.2rem;
-        background-color: #ff6666;
-        border: none;
-        border-radius: 6px;
-        color: white;
-        font-size: 1rem;
-        cursor: pointer;
-        margin-bottom: 100px;
-
-        &:hover {
-          background-color: darken(#ff6666, 5%);
-        }
+      .faq-answer {
+        color: #000;
+        line-height: 1.5;
+        margin-left: 180px;
       }
     }
   }
-}
 </style>
