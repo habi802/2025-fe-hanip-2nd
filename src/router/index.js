@@ -180,6 +180,10 @@ const router = createRouter({
       path: "/address",
       component: () => import("@/views/customer/Address.vue"),
     },
+    {
+      path: "/check",
+      component: () => import("@/views/customer/check.vue"),
+    },
   ],
 });
 export default router;
