@@ -81,7 +81,8 @@
     --card-border: rgb(0,0,0);
   
     --page-bg: #f3f4f6;
-    --fg: #111827;
+    --grey1: #cccccc;
+    --grey2: #797979;
     --primary: #ff6666;
     
   }
@@ -120,7 +121,7 @@
     background-color: var(--card-bg);
     padding: var(--card-padding);
     border-radius: var(--card-lg-radius);
-    box-shadow: 2px 2px 5px 1px #c6c6c6;
+    box-shadow: 2px 2px 5px 1px var(--grey1);
   }
 
   //그린버튼
@@ -128,7 +129,7 @@
     background-color: #BEFFA7;
     padding: var(--card-padding);
     border-radius: var(--card-lg-radius);
-    box-shadow: 2px 2px 5px 1px #c6c6c6;
+    box-shadow: 2px 2px 5px 1px var(--grey1);
     border: none;
     color: #2B6118;
   }
@@ -138,7 +139,7 @@
     background-color: var(--card-bg);
     padding: var(--card-padding);
     border-radius: var(--card-lg-radius);
-    box-shadow: 2px 2px 5px 1px #c6c6c6;
+    box-shadow: 2px 2px 5px 1px var(--grey1);
     border: none;
     text-decoration: none;
     color: var(--primary);
@@ -147,12 +148,18 @@
   display: flex;
 }
 
+//회색라운드 박스
+.gray-content{
+  border: 1px solid var(--grey2);
+  border-radius: var(--card-small-radius);
+  padding: 10px 20px ;
+}
 
-//핑크버튼
+//핑크라인 흰버튼
 .hn-btn-white {
   display: inline-block;
   width: auto;
-  padding: 5px 20px 5px 20px;
+  padding: 10px 20px;
   background-color: white;
   color: #ff6666;
   border: 1px solid #ff6666;
@@ -166,11 +173,12 @@
 
 }
 
+//둥근 핑크색버튼
 .hn-btn-pink {
   background-color: #ff6666;
   display: inline-block;
   width: auto;
-  padding: 5px 15px 5px 15px;
+  padding: 10px 15px;
   color: #fff;
   border: 1px solid #fff;
   border-radius: --card-small-radius;
@@ -187,14 +195,14 @@
     background-color: #fff;
     display: inline-block;
     width: auto;
-    padding: 5px 15px 5px 15px;
-    color: #797979;
-    border: 1px solid #797979;
+    padding: 5px 15px;
+    color: var(--grey2);
+    border: 1px solid var(--grey2);
     border-radius: --card-small-radius;
     cursor: pointer;
     transition: background-color 0.2s ease, color 0.2s ease;
     &:hover {
-      background-color: #797979;
+      background-color: var(--grey2);
       color: #fff;
     } 
 }
