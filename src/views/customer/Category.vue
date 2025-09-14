@@ -17,8 +17,7 @@ import "swiper/css/scrollbar";
 
 //
 import { getStoreList } from "@/services/storeService";
-import { reactive, onMounted, nextTick, ref } from "vue";
-import StoreList from "@/components/customer/StoreList.vue";
+import { reactive, onMounted, nextTick, ref, computed } from "vue";
 import { useRouter, useRoute } from "vue-router";
 import Review from "@/components/customer/Review.vue";
 
@@ -324,6 +323,57 @@ const caLink = async () => {
       placeholder="찾는 맛집 이름,메뉴가 무엇인가요?" />
     <img @click="caLink" class="searchImg" src="/src//imgs/fluent_search.png" />
   </div>
+  <div class="sort-options">
+  <span 
+    :class="{ active: sortKey === 'price' }" 
+    @click="setSort('price')"
+  >
+    주문 금액 순
+  </span>
+  <span class="divider">|</span>
+  <span 
+    :class="{ active: sortKey === 'rating' }" 
+    @click="setSort('rating')"
+  >
+    별점순
+  </span>
+  <span class="divider">|</span>
+  <span 
+    :class="{ active: sortKey === 'review' }" 
+    @click="setSort('review')"
+  >
+    리뷰순
+  </span>
+</div>
+<div class="card-list">
+  <div class="card" v-for="store in stores" :key="store.id">
+    <div class="card-img-wrapper">
+      <img :src="store.imageUrl" alt="가게 이미지" class="card-img" />
+      <div v-if="!store.isOpen" class="closed-overlay">
+        영업 준비중 입니다
+      </div>
+    </div>
+
+    <div class="card-body">
+      <h3 class="card-title">{{ store.name }}</h3>
+
+      <div class="card-meta">
+        <span class="rating">⭐ {{ store.rating }}</span>
+        <span class="review">({{ store.reviewCount }})</span>
+        <span class="like">❤️ {{ store.likeCount }}</span>
+      </div>
+
+      <p class="delivery">
+        배달료 {{ store.deliveryFeeMin }}원 ~ {{ store.deliveryFeeMax }}원
+      </p>
+      <p class="min-order">
+        최소 주문 금액 {{ formatPrice(store.minOrderPrice) }}원
+      </p>
+
+      <button class="detail-btn">자세히보기</button>
+    </div>
+  </div>
+</div>
   <div class="guideBox">
     <!-- root : 검색 결과가 없을 시 나타내는 이미지 일단 임시로-->
     <div class="position-relative" v-if="state.stores.length === 0">
@@ -549,5 +599,124 @@ const caLink = async () => {
 .searchBar::-moz-focus-inner {
   outline: none;
   box-shadow: none;
+}
+
+  .card-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 20px;
+  width: 1200px;
+  margin: 0 auto;
+}
+
+.card {
+  border: 1px solid #eee;
+  border-radius: 12px;
+  overflow: hidden;
+  background: #fff;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+.card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 6px 16px rgba(0,0,0,0.12);
+}
+
+.card-img-wrapper {
+  position: relative;
+  width: 100%;
+  height: 180px;
+  overflow: hidden;
+}
+
+.card-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.closed-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0,0,0,0.45);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  font-size: 18px;
+}
+
+.card-body {
+  padding: 12px;
+}
+
+.card-title {
+  font-size: 16px;
+  font-weight: bold;
+  margin-bottom: 8px;
+}
+
+.card-meta {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 14px;
+  margin-bottom: 6px;
+}
+
+.card-meta .like {
+  color: red;
+}
+
+.delivery, .min-order {
+  font-size: 13px;
+  color: #666;
+  margin-bottom: 4px;
+}
+
+.detail-btn {
+  width: 100%;
+  background: #ff6b6b;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  padding: 8px 0;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.detail-btn:hover {
+  background: #ff4c4c;
+}
+
+
+.sort-options {
+  max-width: 1200px;
+  margin: 20px auto;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  justify-content: flex-end;
+  font-size: 14px;
+  color: #ff7b7b;
+}
+
+.sort-options span {
+  cursor: pointer;
+}
+
+.sort-options .divider {
+  color: #ffa5a5;
+}
+
+.sort-options .active {
+  font-weight: bold;
+  color: #ff4c4c;
+}
+
+.sort-options .active::after {
+  content: "▲";
+  font-size: 10px;
+  margin-left: 4px;
 }
 </style>
