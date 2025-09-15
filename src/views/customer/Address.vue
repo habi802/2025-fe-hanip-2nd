@@ -47,8 +47,16 @@ const addresses = [
 const showCount = ref(4);
 
 // 현재 주소지 선택
-const currentAddressId = ref(null);
-const setCurrentAddress = (id) => (currentAddressId.value = id);
+const currentAddressId = ref(
+  localStorage.getItem("currentAddressId")
+    ? Number(localStorage.getItem("currentAddressId"))
+    : 1 // 회원가입 시 기본 주소
+);
+
+const setCurrentAddress = (id) => {
+  currentAddressId.value = id;
+  localStorage.setItem("currentAddressId", id); // 변경 시 로컬 스토리지에 저장
+};
 
 // 수정 모달 관리
 const showModal = ref(false);

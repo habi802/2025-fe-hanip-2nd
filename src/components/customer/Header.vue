@@ -8,6 +8,7 @@ import { getOrder } from "@/services/storeService";
 import Menu from "@/components/customer/Menu.vue";
 import AlertModal from "../modal/AlertModal.vue";
 import CartModal from "../modal/CartModal.vue";
+import { useCartStore } from "@/stores/cart";
 
 const router = useRouter();
 
@@ -46,6 +47,9 @@ const signOut = async () => {
 //const totalPrice = ref(0);
 
 const alertModalRef = ref(null);
+
+// Pinia 장바구니 스토어 가져오기
+const cartStore = useCartStore();
 const cartModalRef = ref(null);
 
 // 모달 표시하는 함수
@@ -53,8 +57,12 @@ const showModal = (message) => {
   alertModalRef.value.open(message);
 };
 // 모달 표시하는 함수
-const showCart = (message) => {
-  cartModalRef.value.open(message);
+const showCart = () => {
+  // ref가 아직 안 잡혔으면 return
+  if (!cartModalRef.value) return;
+
+  // items 전달 후 모달 열기
+  cartModalRef.value.open(cartStore.items);
 };
 
 // 로그인한 유저 주소에 따라 주소를 표시하는 함수
@@ -150,7 +158,7 @@ const goToAddress = () => {
         <img
           class="menu-image me-4"
           src="/src/imgs/shoop.png"
-          @click="showCart()"
+          @click="showCart"
           alt="장바구니"
         />
         <span class="menu-text me-3" @click="signOut">로그아웃</span>
