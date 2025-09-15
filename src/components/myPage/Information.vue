@@ -5,6 +5,29 @@ import { getUser, checkPassword, update } from "@/services/userService";
 import { nextTick } from "vue";
 
 const router = useRouter();
+const fileInput = ref(null);
+const previewUrl = ref(""); // 미리보기 이미지 URL
+const selectedFile = ref(null); // 실제 선택된 파일
+
+// 버튼 클릭 -> 숨겨진 input 클릭
+function triggerFileInput() {
+  fileInput.value?.click();
+}
+
+// 파일 선택 시 실행
+function onFileChange(event) {
+  const file = event.target.files[0];
+  if (file) {
+    selectedFile.value = file;
+
+    // 미리보기 URL 생성
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      previewUrl.value = e.target.result;
+    };
+    reader.readAsDataURL(file);
+  }
+}
 
 // 사용자 정보 리스트
 const state = reactive({
@@ -60,8 +83,7 @@ function validateForm() {
   // 새 비밀번호 유효성: 다르고, 8~16자, 숫자/특수문자 포함
   const pw = confirmPw.value;
   const sameAsOld = pw === state.form.loginPw;
-  const regexPw =
-    /^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#?&^])[A-Za-z\d@$!%*#?&^]{8,16}$/;
+  const regexPw = /^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#?&^])[A-Za-z\d@$!%*#?&^]{8,16}$/;
 
   if (!pw) {
     errors.confirmPw = "새 비밀번호를 입력해주세요.";
@@ -70,8 +92,7 @@ function validateForm() {
     errors.confirmPw = "새 비밀번호는 현재 비밀번호와 다르게 입력해주세요.";
     isValid = false;
   } else if (!regexPw.test(pw)) {
-    errors.confirmPw =
-      "비밀번호는 영문, 숫자, 특수문자를 포함한 8~16자여야 합니다.";
+    errors.confirmPw = "비밀번호는 영문, 숫자, 특수문자를 포함한 8~16자여야 합니다.";
     isValid = false;
   } else {
     errors.confirmPw = "";
@@ -222,7 +243,7 @@ const submitForm = async (e) => {
     // 5. 요청 성공 시 알림창 표시 후 마이페이지로 이동
     if (res.status === 200) {
       showModal("정보가 성공적으로 수정되었습니다.");
-      router.push({ path: '/' });
+      router.push({ path: "/" });
     } else {
       // 6. 요청 실패 시 알림창 표시
       showModal("정보 수정에 실패했습니다.");
@@ -244,8 +265,8 @@ watch(phone2, (val) => {
 function clearError(key) {
   errors[key] = "";
 
-  if (key === 'loginPw') {
-    checkResult.value = '';
+  if (key === "loginPw") {
+    checkResult.value = "";
   }
 }
 
@@ -269,41 +290,82 @@ const showModal = (message) => {
   if (alertModal) {
     alertModal.show();
   }
-
-  // const modalButton = document.querySelector(".modal-footer .btn");
-  // if (modalButton) {
-  //   modalButton.style.backgroundColor = "#FF6666";
-  //   modalButton.style.color = "#fff";
-  // }
 };
 
 const isPasswordChecked = ref(false); // 비밀번호 확인 여부
-
 </script>
 
 <template>
   <div class="box">
     <div>
-      <div>정보 수정</div>
+      <h2>정보 수정</h2>
       <div class="solid"></div>
 
       <div class="container">
         <form class="information-form" @submit.prevent="submitForm">
           <div class="form-group">
+            <!-- 프로필 사진 수정 버튼 -->
+            <div class="user">
+              <!-- 이미지 미리보기 -->
+              <img class="userImg" :src="previewUrl || '/src/imgs/userImg.png'" />
+
+              <!-- 실제 파일 업로드 input (숨김 처리) -->
+              <input
+                type="file"
+                ref="fileInput"
+                accept="image/*"
+                style="display: none"
+                @change="onFileChange"
+              />
+
+              <!-- 버튼 클릭 시 input 클릭 -->
+              <button type="button" @click="triggerFileInput">프로필 사진 수정</button>
+            </div>
             <!-- 아이디 비활성화 -->
-            <span>*</span>
             <label> 아이디</label>
-            <input type="text" class="form-input" :value="state.form.loginId" placeholder="" readonly />
+            <input
+              type="text"
+              class="form-input"
+              :value="state.form.loginId"
+              placeholder=""
+              readonly
+            />
+          </div>
+          <div class="sevLine"></div>
+
+          <!-- 일반 회원 이름 -->
+          <div class="form-group">
+            <label> 이름</label>
+            <input type="text" class="form-input" v-model="state.form.name" />
+          </div>
+          <div class="sevLine"></div>
+
+          <!-- 닉네임 -->
+          <div class="form-group">
+            <label> 닉네임</label>
+            <input
+              type="text"
+              class="form-input"
+              v-model="state.form.name"
+              placeholder="김아무아무개"
+            />
           </div>
           <div class="sevLine"></div>
 
           <!-- 현재 비밀번호 -->
           <div class="form-group">
-            <span>*</span>
             <label>현재 비밀번호</label>
-            <input type="password" class="form-input" v-model="state.form.loginPw" placeholder="현재 비밀번호를 입력해주세요."
-              :class="{ error: errors.loginPw }" @input="clearError('loginPw')" />
-            <button class="password" @click.prevent="checkCorrectPassword()">비밀번호 확인</button>
+            <input
+              type="password"
+              class="form-input"
+              v-model="state.form.loginPw"
+              placeholder="현재 비밀번호를 입력해주세요."
+              :class="{ error: errors.loginPw }"
+              @input="clearError('loginPw')"
+            />
+            <button class="password" @click.prevent="checkCorrectPassword()">
+              비밀번호 확인
+            </button>
             <p v-if="errors.loginPw" class="error-msg">{{ errors.loginPw }}</p>
             <p v-else-if="checkResult" class="success-msg">{{ checkResult }}</p>
           </div>
@@ -311,50 +373,24 @@ const isPasswordChecked = ref(false); // 비밀번호 확인 여부
 
           <!-- 새 비밀번호 -->
           <div class="form-group">
-            <span>*</span>
             <label>새 비밀번호</label>
-            <input type="password" class="form-input" v-model="confirmPw" placeholder="비밀번호는 영문, 숫자, 특수문자 포함 8~16자"
-              :class="{ error: errors.confirmPw }" @input="clearError('confirmPw')" />
+            <input
+              type="password"
+              class="form-input"
+              v-model="confirmPw"
+              placeholder="비밀번호는 영문, 숫자, 특수문자 포함 8~16자"
+              :class="{ error: errors.confirmPw }"
+              @input="clearError('confirmPw')"
+            />
             <p v-if="errors.confirmPw" class="error-msg">
               {{ errors.confirmPw }}
             </p>
           </div>
           <div class="sevLine"></div>
 
-          <!-- 일반 회원 -->
-          <div class="form-group">
-            <span>*</span>
-            <label> 이름</label>
-            <input type="text" class="form-input" v-model="state.form.name" />
-          </div>
-          <div class="sevLine"></div>
-
-          <!-- 주소 -->
-          <div class="form-group address-group">
-            <label> <span class="font-add">* </span> 주소 </label>
-            <div class="address-fields">
-              <!-- 우편번호 + 주소검색 버튼 -->
-              <div class="address-row">
-                <input type="text" placeholder="우편번호" v-model="state.form.postcode" readonly />
-                <button type="button" @click="addressSearch()">주소검색</button>
-              </div>
-
-              <!-- 기본주소 단독 줄 -->
-              <div class="address-input-row">
-                <input type="text" placeholder="기본주소" v-model="state.form.address" readonly />
-              </div>
-
-              <!-- 상세주소 단독 줄 -->
-              <div class="address-input-row">
-                <input type="text" placeholder="상세주소 (선택입력가능)" v-model="state.form.addressDetail" />
-              </div>
-            </div>
-          </div>
-          <div class="sevLine"></div>
-
           <!-- 휴대전화 -->
           <div class="form-group phone-input-wrap">
-            <label> <span class="font-num">*</span> 휴대전화 </label>
+            <label> 전화번호 </label>
             <div class="phone-input">
               <select v-model="phone1">
                 <option>010</option>
@@ -363,10 +399,24 @@ const isPasswordChecked = ref(false); // 비밀번호 확인 여부
                 <option>018</option>
                 <option>019</option>
               </select>
-              <input type="text" v-model="phone2" maxlength="4" @input="handlePhoneInput(phone2, 'phone')"
-                @keydown="onPhoneKeydown($event)" :class="{ error: errors.phone }" ref="phone2Input" />
-              <input type="text" v-model="phone3" maxlength="4" @input="handlePhoneInput(phone3, 'phone')"
-                @keydown="onPhoneKeydown($event)" :class="{ error: errors.phone }" ref="phone3Input" />
+              <input
+                type="text"
+                v-model="phone2"
+                maxlength="4"
+                @input="handlePhoneInput(phone2, 'phone')"
+                @keydown="onPhoneKeydown($event)"
+                :class="{ error: errors.phone }"
+                ref="phone2Input"
+              />
+              <input
+                type="text"
+                v-model="phone3"
+                maxlength="4"
+                @input="handlePhoneInput(phone3, 'phone')"
+                @keydown="onPhoneKeydown($event)"
+                :class="{ error: errors.phone }"
+                ref="phone3Input"
+              />
             </div>
             <div class="phone-error-wrapper" v-if="errors.phone">
               <p class="error-msg">{{ errors.phone }}</p>
@@ -374,13 +424,17 @@ const isPasswordChecked = ref(false); // 비밀번호 확인 여부
           </div>
           <div class="sevLine"></div>
 
-
           <!-- 이메일 -->
           <div class="form-group">
-            <span>*</span>
             <label> 이메일</label>
-            <input type="email" class="form-input" v-model="state.form.email" placeholder="반드시 사용 중인 메일을 @ 형식으로 입력하세요."
-              @input="clearError('email')" :class="{ error: errors.email }" />
+            <input
+              type="email"
+              class="form-input"
+              v-model="state.form.email"
+              placeholder="반드시 사용 중인 메일을 @ 형식으로 입력하세요."
+              @input="clearError('email')"
+              :class="{ error: errors.email }"
+            />
           </div>
           <p v-if="errors.email" class="error-msg">{{ errors.email }}</p>
           <div class="sevLine"></div>
@@ -402,9 +456,7 @@ const isPasswordChecked = ref(false); // 비밀번호 확인 여부
         </div>
         <div class="modal-body" id="alertModalBody">내용</div>
         <div class="modal-footer">
-          <button type="button" class="btn" data-bs-dismiss="modal">
-            확인
-          </button>
+          <button type="button" class="btn" data-bs-dismiss="modal">확인</button>
         </div>
       </div>
     </div>
@@ -415,7 +467,8 @@ const isPasswordChecked = ref(false); // 비밀번호 확인 여부
 @font-face {
   // 주아체
   font-family: "BMJUA";
-  src: url("https://fastly.jsdelivr.net/gh/projectnoonnu/noonfonts_one@1.0/BMJUA.woff") format("woff");
+  src: url("https://fastly.jsdelivr.net/gh/projectnoonnu/noonfonts_one@1.0/BMJUA.woff")
+    format("woff");
   font-weight: normal;
   font-style: normal;
 }
@@ -423,14 +476,10 @@ const isPasswordChecked = ref(false); // 비밀번호 확인 여부
 @font-face {
   // 프리텐다드
   font-family: "Pretendard-Regular";
-  src: url("https://fastly.jsdelivr.net/gh/Project-Noonnu/noonfonts_2107@1.1/Pretendard-Regular.woff") format("woff");
+  src: url("https://fastly.jsdelivr.net/gh/Project-Noonnu/noonfonts_2107@1.1/Pretendard-Regular.woff")
+    format("woff");
   font-weight: 400;
   font-style: normal;
-}
-
-span {
-  color: #ff6666;
-  margin-left: 40px;
 }
 
 // input선택시
@@ -445,13 +494,15 @@ input:focus {
   font-family: "BMJUA";
   font-size: 25px;
   letter-spacing: -1.5px;
-
+  h2 {
+    text-align: center;
+  }
   .solid {
     // 정보 수정 메인 선
     width: 1110px;
     border: 1px #000 solid;
-    margin-top: 15px;
-    margin-bottom: 20px;
+    margin-top: 50px;
+    margin-bottom: 55px;
   }
 }
 
@@ -469,6 +520,34 @@ input:focus {
   .join-form {
     display: flex;
     flex-direction: column;
+  }
+}
+// 프로필
+.user {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  .userImg {
+    width: 250px;
+    height: 250px;
+    object-fit: cover;
+    border-radius: 10px;
+    margin-bottom: 35px;
+  }
+  // 프로필 사진 수정 버튼
+  button {
+    width: 250px;
+    height: 40px;
+    margin-bottom: 50px;
+    background-color: #fff;
+    border: 1px solid #ff6666;
+    border-radius: 8px;
+    color: #ff6666;
+    cursor: pointer;
+
+    &:hover {
+      background-color: #ffe5e5;
+    }
   }
 }
 
@@ -522,7 +601,7 @@ input[type="email"] {
   }
 
   button.password {
-    width: 120px;
+    width: 130px;
     height: 50px;
     margin-left: 10px;
     background-color: #fff;
@@ -537,7 +616,7 @@ input[type="email"] {
   }
 }
 
-.form-group:not(.address-group):not(.phone-input-wrap):not(.agreement):not( :has(.radio-group)) {
+.form-group:not(.address-group):not(.phone-input-wrap):not(.agreement):not(:has(.radio-group)) {
   display: block;
   margin-top: 1rem;
 
@@ -567,72 +646,6 @@ input[type="email"] {
   margin-right: 47px;
 }
 
-// 주소 입력 영역 정렬 (주소, 상세주소)
-.address-group {
-  display: flex;
-  align-items: flex-start; // ← label은 위 정렬
-  gap: 1.5rem;
-
-  // 라벨은 왼쪽에 고정된 너비로
-  label {
-    width: 150px;
-    font-size: 16px;
-    padding-top: 23px; // 위에 살짝 띄워 정렬
-  }
-
-  // 오른쪽 전체 주소 input 그룹
-  .address-fields {
-    display: flex;
-    flex-direction: column;
-    gap: 0.8rem;
-    margin-left: 50px;
-
-    // 1줄: 우편번호 + 주소검색
-    .address-row {
-      display: flex;
-      gap: 0.5rem;
-      margin-left: 80px; // 중앙정렬
-
-      input[type="text"] {
-        margin-top: 1rem;
-        width: 390px;
-        height: 45px;
-        padding: 0 1rem;
-        font-size: 16px;
-        border: 1px solid #ccc;
-        border-radius: 8px;
-      }
-
-      // 주소검색 버튼
-      button {
-        margin-top: 1rem;
-        width: 90px;
-        height: 45px;
-        background-color: #fff;
-        border: 1px solid #ff6666;
-        border-radius: 8px;
-        color: #ff6666;
-        cursor: pointer;
-
-        &:hover {
-          background-color: #ffe5e5;
-        }
-      }
-    }
-
-    // 2~3줄: 기본주소 / 상세주소
-    .address-input-row input[type="text"] {
-      margin-left: 80px; // 중앙정렬
-      width: 495px;
-      height: 45px;
-      padding: 0 1rem;
-      font-size: 16px;
-      border: 1px solid #ccc;
-      border-radius: 8px;
-    }
-  }
-}
-
 .font-num {
   margin-left: -10px;
   margin-right: 47px;
@@ -648,7 +661,7 @@ input[type="email"] {
     max-width: 495px;
     gap: 10px;
     align-items: center;
-    margin-left: 155px;
+    margin-left: 105px;
 
     select {
       margin-top: 1rem;

@@ -77,8 +77,42 @@ const validateBusinessNumber = () => {
 <template>
     <div class="owner-form">
 
-        <!-- 대표자 이름 -->
+        <!-- 기본 정보 (아이디/비밀번호는 공용) -->
+        <label class="serveTitle">가게정보</label>
+        <div class="titleLine"></div>
+        
+        <!-- 사업자 등록번호 -->
+        <div class="owner-upload owner-form">
+            <div class="sortation">
+                <span>*</span>
+                <p>사업자 등록번호</p>
+            </div>
+            <div class="upload-row owner-sigin">
+                <input type="text" v-model="owner.businessNumber" @input="() => (errors.businessNumber = '')"
+                    @blur="validateBusinessNumber" :class="{ invalid: errors.businessNumber }" />
+                <button type="button">등록</button>
+                <div class="owner-upload-num">
+                    <p v-if="errors.businessNumber" class="error-msg owner-up">
+                        {{ errors.businessNumber }}
+                    </p>
+                </div>
+            </div>
+        </div>
+        <div class="sevLine"></div>
+
+        <!-- 개업년월일 -->
         <div class="form-group">
+            <div class="sortation">
+                <span>*</span>
+                <p>개업 년 월일</p>
+            </div>
+            <input type="text" :value="form.name" placeholder="ex) 2025.09.01" @input="e => updateField('name', e.target.value)"
+                @focus="() => clearError('name')" />
+        </div>
+        <div class="sevLine"></div>
+
+                <!-- 대표자 이름 -->
+                <div class="form-group">
             <div class="sortation">
                 <span>*</span>
                 <p>대표자 이름</p>
@@ -87,7 +121,7 @@ const validateBusinessNumber = () => {
                 @focus="() => clearError('name')" />
         </div>
         <div class="sevLine"></div>
-        
+
         <!-- 가게 주소 부분 -->
         <div class="form-group address-group">
             <div class="sortation">
@@ -148,66 +182,6 @@ const validateBusinessNumber = () => {
         </div>
         <div class="sevLine"></div>
 
-        <!-- 가게 상호명 및 카테고리 -->
-        <div class="form-group phone-input-wrap">
-            <div class="sortation">
-                <span>*</span>
-                <p>가게 상호명 및 카테고리</p>
-            </div>
-            <div class="category-name">
-                <div class="phone-input">
-                    <input type="text" v-model="owner.name" @input="() => (errors.ownerName = '')" />
-                    <select v-model="owner.category">
-                        <option>카테고리</option>
-                        <option>한식</option>
-                        <option>일식</option>
-                        <option>중식</option>
-                        <option>양식</option>
-                        <option>아시안</option>
-                        <option>분식</option>
-                        <option>카페</option>
-                        <option>패스트푸드</option>
-                        <option>치킨</option>
-                        <option>피자</option>
-                        <option>야식</option>
-                    </select>
-                </div>
-            </div>
-        </div>
-        <div class="sevLine"></div>
-
-        <!-- 사업자 등록번호 -->
-        <div class="owner-upload owner-form">
-            <div class="sortation">
-                <span>*</span>
-                <p>사업자 등록번호</p>
-            </div>
-            <div class="upload-row owner-sigin">
-                <input type="text" v-model="owner.businessNumber" @input="() => (errors.businessNumber = '')"
-                    @blur="validateBusinessNumber" :class="{ invalid: errors.businessNumber }" />
-                <!-- <button type="button">조회</button>
-                <div class="owner-upload-num">
-                    <p v-if="errors.businessNumber" class="error-msg owner-up">
-                        {{ errors.businessNumber }}
-                    </p>
-                </div> -->
-            </div>
-        </div>
-        <div class="sevLine"></div>
-
-        <!-- 이메일 -->
-        <div class="form-group">
-            <div class="sortation">
-                <span>*</span>
-                <p>이메일</p>
-            </div>
-            <input :value="form.email" @input="e => updateField('email', e.target.value)"
-                @focus="() => clearError('email')" :class="{ invalid: errors.email }"
-                placeholder="example@example.com" />
-            <p class="error-msg" v-if="errors.email">{{ errors.email }}</p>
-        </div>
-        <div class="sevLine"></div>
-
         <!-- 전화번호 -->
         <div class="form-group">
             <div class="sortation">
@@ -244,6 +218,34 @@ const validateBusinessNumber = () => {
             </div>
         </div>
         <div class="sevLine"></div>
+
+                <!-- 가게 상호명 및 카테고리 -->
+                <div class="form-group phone-input-wrap">
+            <div class="sortation">
+                <span>*</span>
+                <p>가게 상호명 및 카테고리</p>
+            </div>
+            <div class="category-name">
+                <div class="phone-input">
+                    <input type="text" v-model="owner.name" placeholder="가게 상호명" @input="() => (errors.ownerName = '')" />
+                    <select v-model="owner.category">
+                        <option>카테고리</option>
+                        <option>한식</option>
+                        <option>일식</option>
+                        <option>중식</option>
+                        <option>양식</option>
+                        <option>아시안</option>
+                        <option>분식</option>
+                        <option>카페</option>
+                        <option>패스트푸드</option>
+                        <option>치킨</option>
+                        <option>피자</option>
+                        <option>야식</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+        <div class="sevLine"></div>
     </div>
 </template>
 
@@ -262,12 +264,28 @@ strong {
     letter-spacing: 1px;
 }
 
+// 메인 구분 선 
+.titleLine {
+    width: 1130px;
+    border-bottom: 3px solid #7d7d7d;
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
+
 // 구분 선
 .sevLine {
     width: 1130px;
     border-bottom: 0.5px solid #c8c8c8;
     margin-top: 10px;
     margin-bottom: 10px;
+}
+
+// 섹션 제목 라벨
+label.serveTitle {
+    font-size: 20px !important;
+    font-weight: 600 !important;
+    margin-left: 10px;
+    margin-top: 70px;
 }
 
 // 구분 글씨

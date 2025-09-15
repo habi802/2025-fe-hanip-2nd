@@ -29,6 +29,14 @@ const router = createRouter({
       meta: { layout: CustomerLayout },
     },
     {
+      path: "/address",
+      component: () => import("@/views/customer/Address.vue"),
+    },
+    {
+      path: "/check",
+      component: () => import("@/views/customer/check.vue"),
+    },
+    {
       path: "/my-page",
       component: () => import("@/views/customer/Mypage.vue"),
       meta: { layout: CustomerLayout },
@@ -37,6 +45,10 @@ const router = createRouter({
       path: "/categoryList",
       component: () => import("@/views/customer/Category.vue"),
       meta: { layout: CustomerLayout },
+    },
+    {
+      path: "/contact",
+      component: () => import("@/views/customer/Contact.vue"),
     },
     {
       path: "/stores/:id",
