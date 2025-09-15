@@ -103,11 +103,11 @@ onMounted(() => {
         <h1 class="title">로그인</h1>
 
         <!-- 회원 구분 -->
-        <!-- <div class="radio-group">
+        <div class="radio-group">
           <label id="radio"><input type="radio" class="circle" name="memberType" value="customer"
               v-model="memberType" /> 일반</label>
           <label><input type="radio" class="circle" name="memberType" value="owner" v-model="memberType" /> 업주</label>
-        </div> -->
+        </div>
 
         <div class="form-floating">
           <input type="text" id="loginId" placeholder="아이디 (영문, 숫자 4~16자)" v-model="state.form.loginId" />
@@ -123,14 +123,13 @@ onMounted(() => {
         <div class="options">
           <label><input type="checkbox" class="circle" /> 아이디 저장</label>
           <div class="links">
-            <a href="#">아이디 찾기</a><span>|</span><a href="#">비밀번호 찾기</a>
+            <a class="join" @click="router.push('/join')">회원가입</a>
           </div>
         </div>
 
         <button type="submit" class="btn login-btn">로그인</button>
-        <button type="button" class="btn signup-btn" @click="router.push('/join')">
-          회원가입
-        </button>
+        <button type="submit" class="btn naver-btn">네이버 로그인</button>
+        <button type="submit" class="btn kakao-btn">카카오 로그인</button>
       </form>
     </div>
   </div>
@@ -316,7 +315,7 @@ onMounted(() => {
           gap: 0.4rem;
 
           a {
-            color: #000;
+            color: #ff6666;
             text-decoration: none;
             font-weight: 100;
 
@@ -341,27 +340,29 @@ onMounted(() => {
       }
 
       .login-btn {
-        background-color: #ff6666;
-        ;
-        color: white;
-        border: none;
-
-        &:hover {
-          background-color: darken(#ff6666, 5%);
-        }
-      }
-
-      .signup-btn {
         background-color: white;
         color: #ff6666;
-        ;
         border: 1px solid #ff6666;
 
         &:hover {
           background-color: #ffe5e5;
         }
+      }
+      .naver-btn {
+        background-color:#3FC754;
+        color: #fff;
 
-        margin-bottom: 15rem;
+        &:hover {
+          background-color: darken(#3FC754, 5%);
+        }
+      }
+      .kakao-btn {
+        background-color: #ffea00;
+        color: #000;
+
+        &:hover {
+          background-color: darken(#FBE400, 3%);
+        }
       }
     }
   }

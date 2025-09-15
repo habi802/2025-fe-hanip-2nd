@@ -7,6 +7,7 @@ import { logout } from "@/services/userService";
 import { getOrder } from "@/services/storeService";
 import Menu from "@/components/customer/Menu.vue";
 import AlertModal from "../modal/AlertModal.vue";
+import CartModal from "../modal/CartModal.vue";
 
 const router = useRouter();
 
@@ -45,10 +46,15 @@ const signOut = async () => {
 //const totalPrice = ref(0);
 
 const alertModalRef = ref(null);
+const cartModalRef = ref(null);
 
 // 모달 표시하는 함수
 const showModal = message => {
     alertModalRef.value.open(message);
+};
+// 모달 표시하는 함수
+const showCart = message => {
+    cartModalRef.value.open(message);
 };
 
 // 로그인한 유저 주소에 따라 주소를 표시하는 함수
@@ -106,7 +112,7 @@ watch(
             <template v-else>
                 <img class="menu-image me-4" src="/src/imgs/faivor.png" @click="router.push({ path: '/favorites' })" alt="찜목록" />
                 <img class="menu-image me-4" src="/src/imgs/orders.png" @click="router.push({ path: '/orders' })" alt="주문내역" />
-                <img class="menu-image me-4" src="/src/imgs/shoop.png" @click="router.push({ path: '/cart' })" alt="장바구니" />
+                <img class="menu-image me-4" src="/src/imgs/shoop.png" @click="showCart()" alt="장바구니" />
                 <span class="menu-text me-3" @click="signOut">로그아웃</span>
                 <span class="menu-text me-3">|</span>
                 <router-link class="menu-text" to="/my-page">마이페이지</router-link>
@@ -198,6 +204,7 @@ watch(
 
     <!-- 모달 -->
     <AlertModal ref="alertModalRef" />
+    <CartModal ref="cartModalRef" />
 </template>
 
 <style lang="scss" scoped>
