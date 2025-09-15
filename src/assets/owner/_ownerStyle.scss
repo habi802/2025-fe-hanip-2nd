@@ -195,10 +195,10 @@
     background-color: #fff;
     display: inline-block;
     width: auto;
-    padding: 5px 15px;
+    padding: 10px 20px;
     color: var(--grey2);
     border: 1px solid var(--grey2);
-    border-radius: --card-small-radius;
+    border-radius: var(--card-small-radius);
     cursor: pointer;
     transition: background-color 0.2s ease, color 0.2s ease;
     &:hover {
@@ -214,10 +214,8 @@
   display: flex;
   align-items: center;
   gap: 10px;
-  font-weight: bold;
   color: #403f57;
   margin: 10px 0;
-  font-size: 17px;
 }
 
 .switch {
@@ -258,7 +256,20 @@
   border-radius: 50%;
 }
 
+.submenu-btn{
+  background: #fff;
+  padding:10px 40px 0;
+  border: none;
+  border-radius: var(--card-small-radius) var(--card-small-radius) 0 0 ;
+  font-size: var(--card-font-size-lg);
+}
 
+.submenu-active{
+  color: var(--primary);
+}
+.submenu-none{
+  color: var(--grey2);
+}
 
 
 //삭제된 css (혹시모르니 보관용)
