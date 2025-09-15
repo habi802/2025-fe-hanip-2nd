@@ -1,7 +1,7 @@
 <script setup>
 import { reactive, ref, computed, onMounted, watch } from "vue";
 import { useRouter } from "vue-router";
-import { storeToRefs } from 'pinia';
+import { storeToRefs } from "pinia";
 import { useUserInfo, useAccountStore } from "@/stores/account";
 import { logout } from "@/services/userService";
 import { getOrder } from "@/services/storeService";
@@ -13,10 +13,10 @@ const router = useRouter();
 
 // 유저 정보
 const account = useAccountStore();
-const userInfo = useUserInfo()
+const userInfo = useUserInfo();
 
 const state = reactive({
-    user: Object
+  user: Object,
 });
 
 // 주문하기로 이동하는 함수
@@ -35,9 +35,9 @@ const state = reactive({
 
 // 로그아웃
 const signOut = async () => {
-    const res = await logout();
-    account.setLoggedIn(false);
-    router.push({ path: '/' });
+  const res = await logout();
+  account.setLoggedIn(false);
+  router.push({ path: "/" });
 };
 
 // 주문 내역 페이지 on off
@@ -49,12 +49,12 @@ const alertModalRef = ref(null);
 const cartModalRef = ref(null);
 
 // 모달 표시하는 함수
-const showModal = message => {
-    alertModalRef.value.open(message);
+const showModal = (message) => {
+  alertModalRef.value.open(message);
 };
 // 모달 표시하는 함수
-const showCart = message => {
-    cartModalRef.value.open(message);
+const showCart = (message) => {
+  cartModalRef.value.open(message);
 };
 
 // 로그인한 유저 주소에 따라 주소를 표시하는 함수
@@ -66,61 +66,101 @@ const { userAddr } = storeToRefs(userInfo);
 
 // 유저 정보 불러오기 비동기 실행
 onMounted(async () => {
-    if (account.state.loggedIn) {
-        userInfo.fetchStore();
-    }
+  if (account.state.loggedIn) {
+    userInfo.fetchStore();
+  }
 });
 
 // 로그인 상태가 바뀌면 fetchStore 실행
 watch(
-    () => account.state.loggedIn,
-    (val) => {
-        if (val) {
-            userInfo.fetchStore();
-        }
+  () => account.state.loggedIn,
+  (val) => {
+    if (val) {
+      userInfo.fetchStore();
     }
+  }
 );
+// 주소창 이동
+const goToAddress = () => {
+  if (account.state.loggedIn) {
+    router.push("/address");
+  } else {
+    showModal("로그인 후 이용 가능합니다.");
+  }
+};
 </script>
 
 <template>
-    <b-container class="d-flex align-items-center justify-content-between h-100">
-        <!-- (왼쪽) 로고 -->
-        <div>
-            <img class="logo-image" src="/src/imgs/hanipLogogroup.png" @click="router.push({ path: '/' })" />
-        </div>
+  <b-container class="d-flex align-items-center justify-content-between h-100">
+    <!-- (왼쪽) 로고 -->
+    <div>
+      <img
+        class="logo-image"
+        src="/src/imgs/hanipLogogroup.png"
+        @click="router.push({ path: '/' })"
+      />
+    </div>
 
-        <!-- (가운데) 주소 -->
-        <div class="mx-auto flex-grow-1 text-center">
-            <img class="address-image" src="/src/imgs/weui_location-filled.png" />
-            <span class="address-text ms-3">
-                주소를 입력해주세요
-            </span>
-        </div>
+    <!-- (가운데) 주소 -->
+    <div
+      class="mx-auto flex-grow-1 text-center"
+      @click="goToAddress"
+      style="cursor: pointer"
+    >
+      <img class="address-image" src="/src/imgs/weui_location-filled.png" />
+      <span class="address-text ms-3">
+        {{
+          account.state.loggedIn
+            ? userAddr || "주소를 입력해주세요"
+            : "주소를 입력해주세요"
+        }}
+      </span>
+    </div>
 
-        <!-- (오른쪽) 메뉴 -->
-        <div>
-            <!-- 비로그인 시 메뉴 -->
-            <template v-if="!account.state.loggedIn">
-                <!-- 여러 개의 요소에 같은 스타일 줄 거면 id로 하지 말고 class로 할것 -->
-                <img class="menu-image me-4" src="/src/imgs/shoop.png" @click="showModal('로그인 후 이용 가능합니다.')" alt="장바구니" />
-                <router-link class="menu-text me-3" to="/login">로그인</router-link>
-                <span class="menu-text me-3">|</span>
-                <router-link class="menu-text" to="/join">회원가입</router-link>
-            </template>
+    <!-- (오른쪽) 메뉴 -->
+    <div>
+      <!-- 비로그인 시 메뉴 -->
+      <template v-if="!account.state.loggedIn">
+        <!-- 여러 개의 요소에 같은 스타일 줄 거면 id로 하지 말고 class로 할것 -->
+        <img
+          class="menu-image me-4"
+          src="/src/imgs/shoop.png"
+          @click="showModal('로그인 후 이용 가능합니다.')"
+          alt="장바구니"
+        />
+        <router-link class="menu-text me-3" to="/login">로그인</router-link>
+        <span class="menu-text me-3">|</span>
+        <router-link class="menu-text" to="/join">회원가입</router-link>
+      </template>
 
-            <!-- 로그인 시 메뉴 -->
-            <template v-else>
-                <img class="menu-image me-4" src="/src/imgs/faivor.png" @click="router.push({ path: '/favorites' })" alt="찜목록" />
-                <img class="menu-image me-4" src="/src/imgs/orders.png" @click="router.push({ path: '/orders' })" alt="주문내역" />
-                <img class="menu-image me-4" src="/src/imgs/shoop.png" @click="showCart()" alt="장바구니" />
-                <span class="menu-text me-3" @click="signOut">로그아웃</span>
-                <span class="menu-text me-3">|</span>
-                <router-link class="menu-text" to="/my-page">마이페이지</router-link>
-            </template>
-        </div>
-    </b-container>
+      <!-- 로그인 시 메뉴 -->
+      <template v-else>
+        <img
+          class="menu-image me-4"
+          src="/src/imgs/faivor.png"
+          @click="router.push({ path: '/favorites' })"
+          alt="찜목록"
+        />
+        <img
+          class="menu-image me-4"
+          src="/src/imgs/orders.png"
+          @click="router.push({ path: '/orders' })"
+          alt="주문내역"
+        />
+        <img
+          class="menu-image me-4"
+          src="/src/imgs/shoop.png"
+          @click="showCart()"
+          alt="장바구니"
+        />
+        <span class="menu-text me-3" @click="signOut">로그아웃</span>
+        <span class="menu-text me-3">|</span>
+        <router-link class="menu-text" to="/check">마이페이지</router-link>
+      </template>
+    </div>
+  </b-container>
 
-    <!-- <div class="navbar">
+  <!-- <div class="navbar">
         <div class="naverBox">
             <div class="logoBox">
                 <img @click="homeRouter" class="logo" src="/src/imgs/hanipLogogroup.png" />
@@ -202,9 +242,9 @@ watch(
         </div>
     </div> -->
 
-    <!-- 모달 -->
-    <AlertModal ref="alertModalRef" />
-    <CartModal ref="cartModalRef" />
+  <!-- 모달 -->
+  <AlertModal ref="alertModalRef" />
+  <CartModal ref="cartModalRef" />
 </template>
 
 <style lang="scss" scoped>
@@ -266,10 +306,10 @@ watch(
 // }
 
 .logo-image {
-    width: 190px;
-    height: 38px;
-    object-fit: contain;
-    cursor: pointer;
+  width: 190px;
+  height: 38px;
+  object-fit: contain;
+  cursor: pointer;
 }
 
 // .menus {
@@ -291,28 +331,28 @@ watch(
 // }
 
 .address-image {
-    width: 20px;
+  width: 20px;
 }
 
 .address-text {
-    color: #fdbdbd;
-    font-size: 16px;
-    font-weight: 800;
+  color: #fdbdbd;
+  font-size: 16px;
+  font-weight: 800;
 }
 
 .menu-image {
-    cursor: pointer;
-    object-fit: contain;
-    width: 45px;
-    height: 40px;
+  cursor: pointer;
+  object-fit: contain;
+  width: 45px;
+  height: 40px;
 }
 
 .menu-text {
-    cursor: pointer;
-    text-decoration: none;
-    color: #ff6666;
-    font-size: 13px;
-    font-weight: 800;
+  cursor: pointer;
+  text-decoration: none;
+  color: #ff6666;
+  font-size: 13px;
+  font-weight: 800;
 }
 
 // @media (max-width: 1650px) {

@@ -424,8 +424,8 @@ const isPasswordChecked = ref(false); // 비밀번호 확인 여부
           </div>
           <div class="sevLine"></div>
 
-          <!-- 이메일 -->
-          <div class="form-group">
+          <!-- 이메일 영역 -->
+          <div class="form-group email-group">
             <label> 이메일</label>
             <input
               type="email"
@@ -436,8 +436,10 @@ const isPasswordChecked = ref(false); // 비밀번호 확인 여부
               :class="{ error: errors.email }"
             />
           </div>
-          <p v-if="errors.email" class="error-msg">{{ errors.email }}</p>
-          <div class="sevLine"></div>
+          <!-- 이메일 에러 전용 wrapper -->
+          <p v-if="errors.email" class="error-msg email-error">{{ errors.email }}</p>
+
+          <div class="lastLine"></div>
 
           <!-- 제출 버튼 -->
           <div class="form-submit">
@@ -511,7 +513,13 @@ input:focus {
   border-bottom: 0.5px solid #c8c8c8;
   width: 1110px;
 }
-
+// 서브 라인
+.lastLine {
+  border-bottom: 0.5px solid #c8c8c8;
+  width: 1110px;
+  margin-bottom: 10px;
+  margin-top: 15px;
+}
 .container {
   font-family: "Pretendard-Regular";
   font-size: 16px;
@@ -726,6 +734,11 @@ input[readonly] {
   font-size: 15px;
   font-weight: 600;
   transition: color 0.3s ease;
+}
+// 이메일 에러메세지
+.email-error {
+  margin-left: 360px;
+  margin-top: -5px;
 }
 
 // 성공 메세지
