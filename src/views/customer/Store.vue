@@ -13,6 +13,7 @@ import Review from "@/components/customer/Review.vue";
 import { useFavoriteStore } from "@/stores/favoriteStore";
 import defaultImage from '@/imgs/owner/owner-service3.png';
 import AlertModal from "@/components/modal/AlertModal.vue";
+import OptionModal from "@/components/modal/OptionModal.vue";
 
 
 
@@ -21,13 +22,21 @@ import lovet from '@/imgs/loveFull.png';
 import lovef from '@/imgs/loveBoard.png'
 
 // 모달 창 함수
-const alertModal = ref(null); 
+const alertModal = ref(null);
+
+const optionModal = ref(null);
+
+const openModal = () => {
+  // 모달을 참조하여 bootstrap Modal 인스턴스 생성
+  const modalElement = optionModal.value.$el;
+  const modal = new bootstrap.Modal(modalElement);
+  modal.show(); // 모달 띄우기
+};
 
 const favoriteStore = useFavoriteStore();
 
 const route = useRoute();
 const router = useRouter();
-
 const account = useAccountStore();
 const carts = useCartStore();
 
@@ -423,91 +432,137 @@ const arrow = () => {
 </script>
 
 <template>
+  <button @click="openModal">모달 열기</button>
+  <div class="storeImg">
+    <img class="big-img" :src="imgSrc" @error="e => e.target.src = defaultImage" />
+  </div>
   <div class="container">
-    <!-- 상단 컨테이너용 -->
-    <div class="top">
-      <div class="row">
-        <div id="store" class="col-12 col-md-8 p-3">
-          <div id="store-box" class="row border rounded-4 p-3 mb-3">
-            <div class="col-6 col-md-4 mb-4">
-              <div class="store-image border rounded h-100">
-                <div class="img-one">
-                  <!-- <img class="sImg" :src="imgSrc" @error="e => e.target.src = defaultImage" /> -->
-                  <img class="storeImg" :src="imgSrc" @error="e => e.target.src = defaultImage" />
-                </div>
-              </div>
-            </div>
-            <div class="col-6 col-md-4 mb-4">
-              <h3>{{ state.store.name }}</h3>
-              <p>최소 주문 금액 15,000원</p>
-              <p>배달료 0원 ~ 3,000원</p>
-              <span><img class="restar" src="/src/imgs/starBoard.png" /> {{ state.reviewNum !== 'NaN' ? state.reviewNum
-                : 0 }}({{ state.reviews.length }})
-                <img class="favorite" @click="toggleFavorite(state.store.id)"
-                  :src="state.store.favorite ? lovet : lovef" />
-                {{ state.storeInfo[0]?.favorites }}</span>
-            </div>
-            <div class="col-12 col-md-4 pt-4">
-              <div id="map" class="border rounded mb-2"></div>
-              <span class="addressText">{{ state.store.address }}</span>
-            </div>
-          </div>
 
-          <!-- 주문표 부분 -->
-          <div id="order" class="col-12 col-md-4 d-flex flex-column p-3">
-            <div class="row border rounded p-4 mb-2">
-              <div class="order-title">장바구니</div>
-              <div class="store-name">{{ state.store.name }}</div>
-              <div class="d-flex justify-content-between border-bottom pb-2 mb-2">
-                <div class="delete-order">
-                  <img class="removeImg" src="/src/imgs/remove.png" @click="deleteCart()" />
-                </div>
-              </div>
-              <div v-if="state.carts.length > 0">
-                <div v-for="(item, idx) in state.carts" :key="item.id">
-                  <div class="p-2" :class="{ 'border-top': idx !== 0 }">
-                    <div class="d-flex justify-content-between mb-2">
-                      <span>{{ item.name }}</span>
-                      <span>{{ (item.price * item.quantity).toLocaleString() }}원</span>
-                    </div>
-                    <div class="d-flex justify-content-between">
-                      <div>
-                        <button type="button" class="btn btn-basic btn-quantity" @click="decreaseQuantity(idx)">
-                          -
-                        </button>
-                        <span class="p-3">{{ item.quantity }}</span>
-                        <button type="button" class="btn btn-basic btn-quantity" @click="increaseQuantity(idx)">
-                          +
-                        </button>
-                      </div>
-                      <div>
-                        <button type="button" class="btn btn-basic btn-submit" @click="deleteItem(item.id)">
-                          메뉴 취소
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div v-else>메뉴를 선택해주세요.</div>
-              <div class="text-end border-top pt-2 mt-2">
-                {{ totalPrice.toLocaleString() }}원
+    <div class="store-title">
+      <div>
+        {{ state.store.name }}
+      </div>
+      <div class="title-box">
+        <div class="title-info">
+          <span>
+            <img class="restar" src="/src/imgs/starBoard.png" />
+          </span>
+          <span>
+            {{ isNaN(state.reviewNum) ? 0 : state.reviewNum }}
+          </span>
+          <span class="text-color review-length">( {{ state.reviews.length }} )</span>
+          <span>
+            <img class="favorite" @click="toggleFavorite(state.store.id)" :src="state.store.favorite ? lovet : lovef" />
+          </span>
+          <span>
+            {{ state.storeInfo[0]?.favorites }}
+          </span>
+        </div>
+      </div>
+
+      <!-- new title bottom -->
+      <div class="title-bottom-box">
+        <!-- 가게 맵이 뜨는 왼쪽 박스 -->
+        <div class="one-info-map">
+          <div id="map" class="map-box"></div>
+          <span class="address-text">{{ state.store.address }}</span>
+        </div>
+
+        <div class="two-info-store">
+          <!-- 중간의 가게 정보에 대한 박스 -->
+          <div class="store-info">
+            <div class="name">
+              <div class="text-color">상호명</div>
+              <div>{{ state.store.name }}</div>
+            </div>
+            <!-- 하드코딩 -->
+            <div class="open-time">
+              <div class="text-color">운영시간</div>
+              <div>09:00 ~ 21:00</div>
+            </div>
+            <div class="close-day">
+              <div class="text-color">휴무일</div>
+              <div>매주 목요일</div>
+            </div>
+            <div class="phone">
+              <div class="text-color">전화번호</div>
+              <div>000-0000-0000</div>
+            </div>
+            <div class="min-amount">
+              <div class="text-color">최소 주문 금액</div>
+              <div>10,000원 이상</div>
+            </div>
+            <!-- 가게 소개 -->
+            <div class="comment-title">
+              <div class="text-color">가게 소개</div>
+              <hr>
+              </hr>
+              <div class="comment">
+                안녕하심까 닭도리탕 하나는 기가맥히게 끓이는 그..네..뭐..네..입니다.
               </div>
             </div>
-            <button id="orderBtn" type="button" @click="toOrder()" class="btn btn-basic btn-submit">
-              주문하기
-            </button>
+            <div class="delivery-fee">
+              <div class="fee-text text-color">배달료</div>
+              <hr>
+              </hr>
+              <div class="amount">
+                <div class="text-color">
+                  기본
+                </div>
+                <div>
+                  3000원
+                </div>
+              </div>
+            </div>
           </div>
         </div>
 
+        <!-- 오른쪽 가게 정보 디테일 박스 -->
+        <div class="three-info-detail">
+          <div class="store-info-detail">
+            <div class="statistics">
+              <div class="text-color">
+                가계 통계
+              </div>
+              <hr>
+              </hr>
+              <div class="statistics-info">
+                <div>
+                  <!-- 주문 수 하드코딩 추가 바람 -->
+                  최근 주문 수 800+
+                </div>
+                <div> 전체 리뷰 수 {{ state.reviews.length }}</div>
+                <div>찜 {{ state.storeInfo[0]?.favorites }}</div>
+              </div>
+              <div class="event">
+                <div class="text-color">이벤트 알림</div>
+                <hr>
+                </hr>
+                <div class="event-text" style="white-space: pre-line;">
+                  *리뷰이벤트공지*
+                  리뷰 해주시면 음료수 서비스로 드려요~
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+
+
+    <!-- 상단 컨테이너용 -->
+    <div class="top">
+      <div class="row">
         <div class="button">
           <!-- 메뉴 보기 버튼  -->
-          <div :style="{ color: menubtn ? '#ff6666' : '#000' }" class="menu-title rounded pt-2 ps-3">
+          <div :style="{ color: menubtn ? '#ff6666' : '#CCCCCC' }" class="menu-title rounded pt-2 ps-3">
             <h3 @click="menubutton" class="mb-1">메뉴보기</h3>
           </div>
 
           <!-- 리뷰보기 버튼 -->
-          <div :style="{ color: reviewbtn ? '#ff6666' : '#000' }" class="review-title pt-2 ps-3">
+          <div :style="{ color: reviewbtn ? '#ff6666' : '#CCCCCC' }" class="review-title pt-2 ps-3">
             <h3 @click="reviewbutton" class="mb-1">리뷰보기</h3>
           </div>
         </div>
@@ -515,11 +570,20 @@ const arrow = () => {
         <!-- 중앙 정렬용 div -->
         <div class="bigBox">
           <div class="detailBox">
+
             <!-- 메뉴보기 리스트 -->
+            <!-- v-for 돌릴때 해당 구분 칸 같이 돌리기 -->
+            <div class="menu-division">
+              <div class="division-text">세트 메뉴</div>
+            </div>
+            <!--  -->
+
+
+
             <div v-if="menubtn" class="pt-2 mb-3">
               <div v-if="state.menus.length > 0">
                 <div v-for="item in state.menus" :key="item.id">
-                  <Menu :item="item" @addCart="addCart" />
+                  <Menu :item="item" @click="optionModal = true" />
                 </div>
               </div>
               <div v-else class="d-flex mt-5 justify-content-center align-items-center w-100"
@@ -590,6 +654,8 @@ const arrow = () => {
 
   <!--  공용 모달창 -->
   <alert-modal ref="alertModal"></alert-modal>
+  <OptionModal ref="optionModal"></OptionModal>
+
 </template>
 
 <style lang="scss" scoped>
@@ -599,6 +665,9 @@ const arrow = () => {
   font-weight: normal;
   font-style: normal;
 }
+
+
+
 
 .arrow {
   position: sticky;
@@ -636,15 +705,14 @@ const arrow = () => {
 .top {
   font-family: "BMJUA";
   font-size: 18px;
+  margin-top: 50px;
 }
 
 .container {
   margin-top: 70px;
+  width: 100%;
 }
 
-#map {
-  height: 180px;
-}
 
 .favorite {
   width: 20px;
@@ -676,7 +744,7 @@ const arrow = () => {
 
 .button {
   display: flex;
-  border-bottom: 2px solid #000;
+  border-bottom: 2px solid #797979;
   width: 1460px;
   gap: 56px;
   font-size: 30px;
@@ -721,6 +789,7 @@ const arrow = () => {
   display: flex;
   justify-content: space-between;
 }
+
 
 #store {
   width: 100%;
@@ -813,12 +882,13 @@ const arrow = () => {
 }
 
 .modal {
-  top: 40%;
   font-family: 'Pretendard-Regular';
   font-weight: 800;
+
 }
-.modal-title{
-    font-family: 'Pretendard-Regular';
+
+.modal-title {
+  font-family: 'Pretendard-Regular';
   font-weight: 800;
 }
 
@@ -846,15 +916,160 @@ const arrow = () => {
   margin-top: -15px;
 }
 
-.addressText {
-  text-align: center;
-  margin-left: 14px;
-}
 
 #orderBtn {
   margin-top: 20px;
   margin-left: -12px;
   font-size: 25px;
   width: 470px;
+}
+
+
+// 새로 만든 css 
+.big-img {
+  width: 100%;
+  height: 330px;
+}
+
+.store-title {
+  font-family: "BMJUA" !important;
+  font-size: 2.3em;
+  text-align: center;
+  margin-top: -20px;
+
+}
+
+.title-box {
+  display: flex;
+  justify-content: center;
+  font-size: 0.5em;
+}
+
+.title-info {
+  display: flex;
+  justify-content: space-between;
+  width: 150px;
+}
+
+.review-length {
+  margin-left: -10px;
+}
+
+// [title-bottom-box] 제목 하단 정보 박스
+.title-bottom-box {
+  font-family: 'Pretendard-Regular';
+  display: flex;
+  justify-content: space-between;
+  margin-top: 50px;
+}
+
+// [title-bottom-box] 왼쪽 박스
+.one-info-map {
+  width: 500px;
+  text-align: start;
+}
+
+.map-box {
+  height: 350px;
+  border: #797979 1px solid;
+  border-radius: 10px;
+}
+
+.address-text {
+  font-size: 0.5em;
+}
+
+// [title-bottom-box] 중간 박스
+.text-color {
+  color: #797979;
+}
+
+.two-info-store {
+  width: 300px;
+}
+
+.store-info {
+  font-size: 0.5em;
+}
+
+.name {
+  display: flex;
+  justify-content: space-between;
+  padding: 3px;
+}
+
+.open-time {
+  display: flex;
+  justify-content: space-between;
+  padding: 3px;
+}
+
+.close-day {
+  display: flex;
+  justify-content: space-between;
+  padding: 3px;
+}
+
+.phone {
+  display: flex;
+  justify-content: space-between;
+  padding: 3px;
+}
+
+.min-amount {
+  display: flex;
+  justify-content: space-between;
+  padding: 3px;
+}
+
+.comment-title {
+  text-align: start;
+  margin-top: 20px;
+  padding: 3px;
+}
+
+hr {
+  margin-top: 5px;
+}
+
+.comment {
+  margin-top: -10px;
+  text-align: start;
+}
+
+.fee-text {
+  text-align: start;
+  margin-top: 10px;
+}
+
+.amount {
+  display: flex;
+  justify-content: space-between;
+}
+
+// [title-bottom-box] 오른쪽 박스
+.store-info-detail {
+  width: 300px;
+  text-align: start;
+}
+
+.statistics {
+  font-size: 0.5em;
+}
+
+.event {
+  margin-top: 55px;
+}
+
+// [menu-division] 메뉴 구분 박스
+.menu-division {
+  border: #FF6666 1px solid;
+  border-radius: 10px;
+  padding: 10px 20px 10px 20px;
+}
+
+.division-text {
+  color: #FF6666;
+  font-size: 1.2em;
 }
 </style>
