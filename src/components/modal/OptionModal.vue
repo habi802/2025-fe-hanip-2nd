@@ -98,7 +98,7 @@
 
 
                 </div>
-                <div class="footer">
+                <div class="footer-btn">
                     <button type="button" class="hn-btn-white" data-bs-dismiss="modal">주문취소</button>
                     <button type="button" class="hn-btn-white">메뉴담기</button>
                 </div>
@@ -157,7 +157,7 @@ hr {
     margin-top: -15px;
 }
 
-.footer {
+.footer-btn {
     display: flex;
     justify-content: center;
 }
