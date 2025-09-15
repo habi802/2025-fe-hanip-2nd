@@ -1,6 +1,7 @@
 <script setup>
 import { ref, computed } from "vue";
-import { useRouter } from "vue-router";
+import { useRouter, useRoute } from "vue-router";
+import { watch } from "vue";
 
 // 부모로부터 items 전달
 defineProps({
@@ -9,9 +10,24 @@ defineProps({
     default: () => [],
   },
 });
+// 전체 카테고리 이동
+const router = useRouter();
+const route = useRoute(); //현재 라우터 위치확인용
+
+const goToCategoryList = () => {
+  router.push("/categoryList");
+};
 
 // 모달 표시 상태
 const isVisible = ref(false);
+
+// 페이지 이동시 모달창 자동꺼짐
+watch(
+  () => route.fullPath,
+  () => {
+    isVisible.value = false; // 페이지가 바뀌면 모달 끄기
+  }
+);
 
 // 총 합계 계산
 const totalPrice = computed(() =>
@@ -48,54 +64,57 @@ defineExpose({ open, close });
 </script>
 
 <template>
-    <div v-if="isVisible" class="modal-overlay" @click="close">    
-  <!-- 배경 overlay -->
-  <div v-if="isVisible" class="modal-wrapper" @click.stop>
-    <div class="modal-content">
-      <h3 class="modal-title">장바구니</h3>
+  <div v-if="isVisible" class="modal-overlay" @click="close">
+    <!-- 배경 overlay -->
+    <div v-if="isVisible" class="modal-wrapper" @click.stop>
+      <div class="modal-content">
+        <h3 class="modal-title">장바구니</h3>
 
-      <div v-if="items.length > 0" class="cart-container">
-        <div v-for="(item, idx) in items" :key="item.id" class="cart-item">
-          <div class="item-info">
-            <div class="item-name">{{ item.name }}</div>
-            <div class="item-controls">
-              <button @click="decreaseQty(item)">-</button>
-              <span class="quantity">{{ item.quantity }}</span>
-              <button @click="increaseQty(item)">+</button>
+        <div v-if="items.length > 0" class="cart-container">
+          <div v-for="(item, idx) in items" :key="item.id" class="cart-item">
+            <div class="item-info">
+              <div class="item-name">{{ item.name }}</div>
+              <div class="item-controls">
+                <button @click="decreaseQty(item)">-</button>
+                <span class="quantity">{{ item.quantity }}</span>
+                <button @click="increaseQty(item)">+</button>
+              </div>
+              <div class="item-price">
+                {{ (item.price * item.quantity).toLocaleString() }}원
+              </div>
             </div>
-            <div class="item-price">
-              {{ (item.price * item.quantity).toLocaleString() }}원
+            <hr v-if="idx !== items.length - 1" />
+          </div>
+
+          <div class="cart-total">
+            <span>총 합계</span>
+            <span>{{ totalPrice.toLocaleString() }}원</span>
+          </div>
+          <button type="submit" class="order-btn" onclick="location.href='/categoryList'">
+            음식 담으러 가기
+          </button>
+        </div>
+
+        <div v-else class="empty-cart">
+          <div class="cart-box">
+            <div class="cart-header">가게 명</div>
+
+            <div class="cart-body">
+              <p class="empty-text">장바구니에 담은 음식이 없습니다.</p>
+            </div>
+
+            <div class="cart-footer">
+              <span class="label">총 합계</span>
+              <span class="total">0원</span>
             </div>
           </div>
-          <hr v-if="idx !== items.length - 1" />
+          <button type="button" class="order-btn" @click="goToCategoryList">
+            음식 담으러 가기
+          </button>
         </div>
-
-        <div class="cart-total">
-          <span>총 합계</span>
-          <span>{{ totalPrice.toLocaleString() }}원</span>
-        </div>
-
-        <button type="button" class="order-btn">주문 변경 및 주문하기</button>
-      </div>
-
-      <div v-else class="empty-cart">
-        <div class="cart-box">
-          <div class="cart-header">도리신 닭도리탕</div>
-
-          <div class="cart-body">
-            <p class="empty-text">장바구니에 담은 음식이 없습니다.</p>
-          </div>
-
-          <div class="cart-footer">
-            <span class="label">총 합계</span>
-            <span class="total">0원</span>
-          </div>
-        </div>
-        <button type="submit" class="order-btn">음식 담으러 가기</button>
       </div>
     </div>
   </div>
-    </div>
 </template>
 
 <style lang="scss" scoped>
@@ -127,25 +146,25 @@ defineExpose({ open, close });
 
 // 헤더 오른쪽 아래 위치를 위한 모달
 .modal-wrapper {
-  position: absolute; 
-  top: 430px; 
+  position: absolute;
+  top: 430px;
   left: 80%;
   transform: translate(-50%, -50%);
   z-index: 1000; // overlay보다 높게
 
-  // 반응형 처리 
+  // 반응형 처리
   @media (max-width: 768px) {
-    position: fixed; 
-    top: 60px; 
+    position: fixed;
+    top: 60px;
     right: 10px;
     left: 10px;
     width: calc(100% - 20px);
   }
 }
 
-// 기존 modal-content 에만 일부 수정 
+// 기존 modal-content 에만 일부 수정
 .modal-content {
-    background: white;
+  background: white;
   padding: 20px;
   width: 500px;
   max-height: 1000px;
@@ -215,9 +234,9 @@ defineExpose({ open, close });
   margin-top: 15px;
   cursor: pointer;
 }
-// 빈 장바구니 
+// 빈 장바구니
 .empty-cart {
-    text-align: center;
+  text-align: center;
   font-size: 16px;
   padding: 20px 0;
 
@@ -233,7 +252,7 @@ defineExpose({ open, close });
       font-weight: 500;
       border-bottom: 1px solid #797979;
     }
-// 장바구니에 담은 음식이 없습니다.
+    // 장바구니에 담은 음식이 없습니다.
     .cart-body {
       min-height: 120px;
       display: flex;
@@ -247,7 +266,7 @@ defineExpose({ open, close });
         color: #969696;
       }
     }
-// 총 합계
+    // 총 합계
     .cart-footer {
       display: flex;
       justify-content: space-between;
@@ -269,7 +288,7 @@ defineExpose({ open, close });
     }
   }
 
-  .go-order-btn {
+  .order-btn {
     width: 100%;
     padding: 0.8rem;
     font-size: 14px;
