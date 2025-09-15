@@ -76,13 +76,6 @@ const toggleBusiness = async () => {
       <textarea class="gray-content" name="" id="" placeholder="최대 500자 이하 재료소진, 배달지연, 이벤트 안내 등 설정해보세요!"></textarea>
       
     </div>
-    <div class="btn-wrap">
-        <span>** 가게 정보 수정 시 내용을 꼭 확인해주세요.** </span>
-        <div class="button-row">
-          <button class="btn-cancle">취소</button>
-          <button class="hn-btn-white">저장하기</button>
-        </div>
-    </div>
   </div>
 </template>
 
@@ -96,29 +89,5 @@ const toggleBusiness = async () => {
     align-items: center;
   }
 }
-.btn-wrap {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 10px;
-  margin: 30px 0;
-  
-  span {
-    display: block;
-    text-align: center;
-    color: var(--primary);
-  }
 
-  .button-row {
-    display: flex;
-    gap: 20px;
-    justify-content: center;
-    width: 100%;
-  }
-
-  button {
-    width: 120px;
-    //flex: 0 0 auto; // 여기는 필요하면 살려놔도 돼.
-  }
-}
 </style>
