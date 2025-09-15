@@ -129,6 +129,7 @@
 .menu-comment {
     text-align: center;
     font-weight: 400;
+    margin-bottom: 40px;
 }
 
 .body {
@@ -163,7 +164,7 @@ hr {
 
 .hn-btn-white {
     margin: 20px;
-    padding: 10px 40px 10px 40px;
+    padding: 10px 40px 10px 40px !important;
 }
 
 

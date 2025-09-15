@@ -13,7 +13,6 @@ import Review from "@/components/customer/Review.vue";
 import { useFavoriteStore } from "@/stores/favoriteStore";
 import defaultImage from '@/imgs/owner/owner-service3.png';
 import AlertModal from "@/components/modal/AlertModal.vue";
-import OptionModal from "@/components/modal/OptionModal.vue";
 
 
 
@@ -24,14 +23,6 @@ import lovef from '@/imgs/loveBoard.png'
 // 모달 창 함수
 const alertModal = ref(null);
 
-const optionModal = ref(null);
-
-const openModal = () => {
-  // 모달을 참조하여 bootstrap Modal 인스턴스 생성
-  const modalElement = optionModal.value.$el;
-  const modal = new bootstrap.Modal(modalElement);
-  modal.show(); // 모달 띄우기
-};
 
 const favoriteStore = useFavoriteStore();
 
@@ -432,7 +423,6 @@ const arrow = () => {
 </script>
 
 <template>
-  <button @click="openModal">모달 열기</button>
   <div class="storeImg">
     <img class="big-img" :src="imgSrc" @error="e => e.target.src = defaultImage" />
   </div>
@@ -583,7 +573,7 @@ const arrow = () => {
             <div v-if="menubtn" class="pt-2 mb-3">
               <div v-if="state.menus.length > 0">
                 <div v-for="item in state.menus" :key="item.id">
-                  <Menu :item="item" @click="optionModal = true" />
+                  <Menu :item="item" />
                 </div>
               </div>
               <div v-else class="d-flex mt-5 justify-content-center align-items-center w-100"
@@ -654,7 +644,6 @@ const arrow = () => {
 
   <!--  공용 모달창 -->
   <alert-modal ref="alertModal"></alert-modal>
-  <OptionModal ref="optionModal"></OptionModal>
 
 </template>
 
