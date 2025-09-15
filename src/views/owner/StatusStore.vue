@@ -1,39 +1,51 @@
 <script setup>
-import { inject } from "vue";
+import { ref } from 'vue';
+import StoreStatusStaticInfo from '@/components/owner/StoreStatusStaticInfo.vue';
+import StoreStatusControl from '@/components/owner/StoreStatusControl.vue';
 
-const ownerName = inject("ownerName", "");
+const selected = ref('basic'); // 기본으로 '기본정보'
+
+
 </script>
 
 <template>
-  <div class="min-vh-100 pb-5" style="background-color: #e8e8e8">
-    <div>
-      <div class="owner-title1">가게 상태 관리</div>
-      <div class="owner-title2">
-        어서오세요! {{ ownerName }} 사장님, 관리자 페이지에 다시 오신 것을
-        환영합니다!
-      </div>
+  <div class="section-wrap">
+    <div class="btn-group gap-3" role="group">
+      <button type="button" class="submenu-btn"  :class="selected === 'basic' ? 'submenu-active' : 'submenu-none'"  @click="selected = 'basic'">
+        기본정보
+      </button>
+      <button  type="button"  class="submenu-btn"  :class="selected === 'control' ? 'submenu-active' : 'submenu-none'" @click="selected = 'control'">
+        운영관리
+      </button>
     </div>
-    <div class="container-fluid d-flex mb-5">
-      <div class="card shadow p-5 w-100 rounded-4" style="max-width: 1501px">
-        <div class="ps-4">
-          <img src="@/imgs/owner/owner-service.png" class="img-fluid w-100" />
-        </div>
-      </div>
+    <div class="white-card">
+      <StoreStatusStaticInfo v-if="selected === 'basic'" />
+      <StoreStatusControl v-if="selected === 'control'" />
     </div>
   </div>
 </template>
 
-<style scoped>
-.owner-title1 {
-  font-size: 30px;
-  font-weight: bold;
-  padding-left: 12px;
-  padding-bottom: 2px;
+
+<style scoped lang="scss">
+.section-wrap{
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+.white-card{
+  width: 95%;
+  height: 95%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
-.owner-title2 {
-  padding-left: 12px;
-  padding-bottom: 14px;
-  color: #686868;
+.btn-group {
+  align-self: flex-start;
+  margin-left: 5%; /* white-card가 width 95%니까 같은 위치에 맞추려면 */
 }
+
 </style>
