@@ -8,6 +8,9 @@ const storeId = inject("storeId", ref(""));
 const storeActive = inject("storeActive", ref(""));
 const isOpen = inject("isOpen");
 
+const notActive = false;
+
+
 // 부트스트랩 alert
 let alertId = 0;
 
@@ -48,7 +51,8 @@ const start = async () => {
   const res = await activeStore(storeId.value);
   console.log("가게 아이디: ", storeId.value)
   if(res.status === 401 || res.status === 500) {
-    showAlert("에러")
+    console.log("가게아이디 조회 실패")
+    //showAlert("에러")
   }
 
   const updated = await getOwnerStore();
@@ -90,13 +94,35 @@ const start = async () => {
   </div>
 
   <!-- 메인 -->
-    <div class="container-fluid d-flex mb-5" style="height: 921px; padding-top: 81px;">
+    <div class="container-fluid d-flex" style="height: 100vh; padding:40px;">
       <div class="card shadow p-5 w-100 text-center d-flex justify-content-center align-items-center flex-column" style="max-width: 1501px;">
-        <div class="ps-4 pt-5">
-          <div class="text-date">{{ today }}</div>
-          <div class="pb-5 text">오늘의 영업을 시작하세요!</div>
-           <button class="storeAccept-btn" @click="start">영업 시작</button>
-        </div>
+        
+        <!-- 영업승인 전 화면 -->
+        <template v-if="notActive">
+          <div class="notice-wrap">
+              <div>
+                영업 승인 전 입니다
+              </div>
+              <div>
+                  메뉴를 등록 후 고객센터로<br/>
+                  정상영업 승인요청 바랍니다
+              </div>
+          </div>
+        </template>
+        <!-- 영업승인 후 하루운영 전 화면 -->
+        <template v-else>
+          <div class="ps-4 pt-5">
+            <div class="text-date">
+              {{ today }}
+            </div>
+            <div class="pb-5 text">
+              오늘의 영업을 시작하세요!
+            </div>
+            <button class="storeAccept-btn" @click="start">
+              영업 시작
+            </button>
+          </div>
+        </template>
       </div>
   </div>
 </template>
@@ -107,6 +133,8 @@ const start = async () => {
   padding-top: 82px;
   justify-content: center;
 }
+
+
 
 .text-date {
   font-weight: bold;
@@ -153,4 +181,22 @@ const start = async () => {
     opacity: 1;
   }
 }
+
+.notice-wrap{
+  padding: 150px;
+  height: 100%;
+  margin: 0 auto;
+  color: #797979;
+
+  :first-child{
+    font-weight: 800;
+    line-height: 3;
+    font-size: 4rem;
+  }
+  :last-child{
+    font-size: 3rem;
+  }
+
+}
+
 </style>

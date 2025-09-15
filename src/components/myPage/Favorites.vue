@@ -6,7 +6,7 @@ import { getFavoriteList, addFavorite, deleteFavorite } from "@/services/favorit
 import { useRoute, useRouter } from "vue-router";
 import { watch } from "vue";
 
-import defaultImage from "@/imgs/owner/haniplogo_sample2.png";
+import defaultImage from "@/imgs/owner/haniplogo_sample4.png";
 import favoriteImage from "@/imgs/love.png";
 import noFavoriteImage from "@/imgs/loveBoard.png";
 import ratingImage from "@/imgs/star.png";
@@ -65,6 +65,13 @@ const toggleFavorite = async (store) => {
   }
 };
 
+// 가게 이미지가 없을 시 대체 이미지 나타내기
+const getImgSrc = (store) => {
+  return store.imagePath && store.imagePath !== "null"
+    ? `/pic/store-profile/${store.storeId}/${store.imagePath}`
+    : defaultImage;
+};
+
 // 더보기 버튼 함수
 const visibleCount = ref(8);
 const showMore = () => {
@@ -117,14 +124,10 @@ const toStore = (id) => {
               <div id="imgBox" class="card-img-top">
                 <img
                   class="sImg"
-                  :src="
-                    store.imagePath !== null
-                      ? `/pic/store-profile/${store.storeId}/${store.imagePath}`
-                      : defaultImage
-                  "
+                  :src="getImgSrc(store)"
+                  @error="(e) => (e.target.src = defaultImage)"
                 />
               </div>
-              <!-- <img src="" class="card-img-top" alt="음식 이미지"> -->
               <div class="card-body">
                 <h6 class="card-title">{{ store.name }}</h6>
                 <div v-if="store.rating !== 'NaN'">
@@ -243,7 +246,6 @@ const toStore = (id) => {
 .all-box {
   display: flex;
   justify-content: center;
-
   width: 100%;
 }
 
@@ -271,27 +273,33 @@ const toStore = (id) => {
 .for {
   display: flex;
   flex-wrap: wrap;
-  justify-content: center;
-  gap: 75px;
-  margin-bottom: 100px;
-  letter-spacing: 0.015em;
+  justify-content: flex-start;
+  gap: 50px 10px;
+  margin-bottom: 5rem;
 }
 
 #imgBox {
+  width: 100%;
+  height: 280px;
+  border-radius: 20px 20px 0 0;
   display: flex;
   justify-content: center;
   align-items: center;
-  width: 300px;
-  height: 251px;
+  overflow: hidden;
+}
+#imgBigBox {
+  width: 360px;
+  height: 470px;
+  border-radius: 20px !important;
+  border: 2px solid #797979;
   overflow: hidden;
 }
 
 .sImg {
-  width: 310px;
-}
-
-#imgBigBox {
-  border-radius: 15px !important;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 20px 20px 0 0;
 }
 
 .small {
@@ -357,5 +365,58 @@ const toStore = (id) => {
   font-size: 25px;
   text-align: center;
   margin-bottom: 50px;
+}
+// 반응형
+@media (max-width: 1800px) {
+  .guideBox {
+    justify-content: center;
+    width: 1200px;
+  }
+}
+
+@media (max-width: 1400px) {
+  .guideBox {
+    width: 900px;
+
+    .store {
+      width: 200px;
+      height: 300px;
+
+      .storeImgBox {
+        width: 150px;
+        height: 130px;
+        margin-left: 25px;
+        margin-top: 2px;
+
+        .sImg {
+          width: 150px;
+        }
+      }
+
+      .storeTextBox {
+        margin-top: -10px;
+        font-size: 0.8em;
+      }
+
+      .btn {
+        width: 100px;
+        font-size: 0.6em;
+        margin-top: 3px;
+        margin-left: 50px;
+      }
+    }
+  }
+}
+
+@media (max-width: 1030px) {
+  .guideBox {
+    width: 800px;
+  }
+}
+
+@media (max-width: 800px) {
+  .guideBox {
+    width: 450px;
+  }
 }
 </style>

@@ -1,0 +1,312 @@
+@font-face {
+  font-family: 'Pretendard';
+  src: url('https://cdn.jsdelivr.net/gh/Project-Noonnu/noonfonts_2107@1.1/Pretendard-Thin.woff') format('woff');
+  font-weight: 100;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Pretendard';
+  src: url('https://cdn.jsdelivr.net/gh/Project-Noonnu/noonfonts_2107@1.1/Pretendard-ExtraLight.woff') format('woff');
+  font-weight: 200;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Pretendard';
+  src: url('https://cdn.jsdelivr.net/gh/Project-Noonnu/noonfonts_2107@1.1/Pretendard-Light.woff') format('woff');
+  font-weight: 300;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Pretendard';
+  src: url('https://cdn.jsdelivr.net/gh/Project-Noonnu/noonfonts_2107@1.1/Pretendard-Regular.woff') format('woff');
+  font-weight: 400;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Pretendard';
+  src: url('https://cdn.jsdelivr.net/gh/Project-Noonnu/noonfonts_2107@1.1/Pretendard-Medium.woff') format('woff');
+  font-weight: 500;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Pretendard';
+  src: url('https://cdn.jsdelivr.net/gh/Project-Noonnu/noonfonts_2107@1.1/Pretendard-SemiBold.woff') format('woff');
+  font-weight: 600;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Pretendard';
+  src: url('https://cdn.jsdelivr.net/gh/Project-Noonnu/noonfonts_2107@1.1/Pretendard-Bold.woff') format('woff');
+  font-weight: 700;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Pretendard';
+  src: url('https://cdn.jsdelivr.net/gh/Project-Noonnu/noonfonts_2107@1.1/Pretendard-ExtraBold.woff') format('woff');
+  font-weight: 800;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Pretendard';
+  src: url('https://cdn.jsdelivr.net/gh/Project-Noonnu/noonfonts_2107@1.1/Pretendard-Black.woff') format('woff');
+  font-weight: 900;
+  font-display: swap;
+}
+
+* {
+    font-family: 'Pretendard', sans-serif;
+}
+
+/* 디자인 토큰: 런타임 테마 변경을 위해 CSS 변수로 정의 */
+:root {
+  // html기준폰트 16px
+    --card-font-size-xxlg: 2.5rem;
+    --card-font-size-xlg: 2rem;
+    --card-font-size-lg: 1.5rem; 
+    --card-font-size-nomal: 1rem;
+
+    --card-bg: #ffffff;
+    --card-lg-radius: 0.75rem;
+    --card-small-radius: 0.5rem;
+    --card-padding: 20px;
+    --card-shadow: 0 6px 18px rgba(16,24,40,0.06);
+    --card-border: rgb(0,0,0);
+  
+    --page-bg: #f3f4f6;
+    --grey1: #cccccc;
+    --grey2: #797979;
+    --primary: #ff6666;
+    
+  }
+  
+  /* 다크 모드 예시 */
+  :root[data-theme="dark"] {
+    --card-bg: #0b1020;
+    --fg: #e5e7eb;
+    --card-shadow: 0 6px 18px rgba(0,0,0,0.5);
+  }
+
+
+  .font-xxlg{
+    font-size: var(--card-font-size-xxlg);
+    font-weight: 800;
+    line-height: 1;
+  }
+  .font-xlg{
+    font-size: var(--card-font-size-xlg);
+    font-weight: 800;
+    line-height: 1;
+  }
+  .font-lg{
+    font-size: var(--card-font-size-lg);
+    font-weight: 800;
+    line-height: 1;
+  }
+  .font-nomal{
+    font-size: var(--card-font-size-nomal);
+    font-weight: normal;
+    line-height: 1;
+  }
+
+  //흰색둥근카드
+  .white-card{
+    background-color: var(--card-bg);
+    padding: var(--card-padding);
+    border-radius: var(--card-lg-radius);
+    box-shadow: 2px 2px 5px 1px var(--grey1);
+  }
+
+  //그린버튼
+  .green-btn{
+    background-color: #BEFFA7;
+    padding: var(--card-padding);
+    border-radius: var(--card-lg-radius);
+    box-shadow: 2px 2px 5px 1px var(--grey1);
+    border: none;
+    color: #2B6118;
+  }
+  
+  //흰색카드핑크글씨버튼
+  .whitepink-btn{
+    background-color: var(--card-bg);
+    padding: var(--card-padding);
+    border-radius: var(--card-lg-radius);
+    box-shadow: 2px 2px 5px 1px var(--grey1);
+    border: none;
+    text-decoration: none;
+    color: var(--primary);
+  }
+.card-wrap-hr{
+  display: flex;
+}
+
+//회색라운드 박스
+.gray-content{
+  border: 1px solid var(--grey2);
+  border-radius: var(--card-small-radius);
+  padding: 10px 20px ;
+}
+
+//핑크라인 흰버튼
+.hn-btn-white {
+  display: inline-block;
+  width: auto;
+  padding: 10px 20px;
+  background-color: white;
+  color: #ff6666;
+  border: 1px solid #ff6666;
+  border-radius: var(--card-small-radius);;
+  cursor: pointer;
+  transition: background-color 0.2s ease, color 0.2s ease;
+  &:hover {
+    background-color: #ff6666;
+    color: #fff;
+  }
+
+}
+
+//둥근 핑크색버튼
+.hn-btn-pink {
+  background-color: #ff6666;
+  display: inline-block;
+  width: auto;
+  padding: 10px 15px;
+  color: #fff;
+  border: 1px solid #fff;
+  border-radius: --card-small-radius;
+  cursor: pointer;
+  transition: background-color 0.2s ease, color 0.2s ease;
+  &:hover {
+    background-color: #e74e4e;
+    color: #fff;
+  }
+
+}
+
+.btn-cancle {
+    background-color: #fff;
+    display: inline-block;
+    width: auto;
+    padding: 10px 20px;
+    color: var(--grey2);
+    border: 1px solid var(--grey2);
+    border-radius: var(--card-small-radius);
+    cursor: pointer;
+    transition: background-color 0.2s ease, color 0.2s ease;
+    &:hover {
+      background-color: var(--grey2);
+      color: #fff;
+    } 
+}
+
+
+
+// 토글버튼
+.toggle-container {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: #403f57;
+  margin: 10px 0;
+}
+
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 66px;
+  height: 32px;
+}
+
+.switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.slider {
+  position: absolute;
+  cursor: pointer;
+  background-color: #c4c4c4;
+  border: 1px solid #403f57;
+  border-radius: 34px;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  transition: 0.4s;
+}
+
+.slider::before {
+  position: absolute;
+  content: "";
+  height: 30px;
+  width: 30px;
+  left: 0px;
+  bottom: 0px;
+  background-color: white;
+  transition: 0.4s;
+  border-radius: 50%;
+}
+
+.submenu-btn{
+  background: #fff;
+  padding:10px 40px 0;
+  border: none;
+  border-radius: var(--card-small-radius) var(--card-small-radius) 0 0 ;
+  font-size: var(--card-font-size-lg);
+}
+
+.submenu-active{
+  color: var(--primary);
+}
+.submenu-none{
+  color: var(--grey2);
+}
+
+
+//삭제된 css (혹시모르니 보관용)
+
+//up & down 표시 : ↑ 4% 
+// .change-rate {
+//   display: flex;
+//   align-items: center;
+//   gap: 5px;
+//   .icon-up {
+//     width: 16px;
+//     height: 16px;
+//     background-color: #e0f9f1;
+//     border-radius: 100%;
+//     display: flex;
+//     align-items: center;
+//     justify-content: center;
+//     text-align: center;
+//     font-size: 10px !important;
+//     font-weight: 800;
+//     color: #00a389;
+//   }
+//   .icon-down {
+//     width: 16px;
+//     height: 16px;
+//     background-color: #ffe7e7;
+//     border-radius: 100%;
+//     display: flex;
+//     align-items: center;
+//     justify-content: center;
+//     text-align: center;
+//     font-size: 10px !important;
+//     font-weight: 800;
+//     color: #ff5b5b;
+//   }
+//   span {
+//     color: #c6c6c6;
+//     font-size: 12px;
+//   }
+// }

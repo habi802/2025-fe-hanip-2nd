@@ -38,7 +38,7 @@ const state = reactive({
     phone: {
       phone1: "010",
       phone2: "",
-      phone3: ""
+      phone3: "",
     },
     email: "",
     role: "",
@@ -46,9 +46,12 @@ const state = reactive({
   owner: {
     name: "",
     category: "",
-    ownerTel1: "",
+    ownerTel1: "02",
     ownerTel2: "",
     ownerTel3: "",
+    ownerPhone1: "010",
+    ownerPhone2: "",
+    ownerPhone3: "",
     businessNumber: "",
     licenesPath: "",
     imagePath: "",
@@ -70,8 +73,7 @@ const validateLoginId = () => {
 };
 
 const validatePassword = () => {
-  const regex =
-    /^(?=.*[A-Za-z])(?=.*\d)(?=.*[!@#$%^&*])[A-Za-z\d!@#$%^&*]{8,16}$/;
+  const regex = /^(?=.*[A-Za-z])(?=.*\d)(?=.*[!@#$%^&*])[A-Za-z\d!@#$%^&*]{8,16}$/;
   errors.loginPw = regex.test(state.form.loginPw)
     ? ""
     : "비밀번호는 영문, 숫자, 특수문자 포함 8~16자여야 합니다.";
@@ -79,27 +81,21 @@ const validatePassword = () => {
 
 const validateConfirmPw = () => {
   errors.confirmPw =
-    confirmPw.value === state.form.loginPw
-      ? ""
-      : "비밀번호가 일치하지 않습니다.";
+    confirmPw.value === state.form.loginPw ? "" : "비밀번호가 일치하지 않습니다.";
 };
 
 const validateEmail = () => {
   const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  errors.email = regex.test(state.form.email)
-    ? ""
-    : "유효한 이메일 주소를 입력하세요.";
+  errors.email = regex.test(state.form.email) ? "" : "유효한 이메일 주소를 입력하세요.";
 };
 // 이름 유효성 검사 (2글자 이상)
 const validateName = () => {
-  errors.name =
-    state.form.name.trim().length >= 2 ? "" : "이름은 2자 이상이어야 합니다.";
+  errors.name = state.form.name.trim().length >= 2 ? "" : "이름은 2자 이상이어야 합니다.";
 };
 
 // 주소 유효성 검사
 const validateAddress = () => {
-  errors.address =
-    state.form.address.trim().length > 0 ? "" : "주소 입력은 필수입니다.";
+  errors.address = state.form.address.trim().length > 0 ? "" : "주소 입력은 필수입니다.";
 };
 
 // 일반 고객 번호 확인
@@ -108,42 +104,45 @@ const validatePhone = () => {
   const lastRegex = /^\d{4}$/;
   errors.phone2 = middleRegex.test(state.form.phone.phone2)
     ? ""
-    : "중간 번호는 3~4자리 숫자여야 합니다.";
+    : "전화번호 다시 한번 확인해주세요.";
   errors.phone3 = lastRegex.test(state.form.phone.phone3)
     ? ""
-    : "끝 번호는 4자리 숫자여야 합니다.";
+    : "전화번호 다시 한번 확인해주세요.";
 };
 
 // 가게 전화
 const validateOwnerTel = () => {
   const middleRegex = /^\d{3,4}$/;
   const lastRegex = /^\d{4}$/;
-  errors.ownerTel2 = middleRegex.test(state.owner.tel2)
+  errors.ownerTel2 = middleRegex.test(state.owner.ownerTel2)
     ? ""
-    : "가게 전화 중간 번호는 3~4자리 숫자여야 합니다.";
-  errors.ownerTel3 = lastRegex.test(state.owner.tel3)
+    : "전화번호 다시 한번 확인해주세요.";
+  errors.ownerTel3 = lastRegex.test(state.owner.ownerTel3)
     ? ""
-    : "가게 전화 끝 번호는 4자리 숫자여야 합니다.";
+    : "전화번호 다시 한번 확인해주세요.";
 };
 // 오너 개인 전화
 const validateOwnerPhone = () => {
   const middleRegex = /^\d{3,4}$/;
   const lastRegex = /^\d{4}$/;
-  errors.ownerPhone2 = middleRegex.test(ownerPhone2.value)
+  errors.ownerPhone2 = middleRegex.test(state.owner.ownerPhone2)
     ? ""
     : "전화번호 다시 한번 확인해주세요.";
-  errors.ownerPhone3 = lastRegex.test(ownerPhone3.value)
+  errors.ownerPhone3 = lastRegex.test(state.owner.ownerPhone3)
     ? ""
     : "전화번호 다시 한번 확인해주세요.";
 };
-
+// 오너 사업자 등록번호
 const validateBusinessNumber = () => {
-  const regex = /^\d{10}$/;
+  const regex = /^[0-9]{10}$/;
   errors.businessNumber = regex.test(state.owner.businessNumber)
     ? ""
-    : "사업자등록번호는 숫자 10자리여야 합니다.";
+    : "사업자 등록번호는 10자리 숫자여야 합니다.";
 };
 
+const updateErrors = (newErrors) => {
+  errors.value = newErrors;
+};
 // 제출 전 모든 필드 유효성 검사
 const validateForm = () => {
   validateLoginId();
@@ -210,10 +209,13 @@ const checkDuplicateId = async () => {
 };
 
 // 아이디 입력 수정 시 중복 체크 초기화
-watch(() => state.form.loginId, () => {
-  checkResult.value = "";
-  isIdChecked.value = false;
-});
+watch(
+  () => state.form.loginId,
+  () => {
+    checkResult.value = "";
+    isIdChecked.value = false;
+  }
+);
 
 // 약관 동의 상태
 const agreement = reactive({
@@ -305,7 +307,11 @@ const submit = async () => {
     return;
   }
 
-  if (!agreement.terms.useTerms || !agreement.terms.privacyPolicy || !agreement.terms.thirdParty) {
+  if (
+    !agreement.terms.useTerms ||
+    !agreement.terms.privacyPolicy ||
+    !agreement.terms.thirdParty
+  ) {
     showModal("필수 약관에 동의해주세요.");
     return;
   }
@@ -372,7 +378,6 @@ const showModal = (message) => {
   const modal = new bootstrap.Modal(document.getElementById("alertModal"));
   modal.show();
 };
-
 </script>
 
 <template>
@@ -389,12 +394,27 @@ const showModal = (message) => {
               <span>*</span>
               <p>회원 구분</p>
             </div>
-            <div class="radio-group ">
-              <label id="radio"><input type="radio" class="circle" name="memberType" value="customer"
-                  v-model="memberType" />
-                일반</label>
-              <label><input type="radio" class="circle" name="memberType" value="owner" v-model="memberType" />
-                업주</label>
+            <div class="radio-group">
+              <label id="radio"
+                ><input
+                  type="radio"
+                  class="circle"
+                  name="memberType"
+                  value="customer"
+                  v-model="memberType"
+                />
+                일반</label
+              >
+              <label
+                ><input
+                  type="radio"
+                  class="circle"
+                  name="memberType"
+                  value="owner"
+                  v-model="memberType"
+                />
+                업주</label
+              >
             </div>
           </div>
         </div>
@@ -412,8 +432,12 @@ const showModal = (message) => {
               </div>
               <div class="id">
                 <div class="id-input-group">
-                  <input v-model="state.form.loginId" :class="{ invalid: errors.loginId }" @input="handleLoginIdInput"
-                    placeholder="영문 소문자/숫자, 4~16자" />
+                  <input
+                    v-model="state.form.loginId"
+                    :class="{ invalid: errors.loginId }"
+                    @input="handleLoginIdInput"
+                    placeholder="영문 소문자/숫자, 4~16자"
+                  />
                   <button class="idbox" type="button" @click="checkDuplicateId">
                     아이디 중복
                   </button>
@@ -435,9 +459,14 @@ const showModal = (message) => {
               <p>비밀 번호</p>
             </div>
             <div class="password">
-              <input type="password" v-model="state.form.loginPw" :class="{ invalid: errors.loginPw }"
-                @input="() => (errors.loginPw = '')" @blur="validatePassword"
-                placeholder="비밀번호는 영문, 숫자, 특수문자 포함 8~16자" />
+              <input
+                type="password"
+                v-model="state.form.loginPw"
+                :class="{ invalid: errors.loginPw }"
+                @input="() => (errors.loginPw = '')"
+                @blur="validatePassword"
+                placeholder="비밀번호는 영문, 숫자, 특수문자 포함 8~16자"
+              />
               <p v-if="errors.loginPw" class="error-msg">
                 {{ errors.loginPw }}
               </p>
@@ -453,8 +482,14 @@ const showModal = (message) => {
               <p>비밀번호 확인</p>
             </div>
             <div class="password2">
-              <input type="password" v-model="confirmPw" @input="() => (errors.confirmPw = '')"
-                @blur="validateConfirmPw" :class="{ invalid: errors.confirmPw }" placeholder="비밀번호 재입력" />
+              <input
+                type="password"
+                v-model="confirmPw"
+                @input="() => (errors.confirmPw = '')"
+                @blur="validateConfirmPw"
+                :class="{ invalid: errors.confirmPw }"
+                placeholder="비밀번호 재입력"
+              />
               <p v-if="errors.confirmPw" class="error-msg">
                 {{ errors.confirmPw }}
               </p>
@@ -462,14 +497,43 @@ const showModal = (message) => {
           </div>
         </div>
         <div class="sevLine"></div>
+        <!-- 이메일-->
+        <div class="form-group">
+          <div class="label">
+            <div class="sortation">
+              <span> </span>
+              <p>이메일</p>
+            </div>
+            <div class="password2">
+              <input
+                v-model="state.form.email"
+                @input="() => (errors.email = '')"
+                @blur="validateEmail"
+                :class="{ invalid: errors.email }"
+                placeholder="올바른 이메일 형식으로 입력해주세요."
+              />
+              <p v-if="errors.email" class="error-msg">
+                {{ errors.email }}
+              </p>
+            </div>
+          </div>
+        </div>
+        <div class="sevLine"></div>
 
         <!-- 회원 구분에 따른 폼 분기 -->
-        <CustomerForm v-if="memberType === 'customer'" :form="state.form" :errors="errors"
-          @update:form="state.form = $event" @update:errors="Object.assign(errors, $event)"
-          @addressSearch="addressSearch" />
+        <CustomerForm
+          v-if="memberType === 'customer'"
+          v-model:form="state.form"
+          v-model:errors="errors"
+          @addressSearch="addressSearch"
+        />
 
-        <OwnerForm v-if="memberType === 'owner'" v-model:form="state.form" v-model:owner="state.owner"
-          v-model:errors="errors" />
+        <OwnerForm
+          v-if="memberType === 'owner'"
+          v-model:form="state.form"
+          v-model:owner="state.owner"
+          v-model:errors="errors"
+        />
 
         <!-- 약관 동의 및 제출 -->
         <!-- 약관동의 -->
@@ -479,47 +543,77 @@ const showModal = (message) => {
           <!-- 전체 동의 -->
           <p class="all-agree">
             <label class="custom-checkbox">
-              <input type="checkbox" class="circle" v-model="agreement.allAgree" @change="toggleAllAgree" />
+              <input
+                type="checkbox"
+                class="circle"
+                v-model="agreement.allAgree"
+                @change="toggleAllAgree"
+              />
               <strong class="all"><span class="highlight">전체동의</span></strong>
             </label>
           </p>
           <ul class="terms-list">
             <!-- 필수 이용약관 동의 -->
             <li>
-              <label class="custom-checkbox"><input type="checkbox" class="circle"
-                  v-model="agreement.terms.useTerms" /><span class="highlight"> [필수]</span> 이용약관 동의</label>
+              <label class="custom-checkbox"
+                ><input
+                  type="checkbox"
+                  class="circle"
+                  v-model="agreement.terms.useTerms"
+                /><span class="highlight"> [필수]</span> 이용약관 동의</label
+              >
             </li>
             <div class="terms-box">{{ termsText.useTerms }}</div>
             <!-- 필수 개인정보 수집 이용 동의 -->
             <li>
-              <label class="custom-checkbox"><input type="checkbox" class="circle"
-                  v-model="agreement.terms.privacyPolicy" />
-                <span class="highlight"> [필수]</span> 개인정보 수집 이용
-                동의</label>
+              <label class="custom-checkbox"
+                ><input
+                  type="checkbox"
+                  class="circle"
+                  v-model="agreement.terms.privacyPolicy"
+                />
+                <span class="highlight"> [필수]</span> 개인정보 수집 이용 동의</label
+              >
             </li>
             <div class="terms-box">{{ termsText.privacyPolicy }}</div>
             <!-- 필수 개인정보 제3자 제공 동의 -->
             <li>
-              <label class="custom-checkbox"><input type="checkbox" class="circle"
-                  v-model="agreement.terms.thirdParty" />
-                <span class="highlight"> [필수]</span> 개인정보 제3자 제공
-                동의</label>
+              <label class="custom-checkbox"
+                ><input
+                  type="checkbox"
+                  class="circle"
+                  v-model="agreement.terms.thirdParty"
+                />
+                <span class="highlight"> [필수]</span> 개인정보 제3자 제공 동의</label
+              >
             </li>
             <div class="terms-box">{{ termsText.thirdParty }}</div>
           </ul>
           <!-- 선택 쇼핑정보 수신 동의 -->
           <div class="marketing">
             <p>
-              <label class="custom-checkbox"><input type="checkbox" class="circle" v-model="agreement.marketing" /><span
-                  class="highlight"> [선택]</span> 쇼핑정보 수신
-                동의</label>
+              <label class="custom-checkbox"
+                ><input
+                  type="checkbox"
+                  class="circle"
+                  v-model="agreement.marketing"
+                /><span class="highlight"> [선택]</span> 쇼핑정보 수신 동의</label
+              >
             </p>
           </div>
           <div class="sev-marketing">
-            <span><label class="custom-checkbox"><input type="checkbox" class="circle" v-model="agreement.sms" />
-                SMS 수신을 동의하십니까?</label></span>
-            <span><label class="custom-checkbox"><input type="checkbox" class="circle" v-model="agreement.email" />
-                이메일 수신을 동의하십니까?</label></span>
+            <span
+              ><label class="custom-checkbox"
+                ><input type="checkbox" class="circle" v-model="agreement.sms" /> SMS
+                수신을 동의하십니까?</label
+              ></span
+            >
+            <span
+              ><label class="custom-checkbox"
+                ><input type="checkbox" class="circle" v-model="agreement.email" /> 이메일
+                수신을 동의하십니까?</label
+              ></span
+            >
           </div>
         </div>
         <button type="submit">회원가입</button>
@@ -536,9 +630,7 @@ const showModal = (message) => {
         </div>
         <div class="modal-body" id="alertModalBody">내용</div>
         <div class="modal-footer">
-          <button type="button" class="btn" data-bs-dismiss="modal">
-            확인
-          </button>
+          <button type="button" class="btn" data-bs-dismiss="modal">확인</button>
         </div>
       </div>
     </div>
@@ -549,6 +641,8 @@ const showModal = (message) => {
 * {
   font-family: "Pretendard-Regular";
   box-sizing: border-box;
+  user-select: none;
+  -webkit-user-drag: none;
 }
 
 .sortation {
@@ -560,7 +654,7 @@ const showModal = (message) => {
   height: 50px;
 
   span {
-    color: #ff6666; // * 강조 색상 
+    color: #ff6666; // * 강조 색상
     margin-right: 10px; // 살짝만 띄우고 싶으면
   }
 
@@ -627,7 +721,7 @@ strong.all {
   }
 }
 
-// 메인 구분 선 
+// 메인 구분 선
 .titleLine {
   width: 1130px;
   border-bottom: 3px solid #7d7d7d;
@@ -637,7 +731,6 @@ strong.all {
 .sevLine {
   width: 1130px;
   border-bottom: 0.5px solid #c8c8c8;
-
 }
 
 // 섹션 제목 라벨
@@ -796,7 +889,6 @@ select.invalid {
       margin-left: 10px;
     }
   }
-
 
   // 약관동의
   .agreement {

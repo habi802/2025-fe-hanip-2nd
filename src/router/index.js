@@ -147,9 +147,14 @@ const router = createRouter({
       meta: { layout: OwnerLayout },
     },
     {
-      path: "/owner/status",
-      component: () => import("@/views/owner/StatusStore.vue"),
+      path: "/owner/status/check",
+      component: () => import("@/views/owner/StatusStoreCheck.vue"),
       meta: { layout: OwnerLayout },
+    },
+    {
+    path: "/owner/status",
+    component: () => import("@/views/owner/StatusStore.vue"),
+    meta: { layout: OwnerLayout },
     },
     // 관리자 페이지
     {
