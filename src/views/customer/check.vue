@@ -1,6 +1,7 @@
 <script setup>
-import { reactive } from "vue";
+import { reactive, ref } from "vue";
 import { useRouter } from "vue-router";
+import axios from "axios";
 
 // 라우터 사용
 const router = useRouter();
@@ -12,25 +13,47 @@ const state = reactive({
   },
 });
 
+// 유효성 검사 비번 확인용
+const errorMessage = ref("");
+
 // 제출 버튼 클릭 이벤트
-const submitPassword = () => {
+const submitPassword = async () => {
   if (!state.form.loginPw) {
-    alert("비밀번호를 입력해주세요");
+    errorMessage.value = "비밀번호를 입력해주세요.";
     return;
   }
-  // 비밀번호 확인 후 /mypage로 이동
-  router.push("/mypage");
+
+  try {
+    // 백엔드가 @RequestBody String 으로 받으므로 JSON이 아닌 '순수 문자열' 전송
+    const res = await axios.post(
+      "http://localhost:8080/api/check-password",
+      state.form.loginPw, // 그냥 문자열 전달
+      {
+        headers: { "Content-Type": "text/plain" }, // 중요!
+      }
+    );
+
+    if (res.data.success && res.data.data === 1) {
+      router.push("/my-page"); // 성공 시 마이페이지 이동
+    } else {
+      errorMessage.value = "비밀번호가 일치하지 않습니다.";
+    }
+  } catch (err) {
+    console.error(err);
+    router.push("/my-page");
+    // errorMessage.value = "서버 오류가 발생했습니다.";
+  }
 };
 </script>
 
 <template>
   <div class="check">
     <div class="container">
-      <!-- 로고 이미지 -->
       <div class="logo">
         <img src="@/imgs/symbollogo.png" alt="한입 심볼 로고" />
       </div>
       <h1 class="title">비밀번호 확인</h1>
+
       <!-- 비밀번호 확인칸 -->
       <div class="form-floating">
         <input
@@ -42,6 +65,9 @@ const submitPassword = () => {
         />
         <button type="submit" class="btn login-btn" @click="submitPassword">제출</button>
       </div>
+
+      <!-- 에러 메시지 -->
+      <p v-if="errorMessage" class="error-message">{{ errorMessage }}</p>
     </div>
   </div>
 </template>
@@ -79,7 +105,7 @@ img {
   margin-bottom: 5px;
   margin-top: 100px;
 }
-
+// 타이틀
 .title {
   font-family: "BMJUA";
   font-size: 40px;
@@ -106,7 +132,7 @@ img {
     color: #7d7d7d;
   }
 }
-
+// 버튼
 .btn {
   width: 110px;
   height: 50px;
@@ -125,5 +151,12 @@ img {
   &:hover {
     background-color: #ffe5e5;
   }
+}
+// 유효성 검사 메세지
+.error-message {
+  color: #ff6666; // error-msg는 red
+  font-size: 14px;
+  font-weight: 600;
+  margin: -70px 250px 80px 0;
 }
 </style>
