@@ -70,7 +70,7 @@ button{
   border: none;
 }
 
-/* 디자인 토큰: 런타임 테마 변경을 위해 CSS 변수로 정의 */
+// 디자인 토큰: 런타임 테마 변경을 위해 CSS 변수로 정의
 :root {
   // html기준폰트 16px
     --card-font-size-xxlg: 2.5rem;
@@ -99,7 +99,7 @@ button{
     --card-shadow: 0 6px 18px rgba(0,0,0,0.5);
   }
 
-
+  //폰트 프리셋
   .font-xxlg{
     font-size: var(--card-font-size-xxlg);
     font-weight: 800;
@@ -149,6 +149,7 @@ button{
     text-decoration: none;
     color: var(--primary);
   }
+
 .card-wrap-hr{
   display: flex;
 }
@@ -196,6 +197,7 @@ button{
 
 }
 
+//부정 버튼 (취소, 되돌리기 등)
 .btn-cancle {
     background-color: #fff;
     display: inline-block;
@@ -276,6 +278,33 @@ button{
   color: var(--grey2);
 }
 
+//스크롤바 커스텀
+.scrollbar::-webkit-scrollbar {
+  width: 8px;
+}
+
+.scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+  margin-top: 5px;
+  margin-bottom: 5px;
+}
+
+.scrollbar::-webkit-scrollbar-thumb {
+  background-color: #c4c4c4;
+  border-radius: 9999px;
+}
+
+.scrollbar::-webkit-scrollbar-thumb:hover {
+  background-color: #a0a0a0;
+}
+
+.scrollbar > div {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+
 
 // .dropdown-menu{
 //   width: 100%;
@@ -285,6 +314,8 @@ button{
 //   padding-top: 30px;
 //   margin-top: -30px !important;
 // }
+
+
 
 //삭제된 css (혹시모르니 보관용)
 
