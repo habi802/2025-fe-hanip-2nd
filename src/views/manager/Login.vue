@@ -1,10 +1,11 @@
 <script setup>
 import '@/assets/manager/manager.css'
 
-import { reactive } from 'vue';
+import { reactive, ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { managerLogin } from '@/services/managerService';
 import AlertModal from '@/components/modal/AlertModal.vue';
+import LoadingModal from '@/components/modal/LoadingModal.vue';
 
 const router = useRouter();
 const managerPath = import.meta.env.VITE_MANAGER_PATH;
@@ -16,10 +17,14 @@ const state = reactive({
     }
 });
 
+const alertModalRef = ref(null);
+const loadingModalRef = ref(null);
+
 const submit = async () => {
     //const res = await managerLogin(state.form);
 
     router.push({ path: managerPath });
+    loadingModalRef.value.open();
 };
 </script>
 
@@ -41,6 +46,9 @@ const submit = async () => {
                 <button type="submit" class="btn btn-primary">로그인</button>
             </form>
         </b-container>
+
+        <AlertModal ref="alertModalRef" />
+        <LoadingModal ref="loadingModalRef" />
     </div>
 </template>
 
