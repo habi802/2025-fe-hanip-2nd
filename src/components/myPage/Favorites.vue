@@ -6,12 +6,10 @@ import { getFavoriteList, addFavorite, deleteFavorite } from "@/services/favorit
 import { useRoute, useRouter } from "vue-router";
 import { watch } from "vue";
 
-import defaultImage from '@/imgs/owner/haniplogo_sample2.png';
-import favoriteImage from '@/imgs/love.png';
-import noFavoriteImage from '@/imgs/loveBoard.png'
-import ratingImage from '@/imgs/star.png';
-
-
+import defaultImage from "@/imgs/owner/haniplogo_sample4.png";
+import favoriteImage from "@/imgs/love.png";
+import noFavoriteImage from "@/imgs/loveBoard.png";
+import ratingImage from "@/imgs/star.png";
 
 const router = useRouter();
 const route = useRoute();
@@ -21,7 +19,7 @@ const favoriteStore = useFavoriteStore();
 
 const state = reactive({
   // 찜 가게 정보
-  favorites: []
+  favorites: [],
 });
 
 // 찜 목록 불러오는 함수
@@ -36,19 +34,21 @@ const fetchFavorites = async () => {
 
   state.favorites = res.data.resultData;
   // 찜 목록 추가/삭제 함수 실행을 위해 찜 상태값을 강제로 넣어줌
-  state.favorites.map(favorite => favorite.favorite = true);
+  state.favorites.map((favorite) => (favorite.favorite = true));
 
   // 찜 ID들을 Pinia store에 저장
-  const favoriteIds = state.favorites.map(favorite => favorite.storeId);
+  const favoriteIds = state.favorites.map((favorite) => favorite.storeId);
   favoriteStore.setFavorites(favoriteIds);
 };
 
 // 찜 목록 추가/삭제 함수
-const toggleFavorite = async store => {
+const toggleFavorite = async (store) => {
   if (account.state.loggedIn) {
     const storeId = Number(store.storeId);
 
-    const res = store.favorite ? await deleteFavorite(storeId) : await addFavorite({ storeId });
+    const res = store.favorite
+      ? await deleteFavorite(storeId)
+      : await addFavorite({ storeId });
 
     if (res === undefined || res.data.resultStatus !== 200) {
       // alert("찜 상태 변경 실패");
@@ -65,6 +65,13 @@ const toggleFavorite = async store => {
   }
 };
 
+// 가게 이미지가 없을 시 대체 이미지 나타내기
+const getImgSrc = (store) => {
+  return store.imagePath && store.imagePath !== "null"
+    ? `/pic/store-profile/${store.storeId}/${store.imagePath}`
+    : defaultImage;
+};
+
 // 더보기 버튼 함수
 const visibleCount = ref(8);
 const showMore = () => {
@@ -78,7 +85,7 @@ const visibleCards = computed(() => {
 const arrow = () => {
   window.scrollTo({
     top: 0,
-    behavior: 'smooth',
+    behavior: "smooth",
   });
 };
 
@@ -95,7 +102,7 @@ watch(
   }
 );
 
-const toStore = id => {
+const toStore = (id) => {
   router.push({ path: `/stores/${id}` });
 };
 </script>
@@ -111,23 +118,27 @@ const toStore = id => {
       </div>
 
       <div v-if="state.favorites.length > 0">
-
         <div class="for">
           <div class="all" v-for="store in visibleCards" :key="store.storeId">
             <div id="imgBigBox" class="card h-100 shadow-sm">
               <div id="imgBox" class="card-img-top">
-                <img class="sImg"
-                  :src="store.imagePath !== null ? `/pic/store-profile/${store.storeId}/${store.imagePath}` : defaultImage" />
+                <img
+                  class="sImg"
+                  :src="getImgSrc(store)"
+                  @error="(e) => (e.target.src = defaultImage)"
+                />
               </div>
-              <!-- <img src="" class="card-img-top" alt="음식 이미지"> -->
               <div class="card-body">
                 <h6 class="card-title">{{ store.name }}</h6>
                 <div v-if="store.rating !== 'NaN'">
                   <img class="star" :src="ratingImage" />
                   <span class="small">
                     {{ store.rating }}&nbsp;({{ store.reviews }})&nbsp;&nbsp;
-                    <img class="love" :src="store.favorite ? favoriteImage : noFavoriteImage"
-                      @click="toggleFavorite(store)" />
+                    <img
+                      class="love"
+                      :src="store.favorite ? favoriteImage : noFavoriteImage"
+                      @click="toggleFavorite(store)"
+                    />
                     {{ store.favorites }}
                   </span>
                 </div>
@@ -135,15 +146,21 @@ const toStore = id => {
                   <img class="star" :src="ratingImage" />
                   <span class="small">
                     0&nbsp;(0)&nbsp;&nbsp;
-                    <img class="love" :src="store.favorite ? favoriteImage : noFavoriteImage"
-                      @click="toggleFavorite(store)" />
+                    <img
+                      class="love"
+                      :src="store.favorite ? favoriteImage : noFavoriteImage"
+                      @click="toggleFavorite(store)"
+                    />
                     {{ store.favorites }}
                   </span>
                 </div>
                 <p class="mb-1 text-muted small">배달비 0원 ~ 3000원</p>
                 <p class="mb-2 text-muted small">최소 주문 금액 10,000원</p>
                 <div class="d-flex justify-content-center align-items-center">
-                  <button @click="toStore(store.storeId)" class="btn btn-outline-danger btn-sm">
+                  <button
+                    @click="toStore(store.storeId)"
+                    class="btn btn-outline-danger btn-sm"
+                  >
                     자세히보기
                   </button>
                 </div>
@@ -157,7 +174,6 @@ const toStore = id => {
             더보기
           </div>
         </div>
-
       </div>
 
       <div v-else>
@@ -174,8 +190,14 @@ const toStore = id => {
   <img @click="arrow" class="arrow" src="/src/imgs/arrow.png" />
 
   <!-- 조회 실패 -->
-  <div class="modal fade" id="favorite-error" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
-    aria-hidden="true">
+  <div
+    class="modal fade"
+    id="favorite-error"
+    tabindex="-1"
+    role="dialog"
+    aria-labelledby="exampleModalLabel"
+    aria-hidden="true"
+  >
     <div class="modal-dialog" role="document">
       <div class="modal-content">
         <div class="modal-header">
@@ -190,7 +212,14 @@ const toStore = id => {
   </div>
 
   <!-- 찜 실패 -->
-  <div class="modal fade" id="faiF" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div
+    class="modal fade"
+    id="faiF"
+    tabindex="-1"
+    role="dialog"
+    aria-labelledby="exampleModalLabel"
+    aria-hidden="true"
+  >
     <div class="modal-dialog" role="document">
       <div class="modal-content">
         <div class="modal-header">
@@ -208,7 +237,8 @@ const toStore = id => {
 <style lang="scss" scoped>
 @font-face {
   font-family: "BMJUA";
-  src: url("https://fastly.jsdelivr.net/gh/projectnoonnu/noonfonts_one@1.0/BMJUA.woff") format("woff");
+  src: url("https://fastly.jsdelivr.net/gh/projectnoonnu/noonfonts_one@1.0/BMJUA.woff")
+    format("woff");
   font-weight: 600;
   font-style: normal;
 }
@@ -216,7 +246,6 @@ const toStore = id => {
 .all-box {
   display: flex;
   justify-content: center;
-
   width: 100%;
 }
 
@@ -244,38 +273,47 @@ const toStore = id => {
 .for {
   display: flex;
   flex-wrap: wrap;
-  justify-content: center;
-  gap: 75px;
-  margin-bottom: 100px;
-  letter-spacing: .015em;
+  justify-content: flex-start;
+  gap: 50px 10px;
+  margin-bottom: 5rem;
 }
 
 #imgBox {
+  width: 100%;
+  height: 280px;
+  border-radius: 20px 20px 0 0;
   display: flex;
   justify-content: center;
   align-items: center;
-  width: 300px;
-  height: 251px;
+  overflow: hidden;
+}
+#imgBigBox {
+  width: 360px;
+  height: 470px;
+  border-radius: 20px !important;
+  border: 2px solid #797979;
   overflow: hidden;
 }
 
 .sImg {
-  width: 310px;
-}
-
-#imgBigBox {
-  border-radius: 15px !important;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 20px 20px 0 0;
 }
 
 .small {
-  font-size: .7em;
+  font-size: 0.7em;
 }
 
 .btn {
-  width: 150px;
-  background-color: #ff6666;
-  color: #fff;
-  border-radius: 6px;
+  width: 180px;
+  height: 40px;
+  font-size: 20px;
+  border-radius: 8px;
+  background-color: white;
+  color: #ff6666;
+  border: 1px solid #ff6666;
 }
 
 .star {
@@ -298,12 +336,12 @@ const toStore = id => {
   justify-content: center;
   align-items: center;
   border-radius: 10px;
-  font-size: 40px;
-  width: 60% !important;
-  height: 50px;
-  margin-left: -5px;
-  margin-top: -20px;
+  font-size: 25px;
+  width: 150px;
+  height: 60px;
   border: none;
+  background-color: #ff6666;
+  color: #fff;
 }
 
 .arrow {
@@ -327,5 +365,58 @@ const toStore = id => {
   font-size: 25px;
   text-align: center;
   margin-bottom: 50px;
+}
+// 반응형
+@media (max-width: 1800px) {
+  .guideBox {
+    justify-content: center;
+    width: 1200px;
+  }
+}
+
+@media (max-width: 1400px) {
+  .guideBox {
+    width: 900px;
+
+    .store {
+      width: 200px;
+      height: 300px;
+
+      .storeImgBox {
+        width: 150px;
+        height: 130px;
+        margin-left: 25px;
+        margin-top: 2px;
+
+        .sImg {
+          width: 150px;
+        }
+      }
+
+      .storeTextBox {
+        margin-top: -10px;
+        font-size: 0.8em;
+      }
+
+      .btn {
+        width: 100px;
+        font-size: 0.6em;
+        margin-top: 3px;
+        margin-left: 50px;
+      }
+    }
+  }
+}
+
+@media (max-width: 1030px) {
+  .guideBox {
+    width: 800px;
+  }
+}
+
+@media (max-width: 800px) {
+  .guideBox {
+    width: 450px;
+  }
 }
 </style>

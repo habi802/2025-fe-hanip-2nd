@@ -44,7 +44,7 @@ onMounted ( () => {
   <div class="allBox">
     <div class="box">
       <!-- 보더 왼쪽 -->
-      <div class="userboard">
+      <!-- <div class="userboard">
         <div class="userLeft">
           <img class="userImg" src="/src/imgs/userImg.png" />
           <div class="user">
@@ -54,9 +54,9 @@ onMounted ( () => {
               <span class="rank">등급</span>
             </div>
           </div>
-        </div>
+        </div> -->
         <!-- 보더 오른쪽 -->
-        <div class="userright">
+        <!-- <div class="userright">
           <div class="right">
             <div>총 주문 수</div>
             <div class="num">{{ user.orders }}</div>
@@ -70,7 +70,7 @@ onMounted ( () => {
             <div class="num">{{ user.point }}</div>
           </div>
         </div>
-      </div>
+      </div> -->
     </div>
   </div>
   <account></account>
@@ -86,8 +86,9 @@ onMounted ( () => {
 .box {
   display: flex;
   justify-content: center;
-  height: 500px;
+  height: 200px;
   margin-bottom: -230px;
+  
   .userboard {
     align-items: center;
     display: flex;

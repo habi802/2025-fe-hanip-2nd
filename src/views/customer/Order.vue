@@ -204,353 +204,382 @@ const showModal = (message) => {
 </script>
 
 <template>
-    <div class="cart-empty-wrapper">
-        <div class="top-row">
-            <div class="header-row">
-                <!-- <img class="back-icon" alt="뒤로가기" src="/src/imgs/cartimgs/arrowios.svg" /> -->
-                <div class="div29">장바구니</div>
+  <div class="order-wrapper">
+    <div class="order-header">
+      <h2>결제하기</h2>
+      <div class="order-steps">
+        <span>01 음식 선택</span> ›
+        <span>02 장바구니</span> ›
+        <span class="current">03 주문/결제</span> ›
+        <span>04 주문완료</span>
+      </div>
+      <div class="header-divider"></div>
+    </div>
+
+    <div class="order-main">
+      <form class="order-form" @submit.prevent="submit">
+        <div class="left">
+          <h4 class="section-title">배달정보</h4>
+
+          <label class="field-label">주소</label>
+          <input id="address" type="text" class="field" placeholder="주소 입력" v-model="state.form.address" />
+
+          <label class="sr-only">상세주소</label>
+          <input id="address-detail" type="text" class="field" placeholder="(필수) 상세주소 입력" v-model="state.form.addressDetail" />
+
+          <label class="field-label">휴대전화번호</label>
+          <input id="phone" type="text" class="field" placeholder="(필수) 휴대전화번호 입력" v-model="state.form.phone" />
+
+          <label class="field-label">주문 시 요청사항 (가게)</label>
+          <textarea id="store-request" class="textarea" placeholder="예) 간장 빼주세요, 덜 맵게 해주세요" v-model="state.form.storeRequest"></textarea>
+
+          <label class="field-label">주문 시 요청사항 (라이더)</label>
+          <textarea id="rider-request" class="textarea" placeholder="예) 상세 요청사항을 입력해주세요" v-model="state.form.riderRequest"></textarea>
+
+          <div class="payment-section">
+            <div class="payment-title">결제수단 선택</div>
+            <div class="payment-list">
+              <label class="radio-label"><input type="radio" value="CARD" v-model="state.form.payment" /> 카드 결제</label>
+              <label class="radio-label"><input type="radio" value="BANK" v-model="state.form.payment" /> 무통장 입금</label>
+              <label class="radio-label"><input type="radio" value="KAKAOPAY" v-model="state.form.payment" /> KakaoPay 결제</label>
+              <label class="radio-label"><input type="radio" value="NPAY" v-model="state.form.payment" /> NPay 결제</label>
+              <label class="radio-label"><input type="radio" value="ON_SITE" v-model="state.form.payment" /> 현장 결제</label>
             </div>
-            <div class="step-horizontal">
-                <span class="step-text">01 음식선택</span>
-                <span class="arrow"><img src="/src/imgs/cartimgs/arrow-back.png"></span>
-                <span class="step-text">02 장바구니</span>
-                <span class="arrow"><img src="/src/imgs/cartimgs/arrow-back.png"></span>
-                <span class="step-text current">03 주문/결제</span>
-                <span class="arrow"><img src="/src/imgs/cartimgs/arrow-back.png"></span>
-                <span class="step-text">04 주문완료</span>
-            </div>
+          </div>
         </div>
 
-        <div class="container">
-            <form class="row" @submit.prevent="submit">
-                <div class="col-12 col-md-8">
-                    <h4 class="mb-5">배달 정보</h4>
-                    <div class="row mb-4">
-                        <div class="col-12 col-md-3">
-                            <label for="address" class="col-form-label">주소</label>
-                        </div>
-                        <div class="col-12 col-md-9">
-                            <input id="address" type="text" class="form-control mb-4" placeholder="주소 입력"
-                                v-model="state.form.address">
-                            <input id="address-detail" type="text" class="form-control" placeholder="상세주소 입력 (필수)"
-                                v-model="state.form.addressDetail">
-                        </div>
-                    </div>
-                    <div class="row mb-2">
-                        <div class="col-12 col-md-3">
-                            <label for="" class="col-form-label">전화번호</label>
-                        </div>
-                        <div class="col-12 col-md-9">
-                            <div class="row g-2">
-                                <div class="col-4">
-                                    <select class="form-control" v-model="phone1">
-                                        <option>010</option>
-                                        <option>016</option>
-                                        <option>017</option>
-                                        <option>018</option>
-                                        <option>019</option>
-                                    </select>
-                                </div>
-                                <div class="col-4">
-                                    <input type="text" class="form-control" v-model="phone2" />
-                                </div>
-                                <div class="col-4">
-                                    <input type="text" class="form-control" v-model="phone3" />
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div id="request" class="row mb-4">
-                        <div class="col-12">
-                            <label for="store-request" class="col-form-label">주문 시 요청사항 (가게)</label>
-                        </div>
-                        <div class="col-12">
-                            <input id="store-request" type="text" class="form-control" placeholder="가게 요청사항 입력"
-                                v-model="state.form.storeRequest">
-                        </div>
-                    </div>
-                    <div class="row mb-2">
-                        <div class="col-12">
-                            <label for="rider-request" class="col-form-label">주문 시 요청사항 (라이더)</label>
-                        </div>
-                        <div class="col-12">
-                            <input id="rider-request" type="text" class="form-control" placeholder="라이더 요청사항 입력"
-                                v-model="state.form.riderRequest">
-                        </div>
-                    </div>
-                    <div class="row mb-2">
-                        <div class="col-12">
-                            <label class="col-form-label">결제 수단 선택</label>
-                        </div>
-                        <div class="col-12">
-                            <div class="form-check">
-                                <input id="card" class="form-check-input" type="radio" value="CARD"
-                                    v-model="state.form.payment">
-                                <label class="form-check-label" for="card">카드 결제</label>
-                            </div>
-                        </div>
-                        <div class="col-12">
-                            <div class="form-check">
-                                <input id="bank" class="form-check-input" type="radio" value="BANK"
-                                    v-model="state.form.payment">
-                                <label class="form-check-label" for="bank">무통장 입금</label>
-                            </div>
-                        </div>
-                        <div class="col-12">
-                            <div class="form-check">
-                                <input id="on-site" class="form-check-input" type="radio" value="ON_SITE"
-                                    v-model="state.form.payment">
-                                <label class="form-check-label" for="on-site">현장 결제(포장)</label>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+        <div class="right">
+          <h4 class="section-title">주문내역</h4>
 
-                <div class="col-12 col-md-4 d-flex flex-column p-4">
-                    <div id="sheet" class="row border rounded p-4 mb-2">
-                        <div class="d-flex justify-content-between border-bottom pb-2 mb-2">
-                            <span>주문표</span>
-                        </div>
-                        <div v-if="state.carts.length > 0">
-                            <div v-for="(item, idx) in state.carts" :key="item.id">
-                                <div class="p-2" :class="{ 'border-top': idx !== 0 }">
-                                    <div class="d-flex justify-content-between mb-2">
-                                        <span class="menuText">{{ item.name }}</span>
-                                        <span>{{ (item.price * item.quantity).toLocaleString() }}원</span>
-                                    </div>
-                                    <div class="d-flex justify-content-between">
-                                        <div class="row">
-                                            <span>　</span>
-                                        </div>
-                                        <div>
-                                            <button type="button" class="btn btn-basic btn-quantity"
-                                                @click="decreaseQuantity(idx)">-</button>
-                                            <span class="p-3">{{ item.quantity }}</span>
-                                            <button type="button" class="btn btn-basic btn-quantity"
-                                                @click="increaseQuantity(idx)">+</button>
-                                        </div>
-                                        <div>
-                                            <button type="button" class="btn btn-basic btn-submit"
-                                                @click="deleteItem(item.id)">X</button>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div v-else>
-                            메뉴를 선택해주세요.
-                        </div>
-                        <div class="text-end border-top pt-2 mt-2">
-                            {{ totalPrice.toLocaleString() }}원
-                        </div>
-                    </div>
-                    <p class="all-agree">
-                        <label class="custom-checkbox">
-                            <input type="checkbox" v-model="state.form.agree" />
-                            <span>
-                                이용약관, 개인정보 수집 및 애용, 개인정보 제 3자 제공, 전자금융거래 이용약관, 만 14세 이상 이용자 내용 확인하였으며 결제에 동의합니다.
-                            </span>
-                        </label>
-                    </p>
-                    <button type="submit" class="btn btn-basic btn-submit">결제하기</button>
+          <div class="summary">
+            <div class="store-name">가게명</div>
+
+            <div class="items">
+              <div v-if="state.carts.length > 0" class="items-list">
+                <div v-for="(item) in state.carts" :key="item.id" class="item-row">
+                  <div class="item-name">
+                    <div class="name">{{ item.name }}</div>
+                    <div v-if="item.optionName" class="option">　└ {{ item.optionName }}</div>
+                    <div v-for="(ex, i) in item.extra" :key="i" class="option">└ {{ ex }}</div>
+                  </div>
+                  <div class="item-qty">{{ item.quantity }}개</div>
+                  <div class="item-price">{{ (item.price * item.quantity).toLocaleString() }}원</div>
                 </div>
-            </form>
-        </div>
-    </div>
-    <div class="last"></div>
-    <!-- 공통 알림 모달 -->
-    <div class="modal fade" id="alertModal" tabindex="-1" role="dialog" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">알림</h5>
-                </div>
-                <div class="modal-body" id="alertModalBody">내용</div>
-                <div class="modal-footer">
-                    <button type="button" class="btn " data-bs-dismiss="modal">
-                        확인
-                    </button>
-                </div>
+              </div>
+              <div v-else class="empty">메뉴를 선택해주세요.</div>
             </div>
+          </div>
+
+          <div class="fee-box">
+            <div class="fee-row">
+              <span>배달료</span>
+              <span>2,000원</span>
+            </div>
+          </div>
+
+          <div class="total-box">
+            <div class="total-row">
+              <strong>총 결제 금액</strong>
+              <strong>{{ (totalPrice + 2000).toLocaleString() }}원</strong>
+            </div>
+          </div>
+
+          <div class="agree-area">
+            <label class="agree-label">
+              <input type="checkbox" v-model="state.form.agree" />
+              이용약관, 개인정보 수집 및 이용, 개인정보 제 3자 제공, 전자금융거래 이용약관, 만 14세 이상 이용자 내용 확인하였으며 결제에 동의합니다.
+            </label>
+          </div>
+
+          <button type="submit" class="btn-outline">결제하기</button>
         </div>
+      </form>
     </div>
+
+    <div id="alertModal" class="modal fade" tabindex="-1" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header"><h5 class="modal-title">알림</h5></div>
+          <div class="modal-body" id="alertModalBody">내용</div>
+          <div class="modal-footer"><button type="button" class="btn" data-bs-dismiss="modal">확인</button></div>
+        </div>
+      </div>
+    </div>
+  </div>
 </template>
+
+
+
 
 <style lang="scss" scoped>
 @font-face {
-    // 프리텐다드
-    font-family: 'Pretendard-Regular';
-    src: url('https://fastly.jsdelivr.net/gh/Project-Noonnu/noonfonts_2107@1.1/Pretendard-Regular.woff') format('woff');
-    font-weight: 400;
-    font-style: normal;
+  // 프리텐다드
+  font-family: 'Pretendard-Regular';
+  src: url('https://fastly.jsdelivr.net/gh/Project-Noonnu/noonfonts_2107@1.1/Pretendard-Regular.woff') format('woff');
+  font-weight: 400;
+  font-style: normal;
 }
 
 * {
-    font-family: 'Pretendard-Regular';
-    font-weight: 800;
+  font-family: 'Pretendard-Regular';
+  box-sizing: border-box;
 }
 
-.cart-empty-wrapper {
-    max-width: 1024px;
-    margin: 50px auto;
-    padding: 20px;
+.order-wrapper {
+  max-width: 1180px;
+  margin: 40px auto;
+  padding: 0 18px 80px;
+  color: #222;
 }
 
-.top-row {
-    display: flex;
-    justify-content: space-between;
-    column-gap: 100px;
-    margin-bottom: 60px;
+.order-header {
+  position: relative;
+  margin-bottom: 36px;
+  text-align: center;
 }
 
-.header-row {
-    display: flex;
-    align-items: center;
+.order-header h2 {
+  margin: 0;
+  font-size: 30px;
+  font-weight: 500;
+  padding-top: 6px;
 }
 
-.back-icon {
-    width: 24px;
-    height: 24px;
-    margin-right: 10px;
+.order-steps {
+  position: absolute;
+  right: 0;
+  top: 70px;
+  font-size: 16px;
+  color: #6b6b6b;
 }
 
-.div29 {
-    font-size: 24px;
-    font-weight: bold;
-    white-space: nowrap;
-    margin-left: 10px;
+.order-steps .current {
+  color: #ff6666;
+  font-weight: 700;
 }
 
-.step-horizontal {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    font-size: 14px;
-    font-weight: bold;
-    padding-left: 200px;
-    white-space: nowrap;
+.header-divider {
+  margin-top: 70px;
+  height: 2px;
+  background: #000000;
 }
 
-.arrow img {
-    width: 12px;
-    height: auto;
+.order-main {
+  margin-top: 26px;
 }
 
-.step-text.current {
-    font-size: 18px;
-    font-weight: bold;
-    color: #FF6666;
+.order-form {
+  display: flex;
+  gap: 40px;
+  align-items: flex-start;
 }
 
-.arrow {
-    font-size: 16px;
+/* left column */
+.left {
+  flex: 0 0 62%;
 }
 
-input,
-select {
-    height: 50px;
-    padding: 0.5rem;
-    font-size: 1rem;
-    border: 1px solid #c8c8c8;
-    border-radius: 8px;
-    vertical-align: middle;
+.section-title {
+  font-size: 18px;
+  font-weight: 700;
+  margin: 0 0 18px;
+  color: #111;
 }
 
-.form-control:focus {
-    box-shadow: none;
-    border: 2px solid #000;
+.field-label {
+  display: block;
+  font-size: 13px;
+  margin-bottom: 8px;
+  color: #444;
 }
 
-input[type="radio"] {
-    appearance: none;
-    -webkit-appearance: none;
-    width: 18px;
-    height: 18px;
-    border-radius: 50%;
-    border: 1px solid #7d7d7d;
-    position: relative;
-    cursor: pointer;
-    vertical-align: middle;
-    margin-right: 8px;
-    background-color: white;
+.field {
+  width: 100%;
+  height: 44px;
+  padding: 0 14px;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  margin-bottom: 14px;
+  font-size: 14px;
+  background: #fff;
 }
 
-input[type="radio"]:checked {
-    background-color: #fff;
-    border-color: #ff6666;
+.textarea {
+  width: 100%;
+  min-height: 72px;
+  padding: 12px 14px;
+  border: 1px solid #e6e6e6;
+  border-radius: 8px;
+  margin-bottom: 14px;
+  font-size: 14px;
+  resize: vertical;
+  background: #fff;
 }
 
-input[type="radio"]:checked::after {
-    content: "";
-    content: "";
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    width: 10px;
-    height: 10px;
-    background-color: #ff6666;
-    border-radius: 50%;
-    transform: translate(-50%, -50%);
+.payment-section {
+  margin-top: 8px;
 }
 
-input[type="checkbox"] {
-    appearance: none;
-    -webkit-appearance: none;
-    width: 18px;
-    height: 18px;
-    border-radius: 50%;
-    border: 1px solid #7d7d7d;
-    position: relative;
-    cursor: pointer;
-    vertical-align: middle;
-
-    &:checked {
-        background-color: #ff6666;
-        border-color: #ff6666;
-    }
-
-    &:checked::after {
-        content: "V";
-        color: white;
-        font-size: 12px;
-        position: absolute;
-        left: 3px;
-        top: 0.5px;
-    }
+.payment-title {
+  margin-bottom: 8px;
+  font-weight: 700;
+  color: #222;
 }
 
-.btn-basic {
-    background-color: white;
-    border-width: 1px;
-    border-style: solid;
-    font-family: 'BMJUA';
-    letter-spacing: 1px;
-    line-height: 1.2;
-
-    &.btn-submit {
-        border-color: #ff6666;
-        color: #ff6666;
-    }
-
-    &.btn-quantity {
-        border-color: #000;
-        color: #000;
-    }
-
-    &:hover {
-        background-color: #ffe5e5;
-    }
+.payment-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px 40px;
+  font-weight: 600;
 }
 
-#request {
-    margin-top: 30px;
+.radio-label {
+  display: flex;
+  align-items: center;
+  width: 200px;
+  font-size: 14px;
+  color: #222;
 }
 
-#sheet {
-    margin-top: -25px;
+.radio-label input {
+  margin-right: 10px;
 }
-.menuText{
-    width: 130px;
-    text-align: start;
+
+/* right column */
+.right {
+  flex: 0 0 36%;
+}
+
+.summary {
+  border: 1px solid #e6e6e6;
+  border-radius: 12px;
+  padding: 14px;
+  background: #fff;
+  margin-bottom: 14px;
+}
+
+.store-name {
+  font-weight: 700;
+  margin-bottom: 8px;
+  font-size: 14px;
+  color: #222;
+}
+
+.items {
+  max-height: 240px;
+  overflow: auto;
+  padding-right: 6px;
+}
+
+.items-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.item-row {
+  display: grid;
+  grid-template-columns: 1fr 72px 100px;
+  align-items: center;
+  border-bottom: 1px dashed #f0f0f0;
+  padding: 8px 4px;
+}
+
+.item-row:last-child {
+  border-bottom: none;
+}
+
+.item-name .name {
+  font-size: 14px;
+  color: #222;
+}
+
+.option {
+  font-size: 12px;
+  color: #9a9a9a;
+  margin-top: 4px;
+}
+
+.item-qty {
+  text-align: center;
+  font-size: 13px;
+  color: #666;
+}
+
+.item-price {
+  text-align: right;
+  font-size: 13px;
+  color: #222;
+}
+
+/* fee and total boxes */
+.fee-box {
+  border: 1px solid #eee;
+  border-radius: 10px;
+  padding: 12px;
+  margin-bottom: 12px;
+  background: #fff;
+}
+
+.fee-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 14px;
+  color: #222;
+}
+
+.total-box {
+  border: 1px solid #eee;
+  border-radius: 10px;
+  padding: 16px;
+  margin-bottom: 14px;
+  background: #fff;
+}
+
+.total-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 16px;
+  color: #222;
+  font-weight: 700;
+}
+
+/* agreement and button */
+.agree-area {
+  font-size: 12px;
+  color: #444;
+  margin-bottom: 18px;
+}
+
+.agree-label input {
+  margin-right: 8px;
+}
+
+.btn-outline {
+  width: 100%;
+  height: 50px;
+  border-radius: 8px;
+  border: 1px solid #ff6666;
+  background: #fff;
+  color: #ff6666;
+  font-weight: 700;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+.btn-outline:hover {
+  background: #fff6f6;
+}
+
+/* responsive */
+@media (max-width: 991px) {
+  .order-form {
+    flex-direction: column;
+  }
+  .left, .right { flex: 1 1 100%; }
+  .order-steps { position: static; text-align: left; margin-top: 8px; }
 }
 </style>
+
+
+
