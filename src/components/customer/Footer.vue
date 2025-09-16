@@ -51,20 +51,13 @@
 
 </template>
 <style lang="scss" scoped>
-@font-face {
-  // 프리텐다드 폰트 설정
-  font-family: 'Pretendard-Regular';
-  src: url('https://fastly.jsdelivr.net/gh/Project-Noonnu/noonfonts_2107@1.1/Pretendard-Regular.woff') format('woff');
-  font-weight: 400;
-  font-style: normal;
-}
-
 * {
   // 기본 폰트 적용
   font-family: 'Pretendard-Regular';
 }
 
 .footer {
+  width: 100%;
   background-color: #525252;
   color: white;
   padding: 2rem 1rem 1rem;

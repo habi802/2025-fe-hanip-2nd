@@ -18,6 +18,10 @@ const visibleOrders = computed(() => {
 
 // 가게 활성화 여부
 const isOpen = inject("isOpen");
+
+const test1 = () => {
+  console.log("테스트중");
+};
 </script>
 
 <template>
@@ -42,20 +46,22 @@ const isOpen = inject("isOpen");
 
       <!-- 스크롤 가능한 바디 -->
       <div class="grid-body">
-        <div class="grid-table underline " v-for="n in 4" :key="n">
-          <div>000{{ n }}</div>
-          <div>17:12</div>
-          <div>{{ n }}분</div>
-          <div class="address">
-            대구 달서구 야외음악당로 20길 49,<br />205동 203호
+        <button v-bind="test1">
+          <div class="grid-table underline " v-for="n in 4" :key="n">
+            <div>000{{ n }}</div>
+            <div>17:12</div>
+            <div>{{ n }}분</div>
+            <div class="address">
+              대구 달서구 야외음악당로 20길 49,<br />205동 203호
+            </div>
+            <div>황금올리브 외 4건</div>
+            <div>23,500원</div>
+            <div>
+              <!-- TODO : 각 상태마다 버튼 다르게하기 -->
+              <button class="hn-btn-white">배차하기</button>
+            </div>
           </div>
-          <div>황금올리브 외 4건</div>
-          <div>23,500원</div>
-          <div>
-            <!-- TODO : 각 상태마다 버튼 다르게하기 -->
-            <button class="hn-btn-white">배차하기</button>
-          </div>
-        </div>
+        </button>
       </div>
     </div>
   </div>

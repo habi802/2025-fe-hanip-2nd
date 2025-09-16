@@ -2,10 +2,11 @@
 import { getOwnerOrder } from "@/services/orderService";
 import { activeStore, getOwnerStore } from "@/services/storeService";
 import { useOrderStore } from "@/stores/orderStore";
-import { ref, onMounted, onUnmounted, provide, watch, computed, reactive,} from "vue";
+import { ref, onMounted, onUnmounted, provide, watch, computed, reactive, } from "vue";
 import { RouterLink, useRouter, useRoute } from "vue-router";
 import { check, logout } from "@/services/userService";
 import { useAccountStore } from "@/stores/account";
+import '@/assets/customer/customer.css';
 
 // 로그인 체크
 const checkAcconut = async () => {
@@ -51,7 +52,7 @@ onMounted(async () => {
 // 가게 데이터
 const state = reactive({
   form: {
-    ownerName : "임시값"
+    ownerName: "임시값"
   },
   storeName: "한식은 못참지",
 });
@@ -81,7 +82,7 @@ watch(
   () => route.path,
   () => {
     checkAcconut();
-});
+  });
 
 // 알림 갱신 (watch)
 watch(
@@ -206,32 +207,33 @@ onUnmounted(() => {
     <!-- 사이드바 -->
     <div class="sideNav p-3" style="width: 345px; flex-shrink: 0">
       <div class="text-center mb-5">
-        <img :style="{width: '220px',}" src="/src/imgs/haniplogo3.png" alt="logo" />
+        <img :style="{ width: '220px', }" src="/src/imgs/haniplogo3.png" alt="logo" />
         <div style="font-size: 40px; font-weight: 100; font-family: Pretendard,serif;">{{ state.storeName }}</div>
         <!-- 유저정보 -->
-         <div class="d-flex align-items-center justify-content-center pt-3">
-            <div class="dropdown position-relative">
-              <div class="d-flex align-items-center gap-2" data-bs-toggle="dropdown" role="button" style="cursor: pointer" >
-                <img src="/src/imgs/owner/owner_profile.png"  style="cursor: pointer; width: 22px;"  role="button" />
-                <span class="me-2" style="font-size: 16px;">
-                  <span style="font-weight: bold; letter-spacing: 1px">
-                    {{ state.form.ownerName }}
-                  </span>
-                  사장님
-                </span>
-              </div>
-              <div class="dropdown-menu dropdown-menu-end">
-                <div class="title px-3 py-2">
+        <div class="d-flex align-items-center justify-content-center pt-3">
+          <div class="dropdown position-relative">
+            <div class="d-flex align-items-center gap-2" data-bs-toggle="dropdown" role="button"
+              style="cursor: pointer">
+              <img src="/src/imgs/owner/owner_profile.png" style="cursor: pointer; width: 22px;" role="button" />
+              <span class="me-2" style="font-size: 16px;">
+                <span style="font-weight: bold; letter-spacing: 1px">
                   {{ state.form.ownerName }}
-                </div>
-                <div class="dropdown-divider">
-                </div>
-                <div @click="logoutOwner" style="cursor: pointer" class="dropdown-item">
-                  로그아웃
-                </div>
+                </span>
+                사장님
+              </span>
+            </div>
+            <div class="dropdown-menu dropdown-menu-end">
+              <div class="title px-3 py-2">
+                {{ state.form.ownerName }}
+              </div>
+              <div class="dropdown-divider">
+              </div>
+              <div @click="logoutOwner" style="cursor: pointer" class="dropdown-item">
+                로그아웃
               </div>
             </div>
           </div>
+        </div>
         <!-- 시간 -->
         <!-- <div class="text-black-50 mb-4" style="font-weight: 600; font-size: 20px" >
            {{ currentTime }}
@@ -247,17 +249,15 @@ onUnmounted(() => {
       </div>
       <ul class="nav nav-pills flex-column gap-4 align-items-center">
         <li class="nav-item" v-for="menu in menus" :key="menu.text">
-          <RouterLink :to="!isOpen && menu.text === '대시보드' ? '#' : menu.path" class="nav-link w-80 text-center size d-flex justify-content-center align-items-center"
-            :style="{
+          <RouterLink :to="!isOpen && menu.text === '대시보드' ? '#' : menu.path"
+            class="nav-link w-80 text-center size d-flex justify-content-center align-items-center" :style="{
               backgroundColor: route.path === menu.path ? '#f66463' : '#dddddd',
               color:
                 route.path === menu.path
                   ? '#FFFFFF !important'
                   : '#333333 !important',
               fontSize: '17px',
-            }"
-            @click.prevent="!isOpen ? null : null"
-          >
+            }" @click.prevent="!isOpen ? null : null">
             {{ menu.text }}
           </RouterLink>
         </li>
@@ -278,10 +278,10 @@ onUnmounted(() => {
     <!-- 오른쪽 화면 -->
     <div class="flex-grow-1" style="background-color: #e8e8e8">
       <!-- 헤더 시작 -->
-       <!-- 검색 + 영업 버튼 -->
-       <!-- 드랍다운 -->
-       <!-- 구분선 -->
-       <!-- 유저 정보 -->
+      <!-- 검색 + 영업 버튼 -->
+      <!-- 드랍다운 -->
+      <!-- 구분선 -->
+      <!-- 유저 정보 -->
       <!--  헤더 끝 :  혹시나 다시 필요할때 위치참고용 주석-->
       <!-- 라우터뷰 -->
       <div class="section">
@@ -290,10 +290,10 @@ onUnmounted(() => {
     </div>
     <!-- 오른쪽화면 끝 -->
   </div>
-    
+
 </template>
 
-<style lang="scss" >
+<style lang="scss">
 @import "@/assets/owner/_ownerStyle.scss"; //공통css
 
 .box {
@@ -301,11 +301,11 @@ onUnmounted(() => {
 }
 
 .section {
-//  padding-top: 20px;
+  //  padding-top: 20px;
   display: flex;
-  justify-content: center;  // 가로 가운데
-  align-items: center;      // 세로 가운데
-  height: 100%;           // 부모 높이 꽉 차게
+  justify-content: center; // 가로 가운데
+  align-items: center; // 세로 가운데
+  height: 100%; // 부모 높이 꽉 차게
 }
 
 .paddingSearch {
@@ -361,16 +361,16 @@ onUnmounted(() => {
 }
 
 
-input:checked + .slider {
+input:checked+.slider {
   background-color: #ff6666;
 }
 
-input:checked + .slider::before {
+input:checked+.slider::before {
   transform: translateX(34px);
 }
 
 // 왼쪽사이드 메뉴버튼
-.nav-link{
+.nav-link {
   width: 220px;
   height: 60px;
 }
@@ -378,16 +378,16 @@ input:checked + .slider::before {
 .sideNav {
   display: flex;
   flex-direction: column;
-  height:  100vh; 
+  height: 100vh;
 }
 
-.footer{
+.footer {
   width: 90%;
-  align-items:center;
+  align-items: center;
   margin-top: auto;
   text-align: center;
 
-  .copyright{
+  .copyright {
     bottom: 3px;
   }
 

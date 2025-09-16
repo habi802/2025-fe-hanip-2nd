@@ -29,7 +29,7 @@
                                 </input>
                                 <span class="option-detail">순한맛</span>
                                 <!-- 메뉴 가격 -->
-                                <div class="manu-price">0원</div>
+                                <div class="menu-price">0원</div>
                             </div>
 
 
@@ -40,7 +40,7 @@
                                 </input>
                                 <span class="option-detail">보통맛</span>
                                 <!-- 메뉴 가격 -->
-                                <div class="manu-price">0원</div>
+                                <div class="menu-price">0원</div>
                             </div>
 
 
@@ -51,16 +51,16 @@
                                 </input>
                                 <span class="option-detail">매운맛</span>
                                 <!-- 메뉴 가격 -->
-                                <div class="manu-price">0원</div>
+                                <div class="menu-price">0원</div>
                             </div>
                         </div>
                     </div>
 
                     <div class="option-body">
-                        <div class="option-name"> 맵기 </div>
+                        <div class="option-name"> 소스 </div>
                         <hr>
                         </hr>
-                        <div class="essential">필수</div>
+                        <div class="essential">선택</div>
                         <div class="option-select">
                             <!-- 옵션 세부선택 -->
                             <div class="options">
@@ -68,27 +68,64 @@
                                 <!-- name값 v-for 돌릴 때 + i 식으로 숫자 늘려서 묶어줘야함 중복선택 x -->
                                 <input class="option-btn" name="spiciness" type="radio" checked>
                                 </input>
-                                <span class="option-detail">순한맛</span>
+                                <span class="option-detail">머스타드</span>
                                 <!-- 메뉴 가격 -->
-                                <div class="manu-price">0원</div>
+                                <div class="menu-price">100원</div>
                             </div>
                             <!-- 옵션 세부선택  1번방 이상부터 v-for 돌려야하나..? 싶음 -->
                             <div class="options">
                                 <!-- 버튼, 메뉴 이름 -->
                                 <input class="option-btn" name="spiciness" type="radio">
                                 </input>
-                                <span class="option-detail">보통맛</span>
+                                <span class="option-detail">케찹</span>
                                 <!-- 메뉴 가격 -->
-                                <div class="manu-price">0원</div>
+                                <div class="menu-price">100원</div>
                             </div>
                             <!-- 옵션 세부선택 -->
                             <div class="options">
                                 <!-- 버튼, 메뉴 이름 -->
                                 <input class="option-btn" name="spiciness" type="radio">
                                 </input>
-                                <span class="option-detail">매운맛</span>
+                                <span class="option-detail">칠리</span>
                                 <!-- 메뉴 가격 -->
-                                <div class="manu-price">0원</div>
+                                <div class="menu-price">100원</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="option-body">
+                        <div class="option-name"> 토핑 </div>
+                        <hr>
+                        </hr>
+                        <div class="essential">선택</div>
+                        <div class="option-select">
+                            <!-- 옵션 세부선택 -->
+                            <div class="options">
+                                <!-- 버튼, 메뉴 이름 0번방 애만 먼저 가져오고 -->
+                                <!-- name값 v-for 돌릴 때 + i 식으로 숫자 늘려서 묶어줘야함 중복선택 x -->
+                                <input class="option-btn" name="spiciness" type="radio" checked>
+                                </input>
+                                <span class="option-detail">치킨너겟</span>
+                                <!-- 메뉴 가격 -->
+                                <div class="menu-price">2,000원</div>
+                            </div>
+                            <!-- 옵션 세부선택  1번방 이상부터 v-for 돌려야하나..? 싶음 -->
+                            <div class="options">
+                                <!-- 버튼, 메뉴 이름 -->
+                                <input class="option-btn" name="spiciness" type="radio">
+                                </input>
+                                <span class="option-detail">만두</span>
+                                <!-- 메뉴 가격 -->
+                                <div class="menu-price">2,000원</div>
+                            </div>
+                            <!-- 옵션 세부선택 -->
+                            <div class="options">
+                                <!-- 버튼, 메뉴 이름 -->
+                                <input class="option-btn" name="spiciness" type="radio">
+                                </input>
+                                <span class="option-detail">팽이버섯</span>
+                                <!-- 메뉴 가격 -->
+                                <div class="menu-price">30,000원</div>
                             </div>
                         </div>
                     </div>
@@ -96,24 +133,38 @@
 
 
 
-
                 </div>
-                <div class="footer">
-                    <button type="button" class="hn-btn-white" data-bs-dismiss="modal">주문취소</button>
-                    <button type="button" class="hn-btn-white">메뉴담기</button>
+                <hr class="solide-bottom">
+                </hr>
+                <div class="solide-bottom-body">
+                    <div class="num-text">
+                        <div>수량</div>
+                    </div>
+                    <div class="quantity">
+                        <div class="quantity-box">
+                            <div class="quantity-text-m">–</div>
+                        </div>
+                        <div class="quantity-num">
+                            1
+                        </div>
+                        <div class="quantity-box">
+                            <div class="quantity-text-p">+</div>
+                        </div>
+                    </div>
+                </div>
+
+
+
+                <div class="footer-btn">
+                    <button type="button" class="hn-btn-gray" data-bs-dismiss="modal">주문취소</button>
+                    <button type="button" class="hn-btn-gray">메뉴담기</button>
                 </div>
             </div>
         </div>
     </div>
 </template>
 
-<style>
-* {
-    user-select: none;
-    -webkit-user-drag: none;
-    font-family: 'Pretendard-Regular';
-}
-
+<style lang="scss">
 .header {
     font-weight: 600;
     font-size: 1.3em;
@@ -129,6 +180,7 @@
 .menu-comment {
     text-align: center;
     font-weight: 400;
+    margin-bottom: 30px;
 }
 
 .body {
@@ -142,6 +194,10 @@
     width: 500px;
 }
 
+.option-body {
+    margin-top: 20px;
+}
+
 hr {
     margin-top: 5px;
 }
@@ -152,18 +208,15 @@ hr {
 
 .essential {
     font-weight: 400;
-    font-size: 0.9em;
+    font-size: 0.7em;
     margin-top: -15px;
+    margin-bottom: 15px;
 }
 
-.footer {
+.footer-btn {
     display: flex;
     justify-content: center;
-}
-
-.hn-btn-white {
-    margin: 20px;
-    padding: 10px 40px 10px 40px;
+    padding: 15px;
 }
 
 
@@ -174,13 +227,19 @@ hr {
     width: 350px;
     font-weight: 400;
     padding: 5px 0px 5px 0px;
+    color: #888;
 }
-
 
 .option-detail {
-    position: relative;
-    left: -70px;
+    width: 150px;
+    text-align: start;
 }
+
+.menu-price {
+    width: 100px;
+    text-align: end;
+}
+
 
 
 input {
@@ -200,14 +259,44 @@ input:checked {
 
 input:checked::before {
     content: "";
-    width: 80%;
-    height: 80%;
+    width: 70%;
+    height: 70%;
     background-color: #ff6666;
     border-radius: 50%;
     position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
+    transform: translate(25%, 25%);
 
+}
+
+.hn-btn-gray {
+    margin: 20px;
+    padding: 10px 40px 10px 40px !important;
+}
+
+.quantity {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 20%;
+}
+
+.solide-bottom-body {
+    display: flex;
+    justify-content: space-around;
+}
+
+.solide-bottom {
+    margin-top: 30px;
+    margin-bottom: 30px;
+}
+
+.modal-content {
+    max-height: 854px;
+}
+
+.body {
+    max-width: 495px;
+    max-height: 500px;
+    overflow-y: auto;
 }
 </style>

@@ -2,8 +2,6 @@
 import { computed, onMounted, watch } from 'vue';
 import { useRoute } from 'vue-router';
 import CustomerLayout from './layouts/CustomerLayout.vue';
-import '@/assets/customer/customer.css';
-import '@/assets/manager/manager.css';
 
 const route = useRoute();
 

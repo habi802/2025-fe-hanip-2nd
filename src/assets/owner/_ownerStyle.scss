@@ -65,6 +65,11 @@
     font-family: 'Pretendard', sans-serif;
 }
 
+button{
+  cursor: pointer;
+  border: none;
+}
+
 /* 디자인 토큰: 런타임 테마 변경을 위해 CSS 변수로 정의 */
 :root {
   // html기준폰트 16px
@@ -271,6 +276,15 @@
   color: var(--grey2);
 }
 
+
+// .dropdown-menu{
+//   width: 100%;
+//   text-align: center;
+//   border: none;
+//   border-radius: 0 0 var(--card-lg-radius) var(--card-lg-radius);
+//   padding-top: 30px;
+//   margin-top: -30px !important;
+// }
 
 //삭제된 css (혹시모르니 보관용)
 

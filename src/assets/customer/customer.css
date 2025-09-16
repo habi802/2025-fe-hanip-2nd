@@ -1,6 +1,15 @@
 @font-face {
     font-family: 'Pretendard-Regular';
     src: url('fonts/Pretendard-Regular.woff');
+    
+    
+}
+
+@font-face {
+  font-family: "BMJUA";
+  src: url("https://fastly.jsdelivr.net/gh/projectnoonnu/noonfonts_one@1.0/BMJUA.woff") format("woff");
+  font-weight: normal;
+  font-style: normal;
 }
 
 body {
@@ -40,4 +49,75 @@ body {
       color: #fff;
     }
 
+}
+
+.hn-btn-gray {
+  display: inline-block;
+  width: auto;
+  padding: 5px 20px 5px 20px;
+  background-color: white;
+  color: #CCCCCC;
+  border: 1px solid #CCCCCC;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.2s ease, color 0.2s ease;
+
+  &:hover {
+      background-color: #ffffff;
+      border: #ff6666 solid 1px;
+      color: #ff6666;
+  }
+
+}
+
+.hn-btn-gray {
+  display: inline-block;
+  width: auto;
+  padding: 5px 20px 5px 20px;
+  background-color: white;
+  color: #CCCCCC;
+  border: 1px solid #CCCCCC;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.2s ease, color 0.2s ease;
+
+  &:hover {
+      background-color: #ffffff;
+      border: #ff6666 solid 1px;
+      color: #ff6666;
+  }
+
+}
+
+.quantity-box {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 25px;
+  height: 25px;
+  border: solid 1px;
+  border-radius: 10%;
+
+  transition: border-color 0.1s ease;
+
+  &:has(.quantity-text-p:hover, .quantity-text-m:hover){
+      border-color: #ff6666;
+      color: #ff6666;
+      cursor: pointer;
+  }
+
+  .quantity-text-p {
+      position: relative;
+      font-size: 1.3em;
+      top: -5%;
+      transition: color 0.1s ease;
+
+  }
+  .quantity-text-m {
+    position: relative;
+    top: -5%;
+    font-size: 1.3em;
+    transition: color 0.1s ease;
+
+  }
 }

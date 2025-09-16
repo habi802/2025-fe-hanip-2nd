@@ -13,7 +13,6 @@ import Review from "@/components/customer/Review.vue";
 import { useFavoriteStore } from "@/stores/favoriteStore";
 import defaultImage from '@/imgs/owner/owner-service3.png';
 import AlertModal from "@/components/modal/AlertModal.vue";
-import OptionModal from "@/components/modal/OptionModal.vue";
 
 
 
@@ -24,14 +23,6 @@ import lovef from '@/imgs/loveBoard.png'
 // 모달 창 함수
 const alertModal = ref(null);
 
-const optionModal = ref(null);
-
-const openModal = () => {
-  // 모달을 참조하여 bootstrap Modal 인스턴스 생성
-  const modalElement = optionModal.value.$el;
-  const modal = new bootstrap.Modal(modalElement);
-  modal.show(); // 모달 띄우기
-};
 
 const favoriteStore = useFavoriteStore();
 
@@ -432,14 +423,13 @@ const arrow = () => {
 </script>
 
 <template>
-  <button @click="openModal">모달 열기</button>
   <div class="storeImg">
     <img class="big-img" :src="imgSrc" @error="e => e.target.src = defaultImage" />
   </div>
   <div class="container">
 
-    <div class="store-title">
-      <div>
+    <div class="store-title-box">
+      <div class="store-name">
         {{ state.store.name }}
       </div>
       <div class="title-box">
@@ -447,14 +437,14 @@ const arrow = () => {
           <span>
             <img class="restar" src="/src/imgs/starBoard.png" />
           </span>
-          <span>
+          <span class="star-num">
             {{ isNaN(state.reviewNum) ? 0 : state.reviewNum }}
           </span>
-          <span class="text-color review-length">( {{ state.reviews.length }} )</span>
+          <span class="text-color review-length star-num">( {{ state.reviews.length }} )</span>
           <span>
             <img class="favorite" @click="toggleFavorite(state.store.id)" :src="state.store.favorite ? lovet : lovef" />
           </span>
-          <span>
+          <span class="favorite-num">
             {{ state.storeInfo[0]?.favorites }}
           </span>
         </div>
@@ -571,19 +561,19 @@ const arrow = () => {
         <div class="bigBox">
           <div class="detailBox">
 
-            <!-- 메뉴보기 리스트 -->
-            <!-- v-for 돌릴때 해당 구분 칸 같이 돌리기 -->
-            <div class="menu-division">
-              <div class="division-text">세트 메뉴</div>
-            </div>
-            <!--  -->
 
 
 
             <div v-if="menubtn" class="pt-2 mb-3">
+              <!-- 메뉴보기 리스트 -->
+              <!-- v-for 돌릴때 해당 구분 칸 같이 돌리기 -->
+              <div class="menu-division">
+                <div class="division-text">세트 메뉴</div>
+              </div>
+              <!--  -->
               <div v-if="state.menus.length > 0">
                 <div v-for="item in state.menus" :key="item.id">
-                  <Menu :item="item" @click="optionModal = true" />
+                  <Menu :item="item" />
                 </div>
               </div>
               <div v-else class="d-flex mt-5 justify-content-center align-items-center w-100"
@@ -601,10 +591,9 @@ const arrow = () => {
                 <!-- 총 가게 평점 -->
                 <div class="review-point">
                   <div class="review-box">
-                    <div class="review-text">총 가게 평점</div>
                     <div class="review-data">
-                      <!-- 왼쪽 별/점수 -->
                       <div>
+                        <div class="review-text">가게 전체 평점</div>
                         <span class="star" v-for="n in Math.floor(state.reviewNum || 0)" :key="n"
                           v-if="state.reviewNum && state.reviewNum > 0">
                           <img class="starImg" src="/src/imgs/starBoard.png" />
@@ -616,12 +605,25 @@ const arrow = () => {
                           <img class="starImg" src="/src/imgs/starNull.png" />
                           <img class="starImg" src="/src/imgs/starNull.png" />
                         </span>
-                        <div class="review-num">{{ isNaN(state.reviewNum) ? 0 : state.reviewNum }}</div>
+                        <div class="review-num ">{{ isNaN(state.reviewNum) ? 0 : state.reviewNum }}</div>
                       </div>
                       <!-- 오른쪽 텍스트 -->
                       <div class="left-box">
-                        <div>총 리뷰 수 {{ state.reviews.length }}개</div>
-                        <div>사장님 댓글 {{ state.ownerCommentNum }}개</div>
+                        <div>
+                          <span>
+                            총 리뷰 수
+                          </span>
+                          <span class="count-num"> {{ state.reviews.length }}개</span>
+                        </div>
+                        <!-- 하드코딩 -->
+                        <div>
+                          <span>오늘 새로 달린 리뷰</span>
+                          <span class="count-num">10개</span>
+                        </div>
+                        <div>
+                          <span>사장님 댓글</span>
+                          <span class="count-num"> {{ state.ownerCommentNum }}개</span>
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -654,21 +656,10 @@ const arrow = () => {
 
   <!--  공용 모달창 -->
   <alert-modal ref="alertModal"></alert-modal>
-  <OptionModal ref="optionModal"></OptionModal>
 
 </template>
 
 <style lang="scss" scoped>
-@font-face {
-  font-family: "BMJUA";
-  src: url("https://fastly.jsdelivr.net/gh/projectnoonnu/noonfonts_one@1.0/BMJUA.woff") format("woff");
-  font-weight: normal;
-  font-style: normal;
-}
-
-
-
-
 .arrow {
   position: sticky;
   width: 3.8%;
@@ -750,8 +741,7 @@ const arrow = () => {
   font-size: 30px;
 }
 
-.menu-title {
-  //   border: 1px solid #ff6666;
+.mb-1 {
   font-family: "BMJUA";
   letter-spacing: 1px;
   cursor: pointer;
@@ -826,12 +816,7 @@ const arrow = () => {
   font-size: 24px;
 }
 
-.store-name {
-  font-family: "BMJUA";
-  font-size: 24px;
-  font-weight: 500;
-  color: #ff6666;
-}
+
 
 .delete-order {
   text-align: end;
@@ -865,6 +850,7 @@ const arrow = () => {
   font-family: "BMJUA";
   font-size: 50px;
   margin-top: -10px;
+  color: #FF6666;
 }
 
 .star {
@@ -877,7 +863,7 @@ const arrow = () => {
 .left-box {
   font-family: "BMJUA";
   text-align: start;
-  font-size: 19px;
+  font-size: 1em;
   margin-bottom: 10px;
 }
 
@@ -926,27 +912,42 @@ const arrow = () => {
 
 
 // 새로 만든 css 
+
 .big-img {
   width: 100%;
   height: 330px;
 }
 
-.store-title {
-  font-family: "BMJUA" !important;
+.store-title-box {
+  font-family: "BMJUA";
   font-size: 2.3em;
   text-align: center;
   margin-top: -20px;
+}
 
+.store-name {
+  font-family: "BMJUA";
+}
+
+.star-num {
+  font-family: "BMJUA";
+}
+
+.favorite-num {
+  font-family: "BMJUA";
 }
 
 .title-box {
   display: flex;
   justify-content: center;
+  align-items: center;
   font-size: 0.5em;
 }
 
 .title-info {
   display: flex;
+  align-items: center;
+
   justify-content: space-between;
   width: 150px;
 }
@@ -1066,10 +1067,17 @@ hr {
   border: #FF6666 1px solid;
   border-radius: 10px;
   padding: 10px 20px 10px 20px;
+  margin-bottom: 20px;
 }
 
 .division-text {
+  font-family: "BMJUA";
   color: #FF6666;
   font-size: 1.2em;
+}
+
+.count-num {
+  padding: 10px;
+  color: #FF6666;
 }
 </style>
