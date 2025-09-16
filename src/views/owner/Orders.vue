@@ -216,7 +216,7 @@ const selectRange = async (range) => {
     <div class="section-left">
       <div class="orders-header">
         <!-- 조회기간설정 카드 -->
-        <div class="date-option dropdown" ref="orderDetail">
+        <div class="date-option dropdown " ref="orderDetail">
           <button class="date-filter" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" >
             <img src="/src/imgs/owner/Icon_조회기간설정2.svg" alt="캘린더아이콘" />
             <span>{{selectedLabel ? selectedLabel : '조회 기간 선택'}}</span>
@@ -245,30 +245,30 @@ const selectRange = async (range) => {
             </li>
           </ul>
         </div><!-- 조회기간설정카드 끝-->
-        <div class="search white-card">검색영역</div>
+        <!-- 검색바 -->
+        <div class="search white-card">
+          <input type="text" placeholder="검색">
+          <button><img src="/src/imgs/search_icon.png" alt="검색아이콘"></button>
+        </div>
       </div><!-- orders-header 끝  -->
       
-      <div class="order-list-wrap white-card">
+      <div class="order-list-wrap scrollbar">
         <!-- 주문 리스트 -->
-        <!-- <div v-if="orderStore.orders?.length === 0" class="loading"></div> -->
-        
+        <div v-if="orderStore.orders?.length === 0" class="loading"></div>
         <!-- 주문 없음 -->
-        <!-- <div v-else-if="orderStore.nonOrderedList.length === 0">  주문이 없습니다. </div> -->
-        
-        <!-- TODO 추후 v-else붙이기  -->
-        <div class="order-list">
-          <div class=""> 오더리스트카드 영역 </div>
+        <div v-else-if="orderStore.nonOrderedList.length === 0">  주문이 없습니다. </div>
+          <order-list-card v-else></order-list-card>
+          <order-list-card :cancel="true"></order-list-card>
           <order-list-card></order-list-card>
           <!-- <order-list-card  v-for="order in visibleOrders" :key="order.id" :order="order" style="cursor: pointer" @selectOrder="handleSelectOrder(order)"/> -->
-          <button class="btn btn-secondary d-block" v-if="visibleCount < nonOrderedOrders.length" @click="loadMore"
+        </div><!--order-list 끝-->
+
+        <div class="pagenation">
+          <span>< 1, 2, 3, 4, 5 ></span>
+          <!-- <button class="btn btn-secondary d-block" v-if="visibleCount < nonOrderedOrders.length" @click="loadMore"
           style=" font-size: 1.5rem; padding: 1rem 2rem; width: 100%; max-width: 755px; " >
           더보기
-          </button>
-        </div>
-
-      </div><!--order-list 끝-->
-      <div class="pagenation">
-        <span>< 1, 2, 3, 4, 5></span>
+          </button> -->
       </div><!--pagenation 끝-->
     </div><!-- section-left 끝-->
 
@@ -444,16 +444,38 @@ const selectRange = async (range) => {
         }
       }
     }
+    .search{
+      width: 100%;
+      display: flex;  
+      align-items: center; 
+      padding: 0 20px;
+      button{
+        height: 100%;
+        background-color: #fff;
+        img{
+          height: 50%;
+        }
+      }
+      input{
+        width: 100%;
+        border: none;
+        border-radius: 0;
+      }
+    }
     .order-list-wrap{
       width: 100%;
-      height: 100%;
+      height: 90vh;
       display: flex;
-      justify-content: center;
+      flex-direction: column;
+      justify-content: start;
+      overflow: auto;
+      overflow-x: hidden;
     }
     .pagenation{
       width: 100%;
       display: flex;
       justify-content: center;
+      font-size: 18px;
     }
     
   }

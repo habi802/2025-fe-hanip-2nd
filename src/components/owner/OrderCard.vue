@@ -45,7 +45,7 @@ const test1 = () => {
       </div>
 
       <!-- 스크롤 가능한 바디 -->
-      <div class="grid-body">
+      <div class="grid-body scrollbar">
         <button v-bind="test1">
           <div class="grid-table underline " v-for="n in 4" :key="n">
             <div>000{{ n }}</div>
@@ -127,32 +127,6 @@ const test1 = () => {
   max-height: 220px; /* 3줄 정도 보이도록 */
   overflow-y: auto;
   overflow-x: auto;
-}
-
-/* ===== 스크롤바 커스텀 ===== */
-.grid-body::-webkit-scrollbar {
-  width: 8px;
-}
-
-.grid-body::-webkit-scrollbar-track {
-  background: transparent;
-  margin-top: 5px;
-  margin-bottom: 5px;
-}
-
-.grid-body::-webkit-scrollbar-thumb {
-  background-color: #c4c4c4;
-  border-radius: 9999px;
-}
-
-.grid-body::-webkit-scrollbar-thumb:hover {
-  background-color: #a0a0a0;
-}
-
-.grid-table > div {
-  display: flex;
-  align-items: center;
-  justify-content: center;
 }
 
 </style>
