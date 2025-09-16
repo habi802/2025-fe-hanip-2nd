@@ -15,15 +15,12 @@ onMounted(() => {
   reviews();
 });
 
-
 // 가게 이미지
 const img = `/pic/store-profile/${props.stores.storeId}/${props.stores.imagePath}`;
 
 // 가게 이미지가 없을 시 대체 이미지 나타내기
 const imgSrc = computed(() => {
-  return props.stores &&
-    props.stores.imagePath &&
-    props.stores.imagePath !== "null"
+  return props.stores && props.stores.imagePath && props.stores.imagePath !== "null"
     ? `/pic/store-profile/${props.stores.storeId}/${props.stores.imagePath}`
     : defaultImage;
 });
@@ -60,11 +57,7 @@ const reviews = async () => {
 <template>
   <div class="store">
     <div class="storeImgBox">
-      <img
-        class="sImg"
-        :src="imgSrc"
-        @error="(e) => (e.target.src = defaultImage)"
-      />
+      <img class="sImg" :src="imgSrc" @error="(e) => (e.target.src = defaultImage)" />
     </div>
     <div class="storeTextBox">
       <div class="sText">{{ props.stores?.name }}</div>
@@ -230,7 +223,7 @@ const reviews = async () => {
           width: 150px;
         }
       }
-
+ 
       .storeTextBox {
         margin-top: -10px;
         font-size: 0.8em;
