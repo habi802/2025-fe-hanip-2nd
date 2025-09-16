@@ -113,7 +113,7 @@ const router = createRouter({
     },
     {
       path: "/owner/orders",
-      component: () => import("@/components/owner/Orders.vue"),
+      component: () => import("@/views/owner/Orders.vue"),
       meta: { layout: OwnerLayout },
     },
     {
