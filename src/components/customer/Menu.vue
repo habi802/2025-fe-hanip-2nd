@@ -157,6 +157,7 @@ const showModal = (message, onCloseCallback) => {
 
 .menu {
     cursor: pointer;
+    margin-top: 20px;
 
     &:hover {
         border-color: #fcaeae !important;
