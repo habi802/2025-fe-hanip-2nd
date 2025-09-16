@@ -69,13 +69,13 @@ const submit = async () => {
         router.push('/'); // 고객용 메인화면
       }
     } else if (res.status === 401) {
-      alertModal.value.showModal('아이디/비밀번호를 확인해주세요.');
+      alertModal.value.open('아이디/비밀번호를 확인해주세요.');
     } else {
-      alertModal.value.showModal('알 수 없는 오류가 발생했습니다.');
+      alertModal.value.open('알 수 없는 오류가 발생했습니다.');
     }
   } catch (error) {
     console.error('로그인 오류:', error);
-    alertModal.value.showModal('서버 오류가 발생했습니다.');
+    alertModal.value.open("다시 한번 확인해주세요.");
   }
 };
 
