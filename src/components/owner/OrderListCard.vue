@@ -1,6 +1,14 @@
 <script setup>
 defineProps({
-  order: Object,
+  order: {
+    status: "CANCELED",
+    id : 1,
+    userName:"홍길동",
+    address:"ㅇㅇㅇㅇ",
+    updated:"2025-09-15",
+    amount:"1000000",
+  }
+  //Object,
 });
 const emit = defineEmits(["selectOrder"]);
 
@@ -14,6 +22,30 @@ const formatDate = (dateStr) => {
 
 <template>
   <div>
+    <div class="orders-list2-wrap2 pb-4">
+      <div class="orders-list shadow" >
+        <div>
+          <span style="font-weight: 800; color: #ff4e4e">취소된 주문</span>
+          <span>주문번호</span>
+          <span class="order-num">01-00-0</span>
+        </div>
+        <div>
+          <span>ㅇㅇㅇ 님</span>
+          <span class="order-address">ㅇㅇㅇ</span>
+        </div>
+        <div>
+          <span>ㅇㅇㅇ</span>
+          <span class="order-time">ㅇㅇㅇㅇ</span>
+        </div>
+        <div>
+          <span>총합계</span>
+          <span class="order-account"
+            >ㅇㅇㅇㅇㅇ 원</span
+          >
+        </div>
+      </div>
+    </div>
+
     <div v-if="order.status === 'CANCELED'" class="orders-list2-wrap2 pb-4">
       <div
         class="orders-list shadow"
@@ -83,7 +115,7 @@ const formatDate = (dateStr) => {
   </div>
 </template>
 
-<style scoped>
+<style scoped lang="scss">
 .orders-list-wrap {
   width: 85vh;
   .orders-list {
@@ -188,4 +220,52 @@ const formatDate = (dateStr) => {
     color: #fff !important;
   }
 }
+
+
+
+/* .orders-list-wrap {
+          width: 45%;
+          .orders-list {
+            background-color: #fff;
+            border-radius: 15px;
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            width: 82vh;
+            height: 130px;
+            div {
+              display: flex;
+              justify-content: center;
+              align-items: center;
+              flex-direction: column;
+              height: 100%;
+              span:first-child {
+                display: block;
+                font-size: 20px;
+              }
+              .order-num {
+                font-size: 20px;
+                color: #838383;
+              }
+              .order-address {
+                font-size: 20px;
+              }
+              .order-time {
+                font-size: 30px;
+              }
+              .order-account {
+                color: #ff8989;
+                font-size: 30px;
+                font-weight: 700;
+              }
+            }
+          }
+        
+        .orders-list:hover {
+          background-color: #ff8989;
+          span {
+            color: #fff !important;
+          }
+        }
+      } */
 </style>

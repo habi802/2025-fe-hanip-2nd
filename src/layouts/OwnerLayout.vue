@@ -209,7 +209,7 @@ onUnmounted(() => {
         <img :style="{width: '220px',}" src="/src/imgs/haniplogo3.png" alt="logo" />
         <div style="font-size: 40px; font-weight: 100; font-family: Pretendard,serif;">{{ state.storeName }}</div>
         <!-- 유저정보 -->
-         <div class="d-flex align-items-center justify-content-center pt-3">
+          <div class="d-flex align-items-center justify-content-center pt-3">
             <div class="dropdown position-relative">
               <div class="d-flex align-items-center gap-2" data-bs-toggle="dropdown" role="button" style="cursor: pointer" >
                 <img src="/src/imgs/owner/owner_profile.png"  style="cursor: pointer; width: 22px;"  role="button" />

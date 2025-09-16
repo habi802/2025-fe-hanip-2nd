@@ -1,6 +1,7 @@
 import BootstrapVue3 from 'bootstrap-vue-3'
 import 'bootstrap-vue-3/dist/bootstrap-vue-3.css'
 import 'bootstrap/dist/css/bootstrap.min.css'
+import 'bootstrap/dist/js/bootstrap.bundle.min.js'  // 이게 핵심!
 
 
 import VueDatePicker from '@vuepic/vue-datepicker';
