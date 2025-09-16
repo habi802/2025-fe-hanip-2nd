@@ -190,8 +190,8 @@ const formatDateTime = (isoStr) => {
 
 <template>
   <!-- 리뷰카드  -->
-  <div v-if="visibleReview?.length > 0" class="review-box-wrap">
-    <div class="review-box shadow" v-for="review in visibleReview" :key="review.id">
+  <div v-if="pagedReviews?.length > 0" class="review-box-wrap">
+    <div class="review-box shadow" v-for="review in pagedReviews" :key="review.id">
       <div class="profile">
         <div class="profile-circle">
           <img
@@ -299,39 +299,46 @@ const formatDateTime = (isoStr) => {
     >
       더보기
     </button> -->
+    <!-- 마지막 페이지 빈자리 채우기 -->
+    <div
+      v-for="n in 6 - pagedReviews.length"
+      :key="'empty-' + n"
+      class="review-box shadow empty-card"
+      v-if="pagedReviews.length < 6"
+    ></div>
   </div>
 
-<!-- 페이지네이션 버튼 -->
-<div class="pagination d-flex justify-content-center mt-4 align-items-center gap-3">
-  <!-- 이전 버튼 -->
-  <span 
-    class="page-arrow" 
-    @click="goToPage(currentPage - 1)" 
-    :class="{ disabled: currentPage === 1 }"
-  >
-    &lt;
-  </span>
+  <!-- 페이지네이션 버튼 -->
+  <div class="pagination d-flex justify-content-center mt-4 align-items-center gap-3">
+    <!-- 이전 버튼 -->
+    <span
+      class="page-arrow"
+      @click="goToPage(currentPage - 1)"
+      :class="{ disabled: currentPage === 1 }"
+    >
+      &lt;
+    </span>
 
-  <!-- 숫자 버튼 -->
-  <span 
-    v-for="page in pageNumbers" 
-    :key="page" 
-    class="page-number" 
-    :class="{ active: currentPage === page }"
-    @click="goToPage(page)"
-  >
-    {{ page }}
-  </span>
+    <!-- 숫자 버튼 -->
+    <span
+      v-for="page in pageNumbers"
+      :key="page"
+      class="page-number"
+      :class="{ active: currentPage === page }"
+      @click="goToPage(page)"
+    >
+      {{ page }}
+    </span>
 
-  <!-- 다음 버튼 -->
-  <span 
-    class="page-arrow" 
-    @click="goToPage(currentPage + 1)" 
-    :class="{ disabled: currentPage === totalPages }"
-  >
-    &gt;
-  </span>
-</div>
+    <!-- 다음 버튼 -->
+    <span
+      class="page-arrow"
+      @click="goToPage(currentPage + 1)"
+      :class="{ disabled: currentPage === totalPages }"
+    >
+      &gt;
+    </span>
+  </div>
 
   <!-- 모달 컴포넌트 -->
   <OwnerReviewModal
@@ -343,6 +350,11 @@ const formatDateTime = (isoStr) => {
 </template>
 
 <style lang="scss" scoped>
+body,
+html,
+.wrap {
+  min-height: 100vh; /* 항상 화면 크기 이상 */
+}
 // 버튼
 .btn-review {
   width: 400px;
@@ -363,12 +375,15 @@ const formatDateTime = (isoStr) => {
 }
 
 .wrap {
+  display: flex;
   background-color: #e8e8e8;
   font-family: "Pretendard", sans-serif;
   max-width: 1500px;
+  min-height: 100vh;
   width: 100%;
   transform: translateX(13px);
-  padding-bottom: 70px;
+  padding-bottom: 120px;
+
   .total-wrap {
     display: flex;
     gap: 50px;
@@ -432,7 +447,7 @@ const formatDateTime = (isoStr) => {
   // 리뷰 카드 여백조절
   .review-box-wrap {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(470px, 340px));
+    grid-template-columns: repeat(3, 1fr);
     padding-top: 15px;
     gap: 25px;
     // 리뷰 카드
@@ -444,7 +459,7 @@ const formatDateTime = (isoStr) => {
       border-radius: 15px;
       padding: 30px 40px;
       font-size: 14px;
-      width: 470px;
+      width: 100%;
       max-width: 470px;
       .profile {
         display: flex;
@@ -621,28 +636,16 @@ const formatDateTime = (isoStr) => {
   background: #b23837;
 }
 
-.delete-btn {
-  background: #a3a3a3;
-  border: none;
-  color: white;
-  border-radius: 8px;
-  font-size: 18px;
-  width: 68px;
-  height: 42px;
-  transition: background-color 0.3s, color 0.3s;
-}
-
-.delete-btn:hover {
-  background: #838383;
-}
-.delete-btn:active {
-  background: #696969;
-}
 // 페이지네이션
 .pagination {
-  font-family: "Pretendard", sans-serif;
-  font-size: 15px;
-  gap: 5px;
+  position: fixed;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #e8e8e8;
+  padding: 10px 20px;
+  border-radius: 8px;
+  z-index: 1000;
 
   .page-number {
     cursor: pointer;
@@ -678,5 +681,10 @@ const formatDateTime = (isoStr) => {
     }
   }
 }
-
+// 빈 리뷰 카드
+.empty-card {
+  visibility: hidden; // 내용은 안 보이지만 자리 확보
+  min-height: 394px; // 실제 카드 높이와 동일
+  border-radius: 15px; // 기존 카드 모양과 맞춤
+}
 </style>
