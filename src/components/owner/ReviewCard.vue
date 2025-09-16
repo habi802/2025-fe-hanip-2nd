@@ -87,13 +87,6 @@ const newdReview = reactive({
   comment: "",
 });
 
-// 모달 창 열기
-// const openAddReviewModal = (review) => {
-//   selectedReview.value = review;
-//   ownerComment.value = review.ownerComment || ""; // 기존 댓글 있으면 세팅
-//   const modal = new bootstrap.Modal(addReviewModal.value);
-//   modal.show();
-// };
 // 모달 열기
 const openAddReviewModal = (review) => {
   selectedReview.value = review;
@@ -108,24 +101,6 @@ const handleClose = () => {
   replyComment.value = "";
   isModalOpen.value = false; // 모달 닫기
 };
-
-// 사장이 단 댓글 삭제
-// const ownerReviewDelete = async (review) => {
-//   const confirmed = confirm("정말 사장 댓글을 삭제하시겠습니까?");
-//   if (!confirmed) return;
-
-//   const success = await reviewStore.saveOwnerComment({
-//     reviewId: review.id,
-//     ownerComment: "",
-//   });
-
-//   if (!success) {
-//     alert("삭제 실패!");
-//     return;
-//   }
-
-//   alert("삭제되었습니다!");
-// };
 
 // 모달에서 submit 처리
 const handleSubmit = async () => {
@@ -142,28 +117,6 @@ const handleSubmit = async () => {
   }
 };
 
-// 등록하기
-// const submitReview = async () => {
-//   if (!selectedReview.value) return;
-
-//   const payload = {
-//     reviewId: selectedReview.value.id,
-//     ownerComment: ownerComment.value,
-//   };
-
-//   try {
-//     // 백엔드에 PATCH 또는 POST 요청 보내기
-//     await reviewStore.saveOwnerComment(payload);
-
-//     // 로컬 상태도 업데이트
-//     selectedReview.value.ownerComment = ownerComment.value;
-
-//     const modal = bootstrap.Modal.getInstance(addReviewModal.value);
-//     modal.hide();
-//   } catch (e) {
-//     console.error("댓글 저장 실패", e);
-//   }
-// };
 const submitReview = async () => {
   if (!selectedReview.value) return;
 
@@ -290,9 +243,6 @@ const formatDateTime = (isoStr) => {
         </div>
       </div>
       <div class="btn-wrap">
-        <!-- <button class="btn btn-delete" @click="ownerReviewDelete(review)">
-          댓글 삭제
-        </button> -->
         <button
           class="btn btn-comment"
           @click="
@@ -327,44 +277,6 @@ const formatDateTime = (isoStr) => {
     v-model="replyComment"
     @submit="handleSubmit"
   />
-  <!-- 부트스트랩 모달 -->
-  <!-- <Teleport to="body">
-    <div class="modal fade" ref="addReviewModal" tabindex="-1">
-      <div class="modal-dialog">
-        <div class="modal-content" style="padding: 20px 30px 20px 20px">
-          <div
-            class="modal-header"
-            style="display: flex; justify-content: space-between"
-          >
-            <h5 class="modal-title" style="font-weight: 700">답글 달기</h5>
-            <button
-              type="button"
-              class="btn-close"
-              data-bs-dismiss="modal"
-            ></button>
-          </div>
-          <div class="modal-body">
-            <span style="margin-left: 10px"> 고객 리뷰 </span>
-            <br />
-            <p class="form-control-customer">{{ selectedReview?.comment }}</p>
-            <br />
-
-            <span style="margin-left: 10px">사장님 답글</span>
-            <br />
-            <textarea
-              class="form-control"
-              v-model="ownerComment"
-              placeholder="답글을 입력하세요. 고객과의 소통은 매출상승의 지름길입니다!"
-            ></textarea>
-          </div>
-          <div class="modal-footer">
-            <button class="btn delete-btn" data-bs-dismiss="modal">취소</button>
-            <button class="btn accept-btn" @click="submitReview">등록</button>
-          </div>
-        </div>
-      </div>
-    </div>
-  </Teleport> -->
 </template>
 
 <style lang="scss" scoped>
@@ -390,7 +302,8 @@ const formatDateTime = (isoStr) => {
 .wrap {
   background-color: #e8e8e8;
   font-family: "Pretendard", sans-serif;
-  width: 1501px;
+  max-width: 1500px;
+  width: 100%;
   transform: translateX(13px);
   padding-bottom: 70px;
   .total-wrap {
@@ -427,7 +340,7 @@ const formatDateTime = (isoStr) => {
 
   .review-header {
     display: flex;
-    justify-content: space-between;
+    // justify-content: space-between;
     margin-bottom: 10px;
   }
 
@@ -453,13 +366,13 @@ const formatDateTime = (isoStr) => {
       height: 24px;
     }
   }
-
+  // 리뷰 카드 여백조절
   .review-box-wrap {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(420px, 420px));
+    grid-template-columns: repeat(auto-fit, minmax(470px, 340px));
     padding-top: 15px;
-    gap: 120px;
-
+    gap: 25px;
+    // 리뷰 카드
     .review-box {
       display: flex;
       flex-direction: column;
@@ -468,11 +381,13 @@ const formatDateTime = (isoStr) => {
       border-radius: 15px;
       padding: 30px 40px;
       font-size: 14px;
+      width: 470px;
+      max-width: 470px;
       .profile {
         display: flex;
         align-items: center;
         justify-content: space-between;
-        margin-bottom: 25px;
+        margin-bottom: 2px;
 
         .profile-circle {
           background-color: #a3a3a3;
@@ -532,16 +447,17 @@ const formatDateTime = (isoStr) => {
 
       .btn-wrap {
         display: flex;
-        justify-content: space-around;
+        justify-content: flex-end;
         margin-top: 20px;
         width: 100%;
       }
       .btn {
         border-radius: 15px;
-        border: #ff6666 solid;
+        border: #ff6666 1px solid;
         color: #ff6666;
-        height: 55px;
-        width: 145px;
+        height: 50px;
+        max-width: 150px;
+        width: 100%;
       }
       .btn:hover {
         background-color: #ff6666;
@@ -658,52 +574,5 @@ const formatDateTime = (isoStr) => {
 }
 .delete-btn:active {
   background: #696969;
-}
-
-.modal-body {
-  span {
-    color: #ff6666;
-    font-weight: 700;
-    font-size: 16pt;
-  }
-
-  p {
-    border: #797979 solid 2px;
-    min-height: 200px;
-    border-radius: 10px;
-    padding: 12px;
-    box-sizing: border-box;
-    white-space: pre-wrap; /* 줄바꿈과 공백 유지 + 자동 줄바꿈 허용 */
-    word-wrap: break-word; /* 긴 단어도 줄바꿈 허용 */
-    overflow-wrap: break-word; /* 최신 속성: 긴 단어 강제 줄바꿈 */
-    overflow: hidden; /* 스크롤 제거 */
-  }
-
-  textarea {
-    height: 200px;
-    border: #797979 solid 2px;
-    border-radius: 10px;
-    overflow-y: auto;
-    resize: vertical; /* 크기 조절은 세로만 (원하면 제거 가능) */
-    overflow: auto; /* 자동 스크롤 */
-    padding-right: 12px; /* 스크롤과 글자 간격 확보 */
-    box-sizing: border-box; /* 패딩 포함한 너비 계산 */
-  }
-  textarea::-webkit-scrollbar-track {
-    background: transparent !important; /* 트랙 배경 제거 */
-    margin: 2px 0; /* 위아래 여백 줘서 둥근 모서리 맞춤 */
-    border-radius: 10px; /* 트랙도 둥글게 */
-  }
-  textarea::-webkit-scrollbar {
-    width: 6px; /* 스크롤바 너비 */
-    background: transparent; /* 스크롤 영역 자체도 투명하게 */
-  }
-  textarea::-webkit-scrollbar-thumb {
-    background-color: #aaa; /* 스크롤바 색상 */
-    border-radius: 10px; /* 둥글게 */
-  }
-  textarea::-webkit-scrollbar-thumb:hover {
-    background: #888; /* 호버 시 조금 진하게 */
-  }
 }
 </style>

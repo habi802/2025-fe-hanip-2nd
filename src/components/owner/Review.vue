@@ -57,9 +57,8 @@ const ownerName = inject("ownerName", "");
 
 <div class="wrap" > 
     <div>
-        <div class="owner-title1">리뷰 통계</div>
-        <span class="owner-title2">어서오세요! {{ ownerName }} 사장님, 관리자 페이지에 다시 오신것을 환영합니다</span>
-        
+        <!-- <div class="owner-title1">리뷰 통계</div>
+        <span class="owner-title2">어서오세요! {{ ownerName }} 사장님, 관리자 페이지에 다시 오신것을 환영합니다</span>-->
         <!-- 전체 토탈 카드 -->
         <div class="total-wrap">
             <div class="total-box">
@@ -79,15 +78,12 @@ const ownerName = inject("ownerName", "");
             </div>
         </div>
     </div>
-
-
-
     
     <div class="review-header">
-        <div>
+        <!-- <div>
             <div class="owner-title1">리뷰 내역</div>
             <div class="owner-title2">전체 리뷰 내역입니다.</div>
-        </div>
+        </div> -->
         <!-- 조회기간설정 카드 -->
         <div class="date-filter">
             <img src="/src/imgs/owner/Icon_조회기간설정.svg" alt="캘린더아이콘" title="캘린더아이콘">
@@ -112,9 +108,6 @@ const ownerName = inject("ownerName", "");
 
     <!-- 리뷰카드  -->
     <ReviewCard :reviews="reviewStore.reviews" />
-
-    <!-- 부트스트랩 모달 -->
-    
 </div>
 
 
@@ -141,7 +134,7 @@ const ownerName = inject("ownerName", "");
         display: flex;
         gap : 50px;
         margin-top: 15px;
-        margin-bottom: 40px;
+        margin-bottom: -65px;
         .circle{
             background-color: #ff6666;
             border-radius: 100%;
@@ -169,8 +162,9 @@ const ownerName = inject("ownerName", "");
 
     .review-header{
         display: flex;
-        justify-content: space-between;
+        justify-content: flex-end;
         margin-bottom: 10px;
+        margin-right: 45px;
     }
 
     .date-filter{
