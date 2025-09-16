@@ -1,5 +1,6 @@
 <script setup>
-defineProps({
+
+const props = defineProps({
   order: {
     status: "CANCELED",
     id : 1,
@@ -46,7 +47,7 @@ const formatDate = (dateStr) => {
       </div>
     </div>
 
-    <div v-if="order.status === 'CANCELED'" class="orders-list2-wrap2 pb-4">
+    <!-- <div v-if="order.status === 'CANCELED'" class="orders-list2-wrap2 pb-4">
       <div
         class="orders-list shadow"
         v-if="order"
@@ -111,7 +112,7 @@ const formatDate = (dateStr) => {
           >
         </div>
       </div>
-    </div>
+    </div> -->
   </div>
 </template>
 

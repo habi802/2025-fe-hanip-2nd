@@ -222,7 +222,7 @@ const selectRange = async (range) => {
             <span>{{selectedLabel ? selectedLabel : '조회 기간 선택'}}</span>
             <img src="/src/imgs/owner/Icon_목록단추.svg" alt="목록단추" />
           </button>
-          <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton" >
+          <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdownMenuButton" >
             <li>
               <button class="dropdown-item" @click="selectRange('1d')">
                 오늘
@@ -258,7 +258,8 @@ const selectRange = async (range) => {
         <!-- TODO 추후 v-else붙이기  -->
         <div class="order-list">
           <div class=""> 오더리스트카드 영역 </div>
-          <order-list-card  v-for="order in visibleOrders" :key="order.id" :order="order" style="cursor: pointer" @selectOrder="handleSelectOrder(order)"/>
+          <order-list-card></order-list-card>
+          <!-- <order-list-card  v-for="order in visibleOrders" :key="order.id" :order="order" style="cursor: pointer" @selectOrder="handleSelectOrder(order)"/> -->
           <button class="btn btn-secondary d-block" v-if="visibleCount < nonOrderedOrders.length" @click="loadMore"
           style=" font-size: 1.5rem; padding: 1rem 2rem; width: 100%; max-width: 755px; " >
           더보기
