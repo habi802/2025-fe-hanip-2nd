@@ -1,6 +1,15 @@
 @font-face {
     font-family: 'Pretendard-Regular';
     src: url('fonts/Pretendard-Regular.woff');
+    
+    
+}
+
+@font-face {
+  font-family: "BMJUA";
+  src: url("https://fastly.jsdelivr.net/gh/projectnoonnu/noonfonts_one@1.0/BMJUA.woff") format("woff");
+  font-weight: normal;
+  font-style: normal;
 }
 
 body {
@@ -106,7 +115,7 @@ body {
   }
   .quantity-text-m {
     position: relative;
-    top: -20%;
+    top: -5%;
     font-size: 1.3em;
     transition: color 0.1s ease;
 
