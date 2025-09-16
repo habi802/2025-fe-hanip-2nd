@@ -248,7 +248,7 @@ const selectRange = async (range) => {
         <div class="search white-card">검색영역</div>
       </div><!-- orders-header 끝  -->
       
-      <div class="order-list-wrap">
+      <div class="order-list-wrap white-card">
         <!-- 주문 리스트 -->
         <!-- <div v-if="orderStore.orders?.length === 0" class="loading"></div> -->
         
@@ -256,8 +256,8 @@ const selectRange = async (range) => {
         <!-- <div v-else-if="orderStore.nonOrderedList.length === 0">  주문이 없습니다. </div> -->
         
         <!-- TODO 추후 v-else붙이기  -->
-        <div class="order-list justify-content-center">
-          <div class="white-card"> 오더리스트카드 영역 </div>
+        <div class="order-list">
+          <div class=""> 오더리스트카드 영역 </div>
           <order-list-card  v-for="order in visibleOrders" :key="order.id" :order="order" style="cursor: pointer" @selectOrder="handleSelectOrder(order)"/>
           <button class="btn btn-secondary d-block" v-if="visibleCount < nonOrderedOrders.length" @click="loadMore"
           style=" font-size: 1.5rem; padding: 1rem 2rem; width: 100%; max-width: 755px; " >
@@ -414,6 +414,9 @@ const selectRange = async (range) => {
     width: 50%;
     height: 100%;
     max-width: 800px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
     .orders-header {
       display: flex;
       align-items: center;
@@ -440,6 +443,17 @@ const selectRange = async (range) => {
         }
       }
     }
+    .order-list-wrap{
+      width: 100%;
+      height: 100%;
+      display: flex;
+      justify-content: center;
+    }
+    .pagenation{
+      width: 100%;
+      display: flex;
+      justify-content: center;
+    }
     
   }
 
@@ -451,6 +465,7 @@ const selectRange = async (range) => {
     overflow: auto;
       // 주문상세내역    
       .orders-wrap {
+        height: 100%;
         display: flex;
         flex-direction: column;
         justify-content: space-around;
@@ -467,15 +482,13 @@ const selectRange = async (range) => {
         justify-content:left;
 
         section {
-          width: 90%;
+          width: 95%;
         }
-
         h3 {
           font-size: 20px;
           margin-top: 20px;
           color: #ff8989;
         }
-
         // 기본 테이블
         table {
           width: 100%;
