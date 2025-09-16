@@ -3,6 +3,7 @@ import Header from "@/components/customer/Header.vue";
 import HeaderMini from "@/components/customer/HeaderMini.vue";
 import Footer from "@/components/customer/Footer.vue";
 import '@/assets/customer/customer.css';
+
 </script>
 
 <template>
@@ -15,7 +16,7 @@ import '@/assets/customer/customer.css';
     <header class="d-none d-lg-block bg-white sticky-top">
         <Header />
     </header>
-    
+
     <!-- 메인 -->
     <main>
         <RouterView />
@@ -37,4 +38,9 @@ header {
 /* main {
     padding-top: 90px;
 } */
+
+* {
+    user-select: none;
+    -webkit-user-drag: none;
+}
 </style>
