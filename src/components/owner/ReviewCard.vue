@@ -64,6 +64,36 @@ const StarIcon = {
     </svg>
     `,
 };
+//---------- 페이지네이션 ------------
+
+// 페이지네이션 관련
+const currentPage = ref(1); // 현재 페이지
+const pageSize = 6; // 페이지당 리뷰 개수
+
+const totalPages = computed(() => {
+  return Math.ceil(reviewStore.reviews.length / pageSize);
+});
+
+// 현재 페이지에 맞는 리뷰 목록
+const pagedReviews = computed(() => {
+  const start = (currentPage.value - 1) * pageSize;
+  const end = start + pageSize;
+  return reviewStore.reviews.slice(start, end);
+});
+
+// 페이지네이션 숫자 계산
+const pageNumbers = computed(() => {
+  const pages = [];
+  for (let i = 1; i <= totalPages.value; i++) {
+    pages.push(i);
+  }
+  return pages;
+});
+
+const goToPage = (page) => {
+  if (page < 1 || page > totalPages.value) return;
+  currentPage.value = page;
+};
 
 //----------사장 댓글 다는 부분------------
 // 모달
@@ -262,14 +292,47 @@ const formatDateTime = (isoStr) => {
     <p class="text-muted">아직 등록된 리뷰가 없습니다.</p>
   </div>
   <div class="d-flex justify-content-center mt-3">
-    <button
+    <!-- <button
       v-if="visibleReview.length > 0 && visibleCount < reviews.length"
       @click="loadMore"
       class="btn btn-secondary btn-review"
     >
       더보기
-    </button>
+    </button> -->
   </div>
+
+<!-- 페이지네이션 버튼 -->
+<div class="pagination d-flex justify-content-center mt-4 align-items-center gap-3">
+  <!-- 이전 버튼 -->
+  <span 
+    class="page-arrow" 
+    @click="goToPage(currentPage - 1)" 
+    :class="{ disabled: currentPage === 1 }"
+  >
+    &lt;
+  </span>
+
+  <!-- 숫자 버튼 -->
+  <span 
+    v-for="page in pageNumbers" 
+    :key="page" 
+    class="page-number" 
+    :class="{ active: currentPage === page }"
+    @click="goToPage(page)"
+  >
+    {{ page }}
+  </span>
+
+  <!-- 다음 버튼 -->
+  <span 
+    class="page-arrow" 
+    @click="goToPage(currentPage + 1)" 
+    :class="{ disabled: currentPage === totalPages }"
+  >
+    &gt;
+  </span>
+</div>
+
   <!-- 모달 컴포넌트 -->
   <OwnerReviewModal
     :review="selectedReview"
@@ -575,4 +638,45 @@ const formatDateTime = (isoStr) => {
 .delete-btn:active {
   background: #696969;
 }
+// 페이지네이션
+.pagination {
+  font-family: "Pretendard", sans-serif;
+  font-size: 15px;
+  gap: 5px;
+
+  .page-number {
+    cursor: pointer;
+    padding: 2px 4px;
+    color: #000;
+    transition: color 0.3s, border-bottom 0.3s;
+
+    &.active {
+      color: #ff6666;
+      border-bottom: 2px solid #ff6666;
+      font-weight: 600;
+      margin-bottom: -1px;
+    }
+
+    &:hover {
+      color: #ff6666;
+    }
+  }
+
+  .page-arrow {
+    cursor: pointer;
+    color: #000;
+    padding: 0 10px;
+    font-weight: bold;
+
+    &.disabled {
+      cursor: not-allowed;
+      color: #797979;
+    }
+
+    &:hover:not(.disabled) {
+      color: #ff6666;
+    }
+  }
+}
+
 </style>
