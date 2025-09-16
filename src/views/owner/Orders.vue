@@ -159,6 +159,10 @@ const selectRange = async (range) => {
   let start;
   switch (range) {
     // Todo : 하루조회기간도 만들어서 이걸 디폴트로..!
+    case "1d":
+      selectedLabel.value = "오늘";
+      console.log("추후작업")
+      break;
     case "7d":
       selectedLabel.value = "최근 1주일";
       start = new Date();
@@ -213,12 +217,12 @@ const selectRange = async (range) => {
       <div class="orders-header">
         <!-- 조회기간설정 카드 -->
         <div class="date-option dropdown" ref="orderDetail">
-          <button  class="date-filter" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" >
-            <img src="/src/imgs/owner/Icon_조회기간설정.svg" alt="캘린더아이콘" />
+          <button class="date-filter" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" >
+            <img src="/src/imgs/owner/Icon_조회기간설정2.svg" alt="캘린더아이콘" />
             <span>{{selectedLabel ? selectedLabel : '조회 기간 선택'}}</span>
             <img src="/src/imgs/owner/Icon_목록단추.svg" alt="목록단추" />
           </button>
-          <ul  class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdownMenuButton" >
+          <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton" >
             <li>
               <button class="dropdown-item" @click="selectRange('1d')">
                 오늘
@@ -424,9 +428,6 @@ const selectRange = async (range) => {
         justify-content: space-around;
         align-items: center;
         padding: 10px 15px;
-        img:first-child {
-          
-        }
         span {
           display: block;
           width: 100%;
