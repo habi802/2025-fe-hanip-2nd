@@ -3,6 +3,7 @@ import { computed, ref, reactive, onMounted, inject } from "vue";
 import { useOwnerStore, useUserInfo } from "@/stores/account";
 import { useReviewStore } from "@/stores/review";
 import defaultUserProfile from "@/imgs/owner/user_profile.jpg";
+import OwnerReviewModal from "../modal/OwnerReviewModal.vue";
 
 //유저정보 가져오기
 const userInfo = useUserInfo();
@@ -65,11 +66,20 @@ const StarIcon = {
 };
 
 //----------사장 댓글 다는 부분------------
+// 모달
+const ownerReviewModalRef = ref(null);
+
+// 모달 입력값 (v-model로 연결됨)
+const replyComment = ref("");
+
 // 선택된 리뷰 저장용
 const selectedReview = ref(null);
 
 //댓글 상태
 const ownerComment = ref("");
+
+// 모달 열림 상태
+const isModalOpen = ref(false);
 
 //-댓글 달 모달창-
 const addReviewModal = ref(null);
@@ -78,32 +88,82 @@ const newdReview = reactive({
 });
 
 // 모달 창 열기
+// const openAddReviewModal = (review) => {
+//   selectedReview.value = review;
+//   ownerComment.value = review.ownerComment || ""; // 기존 댓글 있으면 세팅
+//   const modal = new bootstrap.Modal(addReviewModal.value);
+//   modal.show();
+// };
+// 모달 열기
 const openAddReviewModal = (review) => {
   selectedReview.value = review;
-  ownerComment.value = review.ownerComment || ""; // 기존 댓글 있으면 세팅
+  ownerComment.value = review.ownerComment || "";
   const modal = new bootstrap.Modal(addReviewModal.value);
   modal.show();
 };
 
+// 모달 닫기
+const handleClose = () => {
+  selectedReview.value = null;
+  replyComment.value = "";
+  isModalOpen.value = false; // 모달 닫기
+};
+
 // 사장이 단 댓글 삭제
-const ownerReviewDelete = async (review) => {
-  const confirmed = confirm("정말 사장 댓글을 삭제하시겠습니까?");
-  if (!confirmed) return;
+// const ownerReviewDelete = async (review) => {
+//   const confirmed = confirm("정말 사장 댓글을 삭제하시겠습니까?");
+//   if (!confirmed) return;
 
-  const success = await reviewStore.saveOwnerComment({
-    reviewId: review.id,
-    ownerComment: "",
-  });
+//   const success = await reviewStore.saveOwnerComment({
+//     reviewId: review.id,
+//     ownerComment: "",
+//   });
 
-  if (!success) {
-    alert("삭제 실패!");
-    return;
+//   if (!success) {
+//     alert("삭제 실패!");
+//     return;
+//   }
+
+//   alert("삭제되었습니다!");
+// };
+
+// 모달에서 submit 처리
+const handleSubmit = async () => {
+  if (!selectedReview.value) return;
+  try {
+    await reviewStore.saveOwnerComment({
+      reviewId: selectedReview.value.id,
+      ownerComment: replyComment.value,
+    });
+    selectedReview.value.ownerComment = replyComment.value;
+    alert("댓글이 등록되었습니다.");
+  } catch (e) {
+    console.error("댓글 저장 실패", e);
   }
-
-  alert("삭제되었습니다!");
 };
 
 // 등록하기
+// const submitReview = async () => {
+//   if (!selectedReview.value) return;
+
+//   const payload = {
+//     reviewId: selectedReview.value.id,
+//     ownerComment: ownerComment.value,
+//   };
+
+//   try {
+//     // 백엔드에 PATCH 또는 POST 요청 보내기
+//     await reviewStore.saveOwnerComment(payload);
+
+//     // 로컬 상태도 업데이트
+//     selectedReview.value.ownerComment = ownerComment.value;
+
+//     const modal = bootstrap.Modal.getInstance(addReviewModal.value);
+//     modal.hide();
+//   } catch (e) {
+//     console.error("댓글 저장 실패", e);
+//   }
+// };
 const submitReview = async () => {
   if (!selectedReview.value) return;
 
@@ -113,14 +173,8 @@ const submitReview = async () => {
   };
 
   try {
-    // 백엔드에 PATCH 또는 POST 요청 보내기
     await reviewStore.saveOwnerComment(payload);
-
-    // 로컬 상태도 업데이트
     selectedReview.value.ownerComment = ownerComment.value;
-
-    const modal = bootstrap.Modal.getInstance(addReviewModal.value);
-    modal.hide();
   } catch (e) {
     console.error("댓글 저장 실패", e);
   }
@@ -154,11 +208,7 @@ const formatDateTime = (isoStr) => {
 <template>
   <!-- 리뷰카드  -->
   <div v-if="visibleReview?.length > 0" class="review-box-wrap">
-    <div
-      class="review-box shadow"
-      v-for="review in visibleReview"
-      :key="review.id"
-    >
+    <div class="review-box shadow" v-for="review in visibleReview" :key="review.id">
       <div class="profile">
         <div class="profile-circle">
           <img
@@ -240,10 +290,19 @@ const formatDateTime = (isoStr) => {
         </div>
       </div>
       <div class="btn-wrap">
-        <button class="btn btn-delete" @click="ownerReviewDelete(review)">
+        <!-- <button class="btn btn-delete" @click="ownerReviewDelete(review)">
           댓글 삭제
-        </button>
-        <button class="btn btn-comment" @click="openAddReviewModal(review)">
+        </button> -->
+        <button
+          class="btn btn-comment"
+          @click="
+            () => {
+              selectedReview = review;
+              replyComment = review.ownerComment || '';
+              isModalOpen = true;
+            }
+          "
+        >
           댓글 작성
         </button>
       </div>
@@ -261,9 +320,15 @@ const formatDateTime = (isoStr) => {
       더보기
     </button>
   </div>
-
+  <!-- 모달 컴포넌트 -->
+  <OwnerReviewModal
+    :review="selectedReview"
+    v-model:show="isModalOpen"
+    v-model="replyComment"
+    @submit="handleSubmit"
+  />
   <!-- 부트스트랩 모달 -->
-  <Teleport to="body">
+  <!-- <Teleport to="body">
     <div class="modal fade" ref="addReviewModal" tabindex="-1">
       <div class="modal-dialog">
         <div class="modal-content" style="padding: 20px 30px 20px 20px">
@@ -299,7 +364,7 @@ const formatDateTime = (isoStr) => {
         </div>
       </div>
     </div>
-  </Teleport>
+  </Teleport> -->
 </template>
 
 <style lang="scss" scoped>
