@@ -294,6 +294,8 @@ onUnmounted(() => {
 </template>
 
 <style lang="scss">
+@import "@/assets/owner/_ownerStyle.scss"; //공통css
+
 .box {
   font-family: "Pretendard", sans-serif;
 }
