@@ -292,14 +292,6 @@ const formatDateTime = (isoStr) => {
     <p class="text-muted">아직 등록된 리뷰가 없습니다.</p>
   </div>
   <div class="d-flex justify-content-center mt-3">
-    <!-- <button
-      v-if="visibleReview.length > 0 && visibleCount < reviews.length"
-      @click="loadMore"
-      class="btn btn-secondary btn-review"
-    >
-      더보기
-    </button> -->
-    <!-- 마지막 페이지 빈자리 채우기 -->
     <div
       v-for="n in 6 - pagedReviews.length"
       :key="'empty-' + n"
