@@ -11,7 +11,7 @@ const options = ref([
 </script>
 
 <template>
-  <div class="menu-detail p-3 white-card">
+  <div class="menu-detail p-3">
     <!-- 이미지 -->
     <div class="mb-3">
       <img src="" class="detail-img mb-2" />
