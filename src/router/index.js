@@ -188,9 +188,21 @@ const router = createRouter({
       meta: { layout: ManagerLayout }
     },
     {
-      path: "/hanip-manager/contact",
-      name: "manager-contact",
-      component: () => import("@/views/manager/Contact.vue"),
+      path: "/hanip-manager/order",
+      name: "manager-order",
+      component: () => import("@/views/manager/Order.vue"),
+      meta: { layout: ManagerLayout }
+    },
+    {
+      path: "/hanip-manager/recommand",
+      name: "manager-recommand",
+      component: () => import("@/views/manager/Recommand.vue"),
+      meta: { layout: ManagerLayout }
+    },
+    {
+      path: "/hanip-manager/stats",
+      name: "manager-stats",
+      component: () => import("@/views/manager/Stats.vue"),
       meta: { layout: ManagerLayout }
     },
   ],
