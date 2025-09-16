@@ -2,7 +2,17 @@
 import { addItem } from '@/services/cartService';
 import { useAccountStore } from '@/stores/account';
 import defaultImage from '@/imgs/owner/owner-service3.png';
-import { computed } from 'vue';
+import { computed, ref } from 'vue';
+
+import OptionModal from '../modal/OptionModal.vue';
+
+const optionModal = ref(null);
+
+const openModal = () => {
+    const modalElement = optionModal.value.$el;
+    const modal = new bootstrap.Modal(modalElement);
+    modal.show();
+};
 
 const account = useAccountStore();
 const emit = defineEmits(['addCart'])
@@ -59,22 +69,22 @@ const addCart = async () => {
 console.log("props.img", props.item);
 // 모달창 함수
 const showModal = (message, onCloseCallback) => {
-  const modalBody = document.getElementById("alertModalBody");
-  if (modalBody) modalBody.textContent = message;
-  const modal = new bootstrap.Modal(document.getElementById("alertModal"));
-  modal._element.addEventListener('hidden.bs.modal', () => {
-    if (typeof onCloseCallback === 'function') {
-      onCloseCallback();  
-    }
-  });
-  modal.show();
+    const modalBody = document.getElementById("alertModalBody");
+    if (modalBody) modalBody.textContent = message;
+    const modal = new bootstrap.Modal(document.getElementById("alertModal"));
+    modal._element.addEventListener('hidden.bs.modal', () => {
+        if (typeof onCloseCallback === 'function') {
+            onCloseCallback();
+        }
+    });
+    modal.show();
 
 };
 
 </script>
 
 <template>
-    <div class="menu border rounded-4 p-3 mb-2" @click="addCart()">
+    <div class="menu border rounded-4 p-3 mb-2" @click="openModal">
         <div class="row">
             <div class="col-8 col-md-10">
                 <h5>{{ props.item.name }}</h5>
@@ -126,6 +136,8 @@ const showModal = (message, onCloseCallback) => {
             </div>
         </div>
     </div>
+
+    <option-modal ref="optionModal"></option-modal>
 </template>
 
 <style lang="scss" scoped>
@@ -208,11 +220,5 @@ const showModal = (message, onCloseCallback) => {
     white-space: pre-wrap;
     line-height: 1.6;
     text-align: left;
-}
-
-.modal {
-    top: 40%;
-    font-family: 'Pretendard-Regular';
-    font-weight: 800;
 }
 </style>

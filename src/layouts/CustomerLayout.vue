@@ -2,6 +2,7 @@
 import Header from "@/components/customer/Header.vue";
 import HeaderMini from "@/components/customer/HeaderMini.vue";
 import Footer from "@/components/customer/Footer.vue";
+import '@/assets/customer/customer.css';
 </script>
 
 <template>

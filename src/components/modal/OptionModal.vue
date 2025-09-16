@@ -95,19 +95,38 @@
 
 
 
-
-
                 </div>
-                <div class="footer">
-                    <button type="button" class="hn-btn-white" data-bs-dismiss="modal">주문취소</button>
-                    <button type="button" class="hn-btn-white">메뉴담기</button>
+                <div class="solide-bottom">
+                    <hr>
+                    </hr>
+                    <div class="num-text">
+                        <div>수량</div>
+                    </div>
+                    <div class="quantity">
+                        <div class="quantity-box">
+                            <div class="quantity-text-p">+</div>
+                        </div>
+                        <div class="quantity-num">
+                            1
+                        </div>
+                        <div class="quantity-box">
+                            <div class="quantity-text-m">–</div>
+                        </div>
+                    </div>
+                </div>
+
+
+
+                <div class="footer-btn">
+                    <button type="button" class="hn-btn-gray" data-bs-dismiss="modal">주문취소</button>
+                    <button type="button" class="hn-btn-gray">메뉴담기</button>
                 </div>
             </div>
         </div>
     </div>
 </template>
 
-<style>
+<style lang="scss">
 * {
     user-select: none;
     -webkit-user-drag: none;
@@ -129,6 +148,7 @@
 .menu-comment {
     text-align: center;
     font-weight: 400;
+    margin-bottom: 40px;
 }
 
 .body {
@@ -156,14 +176,9 @@ hr {
     margin-top: -15px;
 }
 
-.footer {
+.footer-btn {
     display: flex;
     justify-content: center;
-}
-
-.hn-btn-white {
-    margin: 20px;
-    padding: 10px 40px 10px 40px;
 }
 
 
@@ -209,5 +224,10 @@ input:checked::before {
     left: 50%;
     transform: translate(-50%, -50%);
 
+}
+
+.hn-btn-gray {
+    margin: 20px;
+    padding: 10px 40px 10px 40px !important;
 }
 </style>

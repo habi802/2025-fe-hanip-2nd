@@ -1,5 +1,5 @@
 <script setup>
-
+import '@/assets/customer/customer.css';
 </script>
 
 <template>
