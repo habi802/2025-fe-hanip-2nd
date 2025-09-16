@@ -1,0 +1,43 @@
+@font-face {
+    font-family: 'NanumGothic';
+    src: url('fonts/NanumGothic.ttf');
+}
+
+body {
+    font-family: 'NanumGothic';
+}
+
+.hn-btn-white {
+
+    display: inline-block;
+    width: auto;
+    padding: 5px 20px 5px 20px;
+    background-color: white;
+    color: #ff6666;
+    border: 1px solid #ff6666;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background-color 0.2s ease, color 0.2s ease;
+    &:hover {
+      background-color: #ff6666;
+      color: #fff;
+    }
+
+}
+
+.hn-btn-pink {
+    background-color: #ff6666;
+    display: inline-block;
+    width: auto;
+    padding: 5px 15px 5px 15px;
+    color: #fff;
+    border: 1px solid #fff;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background-color 0.2s ease, color 0.2s ease;
+    &:hover {
+      background-color: #e74e4e;
+      color: #fff;
+    }
+
+}

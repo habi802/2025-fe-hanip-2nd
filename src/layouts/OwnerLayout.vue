@@ -2,10 +2,11 @@
 import { getOwnerOrder } from "@/services/orderService";
 import { activeStore, getOwnerStore } from "@/services/storeService";
 import { useOrderStore } from "@/stores/orderStore";
-import { ref, onMounted, onUnmounted, provide, watch, computed, reactive,} from "vue";
+import { ref, onMounted, onUnmounted, provide, watch, computed, reactive, } from "vue";
 import { RouterLink, useRouter, useRoute } from "vue-router";
 import { check, logout } from "@/services/userService";
 import { useAccountStore } from "@/stores/account";
+import '@/assets/customer/customer.css';
 
 // 로그인 체크
 const checkAcconut = async () => {
@@ -50,20 +51,23 @@ onMounted(async () => {
 
 // 가게 데이터
 const state = reactive({
-  form: {},
+  form: {
+    ownerName: "임시값"
+  },
+  storeName: "한식은 못참지",
 });
 
 const menus = [
   { text: "대시보드", path: "/owner/dashboard" },
-  { text: "주문 관리", path: "/owner/orders" },
   { text: "가게 상태 관리", path: "/owner/status" },
+  { text: "주문 내역 관리", path: "/owner/orders" },
   { text: "메뉴 관리", path: "/owner/menu" },
   { text: "리뷰 관리", path: "/owner/review" },
   { text: "통계 현황", path: "/owner/donations" },
-  { text: "배달 관리", path: "/owner/delivery" },
-  { text: "고객 관리", path: "/owner/customer" },
-  { text: "쿠폰 관리", path: "/owner/coupons" },
-  { text: "광고 관리", path: "/owner/ads" },
+  // { text: "배달 관리", path: "/owner/delivery" },
+  // { text: "고객 관리", path: "/owner/customer" },
+  // { text: "쿠폰 관리", path: "/owner/coupons" },
+  // { text: "광고 관리", path: "/owner/ads" },
 ];
 
 // 알림 갱신
@@ -78,7 +82,7 @@ watch(
   () => route.path,
   () => {
     checkAcconut();
-});
+  });
 
 // 알림 갱신 (watch)
 watch(
@@ -199,189 +203,109 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <div class="d-flex box" style="min-height: 100vh">
+  <div class="box d-flex" style="min-height: 1080px">
     <!-- 사이드바 -->
-    <div class="p-4" style="width: 300px; flex-shrink: 0">
+    <div class="sideNav p-3" style="width: 345px; flex-shrink: 0">
       <div class="text-center mb-5">
-        <img
-          :style="{
-            width: '180px',
-          }"
-          src="/src/imgs/haniplogo3.png"
-          alt="logo"
-        />
-        <!-- 시각 -->
-        <div
-          class="text-black-50 mb-4"
-          style="font-weight: 600; font-size: 20px"
-        >
-          {{ currentTime }}
+        <img :style="{ width: '220px', }" src="/src/imgs/haniplogo3.png" alt="logo" />
+        <div style="font-size: 40px; font-weight: 100; font-family: Pretendard,serif;">{{ state.storeName }}</div>
+        <!-- 유저정보 -->
+        <div class="d-flex align-items-center justify-content-center pt-3">
+          <div class="dropdown position-relative">
+            <div class="d-flex align-items-center gap-2" data-bs-toggle="dropdown" role="button"
+              style="cursor: pointer">
+              <img src="/src/imgs/owner/owner_profile.png" style="cursor: pointer; width: 22px;" role="button" />
+              <span class="me-2" style="font-size: 16px;">
+                <span style="font-weight: bold; letter-spacing: 1px">
+                  {{ state.form.ownerName }}
+                </span>
+                사장님
+              </span>
+            </div>
+            <div class="dropdown-menu dropdown-menu-end">
+              <div class="title px-3 py-2">
+                {{ state.form.ownerName }}
+              </div>
+              <div class="dropdown-divider">
+              </div>
+              <div @click="logoutOwner" style="cursor: pointer" class="dropdown-item">
+                로그아웃
+              </div>
+            </div>
+          </div>
         </div>
+        <!-- 시간 -->
+        <!-- <div class="text-black-50 mb-4" style="font-weight: 600; font-size: 20px" >
+           {{ currentTime }}
+        </div> -->
         <!-- 토글버튼 -->
-        <div
-          class="toggle-container d-flex justify-content-center"
-          style="height: 40px"
-        >
+        <!-- <div class="toggle-container d-flex justify-content-center" style="height: 40px" >
           <span v-if="route.path !== '/owner' || isOpen">영업 상태</span>
           <label v-if="route.path !== '/owner' || isOpen" class="switch">
             <input type="checkbox" :checked="isOpen" @change="toggleBusiness" />
             <span class="slider"></span>
           </label>
-        </div>
+        </div> -->
       </div>
-      <ul class="nav nav-pills flex-column gap-4">
+      <ul class="nav nav-pills flex-column gap-4 align-items-center">
         <li class="nav-item" v-for="menu in menus" :key="menu.text">
-          <RouterLink
-            :to="!isOpen && menu.text === '대시보드' ? '#' : menu.path"
-            class="nav-link w-100 text-center size d-flex justify-content-center align-items-center"
-            :style="{
+          <RouterLink :to="!isOpen && menu.text === '대시보드' ? '#' : menu.path"
+            class="nav-link w-80 text-center size d-flex justify-content-center align-items-center" :style="{
               backgroundColor: route.path === menu.path ? '#f66463' : '#dddddd',
               color:
                 route.path === menu.path
                   ? '#FFFFFF !important'
                   : '#333333 !important',
-              padding: '10px 10px',
               fontSize: '17px',
-            }"
-            @click.prevent="!isOpen ? null : null"
-          >
+            }" @click.prevent="!isOpen ? null : null">
             {{ menu.text }}
           </RouterLink>
         </li>
       </ul>
-      <div class="mt-5 text-center small text-muted">
-        All righs Reserved © HanIp Corp. 2025
+      <div class="footer">
+        <div class="callcenter">
+          고객센터 053-1234-5678
+        </div>
+        <div class="copyright ">
+          <!-- text-center small text-muted -->
+          All righs Reserved © HanIp Corp. 2025
+        </div>
       </div>
     </div>
+    <!-- 사이드바 끝 -->
+
 
     <!-- 오른쪽 화면 -->
-    <div
-      class="flex-grow-1 d-flex flex-column"
-      style="background-color: #e8e8e8"
-    >
+    <div class="flex-grow-1" style="background-color: #e8e8e8">
+      <!-- 헤더 시작 -->
       <!-- 검색 + 영업 버튼 -->
-
-      <div class="d-flex align-items-center paddingSearch">
-        <div class="d-flex align-items-center" style="gap: 16px">
-          <li class="nav-item nav-channel-search-wrapper d-none d-sm-block">
-            <form
-              id=""
-              class="position-relative"
-              :style="{
-                pointerEvents: isOpen ? 'auto' : 'none',
-                cursor: isOpen ? 'auto' : 'not-allowed',
-                opacity: isOpen ? 1 : 0.3,
-              }"
-            >
-              <img src="/src/imgs/search_icon.png" class="search-icon-inside" />
-              <input
-                type="search"
-                class="form-control ps-5 search"
-                autocomplete="off"
-                placeholder="검색"
-              />
-            </form>
-          </li>
-
-          <!-- 드랍다운 -->
-          <div class="relative d-flex gap-3">
-            <div class="dropdown position-relative">
-              <img
-                src="/src/imgs/owner/icon_bell.svg"
-                class="icon"
-                data-bs-toggle="dropdown"
-                style="cursor: pointer"
-                role="button"
-                @click="openDropdown"
-              />
-              <div class="red-dot" v-show="redDot"></div>
-
-              <div class="dropdown-menu dropdown-menu-start">
-                <div class="title px-3 py-2">알림</div>
-                <div class="dropdown-divider"></div>
-                <ul class="noti-item-list list-unstyled m-0 px-3">
-                  <li v-if="notifications.length === 0">알림이 없습니다.</li>
-                  <li
-                    v-for="order in notifications"
-                    :key="order.id"
-                    @click.stop="removeNotification(order.id)"
-                    style="cursor: pointer"
-                  >
-                    {{ order.message }}
-                  </li>
-                </ul>
-              </div>
-            </div>
-
-            <img src="/src/imgs/owner/icon_chat.svg" class="icon" />
-            <img src="/src/imgs/owner/icon_present.svg" class="icon" />
-            <img src="/src/imgs/owner/icon_config.svg" class="icon" />
-          </div>
-        </div>
-        <!-- 구분선 -->
-        <div class="d-flex gap-2" style="padding-left: 15px">
-          <div class="vertical-line mx-4"></div>
-          <!-- 유저 정보 -->
-          <div class="d-flex align-items-center">
-            <div class="dropdown position-relative">
-              <div
-                class="d-flex align-items-center gap-2"
-                data-bs-toggle="dropdown"
-                role="button"
-                style="cursor: pointer"
-              >
-                <span class="me-2"
-                  ><span style="font-weight: bold; letter-spacing: 1px">{{
-                    state.form.ownerName
-                  }}</span>
-                  사장님</span
-                >
-                <img
-                  src="/src/imgs/owner/owner_profile.png"
-                  style="cursor: pointer"
-                  role="button"
-                />
-              </div>
-
-              <div class="dropdown-menu dropdown-menu-end">
-                <div class="title px-3 py-2">{{ state.form.ownerName }}</div>
-                <div class="dropdown-divider"></div>
-                <div
-                  @click="storeModify"
-                  style="cursor: pointer"
-                  class="dropdown-item"
-                >
-                  가게수정
-                </div>
-                <div
-                  @click="logoutOwner"
-                  style="cursor: pointer"
-                  class="dropdown-item"
-                >
-                  로그아웃
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
+      <!-- 드랍다운 -->
+      <!-- 구분선 -->
+      <!-- 유저 정보 -->
+      <!--  헤더 끝 :  혹시나 다시 필요할때 위치참고용 주석-->
       <!-- 라우터뷰 -->
-      <div class="flex-grow-1 padding">
+      <div class="section">
         <router-view />
       </div>
     </div>
+    <!-- 오른쪽화면 끝 -->
   </div>
+
 </template>
 
-<style lang="scss" scoped>
+<style lang="scss">
+@import "@/assets/owner/_ownerStyle.scss"; //공통css
+
 .box {
   font-family: "Pretendard", sans-serif;
 }
 
-.padding {
-  padding-top: 20px;
-  padding-left: 40px;
+.section {
+  //  padding-top: 20px;
+  display: flex;
+  justify-content: center; // 가로 가운데
+  align-items: center; // 세로 가운데
+  height: 100%; // 부모 높이 꽉 차게
 }
 
 .paddingSearch {
@@ -436,60 +360,36 @@ onUnmounted(() => {
   background-color: #d1d1d1;
 }
 
-// 토글버튼
-.toggle-container {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  font-weight: bold;
-  color: #403f57;
-  margin: 10px 0;
-  font-size: 17px;
-}
 
-.switch {
-  position: relative;
-  display: inline-block;
-  width: 66px;
-  height: 32px;
-}
-
-.switch input {
-  opacity: 0;
-  width: 0;
-  height: 0;
-}
-
-.slider {
-  position: absolute;
-  cursor: pointer;
-  background-color: #c4c4c4;
-  border: 1px solid #403f57;
-  border-radius: 34px;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  transition: 0.4s;
-}
-
-.slider::before {
-  position: absolute;
-  content: "";
-  height: 30px;
-  width: 30px;
-  left: 0px;
-  bottom: 0px;
-  background-color: white;
-  transition: 0.4s;
-  border-radius: 50%;
-}
-
-input:checked + .slider {
+input:checked+.slider {
   background-color: #ff6666;
 }
 
-input:checked + .slider::before {
+input:checked+.slider::before {
   transform: translateX(34px);
+}
+
+// 왼쪽사이드 메뉴버튼
+.nav-link {
+  width: 220px;
+  height: 60px;
+}
+
+.sideNav {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+}
+
+.footer {
+  width: 90%;
+  align-items: center;
+  margin-top: auto;
+  text-align: center;
+
+  .copyright {
+    bottom: 3px;
+  }
+
 }
 </style>
