@@ -37,16 +37,16 @@ const selected = ref('basic'); // 기본으로 '기본정보'
 
 <style scoped lang="scss">
 .section-wrap{
-  width: 100%;
-  height: 100%;
+  width: 95%;
+  height: 95%;
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
 }
 .white-card{
-  width: 95%;
-  height: 95%;
+  width: 100%;
+  height: 100%;
   display: flex;
   flex-direction: column;
   justify-content: space-around;
