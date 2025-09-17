@@ -1,10 +1,11 @@
 <script setup>
-import { ref, computed } from 'vue';
+import { ref, computed, watch } from 'vue';
 
 const props = defineProps({
     title: String,
     items: Array,
-    field: Array
+    field: Array,
+    idKey: { type: String, default: 'id' }
 });
 
 // 체크박스 컬럼 정의
@@ -25,10 +26,25 @@ const toggleSelectAll = () => {
     props.items.forEach(item => (item._checked = allSelected.value))
 };
 
+const emit = defineEmits(['row-selected', 'row-selected']);
+
+// 체크된 항목을 부모 컴포넌트로 전달
+const emitSelectedItems = () => {
+    const checkedItems = props.items.filter(item => item._checked).map(item => item[props.idKey]);
+    emit('row-checked', checkedItems)
+}
+
+// 테이블 안 항목들의 체크박스 상태가 바뀔 때마다 실행
+watch(
+    () => props.items.map(i => i._checked),
+    () => {
+        emitSelectedItems()
+    },
+    { deep: true }
+)
+
 // 행 클릭 시 선택한 행 item의 id를 부모 컴포넌트로 전달
-const emit = defineEmits(['row-selected']);
 const rowClicked = item => {
-    console.log(item);
     emit('row-selected', item);
 };
 </script>

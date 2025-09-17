@@ -2,14 +2,15 @@
 import '@/assets/manager/manager.css'
 
 import { onMounted, reactive, ref } from 'vue';
-import { getStoreList } from '@/services/managerService';
+import { getStoreList, getStore, patchIsActive } from '@/services/managerService';
 import { usePaginationStore } from '@/stores/pagination';
 import VueDatePicker from '@vuepic/vue-datepicker';
 import PageSizeSelect from '@/components/manager/PageSizeSelect.vue';
 import DateTable from '@/components/manager/DataTable.vue';
 import BoardCard from '@/components/manager/BoardCard.vue';
-import ConfirmModal from '@/components/modal/ConfirmModal.vue';
 import LoadingModal from '@/components/modal/LoadingModal.vue';
+import AlertModal from '@/components/modal/AlertModal.vue';
+import ConfirmModal from '@/components/modal/ConfirmModal.vue';
 
 const pagination = usePaginationStore();
 
@@ -67,15 +68,54 @@ const getStores = async () => {
     loadingModalRef.value.hide();
 };
 
+const alertModalRef = ref(null);
 const confirmModalRef = ref(null);
+let ids = [];
 
-// 영업 승인
-const setIsActive = async () => {
-    if (await confirmModalRef.value.showModal('영업 승인 상태를 변경하시겠습니까?')) {
-        console.log('ok');
+// 테이블에서 체크된 항목을 ids에 추가(선택한 가게의 id가 담긴 배열)
+const addCheckItemIds = checkedItems => {
+    ids = checkedItems;
+};
+
+// 상세 조회 중인 가게의 id를 바로 ids에 추가하여 영업 승인 상태 변경
+const addSelectedItemId = item => {
+    ids = [item.id];
+    setIsActive(item.status);
+}
+
+// 영업 승인 상태 변경
+const setIsActive = async isActive => {
+    // 선택한 가게가 없을 경우(체크박스 중 체크된 항목이 없을 경우)
+    if (ids.length === 0) {
+        alertModalRef.value.open('선택한 가게가 없습니다.');
+        return;
+    }
+
+    const isConfirmed = await confirmModalRef.value.showModal('영업 승인 상태를 변경하시겠습니까?');
+    if (isConfirmed) {
+        loadingModalRef.value.open();
+
+        const params = { id: ids, isActive };
+        const res = await patchIsActive(params);
+        
+        if (res !== undefined && res.status === 200) {
+            alertModalRef.value.open('상태가 변경되었습니다.');
+
+            // 상태가 변경된 항목은 state.stores 에서 제거
+            ids.forEach(id => {
+                const idx = state.stores.findIndex(item => item.storeId === id);
+                if (idx >= 0) {
+                    state.stores.splice(idx, 1);
+                    pagination.state.totalRow = pagination.state.totalRow - 1;
+                }
+            });
+        }
+
+        loadingModalRef.value.hide();
     }
 };
 
+// 테이블 필드
 const fields = [
     { key: 'name', label: '상호명' },
     { key: 'ownerName', label: '대표자명' },
@@ -107,9 +147,22 @@ const changePage = page => {
 
 const boardSection = ref(null);
 
+const store = ref({});
+
 // 상세 조회
-const goToBoardSection = item => {
-    boardSection.value?.$el.scrollIntoView({ behavior: "smooth" });
+const goToBoardSection = async item => {
+    loadingModalRef.value.open();
+
+    const res = await getStore(item.storeId);
+
+    if (res !== undefined && res.status === 200) {
+        store.value = res.data.resultData;
+
+        // 상세 정보 보여주는 요소로 스크롤 이동
+        boardSection.value?.$el.scrollIntoView({ behavior: "smooth" });
+    }
+
+    loadingModalRef.value.hide();
 };
 
 onMounted(() => {
@@ -205,11 +258,12 @@ onMounted(() => {
                             </b-col>
 
                             <b-col cols="12">
-                                <button class="btn btn-success mb-2" @click="setIsActive">영업 승인</button>
+                                <button class="btn btn-success mb-2 me-2" @click="setIsActive(1)">영업 승인</button>
+                                <button class="btn btn-secondary mb-2" @click="setIsActive(0)">영업 대기</button>
                             </b-col>
 
                             <b-col cols="12">
-                                <DateTable title="store" :items="state.stores" :field="fields" @row-selected="goToBoardSection" />
+                                <DateTable title="store" :items="state.stores" :field="fields" id-key="storeId" @row-selected="goToBoardSection" @row-checked="addCheckItemIds" />
                             </b-col>
 
                             <b-col cols="12">
@@ -220,7 +274,7 @@ onMounted(() => {
                     </b-col>
 
                     <b-col ref="boardSection" cols="12" lg="6">
-                        <BoardCard title="store" />
+                        <BoardCard title="store" :item="store" id-key="storeId" @set-item-status="addSelectedItemId" />
                     </b-col>
                 </b-row>
             </b-col>
@@ -228,6 +282,7 @@ onMounted(() => {
     </b-container>
 
     <LoadingModal ref="loadingModalRef" />
+    <AlertModal ref="alertModalRef" />
     <ConfirmModal ref="confirmModalRef" />
 </template>
 

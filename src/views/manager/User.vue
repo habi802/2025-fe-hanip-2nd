@@ -66,7 +66,7 @@ const getUsers = async () => {
     loadingModalRef.value.hide();
 };
 
-// 테이블 필드 값
+// 테이블 필드
 const fields = [
     { key: 'name', label: '이름' },
     { key: 'loginId', label: '아이디' },
