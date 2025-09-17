@@ -6,7 +6,7 @@ import { ref, onMounted, onUnmounted, provide, watch, computed, reactive, } from
 import { RouterLink, useRouter, useRoute } from "vue-router";
 import { check, logout } from "@/services/userService";
 import { useAccountStore } from "@/stores/account";
-import '@/assets/customer/customer.css';
+//import '@/assets/customer/customer.css';
 import "@/assets/owner/_ownerStyle.scss";
 
 // 로그인 체크

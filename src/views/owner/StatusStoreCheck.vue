@@ -15,7 +15,7 @@
           <div>비밀번호 확인</div>
           <input id="submit" class="gray-content" type="password" placeholder="현재 비밀번호를 입력하세요">
         </label>
-        <button class="hn-btn-white" type="submit">제출</button>
+        <button class="owner-btn-white" type="submit">제출</button>
       </form>
     </div>
   </div>
