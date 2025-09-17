@@ -2,6 +2,8 @@
 import { computed, ref, inject } from "vue";
 import DeatailOrderCard from "./OrderCardDetail.vue";
 import { useOrderStore } from "@/stores/orderStore";
+import DashboardOrderDetail from "@/components/modal/DashboardOrderDetail.vue"
+
 
 const props = defineProps({
   title: String,
@@ -18,10 +20,21 @@ const visibleOrders = computed(() => {
 
 // 가게 활성화 여부
 const isOpen = inject("isOpen");
-
 const test1 = () => {
   console.log("테스트중");
 };
+
+// 주문리스트 클릭이벤트 발생 함수
+const isModalOpen = ref(false);
+const selectedRow = ref(null);
+const onRowClick = (rowData)=>{
+  console.log("오예에");
+  //selectedRow.value = rowData;
+  isModalOpen.value = true;
+   console.log(isModalOpen.value);
+}
+
+
 </script>
 
 <template>
@@ -32,7 +45,7 @@ const test1 = () => {
     </div>
 
     <!-- 주문 리스트 -->
-    <div class="white-card order-list">
+    <div class="order-list white-card ">
       <!-- 리스트 컬럼 -->
       <div class="grid-table t-header">
         <div>주문번호</div>
@@ -46,25 +59,28 @@ const test1 = () => {
 
       <!-- 스크롤 가능한 바디 -->
       <div class="grid-body scrollbar">
-        <button v-bind="test1">
-          <div class="grid-table underline " v-for="n in 4" :key="n">
-            <div>000{{ n }}</div>
-            <div>17:12</div>
-            <div>{{ n }}분</div>
-            <div class="address">
-              대구 달서구 야외음악당로 20길 49,<br />205동 203호
-            </div>
-            <div>황금올리브 외 4건</div>
-            <div>23,500원</div>
-            <div>
-              <!-- TODO : 각 상태마다 버튼 다르게하기 -->
-              <button class="hn-btn-white">배차하기</button>
-            </div>
+        <div class="grid-table underline " v-for="n in 4" :key="n"
+          role="button"
+          tabindex="0"
+          @click="onRowClick()">
+          <div>000{{ n }}</div>
+          <div>17:12</div>
+          <div>{{ n }}분</div>
+          <div class="address">
+            대구 달서구 야외음악당로 20길 49,<br />205동 203호
           </div>
-        </button>
-      </div>
-    </div>
-  </div>
+          <div>황금올리브 외 4건</div>
+          <div>23,500원</div>
+          <div>
+            <!-- TODO : 각 상태마다 버튼 다르게하기 -->
+            <!-- 행 클릭과 내부 버튼 클릭을 분리: 내부 버튼 클릭시 부모 클릭 중단 -->
+            <button class="hn-btn-white" @click.stop="onAssign()">배차하기</button>
+          </div>
+        </div><!-- grid-table 끝-->
+      </div><!-- grid-body 끝-->
+    </div><!-- order-list 끝-->
+  </div><!-- main-grid 끝-->
+  <dashboard-order-detail  v-if="isModalOpen" :data="selectedRow" @close="isModalOpen = false"></dashboard-order-detail> 
 </template>
 
 <style scoped lang="scss">

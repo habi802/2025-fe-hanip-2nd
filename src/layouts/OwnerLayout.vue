@@ -7,6 +7,7 @@ import { RouterLink, useRouter, useRoute } from "vue-router";
 import { check, logout } from "@/services/userService";
 import { useAccountStore } from "@/stores/account";
 import '@/assets/customer/customer.css';
+import "@/assets/owner/_ownerStyle.scss";
 
 // 로그인 체크
 const checkAcconut = async () => {
@@ -294,8 +295,6 @@ onUnmounted(() => {
 </template>
 
 <style lang="scss">
-@import "@/assets/owner/_ownerStyle.scss"; //공통css
-
 .box {
   font-family: "Pretendard", sans-serif;
 }
