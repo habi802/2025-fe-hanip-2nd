@@ -2,7 +2,7 @@
 import { ref,watch  } from 'vue';
 
 const isVisible = ref(false); 
-const message = ref('');     
+const message = ref('');
 const callback = ref(null);   
 
 

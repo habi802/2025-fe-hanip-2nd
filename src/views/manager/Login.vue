@@ -21,10 +21,10 @@ const alertModalRef = ref(null);
 const loadingModalRef = ref(null);
 
 const submit = async () => {
+    loadingModalRef.value.open();
     //const res = await managerLogin(state.form);
 
     router.push({ path: managerPath });
-    loadingModalRef.value.open();
 };
 </script>
 

@@ -1,12 +1,13 @@
 <script setup>
 import '@/assets/manager/manager.css'
 
-import { onMounted, reactive } from 'vue';
+import { onMounted, reactive, ref } from 'vue';
 import { getUserList } from '@/services/managerService';
 import { usePaginationStore } from '@/stores/pagination';
 import VueDatePicker from '@vuepic/vue-datepicker';
 import PageSizeSelect from '@/components/manager/PageSizeSelect.vue';
 import DateTable from '@/components/manager/DataTable.vue';
+import LoadingModal from '@/components/modal/LoadingModal.vue';
 
 const pagination = usePaginationStore();
 
@@ -48,8 +49,12 @@ const resetForm = () => {
     getUsers();
 };
 
+const loadingModalRef = ref(null);
+
 // 유저 조회
 const getUsers = async () => {
+    loadingModalRef.value.open();
+
     const res = await getUserList(state.form);
 
     if (res !== undefined && res.status === 200) {
@@ -57,6 +62,8 @@ const getUsers = async () => {
 
         pagination.state.totalRow = res.data.resultData.totalRow;
     }
+
+    loadingModalRef.value.hide();
 };
 
 // 테이블 필드 값
@@ -181,6 +188,8 @@ onMounted(() => {
             </b-col>
         </b-row>
     </b-container>
+
+    <LoadingModal ref="loadingModalRef" />
 </template>
 
 <style lang="scss" scoped>

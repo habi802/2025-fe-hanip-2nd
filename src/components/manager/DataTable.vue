@@ -63,10 +63,10 @@ const rowClicked = item => {
             <span v-else-if="row.item.role === '03'" class="badge bg-primary">배달원</span>
         </template>
 
-        <!-- 가게 활성화 여부 컬럼 커스텀 -->
+        <!-- 가게 영업 승인 상태 컬럼 커스텀 -->
         <template #cell(isActive)="row">
-            <span v-if="row.item.isActive === 0" class="badge bg-danger">비활성화</span>
-            <span v-else-if="row.item.isActive === 1" class="badge bg-primary">활성화</span>
+            <span v-if="row.item.isActive === 0" class="badge bg-danger">대기</span>
+            <span v-else-if="row.item.isActive === 1" class="badge bg-success">완료</span>
         </template>
 
         <!-- 사장 답변 등록 여부 컬럼 커스텀 -->
