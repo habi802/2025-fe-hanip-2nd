@@ -4,6 +4,8 @@ import { computed, ref, reactive, inject } from "vue";
 import { useOrderStore } from "@/stores/orderStore";
 import { deleteOrder, getOrderByDate } from "@/services/orderService";
 import { useAccountStore, useOwnerStore } from "@/stores/account";
+import PaymentDetails from "@/components/owner/orderInfo/PaymentDetails.vue";
+
 
 const orderStore = useOrderStore();
 const user = useAccountStore();
@@ -276,6 +278,7 @@ const selectRange = async (range) => {
       <div class="orders-wrap white-card">
         <div class="orders-detail">
           <!-- 주문정보 -->
+           <!-- <OrderDetails></OrderDetails> -->
           <section>
             <h3>주문 정보</h3>
             <table class="info-table">
@@ -300,6 +303,7 @@ const selectRange = async (range) => {
             </table>
           </section>
           <!-- 주문상세 -->
+          <!-- <OrderedMenu></OrderedMenu> -->
           <section>
             <h3>주문 상세</h3>
             <table class="menu-table">
@@ -333,6 +337,7 @@ const selectRange = async (range) => {
             </table>
           </section>
           <!-- 주문현황 -->
+          <!-- <OrderStatus></OrderStatus> -->
           <section>
             <h3>주문 현황</h3>
             <table class="menu-table">
@@ -349,6 +354,7 @@ const selectRange = async (range) => {
             </table>
           </section>
           <!-- 결제내역 -->
+           <!-- <PaymentDetails></PaymentDetails> -->
           <section>
             <h3>결제 내역</h3>
             <table class="info-table">

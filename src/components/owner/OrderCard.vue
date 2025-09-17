@@ -74,7 +74,7 @@ const onRowClick = (rowData)=>{
           <div>
             <!-- TODO : 각 상태마다 버튼 다르게하기 -->
             <!-- 행 클릭과 내부 버튼 클릭을 분리: 내부 버튼 클릭시 부모 클릭 중단 -->
-            <button class="hn-btn-white" @click.stop="onAssign()">배차하기</button>
+            <button class="owner-btn-white" @click.stop="onAssign()">배차하기</button>
           </div>
         </div><!-- grid-table 끝-->
       </div><!-- grid-body 끝-->
