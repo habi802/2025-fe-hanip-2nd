@@ -37,9 +37,17 @@ const hide = () => {
     </b-modal>
 </template>
 
-<style scoped>
+<style lang="scss" scoped>
 .btn-custom {
     background-color: #FF6666;
     color: #fff;
+
+    &:hover {
+        background-color: #ED5F5F;
+    }
+
+    &:active {
+        color: #fff;
+    }
 }
 </style>

@@ -1,11 +1,20 @@
 <script setup>
 import '@/assets/manager/manager.css'
 
-import { reactive } from 'vue';
+import { onMounted, reactive, ref } from 'vue';
+import { getStoreList, getStore, patchIsActive } from '@/services/managerService';
+import { usePaginationStore } from '@/stores/pagination';
 import VueDatePicker from '@vuepic/vue-datepicker';
 import PageSizeSelect from '@/components/manager/PageSizeSelect.vue';
 import DateTable from '@/components/manager/DataTable.vue';
+import BoardCard from '@/components/manager/BoardCard.vue';
+import LoadingModal from '@/components/modal/LoadingModal.vue';
+import AlertModal from '@/components/modal/AlertModal.vue';
+import ConfirmModal from '@/components/modal/ConfirmModal.vue';
 
+const pagination = usePaginationStore();
+
+// 날짜 선택 Input의 입력 포맷 지정
 const formatDate = (date) => date.toLocaleDateString();
 
 const today = new Date();
@@ -13,60 +22,100 @@ const lastWeek = new Date();
 lastWeek.setDate(today.getDate() - 7);
 
 const defaultForm = {
-    StartCreatedAt: lastWeek,
-    EndCreatedAt: today,
-    StartOpenDate: lastWeek,
-    EndOpenDate: today,
+    StartCreatedAt: lastWeek.toISOString().slice(0, 10),
+    EndCreatedAt: today.toISOString().slice(0, 10),
+    StartOpenDate: '',
+    EndOpenDate: '',
     name: '',
     ownerName: '',
     businessNumber: '',
     address: '',
     tel: '',
     isActive: 0,
+    pageNumber: pagination.state.pageNumber,
+    pageSize: pagination.state.pageSize
 }
 
 const state = reactive({
-    form: { ...defaultForm }
+    form: { ...defaultForm },
+    stores: []
 });
+
+// 날짜 선택
+const changeDate = (key, date) => {
+    state.form[key] = date.toISOString().slice(0, 10);
+};
 
 // 검색 초기화
 const resetForm = () => {
     Object.assign(state.form, defaultForm);
 };
 
-// 테이블에 들어갈 값 전달을 위해 임의로 만든 객체
-const store = [
-{
-        name: '',
-        ownerName: '',
-        businessNumber: '',
-        address: '',
-        openDate: '',
-        tel: '',
-        isActive: 0,
-        createdAt: ''
-    },
-    {
-        name: '',
-        ownerName: '',
-        businessNumber: '',
-        address: '',
-        openDate: '',
-        tel: '',
-        isActive: 1,
-        createdAt: ''
-    },
-    {
-        name: '',
-        ownerName: '',
-        businessNumber: '',
-        address: '',
-        openDate: '',
-        tel: '',
-        isActive: 1,
-        createdAt: ''
-    },
-];
+const loadingModalRef = ref(null);
+
+// 가게 조회
+const getStores = async () => {
+    loadingModalRef.value.open();
+
+    const res = await getStoreList(state.form);
+
+    if (res !== undefined && res.status === 200) {
+        state.stores = res.data.resultData.content;
+
+        pagination.state.totalRow = res.data.resultData.totalRow;
+    }
+
+    loadingModalRef.value.hide();
+};
+
+const alertModalRef = ref(null);
+const confirmModalRef = ref(null);
+let ids = [];
+
+// 테이블에서 체크된 항목을 ids에 추가(선택한 가게의 id가 담긴 배열)
+const addCheckItemIds = checkedItems => {
+    ids = checkedItems;
+};
+
+// 상세 조회 중인 가게의 id를 바로 ids에 추가하여 영업 승인 상태 변경
+const addSelectedItemId = item => {
+    ids = [item.id];
+    setIsActive(item.status);
+}
+
+// 영업 승인 상태 변경
+const setIsActive = async isActive => {
+    // 선택한 가게가 없을 경우(체크박스 중 체크된 항목이 없을 경우)
+    if (ids.length === 0) {
+        alertModalRef.value.open('선택한 가게가 없습니다.');
+        return;
+    }
+
+    const isConfirmed = await confirmModalRef.value.showModal('영업 승인 상태를 변경하시겠습니까?');
+    if (isConfirmed) {
+        loadingModalRef.value.open();
+
+        const params = { id: ids, isActive };
+        const res = await patchIsActive(params);
+        
+        if (res !== undefined && res.status === 200) {
+            alertModalRef.value.open('상태가 변경되었습니다.');
+
+            // 상태가 변경된 항목은 state.stores 에서 제거
+            ids.forEach(id => {
+                const idx = state.stores.findIndex(item => item.storeId === id);
+                if (idx >= 0) {
+                    state.stores.splice(idx, 1);
+                    pagination.state.totalRow = pagination.state.totalRow - 1;
+                }
+            });
+        }
+
+        loadingModalRef.value.hide();
+    }
+};
+
+// 테이블 필드
 const fields = [
     { key: 'name', label: '상호명' },
     { key: 'ownerName', label: '대표자명' },
@@ -74,87 +123,167 @@ const fields = [
     { key: 'address', label: '주소' },
     { key: 'openDate', label: '개업연월일' },
     { key: 'tel', label: '전화번호' },
-    { key: 'isActive', label: '상태' },
+    { key: 'isActive', label: '영업 승인' },
     { key: 'createdAt', label: '가게 등록일' }
 ];
+
+// 페이지 사이즈 변경
+const changePageSize = size => {
+    pagination.setPageSize(size);
+    pagination.setPageNumber(1);
+    state.form.pageSize = size;
+    state.form.pageNumber = 1;
+
+    getStores();
+};
+
+// 페이지 이동
+const changePage = page => {
+    pagination.setPageNumber(page);
+    state.form.pageNumber = page;
+
+    getStores();
+};
+
+const boardSection = ref(null);
+
+const store = ref({});
+
+// 상세 조회
+const goToBoardSection = async item => {
+    loadingModalRef.value.open();
+
+    const res = await getStore(item.storeId);
+
+    if (res !== undefined && res.status === 200) {
+        store.value = res.data.resultData;
+
+        // 상세 정보 보여주는 요소로 스크롤 이동
+        boardSection.value?.$el.scrollIntoView({ behavior: "smooth" });
+    }
+
+    loadingModalRef.value.hide();
+};
+
+onMounted(() => {
+    getStores();
+});
 </script>
 
 <template>
     <b-container>
         <h5 class="mb-3">가게 리스트</h5>
         <b-row class="align-items-center">
-            <b-col cols="12" lg="6" xl="4" xxl="3" class="mb-2">
-                <label for="" class="form-label">가게 등록일</label>
+            <b-col cols="12">
                 <b-row class="align-items-center">
-                    <b-col>
-                        <VueDatePicker :enable-time-picker="false" :format="formatDate" v-model="state.form.StartCreatedAt" />
+                    <b-col cols="12" lg="6" xl="4" xxl="3" class="mb-2">
+                        <label for="" class="form-label">가게 등록일</label>
+                        <b-row class="align-items-center">
+                            <b-col>
+                                <VueDatePicker :enable-time-picker="false" :format="formatDate" v-model="state.form.StartCreatedAt" @update:model-value="date => changeDate('StartCreatedAt', date)" />
+                            </b-col>
+                            ~
+                            <b-col>
+                                <VueDatePicker :enable-time-picker="false" :format="formatDate" v-model="state.form.EndCreatedAt" @update:model-value="date => changeDate('EndCreatedAt', date)" />
+                            </b-col>
+                        </b-row>
                     </b-col>
-                    ~
-                    <b-col>
-                        <VueDatePicker :enable-time-picker="false" :format="formatDate" v-model="state.form.EndCreatedAt" />
+                    <b-col cols="12" lg="6" xl="4" xxl="3" class="mb-2">
+                        <label for="" class="form-label">개업연월일</label>
+                        <b-row class="align-items-center">
+                            <b-col>
+                                <VueDatePicker :enable-time-picker="false" :format="formatDate" v-model="state.form.StartOpenDate" @update:model-value="date => changeDate('StartOpenDate', date)" />
+                            </b-col>
+                            ~
+                            <b-col>
+                                <VueDatePicker :enable-time-picker="false" :format="formatDate" v-model="state.form.EndOpenDate" @update:model-value="date => changeDate('EndOpenDate', date)" />
+                            </b-col>
+                        </b-row>
+                    </b-col>
+                    <b-col cols="6" xl="4" xxl="3" class="mb-2">
+                        <label for="name" class="form-label">상호명</label>
+                        <b-form-input type="text" id="name" v-model="state.form.name"></b-form-input>
+                    </b-col>
+                    <b-col cols="6" xl="4" xxl="3" class="mb-2">
+                        <label for="ownerName" class="form-label">대표자명</label>
+                        <b-form-input type="text" id="ownerName" v-model="state.form.ownerName"></b-form-input>
+                    </b-col>
+                    <b-col cols="6" xl="4" xxl="3" class="mb-2">
+                        <label for="businessNumber" class="form-label">사업자 등록번호</label>
+                        <b-form-input type="text" id="businessNumber" v-model="state.form.businessNumber"></b-form-input>
+                    </b-col>
+                    <b-col cols="6" xl="4" xxl="3" class="mb-2">
+                        <label for="address" class="form-label">주소</label>
+                        <b-form-input type="text" id="address" v-model="state.form.address"></b-form-input>
+                    </b-col>
+                    <b-col cols="6" xl="4" xxl="3" class="mb-2">
+                        <label for="tel" class="form-label">전화번호</label>
+                        <b-form-input type="text" id="tel" v-model="state.form.tel"></b-form-input>
+                    </b-col>
+                    <b-col cols="6" xl="4" xxl="3" class="mb-2">
+                        <label for="isActive" class="form-label">영업 승인</label>
+                        <b-form-select id="isActive" v-model="state.form.isActive">
+                            <option value="0">대기</option>
+                            <option value="1">완료 </option>
+                        </b-form-select>
+                    </b-col>
+                    <b-col cols="6" xl="4" xxl="3" class="ms-auto mb-2">
+                        <label class="form-label d-block invisible">버튼</label>
+                        <b-row>
+                            <b-col>
+                                <button class="btn btn-secondary w-100" @click="resetForm">초기화</button>
+                            </b-col>
+                            <b-col>
+                                <button class="btn btn-primary w-100" @click="getStores">검색</button>
+                            </b-col>
+                        </b-row>
                     </b-col>
                 </b-row>
-            </b-col>
-            <b-col cols="12" lg="6" xl="4" xxl="3" class="mb-2">
-                <label for="" class="form-label">개업연월일</label>
-                <b-row class="align-items-center">
-                    <b-col>
-                        <VueDatePicker :enable-time-picker="false" :format="formatDate" v-model="state.form.StartOpenDate" />
-                    </b-col>
-                    ~
-                    <b-col>
-                        <VueDatePicker :enable-time-picker="false" :format="formatDate" v-model="state.form.EndOpenDate" />
-                    </b-col>
-                </b-row>
-            </b-col>
-            <b-col cols="6" xl="4" xxl="3" class="mb-2">
-                <label for="name" class="form-label">상호명</label>
-                <b-form-input type="text" id="name" v-model="state.form.name"></b-form-input>
-            </b-col>
-            <b-col cols="6" xl="4" xxl="3" class="mb-2">
-                <label for="ownerName" class="form-label">대표자명</label>
-                <b-form-input type="text" id="ownerName" v-model="state.form.ownerName"></b-form-input>
-            </b-col>
-            <b-col cols="6" xl="4" xxl="3" class="mb-2">
-                <label for="businessNumber" class="form-label">사업자 등록번호</label>
-                <b-form-input type="text" id="businessNumber" v-model="state.form.businessNumber"></b-form-input>
-            </b-col>
-            <b-col cols="6" xl="4" xxl="3" class="mb-2">
-                <label for="address" class="form-label">주소</label>
-                <b-form-input type="text" id="address" v-model="state.form.address"></b-form-input>
-            </b-col>
-            <b-col cols="6" xl="4" xxl="3" class="mb-2">
-                <label for="tel" class="form-label">전화번호</label>
-                <b-form-input type="text" id="tel" v-model="state.form.tel"></b-form-input>
-            </b-col>
-            <b-col cols="6" xl="4" xxl="3" class="mb-2">
-                <label for="isActive" class="form-label">상태</label>
-                <b-form-select id="isActive" v-model="state.form.isActive">
-                    <option value="0">비활성화</option>
-                    <option value="1">활성화</option>
-                </b-form-select>
-            </b-col>
-            <b-col cols="6" xl="4" xxl="3" class="ms-auto mb-2">
-                <label class="form-label d-block invisible">버튼</label>
-                <b-row>
-                    <b-col>
-                        <button class="btn btn-secondary w-100" @click="resetForm">초기화</button>
-                    </b-col>
-                    <b-col>
-                        <button class="btn btn-primary w-100">검색</button>
-                    </b-col>
-                </b-row>
-            </b-col>
-
-            <b-col cols="12" class="text-end mb-2">
-                <PageSizeSelect />
             </b-col>
 
             <b-col cols="12">
-                <DateTable title="store" :items="store" :field="fields" />
+                <b-row>
+                    <b-col cols="12" lg="6">
+                        <b-row>
+                            <b-col cols="12">
+                                <b-row>
+                                    <b-col cols="6" class="text-start mb-2">
+                                        총 {{ pagination.state.totalRow }} 건
+                                    </b-col>
+
+                                    <b-col cols="6" class="text-end mb-2">
+                                        <PageSizeSelect @change-page-size="changePageSize" />
+                                    </b-col>
+                                </b-row>
+                            </b-col>
+
+                            <b-col cols="12">
+                                <button class="btn btn-success mb-2 me-2" @click="setIsActive(1)">영업 승인</button>
+                                <button class="btn btn-secondary mb-2" @click="setIsActive(0)">영업 대기</button>
+                            </b-col>
+
+                            <b-col cols="12">
+                                <DateTable title="store" :items="state.stores" :field="fields" id-key="storeId" @row-selected="goToBoardSection" @row-checked="addCheckItemIds" />
+                            </b-col>
+
+                            <b-col cols="12">
+                                <b-pagination align="center"
+                                v-model="pagination.state.pageNumber" :per-page="pagination.state.pageSize" :total-rows="pagination.state.totalRow" @update:model-value="changePage"></b-pagination>
+                            </b-col>
+                        </b-row>
+                    </b-col>
+
+                    <b-col ref="boardSection" cols="12" lg="6">
+                        <BoardCard title="store" :item="store" id-key="storeId" @set-item-status="addSelectedItemId" />
+                    </b-col>
+                </b-row>
             </b-col>
         </b-row>
     </b-container>
+
+    <LoadingModal ref="loadingModalRef" />
+    <AlertModal ref="alertModalRef" />
+    <ConfirmModal ref="confirmModalRef" />
 </template>
 
 <style lang="scss" scoped>

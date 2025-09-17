@@ -1,16 +1,17 @@
 <script setup>
-import { ref, computed, watch, reactive } from 'vue';
+import { ref, computed, watch } from 'vue';
 
 const props = defineProps({
     title: String,
     items: Array,
-    field: Array
+    field: Array,
+    idKey: { type: String, default: 'id' }
 });
 
 // 체크박스 컬럼 정의
 const checkboxField = { key: 'selected', label: '', sortable: false };
 
-// title에 따라 체크박스 컬럼이 추가되는지 결정
+// title에 따라 체크박스 컬럼이 추가되는지 결정(유저 빼고 다 있을듯)
 const computedFields = computed(() => {
     if (props.title !== 'user') {
         return [checkboxField, ...props.field];
@@ -25,16 +26,35 @@ const toggleSelectAll = () => {
     props.items.forEach(item => (item._checked = allSelected.value))
 };
 
+const emit = defineEmits(['row-selected', 'row-selected']);
+
+// 체크된 항목을 부모 컴포넌트로 전달
+const emitSelectedItems = () => {
+    const checkedItems = props.items.filter(item => item._checked).map(item => item[props.idKey]);
+    emit('row-checked', checkedItems)
+}
+
+// 테이블 안 항목들의 체크박스 상태가 바뀔 때마다 실행
+watch(
+    () => props.items.map(i => i._checked),
+    () => {
+        emitSelectedItems()
+    },
+    { deep: true }
+)
+
 // 행 클릭 시 선택한 행 item의 id를 부모 컴포넌트로 전달
-const emit = defineEmits(['row-selected']);
 const rowClicked = item => {
-    console.log(item);
     emit('row-selected', item);
 };
 </script>
 
 <template>
-    <b-table :items="props.items" :fields="computedFields" @row-clicked="rowClicked" bordered hover>
+    <b-table :items="props.items" :fields="computedFields" @row-clicked="rowClicked" show-empty bordered hover>
+        <template #empty>
+            <div class="text-center py-3">데이터가 없습니다.</div>
+        </template>
+
         <!-- 체크박스 컬럼 헤더 (전체 선택) -->
         <template #head(selected)>
             <input type="checkbox" :checked="allSelected" @change="toggleSelectAll" />
@@ -59,10 +79,10 @@ const rowClicked = item => {
             <span v-else-if="row.item.role === '03'" class="badge bg-primary">배달원</span>
         </template>
 
-        <!-- 가게 활성화 여부 컬럼 커스텀 -->
+        <!-- 가게 영업 승인 상태 컬럼 커스텀 -->
         <template #cell(isActive)="row">
-            <span v-if="row.item.isActive === 0" class="badge bg-danger">비활성화</span>
-            <span v-else-if="row.item.isActive === 1" class="badge bg-primary">활성화</span>
+            <span v-if="row.item.isActive === 0" class="badge bg-danger">대기</span>
+            <span v-else-if="row.item.isActive === 1" class="badge bg-success">완료</span>
         </template>
 
         <!-- 사장 답변 등록 여부 컬럼 커스텀 -->
