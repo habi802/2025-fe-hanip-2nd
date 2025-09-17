@@ -26,7 +26,7 @@ const selected = ref('basic'); // 기본으로 '기본정보'
         <span>** 가게 정보 수정 시 내용을 꼭 확인해주세요.** </span>
         <div class="button-row">
           <button class="btn-cancle">취소</button>
-          <button class="hn-btn-white">저장하기</button>
+          <button class="owner-btn-white">저장하기</button>
         </div>
       </div>
     </div>
