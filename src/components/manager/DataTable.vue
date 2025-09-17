@@ -1,5 +1,5 @@
 <script setup>
-import { ref, computed, watch, reactive } from 'vue';
+import { ref, computed } from 'vue';
 
 const props = defineProps({
     title: String,
@@ -10,7 +10,7 @@ const props = defineProps({
 // 체크박스 컬럼 정의
 const checkboxField = { key: 'selected', label: '', sortable: false };
 
-// title에 따라 체크박스 컬럼이 추가되는지 결정
+// title에 따라 체크박스 컬럼이 추가되는지 결정(유저 빼고 다 있을듯)
 const computedFields = computed(() => {
     if (props.title !== 'user') {
         return [checkboxField, ...props.field];
@@ -34,7 +34,11 @@ const rowClicked = item => {
 </script>
 
 <template>
-    <b-table :items="props.items" :fields="computedFields" @row-clicked="rowClicked" bordered hover>
+    <b-table :items="props.items" :fields="computedFields" @row-clicked="rowClicked" show-empty bordered hover>
+        <template #empty>
+            <div class="text-center py-3">데이터가 없습니다.</div>
+        </template>
+
         <!-- 체크박스 컬럼 헤더 (전체 선택) -->
         <template #head(selected)>
             <input type="checkbox" :checked="allSelected" @change="toggleSelectAll" />
