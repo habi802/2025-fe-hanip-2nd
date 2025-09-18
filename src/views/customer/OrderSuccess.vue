@@ -301,6 +301,7 @@ const randomThreeStores = computed(() => {
                 <Randomstore class="board" :stores="item" />
               </div>
             </div>
+            
             <!-- <div class="col-12 col-md-4">
                 <div id="imgBigBox" class="card h-100 shadow-sm">
                   <div id="imgBox" class="card-img-top">이것은 가게의 이미지다</div>
