@@ -37,6 +37,10 @@ defineProps({
   align-items: center;
 }
 
+.menu-card:hover * {
+  color: #fff !important;
+}
+
 .menu-img {
   width: 90px;
   height: 90px;

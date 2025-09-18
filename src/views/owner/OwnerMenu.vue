@@ -20,31 +20,35 @@ import MenuList from "@/components/owner/MenuList.vue";
 <style scoped lang="scss">
 .d-flex {
   height: 100vh; /* 전체 높이 맞추기 */
+  position: relative;
+  top: -40px;
+  gap: 20px;
 }
 
 /* 왼쪽 영역 */
 .section-left {
+  position: relative;
+  left: -3px;
   width: 50%;
-  min-width: 785px;
+  min-width: 740px;
   max-width: 800px;
   height: 100%; /* 화면 꽉 차게 */
   display: flex;
   flex-direction: column;
   padding-right: 20px;
-  overflow-y: auto; /* ✅ 세로 스크롤 */
-  overflow-x: hidden;
+ 
 }
 
 /* 오른쪽 영역 */
 .section-right {
   width: 50%;
-  min-width: 700px;
+  min-width: 720px;
   max-width: 800px;
   height: 100%;
   padding: 20px;
   overflow-y: auto;
   background: #fff;
-  border-radius: 8px;
+  border-radius: 12px;
 }
 
 /* 메뉴 카드 공통 사이즈 */

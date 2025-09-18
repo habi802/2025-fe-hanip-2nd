@@ -43,14 +43,7 @@ const menus = [
     img: "menu3.jpg",
     category: "사이드메뉴",
   },
-  {
-    id: 4,
-    name: "사이드 감자튀김",
-    price: 5000,
-    desc: "바삭바삭 감자튀김",
-    img: "menu3.jpg",
-    category: "사이드메뉴",
-  },
+
 ];
 
 const activeTab = ref("전체");
@@ -88,16 +81,17 @@ const filteredMenus = computed(() => {
   <div class="menu-list">
     <!-- 상단 카테고리 & 검색 -->
     <div class="d-flex justify-content-between align-items-center mb-3">
-      <select>
+      <select class="form-select" style="width: 150px;">
         <option>메뉴전체</option>
-        <option>세트메뉴</option>
-        <option>사이드메뉴</option>
+        <option>카테고리별</option>
+        <option>이름 순</option>
+        <option>월 등록 기간</option>
       </select>
       <input
         type="text"
         v-model="searchQuery"
         placeholder="검색"
-        class="form-control w-50"
+        class="form-control"
       />
     </div>
 
@@ -159,11 +153,26 @@ const filteredMenus = computed(() => {
 </template>
 
 <style scoped>
+.form-select {
+  font-size: 1rem;
+  padding: 0.6rem 0.8rem;
+  height: auto;
+  width: 180px;
+  margin-right: 15px; 
+}
+
+.form-control {
+  font-size: 1rem;
+  padding: 0.6rem 0.8rem;
+  height: auto;
+  max-width: 500px; /* 🔹 검색창 길이 제한 */
+}
+
 .menu-list {
   height: 100vh; /* 부모 고정 */
   display: flex;
   flex-direction: column;
-  padding: 20px;
+  overflow: visible;
 }
 
 /* 탭 버튼 */
@@ -174,12 +183,14 @@ const filteredMenus = computed(() => {
   background: none;
   border: none;
   font-weight: 600;
+  font-size: 20px;
+  padding: 12px 6px;  
   padding-bottom: 8px;
   cursor: pointer;
 }
 .tab-btn.active {
   color: #e74c3c;
-  border-bottom: 2px solid #e74c3c;
+  border-bottom: 3px solid #e74c3c;
 }
 
 /* 메뉴 추가 버튼 */
@@ -192,7 +203,7 @@ const filteredMenus = computed(() => {
   width: 100%;
 }
 .btn-add:hover {
-  background-color: #f1f3f5;
+  background-color: #ffff;
 }
 
 /* 리스트 스크롤 */
@@ -208,7 +219,8 @@ const filteredMenus = computed(() => {
   cursor: pointer;
 }
 .menu-item:hover {
-  background-color: #f9fafb;
+  background-color: #FF8989;
+  color: #fff;
 }
 
 
