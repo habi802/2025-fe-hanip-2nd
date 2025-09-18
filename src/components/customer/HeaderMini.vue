@@ -28,8 +28,11 @@ const showModal = message => {
 // 로그아웃
 const signOut = async () => {
     const res = await logout();
-    account.setLoggedIn(false);
-    router.push({ path: '/' });
+    
+    if (res !== undefined && res.status === 200) {
+        account.setLoggedIn(false);
+        router.push({ path: "/" });
+    }
 };
 
 // 다른 페이지로 이동하면 메뉴 숨기기

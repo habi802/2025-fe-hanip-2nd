@@ -3,18 +3,19 @@ import { reactive, onMounted, ref } from "vue";
 import { useRouter } from "vue-router";
 import { login } from "@/services/userService";
 import { getStore } from "@/services/storeService";
-import { useOwnerStore } from "@/stores/account";
+import { useAccountStore, useOwnerStore } from "@/stores/account";
 import AlertModal from "@/components/modal/AlertModal.vue";
 
-const alertModal = ref(null);
-
 const router = useRouter();
+const account = useAccountStore();
+
+const alertModal = ref(null);
 
 const state = reactive({
   form: {
     loginId: "",
     loginPw: "",
-    role: "",
+    role: "고객",
   },
   saveId: false, // 아이디 저장용
 });
@@ -27,22 +28,18 @@ const store = reactive({
 const submit = async () => {
   try {
     const res = await login(state.form);
-    console.log("응답 전체확인용:", res);
-    console.log("res.data.resultData:", res.data.resultData);
+    // console.log("응답 전체확인용:", res);
+    // console.log("res.data.resultData:", res.data.resultData);
 
     if (res.status === 200) {
       // 서버에서 loginId 같이 내려주는지 확인 필요
       const { role, id } = res.data.resultData; // 회원 유형 고객 or 가게사장
-      console.log("role 값: ", role); // undefined 해결하기 ㅠㅠ
-      console.log("res.data.resultData:", res.data.resultData);
 
       if (id) {
         localStorage.setItem("id", id); // 이걸 꼭 추가!(유저 정보 수정시 필요한거)
       } else {
         console.warn("id가 응답에 없습니다."); // 응답 확인용
       }
-
-      console.log("role 값: ", role); // owner 인지 customer 인지
 
       // 아이디 저장 여부 확인
       if (state.saveId) {
@@ -51,7 +48,9 @@ const submit = async () => {
         localStorage.removeItem("savedLoginId");
       }
 
-      if (role === "OWNER") {
+      account.setLoggedIn(true);
+
+      if (role === "사장") {
         try {
           const ownerStore = useOwnerStore();
           const res = await ownerStore.fetchStoreInfo();
@@ -106,8 +105,8 @@ onMounted(() => {
               type="radio"
               class="circle"
               name="memberType"
-              value="customer"
-              v-model="memberType"
+              value="고객"
+              v-model="state.form.role"
             />
             일반</label
           >
@@ -116,8 +115,8 @@ onMounted(() => {
               type="radio"
               class="circle"
               name="memberType"
-              value="owner"
-              v-model="memberType"
+              value="사장"
+              v-model="state.form.role"
             />
             업주</label
           >
