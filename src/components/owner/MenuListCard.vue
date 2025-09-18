@@ -2,17 +2,20 @@
 defineProps({
   menu: {
     type: Object,
-    required: true
-  }
+    required: true,
+  },
 });
 </script>
 
 <template>
-  <div class="d-flex justify-content-between align-items-center white-card">
-    <div class="menu-card">
-      <h6>{{ menu.name }}</h6>
-      <p class="text-muted small">{{ menu.desc }}</p>
+  <div class="menu-card d-flex justify-content-between align-items-center">
+    <!-- 왼쪽: 메뉴 정보 -->
+    <div class="menu-info">
+      <h6 class="fw-bold mb-1 text-truncate">{{ menu.name }}</h6>
+      <p class="text-muted small text-truncate">{{ menu.desc }}</p>
     </div>
+
+    <!-- 오른쪽: 가격 + 이미지 -->
     <div class="d-flex align-items-center">
       <span class="fw-bold">{{ menu.price.toLocaleString() }} 원</span>
       <img :src="menu.img" alt="menu" class="menu-img ms-3" />
@@ -21,14 +24,34 @@ defineProps({
 </template>
 
 <style scoped>
+.menu-card {
+  width: 693px; /* 고정 너비 */
+  height: 130px; /* 고정 높이 */
+  padding: 15px;
+  margin-bottom: 12px;
+  border: 1px solid #eee;
+  border-radius: 10px;
+  background: #fff;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
 .menu-img {
-  width: 70px;
-  height: 70px;
+  width: 90px;
+  height: 90px;
   border-radius: 6px;
   object-fit: cover;
 }
-.menu-card {
-    width: 693px;
-    height: 130px;
+
+.menu-info {
+  flex: 1;
+  overflow: hidden; /* 글자 넘칠 경우 ... 처리 */
+}
+
+.text-truncate {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 </style>
