@@ -215,13 +215,12 @@ const router = createRouter({
   ],
 });
 
-const managerPathList = [ '/hanip-manager' ];
+const managerPath = import.meta.env.VITE_MANAGER_PATH;
+const managerPathList = [ `${managerPath}/login` ];
 
 router.beforeEach((to, from) => {
   const account = useAccountStore();
-  console.log(to.path);
-
-  // if ((!account.state.loggedIn)) {
+  // if (managerPathList.includes(to.path) && (!account.state.loggedIn || account.state.loggedIn)) {
   //   // 로그인 상태가 아니거나, 관리자가 아닌 계정으로 로그인한 상태로 관리자 페이지로 이동하려고 하는 경우
   //   return { path: '/' };
   // }
