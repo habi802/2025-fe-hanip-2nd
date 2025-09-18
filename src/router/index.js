@@ -1,5 +1,7 @@
 import { createRouter, createWebHistory } from "vue-router";
 
+import { useAccountStore } from "@/stores/account";
+
 import CustomerLayout from "@/layouts/CustomerLayout.vue";
 import OwnerLayout from "@/layouts/OwnerLayout.vue";
 import ManagerLayout from "@/layouts/ManagerLayout.vue";
@@ -212,4 +214,17 @@ const router = createRouter({
     },
   ],
 });
+
+const managerPathList = [ '/hanip-manager' ];
+
+router.beforeEach((to, from) => {
+  const account = useAccountStore();
+  console.log(to.path);
+
+  // if ((!account.state.loggedIn)) {
+  //   // 로그인 상태가 아니거나, 관리자가 아닌 계정으로 로그인한 상태로 관리자 페이지로 이동하려고 하는 경우
+  //   return { path: '/' };
+  // }
+});
+
 export default router;
