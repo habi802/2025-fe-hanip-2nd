@@ -2,6 +2,10 @@
 import { ref, watch, computed } from "vue";
 import defaultUserProfile from "@/imgs/owner/user_profile.jpg";
 import defaultImage from "@/imgs/owner/owner-service3.png";
+import { Swiper, SwiperSlide } from "swiper/vue";
+import { Navigation } from "swiper/modules";
+import "swiper/css";
+import "swiper/css/navigation";
 
 // 부모로부터 받는 props
 const props = defineProps({
@@ -10,11 +14,7 @@ const props = defineProps({
   show: Boolean, // 모달 열림 상태
 });
 // 임시 테스트용 이미지 배열 - 스와이프 기능 확인용
-const mockImages = [
-  "https://via.placeholder.com/300x300?text=Image+1",
-  "https://via.placeholder.com/300x300?text=Image+2",
-  "https://via.placeholder.com/300x300?text=Image+3",
-];
+const mockImages = [defaultImage, defaultImage, defaultImage];
 
 // 이벤트 emit
 const emit = defineEmits(["update:modelValue", "update:show", "submit"]);
@@ -83,19 +83,23 @@ const displayImage = computed(() => {
               <!-- 작성 시간 -->
             </div>
           </div>
-          <button @click="$emit('update:show', false)">X</button>
+          <!-- <button @click="$emit('update:show', false)">X</button> -->
         </div>
-
-        <!-- 본문: 좌측 리뷰 이미지 / 우측 주문 및 댓글 -->
+        <!-- 본문: 좌측 리뷰 이미지 및 주문메뉴 / 우측 댓글 -->
         <div class="modal-body">
           <!-- 좌측: 리뷰 이미지 -->
           <div class="left-side">
             <div class="review-image">
-              <img :src="displayImage" alt="리뷰 이미지" />
-          <!-- 주문 메뉴 -->
-          <div class="menu-box">
-            <p>{{ review.menuName }}</p>
-          </div>
+              <!-- <img :src="displayImage" alt="리뷰 이미지" /> -->
+              <Swiper :navigation="true" :modules="[Navigation]" class="mySwiper">
+                <SwiperSlide v-for="(img, index) in mockImages" :key="index">
+                  <img :src="img" alt="리뷰 이미지" />
+                </SwiperSlide>
+              </Swiper>
+              <!-- 주문 메뉴 -->
+              <div class="menu-box">
+                <p>{{ review.menuName }}</p>
+              </div>
             </div>
           </div>
 
@@ -175,8 +179,9 @@ const displayImage = computed(() => {
   </Teleport>
 </template>
 
-<style scoped lang="scss">
+<style lang="scss" scoped>
 //모달 백드롭
+
 .modal-backdrop {
   position: fixed;
   inset: 0;
@@ -189,6 +194,7 @@ const displayImage = computed(() => {
 
 // 모달 내용 박스
 .modal-content {
+  overflow: visible !important;
   background: #fff;
   border-radius: 15px;
   padding: 20px 30px;
@@ -232,40 +238,91 @@ const displayImage = computed(() => {
     }
   }
 }
-
+.modal-content,
+.modal-body {
+  overflow: visible;
+}
 //본문: 좌우 레이아웃
 .modal-body {
+  overflow: visible !important;
   display: flex;
-  gap: 20px;
+  gap: 30px;
   margin-top: 15px;
 
-  .left-side{
+  .left-side {
     flex: 1;
     display: flex;
     justify-content: center;
+    overflow: visible !important;
   }
   .right-side {
     flex: 1;
     display: flex;
     flex-direction: column;
-    gap: 15px;
+    gap: 10px;
   }
-// 리뷰이미지
-  .review-image img {
+  // 리뷰이미지
+  // .review-image img {
+  //   width: 100%;
+  //   max-width: 320px;
+  //   height: 320px;
+  //   object-fit: cover;
+  //   border-radius: 10px;
+  // }
+  .review-image {
+    position: relative;
     width: 100%;
     max-width: 320px;
     height: 320px;
-    object-fit: cover;
     border-radius: 10px;
+
+    .swiper {
+      width: 100%;
+      height: 100%;
+      position: relative;
+      // overflow: visible !important;
+    }
+
+    .swiper-slide {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+
+      img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        border-radius: 15px;
+      }
+    }
+    :deep(.swiper-button-next),
+    :deep(.swiper-button-prev) {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      color: #000;
+
+      // &.swiper-button-next {
+      //   right: -40px;
+      // }
+
+      // &.swiper-button-prev {
+      //   left: -40px;
+      // }
+    }
   }
-.menu-box {
-  margin-top: 20px;
-  margin-bottom: -40px;
-  p{
-    font-size: 14px;
-    font-weight: 300;
+
+  .menu-box {
+    margin-top: 20px;
+    margin-bottom: -40px;
+    p {
+      font-size: 14px;
+      font-weight: 300;
+    }
   }
-}
   .review-text,
   .owner-comment-box {
     display: flex; // 💡 텍스트와 별점 가로 정렬
