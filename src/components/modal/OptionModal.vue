@@ -164,7 +164,7 @@
     </div>
 </template>
 
-<style lang="scss">
+<style scoped lang="scss">
 .header {
     font-weight: 600;
     font-size: 1.3em;

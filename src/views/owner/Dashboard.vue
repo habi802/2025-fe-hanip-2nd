@@ -5,6 +5,7 @@ import OrderPrepare from "@/components/owner/OrderPrepare.vue";
 import { useOrderStore } from "@/stores/orderStore";
 import { inject, computed, onMounted, ref } from "vue";
 
+
 const orderStore = useOrderStore();
 
 // 주문 차트
@@ -67,7 +68,7 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="box">
+  <div class="wrap">
     <div class="total-wrap" > 
       <div class="datetime white-card text-center" style="grid-row: span 2;">
         <span class="font-xlg"> 0월 0일 (금) </span>
@@ -99,7 +100,7 @@ onMounted(() => {
       <OrderCard title="조리대기" :orders="orderStore.preparingList"/>
       <OrderCard title="배달현황" :orders="orderStore.deliveringList"/>
     </div>
-  </div> 
+  </div>
 </template>
 
 <style scoped lang="scss">

@@ -3,6 +3,7 @@ import { computed, ref, reactive, onMounted, inject } from "vue";
 import { useOwnerStore, useUserInfo } from "@/stores/account";
 import { useReviewStore } from "@/stores/review";
 import defaultUserProfile from "@/imgs/owner/user_profile.jpg";
+import OwnerReviewModal from "../modal/OwnerReviewModal.vue";
 
 //유저정보 가져오기
 const userInfo = useUserInfo();
@@ -63,13 +64,52 @@ const StarIcon = {
     </svg>
     `,
 };
+//---------- 페이지네이션 ------------
+
+// 페이지네이션 관련
+const currentPage = ref(1); // 현재 페이지
+const pageSize = 6; // 페이지당 리뷰 개수
+
+const totalPages = computed(() => {
+  return Math.ceil(reviewStore.reviews.length / pageSize);
+});
+
+// 현재 페이지에 맞는 리뷰 목록
+const pagedReviews = computed(() => {
+  const start = (currentPage.value - 1) * pageSize;
+  const end = start + pageSize;
+  return reviewStore.reviews.slice(start, end);
+});
+
+// 페이지네이션 숫자 계산
+const pageNumbers = computed(() => {
+  const pages = [];
+  for (let i = 1; i <= totalPages.value; i++) {
+    pages.push(i);
+  }
+  return pages;
+});
+
+const goToPage = (page) => {
+  if (page < 1 || page > totalPages.value) return;
+  currentPage.value = page;
+};
 
 //----------사장 댓글 다는 부분------------
+// 모달
+const ownerReviewModalRef = ref(null);
+
+// 모달 입력값 (v-model로 연결됨)
+const replyComment = ref("");
+
 // 선택된 리뷰 저장용
 const selectedReview = ref(null);
 
 //댓글 상태
 const ownerComment = ref("");
+
+// 모달 열림 상태
+const isModalOpen = ref(false);
 
 //-댓글 달 모달창-
 const addReviewModal = ref(null);
@@ -77,33 +117,36 @@ const newdReview = reactive({
   comment: "",
 });
 
-// 모달 창 열기
+// 모달 열기
 const openAddReviewModal = (review) => {
   selectedReview.value = review;
-  ownerComment.value = review.ownerComment || ""; // 기존 댓글 있으면 세팅
+  ownerComment.value = review.ownerComment || "";
   const modal = new bootstrap.Modal(addReviewModal.value);
   modal.show();
 };
 
-// 사장이 단 댓글 삭제
-const ownerReviewDelete = async (review) => {
-  const confirmed = confirm("정말 사장 댓글을 삭제하시겠습니까?");
-  if (!confirmed) return;
-
-  const success = await reviewStore.saveOwnerComment({
-    reviewId: review.id,
-    ownerComment: "",
-  });
-
-  if (!success) {
-    alert("삭제 실패!");
-    return;
-  }
-
-  alert("삭제되었습니다!");
+// 모달 닫기
+const handleClose = () => {
+  selectedReview.value = null;
+  replyComment.value = "";
+  isModalOpen.value = false; // 모달 닫기
 };
 
-// 등록하기
+// 모달에서 submit 처리
+const handleSubmit = async () => {
+  if (!selectedReview.value) return;
+  try {
+    await reviewStore.saveOwnerComment({
+      reviewId: selectedReview.value.id,
+      ownerComment: replyComment.value,
+    });
+    selectedReview.value.ownerComment = replyComment.value;
+    alert("댓글이 등록되었습니다.");
+  } catch (e) {
+    console.error("댓글 저장 실패", e);
+  }
+};
+
 const submitReview = async () => {
   if (!selectedReview.value) return;
 
@@ -113,14 +156,8 @@ const submitReview = async () => {
   };
 
   try {
-    // 백엔드에 PATCH 또는 POST 요청 보내기
     await reviewStore.saveOwnerComment(payload);
-
-    // 로컬 상태도 업데이트
     selectedReview.value.ownerComment = ownerComment.value;
-
-    const modal = bootstrap.Modal.getInstance(addReviewModal.value);
-    modal.hide();
   } catch (e) {
     console.error("댓글 저장 실패", e);
   }
@@ -153,12 +190,8 @@ const formatDateTime = (isoStr) => {
 
 <template>
   <!-- 리뷰카드  -->
-  <div v-if="visibleReview?.length > 0" class="review-box-wrap">
-    <div
-      class="review-box shadow"
-      v-for="review in visibleReview"
-      :key="review.id"
-    >
+  <div v-if="pagedReviews?.length > 0" class="review-box-wrap">
+    <div class="review-box shadow" v-for="review in pagedReviews" :key="review.id">
       <div class="profile">
         <div class="profile-circle">
           <img
@@ -240,10 +273,16 @@ const formatDateTime = (isoStr) => {
         </div>
       </div>
       <div class="btn-wrap">
-        <button class="btn btn-delete" @click="ownerReviewDelete(review)">
-          댓글 삭제
-        </button>
-        <button class="btn btn-comment" @click="openAddReviewModal(review)">
+        <button
+          class="btn btn-comment"
+          @click="
+            () => {
+              selectedReview = review;
+              replyComment = review.ownerComment || '';
+              isModalOpen = true;
+            }
+          "
+        >
           댓글 작성
         </button>
       </div>
@@ -253,56 +292,61 @@ const formatDateTime = (isoStr) => {
     <p class="text-muted">아직 등록된 리뷰가 없습니다.</p>
   </div>
   <div class="d-flex justify-content-center mt-3">
-    <button
-      v-if="visibleReview.length > 0 && visibleCount < reviews.length"
-      @click="loadMore"
-      class="btn btn-secondary btn-review"
-    >
-      더보기
-    </button>
+    <div
+      v-for="n in 6 - pagedReviews.length"
+      :key="'empty-' + n"
+      class="review-box shadow empty-card"
+      v-if="pagedReviews.length < 6"
+    ></div>
   </div>
 
-  <!-- 부트스트랩 모달 -->
-  <Teleport to="body">
-    <div class="modal fade" ref="addReviewModal" tabindex="-1">
-      <div class="modal-dialog">
-        <div class="modal-content" style="padding: 20px 30px 20px 20px">
-          <div
-            class="modal-header"
-            style="display: flex; justify-content: space-between"
-          >
-            <h5 class="modal-title" style="font-weight: 700">답글 달기</h5>
-            <button
-              type="button"
-              class="btn-close"
-              data-bs-dismiss="modal"
-            ></button>
-          </div>
-          <div class="modal-body">
-            <span style="margin-left: 10px"> 고객 리뷰 </span>
-            <br />
-            <p class="form-control-customer">{{ selectedReview?.comment }}</p>
-            <br />
+  <!-- 페이지네이션 버튼 -->
+  <div class="pagination d-flex justify-content-center mt-4 align-items-center gap-3">
+    <!-- 이전 버튼 -->
+    <span
+      class="page-arrow"
+      @click="goToPage(currentPage - 1)"
+      :class="{ disabled: currentPage === 1 }"
+    >
+      &lt;
+    </span>
 
-            <span style="margin-left: 10px">사장님 답글</span>
-            <br />
-            <textarea
-              class="form-control"
-              v-model="ownerComment"
-              placeholder="답글을 입력하세요. 고객과의 소통은 매출상승의 지름길입니다!"
-            ></textarea>
-          </div>
-          <div class="modal-footer">
-            <button class="btn delete-btn" data-bs-dismiss="modal">취소</button>
-            <button class="btn accept-btn" @click="submitReview">등록</button>
-          </div>
-        </div>
-      </div>
-    </div>
-  </Teleport>
+    <!-- 숫자 버튼 -->
+    <span
+      v-for="page in pageNumbers"
+      :key="page"
+      class="page-number"
+      :class="{ active: currentPage === page }"
+      @click="goToPage(page)"
+    >
+      {{ page }}
+    </span>
+
+    <!-- 다음 버튼 -->
+    <span
+      class="page-arrow"
+      @click="goToPage(currentPage + 1)"
+      :class="{ disabled: currentPage === totalPages }"
+    >
+      &gt;
+    </span>
+  </div>
+
+  <!-- 모달 컴포넌트 -->
+  <OwnerReviewModal
+    :review="selectedReview"
+    v-model:show="isModalOpen"
+    v-model="replyComment"
+    @submit="handleSubmit"
+  />
 </template>
 
 <style lang="scss" scoped>
+body,
+html,
+.wrap {
+  min-height: 100vh; /* 항상 화면 크기 이상 */
+}
 // 버튼
 .btn-review {
   width: 400px;
@@ -323,11 +367,15 @@ const formatDateTime = (isoStr) => {
 }
 
 .wrap {
+  display: flex;
   background-color: #e8e8e8;
   font-family: "Pretendard", sans-serif;
-  width: 1501px;
+  max-width: 1500px;
+  min-height: 100vh;
+  width: 100%;
   transform: translateX(13px);
-  padding-bottom: 70px;
+  padding-bottom: 120px;
+
   .total-wrap {
     display: flex;
     gap: 50px;
@@ -362,7 +410,7 @@ const formatDateTime = (isoStr) => {
 
   .review-header {
     display: flex;
-    justify-content: space-between;
+    // justify-content: space-between;
     margin-bottom: 10px;
   }
 
@@ -388,13 +436,13 @@ const formatDateTime = (isoStr) => {
       height: 24px;
     }
   }
-
+  // 리뷰 카드 여백조절
   .review-box-wrap {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(420px, 420px));
+    grid-template-columns: repeat(3, 1fr);
     padding-top: 15px;
-    gap: 120px;
-
+    gap: 25px;
+    // 리뷰 카드
     .review-box {
       display: flex;
       flex-direction: column;
@@ -403,11 +451,13 @@ const formatDateTime = (isoStr) => {
       border-radius: 15px;
       padding: 30px 40px;
       font-size: 14px;
+      width: 100%;
+      max-width: 470px;
       .profile {
         display: flex;
         align-items: center;
         justify-content: space-between;
-        margin-bottom: 25px;
+        margin-bottom: 2px;
 
         .profile-circle {
           background-color: #a3a3a3;
@@ -467,16 +517,17 @@ const formatDateTime = (isoStr) => {
 
       .btn-wrap {
         display: flex;
-        justify-content: space-around;
+        justify-content: flex-end;
         margin-top: 20px;
         width: 100%;
       }
       .btn {
         border-radius: 15px;
-        border: #ff6666 solid;
+        border: #ff6666 1px solid;
         color: #ff6666;
-        height: 55px;
-        width: 145px;
+        height: 50px;
+        max-width: 150px;
+        width: 100%;
       }
       .btn:hover {
         background-color: #ff6666;
@@ -577,68 +628,55 @@ const formatDateTime = (isoStr) => {
   background: #b23837;
 }
 
-.delete-btn {
-  background: #a3a3a3;
-  border: none;
-  color: white;
+// 페이지네이션
+.pagination {
+  position: fixed;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #e8e8e8;
+  padding: 10px 20px;
   border-radius: 8px;
-  font-size: 18px;
-  width: 68px;
-  height: 42px;
-  transition: background-color 0.3s, color 0.3s;
+  z-index: 1000;
+
+  .page-number {
+    cursor: pointer;
+    padding: 2px 4px;
+    color: #000;
+    transition: color 0.3s, border-bottom 0.3s;
+
+    &.active {
+      color: #ff6666;
+      border-bottom: 2px solid #ff6666;
+      font-weight: 600;
+      margin-bottom: -1px;
+    }
+
+    &:hover {
+      color: #ff6666;
+    }
+  }
+
+  .page-arrow {
+    cursor: pointer;
+    color: #000;
+    padding: 0 10px;
+    font-weight: bold;
+
+    &.disabled {
+      cursor: not-allowed;
+      color: #797979;
+    }
+
+    &:hover:not(.disabled) {
+      color: #ff6666;
+    }
+  }
 }
-
-.delete-btn:hover {
-  background: #838383;
-}
-.delete-btn:active {
-  background: #696969;
-}
-
-.modal-body {
-  span {
-    color: #ff6666;
-    font-weight: 700;
-    font-size: 16pt;
-  }
-
-  p {
-    border: #797979 solid 2px;
-    min-height: 200px;
-    border-radius: 10px;
-    padding: 12px;
-    box-sizing: border-box;
-    white-space: pre-wrap; /* 줄바꿈과 공백 유지 + 자동 줄바꿈 허용 */
-    word-wrap: break-word; /* 긴 단어도 줄바꿈 허용 */
-    overflow-wrap: break-word; /* 최신 속성: 긴 단어 강제 줄바꿈 */
-    overflow: hidden; /* 스크롤 제거 */
-  }
-
-  textarea {
-    height: 200px;
-    border: #797979 solid 2px;
-    border-radius: 10px;
-    overflow-y: auto;
-    resize: vertical; /* 크기 조절은 세로만 (원하면 제거 가능) */
-    overflow: auto; /* 자동 스크롤 */
-    padding-right: 12px; /* 스크롤과 글자 간격 확보 */
-    box-sizing: border-box; /* 패딩 포함한 너비 계산 */
-  }
-  textarea::-webkit-scrollbar-track {
-    background: transparent !important; /* 트랙 배경 제거 */
-    margin: 2px 0; /* 위아래 여백 줘서 둥근 모서리 맞춤 */
-    border-radius: 10px; /* 트랙도 둥글게 */
-  }
-  textarea::-webkit-scrollbar {
-    width: 6px; /* 스크롤바 너비 */
-    background: transparent; /* 스크롤 영역 자체도 투명하게 */
-  }
-  textarea::-webkit-scrollbar-thumb {
-    background-color: #aaa; /* 스크롤바 색상 */
-    border-radius: 10px; /* 둥글게 */
-  }
-  textarea::-webkit-scrollbar-thumb:hover {
-    background: #888; /* 호버 시 조금 진하게 */
-  }
+// 빈 리뷰 카드
+.empty-card {
+  visibility: hidden; // 내용은 안 보이지만 자리 확보
+  min-height: 394px; // 실제 카드 높이와 동일
+  border-radius: 15px; // 기존 카드 모양과 맞춤
 }
 </style>

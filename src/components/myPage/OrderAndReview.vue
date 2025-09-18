@@ -255,7 +255,6 @@ const idCheck = async () => {
 
 .bigBoard {
   width: 1440px !important;
-  min-height: 330px; // 최소 높이
   border: #797979 2px solid !important;
   border-radius: 25px;
   margin-bottom: 40px;

@@ -89,6 +89,7 @@ const start = async () => {
         type="button"
         class="btn-close"
         @click="removeAlert(alert.id)"
+        style="border: none; background-color: #fff;"
       ></button>
     </div>
   </div>
