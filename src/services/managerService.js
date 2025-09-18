@@ -40,3 +40,38 @@ export const patchIsActive = params => {
         },
     ).catch(e => e.response);
 }
+
+// 리뷰 조회
+export const getReviewList = args => {
+    return axios.post(`${actionPath}/review`, args).catch(e => e.response);
+};
+
+// 리뷰 상세 조회
+export const getReview = id => {
+    return axios.get(`${actionPath}/review/${id}`).catch(e => e.response);
+};
+
+// 리뷰 숨기기 상태 변경
+export const patchIsHide = params => {
+    return axios.patch(
+        `${actionPath}/review`, null, { 
+            params,
+            paramsSerializer: params => {
+                return Object.entries(params).map(([key, value]) => {
+                    if (Array.isArray(value)) {
+                        return value.map(v => `${key}=${v}`).join('&');
+                    }
+                    return `${key}=${value}`;
+                }).join('&');
+            }
+        },
+    ).catch(e => e.response);
+}
+
+// 주문 조회
+
+// 주문 상세 조회
+
+// 주문 상태 변경
+
+// 통계 조회

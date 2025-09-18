@@ -16,8 +16,8 @@ const managerPath = import.meta.env.VITE_MANAGER_PATH;
             <li class="nav-item"><a :href="`/hanip${managerPath}`" :class="`nav-link ${route.path === managerPath ? 'active' : ''}`">대시보드</a></li>
             <li class="nav-item"><a :href="`/hanip${managerPath}/user`" :class="`nav-link ${route.path === `${managerPath}/user` ? 'active' : ''}`">회원 관리</a></li>
             <li class="nav-item"><a :href="`/hanip${managerPath}/store`" :class="`nav-link ${route.path === `${managerPath}/store` ? 'active' : ''}`">가게 관리</a></li>
-            <li class="nav-item"><a :href="`/hanip${managerPath}/review`" :class="`nav-link ${route.path === `${managerPath}/review` ? 'active' : ''}`">리뷰 관리</a></li>
             <li class="nav-item"><a :href="`/hanip${managerPath}/order`" :class="`nav-link ${route.path === `${managerPath}/order` ? 'active' : ''}`">주문 관리</a></li>
+            <li class="nav-item"><a :href="`/hanip${managerPath}/review`" :class="`nav-link ${route.path === `${managerPath}/review` ? 'active' : ''}`">리뷰 관리</a></li>
             <li class="nav-item"><a :href="`/hanip${managerPath}/recommand`" :class="`nav-link ${route.path === `${managerPath}/recommand` ? 'active' : ''}`">추천 관리</a></li>
             <li class="nav-item"><a :href="`/hanip${managerPath}/stats`" :class="`nav-link ${route.path === `${managerPath}/stats` ? 'active' : ''}`">통계 현황</a></li>
         </ul>
