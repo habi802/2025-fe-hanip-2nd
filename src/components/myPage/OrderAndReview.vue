@@ -206,10 +206,6 @@ const idCheck = async () => {
           <div class="amountNum">{{ statusText }}</div>
         </div>
       </div>
-      <!-- 메뉴 삭제하기 버튼 -->
-      <div class="remove" @click="$emit('delete-order', props.order)">
-        <img class="removeImg" src="/src/imgs/remove.png" />
-      </div>
     </div>
     <!-- 버튼들 -->
     <div class="btns">
@@ -218,7 +214,8 @@ const idCheck = async () => {
         {{ revCheck !== null ? "리뷰 수정" : "리뷰 등록" }}
       </div>
       <div @click="orderDetail" class="btn">주문상세</div>
-    </div>
+      <div @click="$emit('delete-order', props.order)" class="btn">내역삭제</div>
+  </div>
     <!-- 리뷰 박스 -->
     <!-- <div class="reviewBigBox">
             <div class="reviewBox">
@@ -451,10 +448,13 @@ const idCheck = async () => {
   }
 
   .btns {
+    position: absolute;
     display: flex;
+    flex-direction: column;
     width: 100%;
     gap: 20px;
-    justify-content: right;
+    justify-content: flex-end;
+    align-items: flex-end;
     padding-right: 120px;
 
     .btn {
