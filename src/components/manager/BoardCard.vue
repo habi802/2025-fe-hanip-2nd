@@ -96,6 +96,11 @@ const setItemStatus = (id, status) => {
             </b-row>
         </template>
 
+        <!-- 주문 상세 조회 -->
+        <template v-else-if="props.title === 'order'">
+
+        </template>
+
         <!-- 리뷰 상세 조회 -->
         <template v-else>
             <b-row>

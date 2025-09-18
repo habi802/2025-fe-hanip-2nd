@@ -161,7 +161,7 @@ const goToBoardSection = async item => {
 };
 
 onMounted(() => {
-    getReview();
+    getReviews();
 });
 </script>
 
