@@ -1,11 +1,17 @@
 <script setup>
 import '@/assets/manager/manager.css'
 
-import { reactive } from 'vue';
+import { onMounted, reactive, ref } from 'vue';
+import { getUserList } from '@/services/managerService';
+import { usePaginationStore } from '@/stores/pagination';
 import VueDatePicker from '@vuepic/vue-datepicker';
 import PageSizeSelect from '@/components/manager/PageSizeSelect.vue';
 import DateTable from '@/components/manager/DataTable.vue';
+import LoadingModal from '@/components/modal/LoadingModal.vue';
 
+const pagination = usePaginationStore();
+
+// 날짜 선택 Input의 입력 포맷 지정
 const formatDate = (date) => date.toLocaleDateString();
 
 const today = new Date();
@@ -13,59 +19,54 @@ const lastWeek = new Date();
 lastWeek.setDate(today.getDate() - 7);
 
 const defaultForm = {
-    startDate: lastWeek,
-    endDate: today,
+    startDate: lastWeek.toISOString().slice(0, 10),
+    endDate: today.toISOString().slice(0, 10),
     loginId: '',
     name: '',
     address: '',
     phone: '',
     email: '',
-    provider: '01',
-    role: '01'
+    providerType: '00',
+    role: '00',
+    pageNumber: pagination.state.pageNumber,
+    pageSize: pagination.state.pageSize
 }
 
 const state = reactive({
-    form: { ...defaultForm }
+    form: { ...defaultForm },
+    users: []
 });
+
+// 날짜 선택
+const changeDate = (key, date) => {
+    state.form[key] = date.toISOString().slice(0, 10);
+};
 
 // 검색 초기화
 const resetForm = () => {
     Object.assign(state.form, defaultForm);
+
+    getUsers();
 };
 
-// 테이블에 들어갈 값 전달을 위해 임의로 만든 객체
-const user = [
-    {
-        name: '민병관',
-        loginId: 'user01',
-        address: '13630, 경기 성남시 분당구 돌마로 46, 광천프라자 5층 503호',
-        phone: '010-1204-4506',
-        email: 'people@gmail.com',
-        providerType: '01',
-        role: '01',
-        createdAt: '2025-08-13'
-    },
-    {
-        name: '김장수',
-        loginId: 'user01',
-        address: '46757, 부산광역시 강서구 녹산산단382로14번가길 13번지 (송정동)',
-        phone: '010-5896-9383',
-        email: 'longlife@naver.com',
-        providerType: '03',
-        role: '02',
-        createdAt: '2025-08-29'
-    },
-    {
-        name: '임택원',
-        loginId: 'user02',
-        address: '41937, 대구 중구 중앙대로 394, 제일빌딩 5층',
-        phone: '010-5959-3939',
-        email: 'chooseone@daum.net',
-        providerType: '02',
-        role: '03',
-        createdAt: '2025-09-01'
+const loadingModalRef = ref(null);
+
+// 유저 조회
+const getUsers = async () => {
+    loadingModalRef.value.open();
+
+    const res = await getUserList(state.form);
+
+    if (res !== undefined && res.status === 200) {
+        state.users = res.data.resultData.content;
+
+        pagination.state.totalRow = res.data.resultData.totalRow;
     }
-];
+
+    loadingModalRef.value.hide();
+};
+
+// 테이블 필드
 const fields = [
     { key: 'name', label: '이름' },
     { key: 'loginId', label: '아이디' },
@@ -76,6 +77,28 @@ const fields = [
     { key: 'role', label: '분류' },
     { key: 'createdAt', label: '가입일' },
 ];
+
+// 페이지 사이즈 변경
+const changePageSize = size => {
+    pagination.setPageSize(size);
+    pagination.setPageNumber(1);
+    state.form.pageSize = size;
+    state.form.pageNumber = 1;
+
+    getUsers();
+};
+
+// 페이지 이동
+const changePage = page => {
+    pagination.setPageNumber(page);
+    state.form.pageNumber = page;
+
+    getUsers();
+};
+
+onMounted(() => {
+    getUsers();
+});
 </script>
 
 <template>
@@ -86,11 +109,11 @@ const fields = [
                 <label for="" class="form-label">가입일</label>
                 <b-row class="align-items-center">
                     <b-col>
-                        <VueDatePicker :enable-time-picker="false" :format="formatDate" v-model="state.form.startDate" />
+                        <VueDatePicker :enable-time-picker="false" :format="formatDate" v-model="state.form.startDate" @update:model-value="date => changeDate('startDate', date)" />
                     </b-col>
                     ~
                     <b-col>
-                        <VueDatePicker :enable-time-picker="false" :format="formatDate" v-model="state.form.endDate" />
+                        <VueDatePicker :enable-time-picker="false" :format="formatDate" v-model="state.form.endDate" @update:model-value="date => changeDate('startDate', date)" />
                     </b-col>
                 </b-row>
             </b-col>
@@ -116,7 +139,8 @@ const fields = [
             </b-col>
             <b-col cols="6" xl="4" xxl="3" class="mb-2">
                 <label for="provider" class="form-label">가입 유형</label>
-                <b-form-select id="provider" v-model="state.form.provider">
+                <b-form-select id="provider" v-model="state.form.providerType">
+                    <option value="00">전체</option>
                     <option value="01">일반</option>
                     <option value="02">카카오</option>
                     <option value="03">네이버</option>
@@ -125,9 +149,9 @@ const fields = [
             <b-col cols="6" xl="4" xxl="3" class="mb-2">
                 <label for="role" class="form-label">분류</label>
                 <b-form-select id="role" v-model="state.form.role">
+                    <option value="00">전체</option>
                     <option value="01">고객</option>
                     <option value="02">사장</option>
-                    <option value="03">배달원</option>
                 </b-form-select>
             </b-col>
             <b-col cols="6" xl="4" xxl="3" class="ms-auto mb-2">
@@ -137,20 +161,35 @@ const fields = [
                         <button class="btn btn-secondary w-100" @click="resetForm">초기화</button>
                     </b-col>
                     <b-col>
-                        <button class="btn btn-primary w-100">검색</button>
+                        <button class="btn btn-primary w-100" @click="getUsers">검색</button>
                     </b-col>
                 </b-row>
             </b-col>
 
-            <b-col cols="12" class="text-end mb-2">
-                <PageSizeSelect />
+            <b-col cols="12">
+                <b-row>
+                    <b-col cols="6" class="text-start mb-2">
+                        총 {{ pagination.state.totalRow }} 건
+                    </b-col>
+
+                    <b-col cols="6" class="text-end mb-2">
+                        <PageSizeSelect @change-page-size="changePageSize" />
+                    </b-col>
+                </b-row>
             </b-col>
 
             <b-col cols="12">
-                <DateTable title="user" :items="user" :field="fields" />
+                <DateTable title="user" :items="state.users" :field="fields" />
+            </b-col>
+
+            <b-col cols="12">
+                <b-pagination align="center"
+                v-model="pagination.state.pageNumber" :per-page="pagination.state.pageSize" :total-rows="pagination.state.totalRow" @update:model-value="changePage"></b-pagination>
             </b-col>
         </b-row>
     </b-container>
+
+    <LoadingModal ref="loadingModalRef" />
 </template>
 
 <style lang="scss" scoped>

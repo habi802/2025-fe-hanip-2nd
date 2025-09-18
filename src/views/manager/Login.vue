@@ -1,7 +1,14 @@
 <script setup>
 import '@/assets/manager/manager.css'
 
-import { reactive } from 'vue';
+import { reactive, ref } from 'vue';
+import { useRouter } from 'vue-router';
+import { managerLogin } from '@/services/managerService';
+import AlertModal from '@/components/modal/AlertModal.vue';
+import LoadingModal from '@/components/modal/LoadingModal.vue';
+
+const router = useRouter();
+const managerPath = import.meta.env.VITE_MANAGER_PATH;
 
 const state = reactive({
     form: {
@@ -10,8 +17,14 @@ const state = reactive({
     }
 });
 
-const submit = () => {
+const alertModalRef = ref(null);
+const loadingModalRef = ref(null);
 
+const submit = async () => {
+    loadingModalRef.value.open();
+    //const res = await managerLogin(state.form);
+
+    router.push({ path: managerPath });
 };
 </script>
 
@@ -21,7 +34,7 @@ const submit = () => {
             <div class="text-center mb-3">
                 <img class="logo" src="@/assets/manager/logo.png" />
             </div>
-            <form @sumbit.prevent="submit">
+            <form @submit.prevent="submit">
                 <div class="mb-3">
                     <label for="admin-login-id" class="form-label">아이디</label>
                     <b-form-input type="text" id="admin-login-id" v-model="state.form.loginId"></b-form-input>
@@ -33,6 +46,9 @@ const submit = () => {
                 <button type="submit" class="btn btn-primary">로그인</button>
             </form>
         </b-container>
+
+        <AlertModal ref="alertModalRef" />
+        <LoadingModal ref="loadingModalRef" />
     </div>
 </template>
 

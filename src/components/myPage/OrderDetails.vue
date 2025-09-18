@@ -204,14 +204,23 @@ const showModal = (message) => {
       <div class="orderList">
         <div>
           <div class="ordertext">주문 내역</div>
+          <div class="noticetext">주문 변경 시 고객 센터로 문의 바랍니다</div>
           <div class="solid"></div>
         </div>
+      </div>
+      <div class="ex1">
+        <div class="search">
+          <img class="" src="/src/imgs/fluent_search.png" alt="검색" width="35px" height="35px">
+          검색: "주문한 메뉴나 가게를 찾아볼 수 있어요"
+        </div>
+        
       </div>
       <div v-for="order in visibleCards" :key="order.id" style="margin-bottom: 10px">
         <order-and-review :order="order" @delete-order="deleteOrderOne" @reorder="reorder" />
       </div>
     </div>
-
+    
+    
     <!-- 미리보기 용 -->
     <!-- <order-and-review></order-and-review>
     <div :style="{ height: on ? '315px' : '750px' }" class="bigBoard">
@@ -341,6 +350,7 @@ const showModal = (message) => {
       </div>
     </div>
   </div>
+  
   <!--  -->
   <img @click="arrow" class="arrow" src="/src/imgs/arrow.png" />
 </template>
@@ -384,6 +394,7 @@ const showModal = (message) => {
   .orderList {
     font-weight: 800;
     text-align: center;
+    margin-bottom: -50px;
 
     .ordertext {
       font-size: 25px;
@@ -393,11 +404,37 @@ const showModal = (message) => {
     .solid {
       width: 1470px;
       border: 1px #000 solid;
-      margin: 50px 0 80px 0;
+      margin: 10px 0 80px 0;
     }
   }
 }
 
+.noticetext {
+  max-width: 1430px;
+  margin: 15px auto;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  font-size: 16px;
+  color: #7d7d7d;
+  
+}
+.ex1 {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+}
+
+.search {
+  border: 2px solid #ff6666;
+  border-radius: 15px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  margin-bottom: 100px;
+  color: #ff6666;
+}
 .box {
   display: flex;
   justify-content: center;

@@ -72,83 +72,84 @@ button{
 
 /* 디자인 토큰: 런타임 테마 변경을 위해 CSS 변수로 정의 */
 :root {
-  // html기준폰트 16px
-    --card-font-size-xxlg: 2.5rem;
-    --card-font-size-xlg: 2rem;
-    --card-font-size-lg: 1.5rem; 
-    --card-font-size-nomal: 1rem;
+// html기준폰트 16px
+  --card-font-size-xxlg: 2.5rem;
+  --card-font-size-xlg: 2rem;
+  --card-font-size-lg: 1.5rem; 
+  --card-font-size-nomal: 1rem;
 
-    --card-bg: #ffffff;
-    --card-lg-radius: 0.75rem;
-    --card-small-radius: 0.5rem;
-    --card-padding: 20px;
-    --card-shadow: 0 6px 18px rgba(16,24,40,0.06);
-    --card-border: rgb(0,0,0);
+  --card-bg: #ffffff;
+  --card-lg-radius: 0.75rem;
+  --card-small-radius: 0.5rem;
+  --card-padding: 20px;
+  --card-shadow: 0 6px 18px rgba(16,24,40,0.06);
+  --card-border: rgb(0,0,0);
+
+  --page-bg: #f3f4f6;
+  --grey1: #cccccc;
+  --grey2: #797979;
+  --primary: #ff6666;
   
-    --page-bg: #f3f4f6;
-    --grey1: #cccccc;
-    --grey2: #797979;
-    --primary: #ff6666;
-    
-  }
+}
   
-  /* 다크 모드 예시 */
-  :root[data-theme="dark"] {
-    --card-bg: #0b1020;
-    --fg: #e5e7eb;
-    --card-shadow: 0 6px 18px rgba(0,0,0,0.5);
-  }
+/* 다크 모드 예시 */
+:root[data-theme="dark"] {
+  --card-bg: #0b1020;
+  --fg: #e5e7eb;
+  --card-shadow: 0 6px 18px rgba(0,0,0,0.5);
+}
 
+//폰트 프리셋
+.font-xxlg{
+  font-size: var(--card-font-size-xxlg);
+  font-weight: 800;
+  line-height: 1;
+}
+.font-xlg{
+  font-size: var(--card-font-size-xlg);
+  font-weight: 800;
+  line-height: 1;
+}
+.font-lg{
+  font-size: var(--card-font-size-lg);
+  font-weight: 800;
+  line-height: 1;
+}
+.font-nomal{
+  font-size: var(--card-font-size-nomal);
+  font-weight: normal;
+  line-height: 1;
+}
 
-  .font-xxlg{
-    font-size: var(--card-font-size-xxlg);
-    font-weight: 800;
-    line-height: 1;
-  }
-  .font-xlg{
-    font-size: var(--card-font-size-xlg);
-    font-weight: 800;
-    line-height: 1;
-  }
-  .font-lg{
-    font-size: var(--card-font-size-lg);
-    font-weight: 800;
-    line-height: 1;
-  }
-  .font-nomal{
-    font-size: var(--card-font-size-nomal);
-    font-weight: normal;
-    line-height: 1;
-  }
+//흰색둥근카드
+.white-card{
+  background-color: var(--card-bg);
+  padding: var(--card-padding);
+  border-radius: var(--card-lg-radius);
+  box-shadow: 2px 2px 5px 1px var(--grey1);
+}
 
-  //흰색둥근카드
-  .white-card{
-    background-color: var(--card-bg);
-    padding: var(--card-padding);
-    border-radius: var(--card-lg-radius);
-    box-shadow: 2px 2px 5px 1px var(--grey1);
-  }
+//그린버튼
+.green-btn{
+  background-color: #BEFFA7;
+  padding: var(--card-padding);
+  border-radius: var(--card-lg-radius);
+  box-shadow: 2px 2px 5px 1px var(--grey1);
+  border: none;
+  color: #2B6118;
+}
 
-  //그린버튼
-  .green-btn{
-    background-color: #BEFFA7;
-    padding: var(--card-padding);
-    border-radius: var(--card-lg-radius);
-    box-shadow: 2px 2px 5px 1px var(--grey1);
-    border: none;
-    color: #2B6118;
-  }
-  
-  //흰색카드핑크글씨버튼
-  .whitepink-btn{
-    background-color: var(--card-bg);
-    padding: var(--card-padding);
-    border-radius: var(--card-lg-radius);
-    box-shadow: 2px 2px 5px 1px var(--grey1);
-    border: none;
-    text-decoration: none;
-    color: var(--primary);
-  }
+//흰색카드핑크글씨버튼
+.whitepink-btn{
+  background-color: var(--card-bg);
+  padding: var(--card-padding);
+  border-radius: var(--card-lg-radius);
+  box-shadow: 2px 2px 5px 1px var(--grey1);
+  border: none;
+  text-decoration: none;
+  color: var(--primary);
+}
+
 .card-wrap-hr{
   display: flex;
 }
@@ -161,7 +162,7 @@ button{
 }
 
 //핑크라인 흰버튼
-.hn-btn-white {
+.owner-btn-white {
   display: inline-block;
   width: auto;
   padding: 10px 20px;
@@ -178,25 +179,8 @@ button{
 
 }
 
-//둥근 핑크색버튼
-.hn-btn-pink {
-  background-color: #ff6666;
-  display: inline-block;
-  width: auto;
-  padding: 10px 15px;
-  color: #fff;
-  border: 1px solid #fff;
-  border-radius: --card-small-radius;
-  cursor: pointer;
-  transition: background-color 0.2s ease, color 0.2s ease;
-  &:hover {
-    background-color: #e74e4e;
-    color: #fff;
-  }
-
-}
-
-.btn-cancle {
+//부정 버튼 (취소, 되돌리기 등)
+.owner-btn-cancel {
     background-color: #fff;
     display: inline-block;
     width: auto;
@@ -222,23 +206,20 @@ button{
   color: #403f57;
   margin: 10px 0;
 }
-
 .switch {
   position: relative;
   display: inline-block;
   width: 66px;
-  height: 32px;
+  height: 33px;
 }
-
 .switch input {
   opacity: 0;
   width: 0;
   height: 0;
 }
-
 .slider {
   position: absolute;
-  cursor: pointer;
+  cursor: pointer; 
   background-color: #c4c4c4;
   border: 1px solid #403f57;
   border-radius: 34px;
@@ -248,18 +229,17 @@ button{
   bottom: 0;
   transition: 0.4s;
 }
-
 .slider::before {
   position: absolute;
   content: "";
   height: 30px;
   width: 30px;
   left: 0px;
-  bottom: 0px;
   background-color: white;
   transition: 0.4s;
   border-radius: 50%;
 }
+
 
 .submenu-btn{
   background: #fff;
@@ -268,13 +248,46 @@ button{
   border-radius: var(--card-small-radius) var(--card-small-radius) 0 0 ;
   font-size: var(--card-font-size-lg);
 }
-
 .submenu-active{
   color: var(--primary);
 }
 .submenu-none{
   color: var(--grey2);
 }
+
+//스크롤바 커스텀
+.scrollbar::-webkit-scrollbar {
+  width: 8px;
+}
+.scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+  margin-top: 5px;
+  margin-bottom: 5px;
+}
+.scrollbar::-webkit-scrollbar-thumb {
+  background-color: #c4c4c4;
+  border-radius: 9999px;
+}
+.scrollbar::-webkit-scrollbar-thumb:hover {
+  background-color: #a0a0a0;
+}
+.scrollbar > div {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+
+
+// .dropdown-menu{
+//   width: 100%;
+//   text-align: center;
+//   border: none;
+//   border-radius: 0 0 var(--card-lg-radius) var(--card-lg-radius);
+//   padding-top: 30px;
+//   margin-top: -30px !important;
+// }
+
 
 
 //삭제된 css (혹시모르니 보관용)

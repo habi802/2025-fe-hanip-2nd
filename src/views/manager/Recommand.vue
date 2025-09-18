@@ -16,11 +16,10 @@ lastWeek.setDate(today.getDate() - 7);
 const defaultForm = {
     startDate: lastWeek,
     endDate: today,
-    storeName: '',
-    customerName: '',
+    name: '',
+    title: '',
     comment: '',
-    ownerComment: 0,
-    isHide: 0
+    managerComment: 0,
 }
 
 const state = reactive({
@@ -33,39 +32,35 @@ const resetForm = () => {
 };
 
 // 테이블에 들어갈 값 전달을 위해 임의로 만든 객체
-const review = [
+const contact = [
     {
-        storeName: '민병관',
-        customerName: 'user01',
+        name: '민병관',
+        title: 'user01',
         comment: '010-1204-4506',
-        ownerComment: 0,
+        managerComment: 0,
         createdAt: '2025-08-13',
-        isHide: 0
     },
     {
-        storeName: '민병관',
-        customerName: 'user01',
+        name: '-',
+        title: 'user01',
         comment: '010-1204-4506',
-        ownerComment: 0,
+        managerComment: 0,
         createdAt: '2025-08-13',
-        isHide: 1
     },
     {
-        storeName: '민병관',
-        customerName: 'user01',
+        name: '-',
+        title: 'user01',
         comment: '010-1204-4506',
-        ownerComment: 1,
+        managerComment: 1,
         createdAt: '2025-08-13',
-        isHide: 1
     }
 ];
 const fields = [
-    { key: 'storeName', label: '상호명' },
-    { key: 'customerName', label: '작성자' },
+    { key: 'name', label: '작성자' },
+    { key: 'title', label: '제목' },
     { key: 'comment', label: '내용' },
-    { key: 'ownerComment', label: '사장 답변' },
     { key: 'createdAt', label: '작성일' },
-    { key: 'isHide', label: '상태' },
+    { key: 'managerComment', label: '관리자 답변' },
 ];
 
 const boardSection = ref(null);
@@ -76,7 +71,7 @@ const goToBoardSection = item => {
 
 <template>
     <b-container>
-        <h5 class="mb-3">리뷰 리스트</h5>
+        <h5 class="mb-3">문의 리스트</h5>
         <b-row class="align-items-center">
             <b-col cols="12">
                 <b-row class="align-items-center">
@@ -93,29 +88,22 @@ const goToBoardSection = item => {
                         </b-row>
                     </b-col>
                     <b-col cols="6" xl="4" xxl="3" class="mb-2">
-                        <label for="loginId" class="form-label">상호명</label>
-                        <b-form-input type="text" id="loginId" v-model="state.form.storeName"></b-form-input>
-                    </b-col>
-                    <b-col cols="6" xl="4" xxl="3" class="mb-2">
                         <label for="loginId" class="form-label">작성자</label>
                         <b-form-input type="text" id="loginId" v-model="state.form.customerName"></b-form-input>
+                    </b-col>
+                    <b-col cols="6" xl="4" xxl="3" class="mb-2">
+                        <label for="loginId" class="form-label">제목</label>
+                        <b-form-input type="text" id="loginId" v-model="state.form.title"></b-form-input>
                     </b-col>
                     <b-col cols="6" xl="4" xxl="3" class="mb-2">
                         <label for="loginId" class="form-label">내용</label>
                         <b-form-input type="text" id="loginId" v-model="state.form.comment"></b-form-input>
                     </b-col>
                     <b-col cols="6" xl="4" xxl="3" class="mb-2">
-                        <label for="provider" class="form-label">사장 답변</label>
-                        <b-form-select id="provider" v-model="state.form.ownerComment">
+                        <label for="provider" class="form-label">관리자 답변</label>
+                        <b-form-select id="provider" v-model="state.form.managerComment">
                             <option value="0">미등록</option>
                             <option value="1">등록</option>
-                        </b-form-select>
-                    </b-col>
-                    <b-col cols="6" xl="4" xxl="3" class="mb-2">
-                        <label for="provider" class="form-label">상태</label>
-                        <b-form-select id="provider" v-model="state.form.isHide">
-                            <option value="0">공개</option>
-                            <option value="1">숨김</option>
                         </b-form-select>
                     </b-col>
                     <b-col cols="6" xl="4" xxl="3" class="ms-auto mb-2">
@@ -131,7 +119,6 @@ const goToBoardSection = item => {
                     </b-col>
                 </b-row>
             </b-col>
-            
             <b-col cols="12">
                 <b-row>
                     <b-col cols="12" lg="6">
@@ -140,12 +127,12 @@ const goToBoardSection = item => {
                                 <PageSizeSelect />
                             </b-col>
                             <b-col cols="12">
-                                <DateTable title="review" :items="review" :field="fields" @row-selected="goToBoardSection" />
+                                <DateTable title="contact" :items="contact" :field="fields" @row-selected="goToBoardSection" />
                             </b-col>
                         </b-row>
                     </b-col>
                     <b-col ref="boardSection" cols="12" lg="6">
-                        <BoardCard title="review" />
+                        <BoardCard title="contact" />
                     </b-col>
                 </b-row>
             </b-col>

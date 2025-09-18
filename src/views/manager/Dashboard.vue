@@ -85,22 +85,21 @@ const currentChartData = computed(() => {
 
 <template>
     <b-container>
-        <h5 class="mb-3">리뷰 리스트</h5>
         <b-row>
             <!-- 숫자 통계 -->
             <b-col cols="12" class="stats">
                 <b-row>
                     <div class="stats-card-area mb-3">
-                        <StatsCard title="이번 달 가입자 수" :count="1000" />
+                        <StatsCard title="금일 가입자 수" :count="1000" />
                     </div>
                     <div class="stats-card-area mb-3">
-                        <StatsCard title="이번 달 가게 등록 수" :count="1187" />
+                        <StatsCard title="금일 가게 등록 수" :count="1187" />
                     </div>
                     <div class="stats-card-area mb-3">
-                        <StatsCard title="이번 달 고객 문의 수" :count="4222" />
+                        <StatsCard title="금일 주문 건 수" :count="4222" />
                     </div>
                     <div class="stats-card-area mb-3">
-                        <StatsCard title="이번 달 ㅁㄴㅇㄹ" :count="876" />
+                        <StatsCard title="금일 매출액" :count="876" />
                     </div>
                 </b-row>
             </b-col>
