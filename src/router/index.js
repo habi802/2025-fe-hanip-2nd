@@ -90,6 +90,11 @@ const router = createRouter({
       component: () => import("@/components/myPage/ReviewRouter.vue"),
       meta: { layout: CustomerLayout },
     },
+    {
+      path: "/order-test",
+      component: () => import("@/components/customer/OrderTest.vue"),
+      meta: { layout: CustomerLayout },
+    },
     // 사장 페이지
     {
       path: "/owner",
