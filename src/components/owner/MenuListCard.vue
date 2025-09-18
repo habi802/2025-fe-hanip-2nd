@@ -25,8 +25,8 @@ defineProps({
 
 <style scoped>
 .menu-card {
-  width: 693px; /* 고정 너비 */
-  height: 130px; /* 고정 높이 */
+  width: 693px; 
+  height: 130px; 
   padding: 15px;
   margin-bottom: 12px;
   border: 1px solid #eee;
@@ -50,7 +50,7 @@ defineProps({
 
 .menu-info {
   flex: 1;
-  overflow: hidden; /* 글자 넘칠 경우 ... 처리 */
+  overflow: hidden;
 }
 
 .text-truncate {

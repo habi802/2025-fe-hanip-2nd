@@ -16,8 +16,8 @@ const options = ref([
   {
     category: "필수",
     name: "",
-    values: [{ opt: "", extra: 0 }]
-  }
+    values: [{ opt: "", extra: 0 }],
+  },
 ]);
 
 // 그룹 추가
@@ -25,7 +25,7 @@ const addGroup = () => {
   options.value.push({
     category: "필수",
     name: "",
-    values: [{ opt: "", extra: 0 }]
+    values: [{ opt: "", extra: 0 }],
   });
 };
 
@@ -75,7 +75,6 @@ const triggerFileInput = () => {
           class="detail-img mb-2"
           @click="triggerFileInput"
         />
-        <!-- 숨겨진 파일 업로드 -->
         <input
           type="file"
           ref="fileInput"
@@ -126,7 +125,7 @@ const triggerFileInput = () => {
         </button>
       </div>
 
-      <!-- ✅ 옵션 영역만 스크롤 -->
+      <!-- 옵션 영역 스크롤 -->
       <div class="options-scroll">
         <div
           v-for="(group, idx) in options"
@@ -136,7 +135,11 @@ const triggerFileInput = () => {
           <!-- 그룹 헤더 -->
           <div class="d-flex justify-content-between align-items-center mb-2">
             <div class="d-flex gap-2 flex-grow-1">
-              <select v-model="group.category" class="form-select" style="width: 150px;">
+              <select
+                v-model="group.category"
+                class="form-select"
+                style="width: 150px"
+              >
                 <option>필수</option>
                 <option>선택</option>
               </select>
@@ -221,6 +224,14 @@ const triggerFileInput = () => {
   border-radius: 10px;
   cursor: pointer;
   border: 1px solid #ddd;
+}
+
+.menu-detail {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  max-height: 100vh;
+  overflow: hidden;
 }
 
 .menu-options {
