@@ -7,6 +7,9 @@ import { Navigation } from "swiper/modules";
 import "swiper/css";
 import "swiper/css/navigation";
 
+const prevBtn = ref(null);
+const nextBtn = ref(null);
+
 // 부모로부터 받는 props
 const props = defineProps({
   review: Object, // 선택된 리뷰 정보 (작성자, 메뉴, 이미지, 댓글 등)
@@ -91,11 +94,24 @@ const displayImage = computed(() => {
           <div class="left-side">
             <div class="review-image">
               <!-- <img :src="displayImage" alt="리뷰 이미지" /> -->
-              <Swiper :navigation="true" :modules="[Navigation]" class="mySwiper">
+              <Swiper
+                :modules="[Navigation]"
+                :navigation="{
+                  nextEl: '.swiperRight',
+                  prevEl: '.swiperLeft',
+                }"
+                class="mySwiper"
+              >
                 <SwiperSlide v-for="(img, index) in mockImages" :key="index">
                   <img :src="img" alt="리뷰 이미지" />
                 </SwiperSlide>
               </Swiper>
+              <div class="swiperLeft">
+                <img class="left" src="/src/imgs/NavigationLeft.png" />
+              </div>
+              <div class="swiperRight">
+                <img class="right" src="/src/imgs/NavigationRight.png" />
+              </div>
               <!-- 주문 메뉴 -->
               <div class="menu-box">
                 <p>{{ review.menuName }}</p>
@@ -244,7 +260,6 @@ const displayImage = computed(() => {
 }
 //본문: 좌우 레이아웃
 .modal-body {
-  overflow: visible !important;
   display: flex;
   gap: 30px;
   margin-top: 15px;
@@ -253,7 +268,6 @@ const displayImage = computed(() => {
     flex: 1;
     display: flex;
     justify-content: center;
-    overflow: visible !important;
   }
   .right-side {
     flex: 1;
@@ -280,7 +294,6 @@ const displayImage = computed(() => {
       width: 100%;
       height: 100%;
       position: relative;
-      // overflow: visible !important;
     }
 
     .swiper-slide {
@@ -297,21 +310,35 @@ const displayImage = computed(() => {
     }
     :deep(.swiper-button-next),
     :deep(.swiper-button-prev) {
+      display: none;
+    }
+    .swiperLeft img,
+    .swiperRight img {
+      // width: 20px; // 원하는 가로 크기
+      height: 40px; // 원하는 세로 크기
+      object-fit: contain; // 이미지 비율 유지
+    }
+    .swiperLeft,
+    .swiperRight {
       position: absolute;
       top: 50%;
       transform: translateY(-50%);
+      z-index: 10;
       width: 30px;
       height: 30px;
       border-radius: 50%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      cursor: pointer;
       color: #000;
+    }
 
-      // &.swiper-button-next {
-      //   right: -40px;
-      // }
-
-      // &.swiper-button-prev {
-      //   left: -40px;
-      // }
+    .swiperLeft {
+      left: -40px; // 원하는 위치로 조정
+    }
+    .swiperRight {
+      right: -40px;
     }
   }
 
