@@ -8,7 +8,10 @@ import { check, logout } from "@/services/userService";
 import { useAccountStore } from "@/stores/account";
 //import '@/assets/customer/customer.css';
 import "@/assets/owner/_ownerStyle.scss";
+import {useOwnerStore} from '@/stores/account.js'
 
+const ownerStore = useOwnerStore();
+console.log('오너스토어:'+ownerStore.resultData);
 // 로그인 체크
 const checkAcconut = async () => {
   const res = await check();
@@ -34,12 +37,14 @@ const removedNotification = ref(new Set());
 
 onMounted(async () => {
   const res = await getOwnerStore();
+  console.log(res);
   if (res.status !== 200) {
     alert("에러");
     return;
   }
 
   state.form = res.data.resultData;
+  console.log(state.form);
   isOpen.value = state.form.isActive;
 
   if (state.form.id) {
@@ -52,10 +57,7 @@ onMounted(async () => {
 
 // 가게 데이터
 const state = reactive({
-  form: {
-    ownerName: "임시값"
-  },
-  storeName: "한식은 못참지",
+  form: {},
 });
 
 const menus = [
@@ -209,7 +211,7 @@ onUnmounted(() => {
     <div class="sideNav p-3" style="width: 345px; flex-shrink: 0">
       <div class="text-center mb-5">
         <img :style="{ width: '220px', }" src="/src/imgs/haniplogo3.png" alt="logo" />
-        <div style="font-size: 40px; font-weight: 100; font-family: Pretendard,serif;">{{ state.storeName }}</div>
+        <div style="font-size: 40px; font-weight: 100; font-family: Pretendard,serif;">{{ state.form.name }}</div>
         <!-- 유저정보 -->
         <div class="d-flex align-items-center justify-content-center pt-3">
           <div class="dropdown position-relative">
