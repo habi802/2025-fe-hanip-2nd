@@ -65,6 +65,11 @@
     font-family: 'Pretendard', sans-serif;
 }
 
+button{
+  cursor: pointer;
+  border: none;
+}
+
 /* 디자인 토큰: 런타임 테마 변경을 위해 CSS 변수로 정의 */
 :root {
   // html기준폰트 16px
