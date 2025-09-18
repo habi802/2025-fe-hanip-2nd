@@ -13,10 +13,10 @@ const mock = new MockAdapter(api, { delayResponse: 500 });
 
 // 틀
 /*
-mock.onGet("").reply(200, [
+mock.onGet("").reply(200,
   { 
  },
-]);
+);
 */
  
 
@@ -136,17 +136,17 @@ mock.onGet("/api/menu/{storeId}").reply(200,
 );
 
 // 메뉴 추가 API
-mock.onDelete(`/api/menu/${id}`).reply(200, [ 
+mock.onDelete(`/api/menu/${id}`).reply(200,
   { 
     "resultStatus": 200,
     "resultMessage": "메뉴 삭제 성공",
     "resultData": 1
   }
-]);
+);
 
 // API-store-015: 유저(고객)가 메뉴에 따른 옵션을 조회한다 (GET /api/menu/option/{menu_id})
 // id (여기서는 1)에 해당하는 메뉴 옵션만 조회하는 Mock
-mock.onGet(`/api/menu/option/${id}`).reply(200, [ 
+mock.onGet(`/api/menu/option/${id}`).reply(200,
   { 
     "resultStatus": 200,
     "resultMessage": "옵션 조회 성공",
@@ -156,40 +156,40 @@ mock.onGet(`/api/menu/option/${id}`).reply(200, [
       "price": 500
     }
   }
-]);
+);
 
 // 옵션 추가 API (Path Variable이 없으니 이전과 동일)
-mock.onPost("/api/menu/option").reply(200, [ 
+mock.onPost("/api/menu/option").reply(200,
   { 
     "resultStatus": 200,
     "resultMessage": "옵션 추가 성공",
     "resultData": 1
   }
-]);
+);
 
 // API-store-017: 유저(사장)가 옵션을 수정한다 (PATCH /api/menu/option/{menu_id})
 // id (여기서는 1)에 해당하는 메뉴 옵션만 수정하는 Mock
-mock.onPatch(`/api/menu/option/${id}`).reply(200, [ 
+mock.onPatch(`/api/menu/option/${id}`).reply(200,
   { 
     "resultStatus": 200,
     "resultMessage": "옵션 수정 성공",
     "resultData": 1
   }
-]);
+);
 
 // API-store-018: 유저(사장)가 옵션을 삭제한다 (DELETE /api/menu/option/{menu_id})
 // id (여기서는 1)에 해당하는 메뉴 옵션만 삭제하는 Mock
-mock.onDelete(`/api/menu/option/${id}`).reply(200, [ 
+mock.onDelete(`/api/menu/option/${id}`).reply(200,
   { 
     "resultStatus": 200,
     "resultMessage": "옵션 삭제 성공",
     "resultData": 1
   }
-]);
+);
 
 
 // 🎯 API-order-001: 유저의 장바구니를 불러온다 (GET /api/cart)
-mock.onGet("/api/cart").reply(200, [
+mock.onGet("/api/cart").reply(200,
   {
     "resultStatus": 200,
     "resultMessage": "카트 리스트 조회 성공", // message 필드 매핑
@@ -252,7 +252,7 @@ mock.onGet("/api/cart").reply(200, [
       }
     ]
   }
-]);
+);
 
 // 🎯 API-order-001B: 유저가 장바구니에 담긴 메뉴 1개를 불러온다 (GET /api/cart/{cartId})
 // {cartId}는 동적으로 들어올 수 있으니 정규식으로 처리. 주석으로 실제 의미 명시해 줄게!
@@ -287,7 +287,7 @@ mock.onGet(`/api/cart/${cartId}`).reply(config => { // {cartId} 부분은 숫자
 });
 
 // 🎯 API-order-002: 유저가 장바구니에 메뉴를 담는다 (POST /api/cart)
-mock.onPost("/api/cart").reply(200, [
+mock.onPost("/api/cart").reply(200,
   {
     "resultStatus": 200,
     "resultMessage": "메뉴 한개 담기 성공", // message 필드 매핑
@@ -317,10 +317,10 @@ mock.onPost("/api/cart").reply(200, [
       ]
     }
   }
-]);
+);
 
 // 🎯 API-order-003: 유저가 장바구니에 담긴 갯수를 수정한다 (PATCH /api/cart)
-mock.onPatch("/api/cart").reply(200, [
+mock.onPatch("/api/cart").reply(200,
   {
     "resultStatus": 200,
     "resultMessage": "메뉴 한개 수정 성공", // message 필드 매핑
@@ -350,12 +350,12 @@ mock.onPatch("/api/cart").reply(200, [
       ]
     }
   }
-]);
+);
 
 
 
 // API-order-006: 유저(고객)가 자신의 주문 내역을 조회한다 (GET /api/order)
-mock.onGet("/api/order").reply(200, [
+mock.onGet("/api/order").reply(200,
   {
     resultStatus: 200,
     resultMessage: "조회 성공",
@@ -482,7 +482,7 @@ mock.onGet("/api/order").reply(200, [
       }
     ]
   }
-]);
+);
 
 
 
