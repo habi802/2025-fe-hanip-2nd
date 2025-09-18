@@ -9,7 +9,7 @@ axios.defaults.withCredentials = true;
 axios.interceptors.response.use(
     res => res,
     async err => {
-        console.log('err:', err.response);
+        //console.log('err:', err.response);
         const account = useAccountStore();
 
         if (err.response) {
@@ -28,5 +28,5 @@ axios.interceptors.response.use(
         return Promise.reject(err);
     }
 );
-// dddㅁ22222
+
 export default axios;

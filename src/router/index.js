@@ -34,7 +34,7 @@ const router = createRouter({
     },
     {
       path: "/check",
-      component: () => import("@/views/customer/check.vue"),
+      component: () => import("@/views/customer/Check.vue"),
     },
     {
       path: "/my-page",
