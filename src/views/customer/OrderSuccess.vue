@@ -27,9 +27,7 @@ const totalPrice = ref(0);
 
 // 가게 이미지
 const imgSrc = computed(() => {
-  return state.store &&
-    state.store.imagePath &&
-    state.store.imagePath !== "null"
+  return state.store && state.store.imagePath && state.store.imagePath !== "null"
     ? `/pic/store-profile/${state.store.id}/${state.store.imagePath}`
     : defaultImage;
 });
@@ -47,7 +45,7 @@ onMounted(async () => {
     const ress = await getStore(route.params.id);
     state.store = ress.data.resultData;
     res = await getOwnerOrder2(route.query.id);
-    
+
     state.order = res.data.resultData;
     console.log("난 주문 상세야: ", state.order);
     console.log("total", totalPrice.value);
@@ -61,7 +59,7 @@ onMounted(async () => {
     state.carts = cart.state.latestOrder;
     console.log("state.order", cart.order);
     console.log("cart.state.items", cart.state);
-    console.log(localStorage.getItem('cart-items'));
+    console.log(localStorage.getItem("cart-items"));
     calculateTotal();
     randomList();
   }
@@ -138,23 +136,17 @@ const randomThreeStores = computed(() => {
 <template>
   <div class="cart-empty-wrapper">
     <div class="top-row">
-      <div class="header-row">
-        <div class="div29" v-if="route.query.id>0">주문상세</div>
-        <div v-else class="div29">주문완료</div>
+      <div class="header">
+        <h2>주문상세</h2>
+        <div class="solid"></div>
       </div>
       <div v-if="!route.query.id" class="step-horizontal">
         <span class="step-text">01 음식선택</span>
-        <span class="arrow"
-          ><img src="/src/imgs/cartimgs/arrow-back.png"
-        /></span>
+        <span class="arrow"><img src="/src/imgs/cartimgs/arrow-back.png" /></span>
         <span class="step-text">02 장바구니</span>
-        <span class="arrow"
-          ><img src="/src/imgs/cartimgs/arrow-back.png"
-        /></span>
+        <span class="arrow"><img src="/src/imgs/cartimgs/arrow-back.png" /></span>
         <span class="step-text">03 주문/결제</span>
-        <span class="arrow"
-          ><img src="/src/imgs/cartimgs/arrow-back.png"
-        /></span>
+        <span class="arrow"><img src="/src/imgs/cartimgs/arrow-back.png" /></span>
         <span class="step-text current">04 주문완료</span>
       </div>
     </div>
@@ -185,13 +177,11 @@ const randomThreeStores = computed(() => {
                   <div class="d-flex justify-content-between mb-2">
                     <div class="row">
                       <span class="itme-name">{{ item.menuName }}</span>
-                      <span>　</span>
+                      <span class="itme-option">{{ item.menuName }}</span>
                     </div>
                     <span>{{ item.quantity }}개</span>
                     <span class="item-price"
-                      >{{
-                        (item.price * item.quantity).toLocaleString()
-                      }}원</span
+                      >{{ (item.price * item.quantity).toLocaleString() }}원</span
                     >
                   </div>
                 </div>
@@ -204,13 +194,11 @@ const randomThreeStores = computed(() => {
                   <div class="d-flex justify-content-between mb-2">
                     <div class="row">
                       <span class="itme-name">{{ item.name }}</span>
-                      <span>　</span>
+                      <span class="itme-option">{{ item.menuName }}</span>
                     </div>
                     <span>{{ item.quantity }}개</span>
                     <span class="item-price"
-                      >{{
-                        (item.price * item.quantity).toLocaleString()
-                      }}원</span
+                      >{{ (item.price * item.quantity).toLocaleString() }}원</span
                     >
                   </div>
                 </div>
@@ -242,23 +230,52 @@ const randomThreeStores = computed(() => {
           <!-- 주문 상세로 들어왔을 때 -->
           <div v-if="route.query.id > 0">
             <div class="d-flex justify-content-between mb-2">
-              <div>주문취소</div>
-              <div>주문확인중</div>
-              <div>음식준비중</div>
-              <div>배달중</div>
-              <div>배달완료</div>
+              <div class="status">주문취소</div>
+              <div class="status">주문확인중</div>
+              <div class="status">음식준비중</div>
+              <div class="status">배달중</div>
+              <div class="status">배달완료</div>
             </div>
             <div class="progress" style="height: 8px">
-              <div
-                class="progress-bar"
-                role="progressbar"
-                :style="status"
-              ></div>
+              <div class="progress-bar" role="progressbar" :style="status"></div>
               <div
                 class="progress-bar"
                 role="progressbar"
                 style="width: 100%; background-color: #ffeadd"
               ></div>
+            </div>
+            <!-- 주문 정보 -->
+            <div class="mb-4" v-if="route.query.id > 0">
+              <h4 class="mb-3">주문 정보</h4>
+              <div class="border rounded p-4">
+                <div class="info-line mb-2" v-for="(value, key) in orderInfo" :key="key">
+                  [ {{ key }}: {{ value }} ]
+                </div>
+              </div>
+            </div>
+            <!-- 주문상세내역 -->
+            <div class="mb-4" v-if="route.query.id > 0">
+              <h4 class="mb-3">주문 상세내역</h4>
+              <div class="border rounded p-4">
+                <table class="table">
+                  <thead>
+                    <tr>
+                      <th>메뉴명</th>
+                      <th>옵션</th>
+                      <th>수량</th>
+                      <th>가격</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr v-for="(item, index) in orderDetailList" :key="index">
+                      <td>{{ item.menuName }}</td>
+                      <td>{{ item.option }}</td>
+                      <td>{{ item.quantity }}</td>
+                      <td>{{ item.price.toLocaleString() }}원</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
             </div>
           </div>
           <!-- 아닐때 -->
@@ -285,40 +302,15 @@ const randomThreeStores = computed(() => {
           </div>
         </div>
       </div>
-
-      <!--  -->
-      <!--  -->
-
-      <!--  -->
       <div id="random-box" v-if="!route.query.id">
         <h4 class="mb-3">다른 가게 주문하기</h4>
         <div>
-          <!--  -->
           <div class="big-Box">
             <div class="for">
-              <!--  -->
               <div v-for="(item, index) in randomThreeStores" :key="item.id">
                 <Randomstore class="board" :stores="item" />
               </div>
             </div>
-            
-            <!-- <div class="col-12 col-md-4">
-                <div id="imgBigBox" class="card h-100 shadow-sm">
-                  <div id="imgBox" class="card-img-top">이것은 가게의 이미지다</div>
-                  <div class="card-body">
-                    <h6 class="card-title">도리식 닭도리탕</h6>
-                    <p class="mb-1 text-muted">배달비 0원 ~ 3000원</p>
-                    <p class="mb-2 text-muted">최소 주문 금액 10,000원</p>
-                    <div class="d-flex justify-content-between align-items-center">
-                      <div class="small">⭐ 4.8 (96건) &nbsp;&nbsp; ❤️ 927</div>
-                      <button class="btn btn-outline-danger btn-sm">
-                        자세히보기
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              </div> -->
-            <!--  -->
           </div>
         </div>
       </div>
@@ -329,10 +321,6 @@ const randomThreeStores = computed(() => {
 </template>
 
 <style lang="scss" scoped>
-* {
-  font-family: "BMJUA";
-}
-
 @font-face {
   font-family: "BMJUA";
   src: url("https://fastly.jsdelivr.net/gh/projectnoonnu/noonfonts_one@1.0/BMJUA.woff")
@@ -340,35 +328,48 @@ const randomThreeStores = computed(() => {
   font-weight: 600;
   font-style: normal;
 }
-
+@font-face {
+  // 프리텐다드
+  font-family: "Pretendard-Regular";
+  src: url("https://fastly.jsdelivr.net/gh/Project-Noonnu/noonfonts_2107@1.1/Pretendard-Regular.woff")
+    format("woff");
+  font-weight: 400;
+  font-style: normal;
+}
+* {
+  font-family: "Pretendard-Regular";
+}
+// 전체 여백
 .cart-empty-wrapper {
-  max-width: 1024px;
+  max-width: 1470px;
   margin: 50px auto;
   padding: 20px;
 }
-
+// 헤더
 .top-row {
-  display: flex;
-  justify-content: space-between;
-  column-gap: 100px;
-  margin-bottom: 60px;
+  .header {
+    // 주소 검색 박스
+    h2 {
+      font-size: 30px;
+      font-family: "BMJUA";
+      text-align: center;
+    }
+    .solid {
+      // 정보 수정 메인 선
+      width: 1470px;
+      border: 1px #000 solid;
+      margin-top: 50px;
+      margin-bottom: 50px;
+    }
+  }
 }
-
-.header-row {
-  display: flex;
-  align-items: center;
+.container {
+  max-width: 1060px;
 }
-
 .back-icon {
   width: 24px;
   height: 24px;
   margin-right: 10px;
-}
-
-.div29 {
-  font-size: 24px;
-  font-weight: bold;
-  white-space: nowrap;
 }
 
 .step-horizontal {
@@ -400,19 +401,19 @@ const randomThreeStores = computed(() => {
   display: flex;
   justify-content: space-between;
   width: 100%;
-
   border-radius: 20px;
 
   .store-image {
     display: flex;
     justify-content: center;
     align-items: center;
-    border-radius: 20px;
-    width: 250px;
-    height: 180px;
+    border-radius: 15px;
+    width: 260px;
+    height: 200px;
     overflow: hidden;
     .storeImg {
       width: 260px;
+      height: auto;
     }
   }
 }
@@ -421,20 +422,24 @@ const randomThreeStores = computed(() => {
   display: flex;
   justify-content: center;
 }
-
+// 박스 사이즈
 #box {
   padding: 40px !important;
+  border-radius: 25px;
 }
-
+// 주문처리현황
 .text {
   display: flex;
-  font-family: "BMJUA";
   font-size: 25px;
-  text-align: end;
+  text-align: center;
 
   .store-name {
+    font-family: "BMJUA";
     width: 170px;
     text-align: end;
+  }
+  span {
+    font-family: "BMJUA";
   }
 }
 
@@ -457,7 +462,9 @@ const randomThreeStores = computed(() => {
 }
 
 .div29 {
-  font-size: 30px;
+  font-size: 30px; // 최종적으로 적용되는 값만 남김
+  font-weight: bold;
+  white-space: nowrap;
   margin-left: 10px;
 }
 .for {
@@ -467,18 +474,25 @@ const randomThreeStores = computed(() => {
   gap: 20px;
   margin-bottom: 50px;
 }
-#leftBox{
+#leftBox {
   display: flex;
-  
 }
-.itme-name{
+.itme-name {
   width: 200px;
 }
-.item-price{
+.item-price {
   width: 100px;
   text-align: end;
 }
-.last{
+.last {
   margin-bottom: 120px;
+}
+.mb-4 {
+  h4 {
+    font-family: "BMJUA";
+  }
+  .status {
+    font-family: "BMJUA";
+  }
 }
 </style>

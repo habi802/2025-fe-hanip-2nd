@@ -341,16 +341,16 @@ const isPasswordChecked = ref(false); // 비밀번호 확인 여부
           <div class="sevLine"></div>
 
           <!-- 닉네임 -->
-          <div class="form-group">
+          <!-- <div class="form-group">
             <label> 닉네임</label>
             <input
               type="text"
               class="form-input"
               v-model="state.form.name"
               placeholder="김아무아무개"
-            />
+            />/
           </div>
-          <div class="sevLine"></div>
+          <div class="sevLine"></div> -->
 
           <!-- 현재 비밀번호 -->
           <div class="form-group">
@@ -497,6 +497,7 @@ input:focus {
   font-size: 25px;
   letter-spacing: -1.5px;
   h2 {
+    font-family: "BMJUA";
     text-align: center;
   }
   .solid {
