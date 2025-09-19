@@ -178,7 +178,6 @@ const randomThreeStores = computed(() => {
                     <div class="row">
                       <span class="itme-name">{{ item.menuName }}</span>
                       <span class="itme-option">{{ item.menuName }}</span>
-                      <span>　</span>
                     </div>
                     <span>{{ item.quantity }}개</span>
                     <span class="item-price"
@@ -196,7 +195,6 @@ const randomThreeStores = computed(() => {
                     <div class="row">
                       <span class="itme-name">{{ item.name }}</span>
                       <span class="itme-option">{{ item.menuName }}</span>
-                      <span>　</span>
                     </div>
                     <span>{{ item.quantity }}개</span>
                     <span class="item-price"
@@ -228,15 +226,15 @@ const randomThreeStores = computed(() => {
 
       <div class="mb-4">
         <h4 class="mb-3">주문 처리 현황</h4>
-        <div class="border rounded p-5">
+        <div class="border rounded-25px p-5">
           <!-- 주문 상세로 들어왔을 때 -->
           <div v-if="route.query.id > 0">
             <div class="d-flex justify-content-between mb-2">
-              <div>주문취소</div>
-              <div>주문확인중</div>
-              <div>음식준비중</div>
-              <div>배달중</div>
-              <div>배달완료</div>
+              <div class="status">주문취소</div>
+              <div class="status">주문확인중</div>
+              <div class="status">음식준비중</div>
+              <div class="status">배달중</div>
+              <div class="status">배달완료</div>
             </div>
             <div class="progress" style="height: 8px">
               <div class="progress-bar" role="progressbar" :style="status"></div>
@@ -370,7 +368,6 @@ const randomThreeStores = computed(() => {
   display: flex;
   justify-content: space-between;
   width: 100%;
-
   border-radius: 20px;
 
   .store-image {
@@ -397,14 +394,14 @@ const randomThreeStores = computed(() => {
   padding: 40px !important;
   border-radius: 25px;
 }
-
+// 주문처리현황
 .text {
   display: flex;
-  font-family: "BMJUA";
   font-size: 25px;
-  text-align: end;
+  text-align: center;
 
   .store-name {
+    font-family: "BMJUA";
     width: 170px;
     text-align: end;
   }
@@ -456,5 +453,13 @@ const randomThreeStores = computed(() => {
 }
 .last {
   margin-bottom: 120px;
+}
+.mb-4 {
+  h4{
+    font-family: "BMJUA";
+  }
+.status{
+  font-family: "BMJUA";
+}
 }
 </style>
