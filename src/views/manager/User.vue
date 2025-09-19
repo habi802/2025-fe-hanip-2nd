@@ -109,11 +109,11 @@ onMounted(() => {
                 <label for="" class="form-label">가입일</label>
                 <b-row class="align-items-center">
                     <b-col>
-                        <VueDatePicker :enable-time-picker="false" :format="formatDate" v-model="state.form.startDate" @update:model-value="date => changeDate('startDate', date)" />
+                        <VueDatePicker :enable-time-picker="false" :format="formatDate" v-model="state.form.startDate" @update:model-value="date => changeDate('startDate', date)" locale="ko" />
                     </b-col>
                     ~
                     <b-col>
-                        <VueDatePicker :enable-time-picker="false" :format="formatDate" v-model="state.form.endDate" @update:model-value="date => changeDate('startDate', date)" />
+                        <VueDatePicker :enable-time-picker="false" :format="formatDate" v-model="state.form.endDate" @update:model-value="date => changeDate('startDate', date)" locale="ko" />
                     </b-col>
                 </b-row>
             </b-col>
