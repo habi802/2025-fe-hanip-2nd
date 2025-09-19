@@ -441,6 +441,7 @@ const showModal = (message) => {
 .all-box {
   display: flex;
   flex-wrap: wrap;
+  max-width: 1920px;
   width: 100%;
   justify-content: center;
   font-family: 'BMJUA';
@@ -479,17 +480,18 @@ const showModal = (message) => {
   display: flex;
   align-items: center;
   margin-bottom: -37px;
+  max-width: 1400px;
 }
 
 .filterbox {
-  flex: 0 0 120px;
-  position: relative;
+  flex: 0 0 120px !important;
+  position: relative !important;
 }
 
 .dropdown {
   position: absolute;
   top: 260px;
-  left: -1360px;
+  right: 1230px;
   width: 250px;
   height: 55px;
   font-size: 22px;
@@ -539,6 +541,7 @@ const showModal = (message) => {
   justify-content: center;
   font-family: 'Pretendard-Regular';
   width: 1400px;
+  max-width: 100%;
 
   font-size: 1.4em;
   letter-spacing: -1.5px;
