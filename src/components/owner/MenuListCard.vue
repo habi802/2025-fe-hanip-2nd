@@ -26,7 +26,7 @@ defineProps({
 <style scoped>
 .menu-card {
   width: 693px; 
-  height: 130px; 
+  height: 130px;
   padding: 15px;
   margin-bottom: 12px;
   border: 1px solid #eee;

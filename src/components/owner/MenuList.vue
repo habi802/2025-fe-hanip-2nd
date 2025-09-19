@@ -28,7 +28,7 @@ const menus = [
     category: "사이드메뉴",
   },
   {
-    id: 4,
+    id: 3,
     name: "사이드 감자튀김",
     price: 5000,
     desc: "바삭바삭 감자튀김",
@@ -36,7 +36,7 @@ const menus = [
     category: "사이드메뉴",
   },
   {
-    id: 4,
+    id: 3,
     name: "사이드 감자튀김",
     price: 5000,
     desc: "바삭바삭 감자튀김",
@@ -131,7 +131,10 @@ const filteredMenus = computed(() => {
             />
           </div>
         </template>
-        <p v-else class="empty-message">검색 결과가 없습니다.</p>
+        <!-- 검색/등록 여부 구분 -->
+        <p v-else class="text-center mt-5" :class="searchQuery ? 'text-muted' : 'text-muted'">
+          {{ searchQuery ? "검색 결과가 없습니다." : "아직 등록된 메뉴가 없습니다." }}
+        </p>
       </template>
 
       <!-- 특정 탭일 때 -->
@@ -145,7 +148,10 @@ const filteredMenus = computed(() => {
             class="menu-item"
           />
         </template>
-        <p v-else class="text-center text-muted mt-5">검색 결과가 없습니다.</p>
+        <!-- 검색/등록 여부 구분 -->
+        <p v-else class="text-center mt-5" :class="searchQuery ? 'text-muted' : 'text-muted'">
+          {{ searchQuery ? "검색 결과가 없습니다." : "아직 등록된 메뉴가 없습니다." }}
+        </p>
       </template>
     </div>
   </div>

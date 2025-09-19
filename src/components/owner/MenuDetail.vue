@@ -1,5 +1,6 @@
 <script setup>
 import { ref } from "vue";
+import defaultImage from "@/imgs/owner/haniplogo_sample.png"
 
 // 폼 상태
 const menuName = ref("");
@@ -8,7 +9,6 @@ const desc = ref("");
 const category = ref("단품");
 
 // 이미지 상태
-const previewImage = ref("/src/imgs/owner/haniplogo_sample.png"); // 기본 이미지
 const fileInput = ref(null); // 숨겨진 파일 input 참조
 
 // 옵션 그룹
@@ -70,7 +70,7 @@ const triggerFileInput = () => {
       <!-- 이미지 -->
       <div class="col-md-4 text-center">
         <img
-          :src="previewImage"
+          :src="defaultImage"
           alt="메뉴 이미지"
           class="detail-img mb-2"
           @click="triggerFileInput"
@@ -209,8 +209,8 @@ const triggerFileInput = () => {
 
     <!-- 버튼 -->
     <div class="d-flex justify-content-end gap-2 mt-4">
-      <button class="btn btn-outline-secondary">등록취소</button>
-      <button class="btn btn-danger">등록완료</button>
+      <button class="owner-btn-cancel">등록취소</button>
+      <button class="owner-btn-white">등록완료</button>
     </div>
   </div>
 </template>
@@ -237,15 +237,15 @@ const triggerFileInput = () => {
 .menu-options {
   display: flex;
   flex-direction: column;
-  max-height: 450px; /* 옵션 전체 높이 제한 */
+  max-height: 450px;
   overflow: hidden;
 }
 
 .options-scroll {
   flex: 1;
-  overflow-y: auto; /* ✅ 스크롤은 여기만 */
+  overflow-y: auto; 
   padding-right: 10px;
-  scrollbar-gutter: stable; /* 스크롤 튐 방지 */
+  scrollbar-gutter: stable; 
 }
 
 .option-group {
