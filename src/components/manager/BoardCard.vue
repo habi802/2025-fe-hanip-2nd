@@ -43,7 +43,7 @@ const setItemStatus = (id, status) => {
                 <b-col cols="12"><strong>가게 이미지</strong></b-col>
             </b-row>
             <b-row>
-                <b-col cols="12" class="content">이미지가 들어가는 부분</b-col>
+                <b-col cols="12" class="content">{{ isExistItem ? '가게 이미지' : '' }}</b-col>
             </b-row>
 
             <b-row>
@@ -78,7 +78,7 @@ const setItemStatus = (id, status) => {
                 <b-col cols="12"><strong>메뉴</strong></b-col>
             </b-row>
             <b-row>
-                <b-col cols="12" class="content"></b-col>
+                <b-col cols="12" class="content">{{ isExistItem ? '가게 메뉴' : '' }}</b-col>
             </b-row>
 
             <b-row>
@@ -96,44 +96,77 @@ const setItemStatus = (id, status) => {
             </b-row>
         </template>
 
+        <!-- 주문 상세 조회 -->
+        <template v-else-if="props.title === 'order'">
+            <b-row>
+                <b-col cols="3"><strong>주문일</strong></b-col>
+                <b-col cols="9">{{ isExistItem ? props.item.createdAt : '' }}</b-col>
+            </b-row>
+            <b-row>
+                <b-col cols="3"><strong>주문자명</strong></b-col>
+                <b-col cols="3">{{ isExistItem ? props.item.userName : '' }}</b-col>
+                <b-col cols="3"><strong>상호명</strong></b-col>
+                <b-col cols="3">{{ isExistItem ? props.item.storeName : '' }}</b-col>
+            </b-row>
+
+            <b-row>
+                <b-col cols="12"><strong>메뉴</strong></b-col>
+            </b-row>
+            <b-row>
+                <b-col cols="12" class="content">{{ isExistItem ? '주문 메뉴' : '' }}</b-col>
+            </b-row>
+
+            <b-row>
+                <b-col cols="3"><strong>주문 상태</strong></b-col>
+                <b-col cols="3">{{ isExistItem ? props.item.status : '' }}</b-col>
+                <b-col cols="3"><strong>결제 수단</strong></b-col>
+                <b-col cols="3">{{ isExistItem ? props.item.payment : '' }}</b-col>
+            </b-row>
+
+            <b-row>
+                <b-col cols="12" class="d-flex justify-content-center">
+                    <button class="btn btn-danger me-2" @click="setItemStatus(props.item[props.idKey], 1)" :disabled="!isExistItem">주문 취소</button>
+                </b-col>
+            </b-row>
+        </template>
+
         <!-- 리뷰 상세 조회 -->
         <template v-else>
             <b-row>
                 <b-col cols="3"><strong>작성일</strong></b-col>
-                <b-col cols="3"></b-col>
+                <b-col cols="3">{{ isExistItem ? props.item.createdAt : '' }}</b-col>
                 <b-col cols="3"><strong>작성자</strong></b-col>
-                <b-col cols="3"></b-col>
+                <b-col cols="3">{{ isExistItem ? props.item.userName : '' }}</b-col>
             </b-row>
 
             <b-row>
                 <b-col cols="12"><strong>이미지</strong></b-col>
             </b-row>
             <b-row>
-                <b-col cols="12" class="content">이미지가 들어가는 부분</b-col>
+                <b-col cols="12" class="content">{{ isExistItem ? '리뷰 이미지' : '' }}</b-col>
             </b-row>
 
             <b-row>
                 <b-col cols="12"><strong>내용</strong></b-col>
             </b-row>
             <b-row>
-                <b-col cols="12" class="content"></b-col>
+                <b-col cols="12" class="content">{{ isExistItem ? props.item.comment : '' }}</b-col>
             </b-row>
 
             <b-row>
                 <b-col cols="12"><strong>답변</strong></b-col>
             </b-row>
             <b-row>
-                <b-col cols="12" class="content"></b-col>
+                <b-col cols="12" class="content">{{ isExistItem ? props.item.ownerComment : '' }}</b-col>
             </b-row>
 
             <b-row>
                 <b-col cols="12" class="d-flex justify-content-center">
-                    <button class="btn btn-success me-2" @click="setItemStatus(props.item[props.idKey], 1)">리뷰 숨기기</button>
-                    <button class="btn btn-secondary" @click="setItemStatus(props.item[props.idKey], 0)">숨김 해제</button>
+                    <button class="btn btn-danger me-2" @click="setItemStatus(props.item[props.idKey], 1)" :disabled="!isExistItem">리뷰 숨기기</button>
+                    <button class="btn btn-secondary" @click="setItemStatus(props.item[props.idKey], 0)" :disabled="!isExistItem">숨김 해제</button>
                 </b-col>
             </b-row>
         </template>
-    
     </b-card>
 </template>
 

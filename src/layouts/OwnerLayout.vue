@@ -13,16 +13,16 @@ import {useOwnerStore} from '@/stores/account.js'
 const ownerStore = useOwnerStore();
 console.log('오너스토어:'+ownerStore.resultData);
 // 로그인 체크
-const checkAcconut = async () => {
-  const res = await check();
-  console.log('res:', res);
-  if (res == undefined || res.status != 200) {
-    account.setChecked(false);
-    return;
-  }
-  account.setChecked(true);
-  account.setLoggedIn(res.data.resultData > 0);
-};
+// const checkAcconut = async () => {
+//   const res = await check();
+//   console.log('res:', res);
+//   if (res == undefined || res.status != 200) {
+//     account.setChecked(false);
+//     return;
+//   }
+//   account.setChecked(true);
+//   account.setLoggedIn(res.data.resultData > 0);
+// };
 
 // 로그아웃 상태 반영
 const account = useAccountStore();
@@ -79,12 +79,12 @@ onMounted(async () => {
   if (saved) {
     removedNotification.value = new Set(JSON.parse(saved));
   }
-  checkAcconut();
+  //checkAcconut();
 });
 watch(
   () => route.path,
   () => {
-    checkAcconut();
+    //checkAcconut();
   });
 
 // 알림 갱신 (watch)

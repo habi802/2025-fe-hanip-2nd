@@ -180,11 +180,11 @@ onMounted(() => {
                         <label for="" class="form-label">가게 등록일</label>
                         <b-row class="align-items-center">
                             <b-col>
-                                <VueDatePicker :enable-time-picker="false" :format="formatDate" v-model="state.form.StartCreatedAt" @update:model-value="date => changeDate('StartCreatedAt', date)" />
+                                <VueDatePicker :enable-time-picker="false" :format="formatDate" v-model="state.form.StartCreatedAt" @update:model-value="date => changeDate('StartCreatedAt', date)" locale="ko" />
                             </b-col>
                             ~
                             <b-col>
-                                <VueDatePicker :enable-time-picker="false" :format="formatDate" v-model="state.form.EndCreatedAt" @update:model-value="date => changeDate('EndCreatedAt', date)" />
+                                <VueDatePicker :enable-time-picker="false" :format="formatDate" v-model="state.form.EndCreatedAt" @update:model-value="date => changeDate('EndCreatedAt', date)" locale="ko" />
                             </b-col>
                         </b-row>
                     </b-col>
@@ -192,11 +192,11 @@ onMounted(() => {
                         <label for="" class="form-label">개업연월일</label>
                         <b-row class="align-items-center">
                             <b-col>
-                                <VueDatePicker :enable-time-picker="false" :format="formatDate" v-model="state.form.StartOpenDate" @update:model-value="date => changeDate('StartOpenDate', date)" />
+                                <VueDatePicker :enable-time-picker="false" :format="formatDate" v-model="state.form.StartOpenDate" @update:model-value="date => changeDate('StartOpenDate', date)" locale="ko" />
                             </b-col>
                             ~
                             <b-col>
-                                <VueDatePicker :enable-time-picker="false" :format="formatDate" v-model="state.form.EndOpenDate" @update:model-value="date => changeDate('EndOpenDate', date)" />
+                                <VueDatePicker :enable-time-picker="false" :format="formatDate" v-model="state.form.EndOpenDate" @update:model-value="date => changeDate('EndOpenDate', date)" locale="ko" />
                             </b-col>
                         </b-row>
                     </b-col>

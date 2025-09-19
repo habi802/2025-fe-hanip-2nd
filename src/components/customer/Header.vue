@@ -37,8 +37,11 @@ const state = reactive({
 // 로그아웃
 const signOut = async () => {
   const res = await logout();
-  account.setLoggedIn(false);
-  router.push({ path: "/" });
+
+  if (res !== undefined && res.status === 200) {
+    account.setLoggedIn(false);
+    router.push({ path: "/" });
+  }
 };
 
 // 주문 내역 페이지 on off

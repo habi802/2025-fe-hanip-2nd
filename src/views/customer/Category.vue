@@ -235,7 +235,7 @@ const caLink = async () => {
     <div class="categorySwipe">
       <div class="swiperLeft">
         <img class="left" src="/src/imgs/NavigationLeft.png" />
-      </div>
+      </div> 
       <swiper :navigation="{
         nextEl: '.swiperRight',
         prevEl: '.swiperLeft',

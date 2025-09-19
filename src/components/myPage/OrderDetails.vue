@@ -1,12 +1,12 @@
 <script setup>
-import { reactive, ref, onMounted, computed } from "vue";
-import OrderAndReview from "./OrderAndReview.vue";
-import { getOrder, deleteOrder } from "@/services/orderService";
-import { getReviewsByStoreId } from "@/services/reviewServices";
-import { useRouter } from "vue-router";
-import { getStore } from "@/services/storeService";
+import { reactive, ref, onMounted, computed } from 'vue';
+import OrderAndReview from './OrderAndReview.vue';
+import { getOrder, deleteOrder } from '@/services/orderService';
+import { getReviewsByStoreId } from '@/services/reviewServices';
+import { useRouter } from 'vue-router';
+import { getStore } from '@/services/storeService';
 //import { useCartStore } from "@/stores/cart";
-import { addItem, getItem, removeCart } from "@/services/cartService";
+import { addItem, getItem, removeCart } from '@/services/cartService';
 
 //라우터
 const router = useRouter();
@@ -17,14 +17,14 @@ const state = reactive({
 });
 //
 const user = reactive({
-  name: "하드 코딩",
+  name: '하드 코딩',
   orders: 0,
   cupon: 0,
   point: 0,
 });
 
 // onMounted
-onMounted( () => {
+onMounted(() => {
   findorder();
 });
 
@@ -57,11 +57,11 @@ const selectStar = (index) => {
 // 주문 삭제
 const deleteOrderOne = async (order) => {
   if (
-    order.status === "ORDERED" ||
-    order.status === "DELIVERING" ||
-    order.status === "PREPARING"
+    order.status === 'ORDERED' ||
+    order.status === 'DELIVERING' ||
+    order.status === 'PREPARING'
   ) {
-    showModal('진행 중인 주문은 취소할 수 없습니다.')
+    showModal('진행 중인 주문은 취소할 수 없습니다.');
     return;
   }
 
@@ -73,7 +73,7 @@ const deleteOrderOne = async (order) => {
       state.orders.splice(deleteIdx, 1);
     }
   } catch (e) {
-    console.error("삭제 실패", e);
+    console.error('삭제 실패', e);
   }
 };
 
@@ -84,7 +84,7 @@ const filteredOrders = computed(() =>
 
 // 재주문을 하기 위한 함수
 //const cartStore = useCartStore();
-const reorder = async menus => {
+const reorder = async (menus) => {
   //const cartItems = cartStore.state.items;
   // if (cartItems.length > 0 && cartItems[0].id !== addMenus[0].id) {
   //   showModal('이미 다른 가게의 메뉴가 장바구니에 담겨 있습니다.')
@@ -101,7 +101,7 @@ const reorder = async menus => {
 
   const carts = res.data.resultData;
   if (carts !== null && menus.storeId !== carts[0].storeId) {
-    showModal('이미 다른 가게의 메뉴가 장바구니에 담겨 있습니다.')
+    showModal('이미 다른 가게의 메뉴가 장바구니에 담겨 있습니다.');
     return;
   }
 
@@ -114,7 +114,7 @@ const reorder = async menus => {
   for (let i = 0; i < menus.orderGetList.length; i++) {
     const params = {
       menuId: menus.orderGetList[i].menuId,
-      quantity: menus.orderGetList[i].quantity
+      quantity: menus.orderGetList[i].quantity,
     };
 
     const res = await addItem(params);
@@ -133,7 +133,7 @@ const reorder = async menus => {
 
   //cartStore.addMenus(addMenus);
 
-  router.push("/cart");
+  router.push('/cart');
 };
 
 // 더보기 처리
@@ -158,9 +158,9 @@ const arrow = () => {
 };
 
 const showModal = (message) => {
-  const modalBody = document.getElementById("alertModalBody");
+  const modalBody = document.getElementById('alertModalBody');
   if (modalBody) modalBody.textContent = message;
-  const modal = new bootstrap.Modal(document.getElementById("alertModal"));
+  const modal = new bootstrap.Modal(document.getElementById('alertModal'));
 
   modal.show();
 };
@@ -198,6 +198,19 @@ const showModal = (message) => {
         </div>
       </div> -->
     </div>
+
+    <div class="filterandsearch">
+      <div class="filterbox">
+        <select v-model="sleectedFilter" class="dropdown">
+          <option :value="default">최근순</option>
+          <option value="1week">일주일</option>
+          <option value="1month">1개월</option>
+          <option value="3months">3개월</option>
+          <option value="6months">6개월</option>
+        </select>
+      </div>
+    </div>
+
     <div class="board-box">
       <!-- 하단 주문 내역 -->
 
@@ -208,19 +221,36 @@ const showModal = (message) => {
           <div class="solid"></div>
         </div>
       </div>
+
+      <!-- 검색바 -->
       <div class="ex1">
         <div class="search">
-          <img class="" src="/src/imgs/fluent_search.png" alt="검색" width="35px" height="35px">
-          검색: "주문한 메뉴나 가게를 찾아볼 수 있어요"
+          <span class="searchtext"
+            >검색: "주문한 메뉴나 가게를 찾아볼 수 있어요"</span
+          >
+          <img
+            class="search_icon"
+            src="/src/imgs/fluent_search.png"
+            alt="검색"
+            width="35px"
+            height="35px"
+          />
         </div>
-        
       </div>
-      <div v-for="order in visibleCards" :key="order.id" style="margin-bottom: 10px">
-        <order-and-review :order="order" @delete-order="deleteOrderOne" @reorder="reorder" />
+
+      <div
+        v-for="order in visibleCards"
+        :key="order.id"
+        style="margin-bottom: 10px"
+      >
+        <order-and-review
+          :order="order" 
+          @delete-order="deleteOrderOne"
+          @reorder="reorder"
+        />
       </div>
     </div>
-    
-    
+
     <!-- 미리보기 용 -->
     <!-- <order-and-review></order-and-review>
     <div :style="{ height: on ? '315px' : '750px' }" class="bigBoard">
@@ -293,8 +323,14 @@ const showModal = (message) => {
     </div> -->
 
     <!-- 장바구니 모달 -->
-    <div class="modal fade" id="orderF" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
-      aria-hidden="true">
+    <div
+      class="modal fade"
+      id="orderF"
+      tabindex="-1"
+      role="dialog"
+      aria-labelledby="exampleModalLabel"
+      aria-hidden="true"
+    >
       <div class="modal-dialog" role="document">
         <div class="modal-content">
           <div class="modal-header">
@@ -310,7 +346,14 @@ const showModal = (message) => {
   </div>
 
   <!-- 장바구니 모달 -->
-  <div class="modal fade" id="cartF" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div
+    class="modal fade"
+    id="cartF"
+    tabindex="-1"
+    role="dialog"
+    aria-labelledby="exampleModalLabel"
+    aria-hidden="true"
+  >
     <div class="modal-dialog" role="document">
       <div class="modal-content">
         <div class="modal-header">
@@ -329,13 +372,24 @@ const showModal = (message) => {
     </div>
   </div>
   <div v-if="state.orders.length > 0" class="btnBox">
-    <div id="btnB" v-if="visibleCount < state.orders.length" class="btn" @click="showMore">
+    <div
+      id="btnB"
+      v-if="visibleCount < state.orders.length"
+      class="btn"
+      @click="showMore"
+    >
       더보기
     </div>
   </div>
   <!-- <div class=""></div> -->
   <!--  -->
-  <div class="modal fade" id="alertModal" tabindex="-1" role="dialog" aria-hidden="true">
+  <div
+    class="modal fade"
+    id="alertModal"
+    tabindex="-1"
+    role="dialog"
+    aria-hidden="true"
+  >
     <div class="modal-dialog modal-dialog-centered" role="document">
       <div class="modal-content">
         <div class="modal-header">
@@ -350,7 +404,7 @@ const showModal = (message) => {
       </div>
     </div>
   </div>
-  
+
   <!--  -->
   <img @click="arrow" class="arrow" src="/src/imgs/arrow.png" />
 </template>
@@ -364,22 +418,24 @@ const showModal = (message) => {
 @font-face {
   // 프리텐다드
   font-family: 'Pretendard-Regular';
-  src: url('https://fastly.jsdelivr.net/gh/Project-Noonnu/noonfonts_2107@1.1/Pretendard-Regular.woff') format('woff');
+  src: url('https://fastly.jsdelivr.net/gh/Project-Noonnu/noonfonts_2107@1.1/Pretendard-Regular.woff')
+    format('woff');
   font-weight: 400;
   font-style: normal;
 }
 
 @font-face {
-  font-family: "BMJUA";
-  src: url("https://fastly.jsdelivr.net/gh/projectnoonnu/noonfonts_one@1.0/BMJUA.woff") format("woff");
+  font-family: 'BMJUA';
+  src: url('https://fastly.jsdelivr.net/gh/projectnoonnu/noonfonts_one@1.0/BMJUA.woff')
+    format('woff');
   font-weight: normal;
   font-style: normal;
-  font-family: "Pretendard-Regular";
-  src: url("https://fastly.jsdelivr.net/gh/Project-Noonnu/noonfonts_2107@1.1/Pretendard-Regular.woff");
+  font-family: 'Pretendard-Regular';
+  src: url('https://fastly.jsdelivr.net/gh/Project-Noonnu/noonfonts_2107@1.1/Pretendard-Regular.woff');
 }
 
 * {
-  font-family: "BMJUA";
+  font-family: 'BMJUA';
 }
 
 .all-box {
@@ -387,7 +443,7 @@ const showModal = (message) => {
   flex-wrap: wrap;
   width: 100%;
   justify-content: center;
-  font-family: "BMJUA";
+  font-family: 'BMJUA';
   width: 100%;
   overflow: clip;
 
@@ -397,7 +453,7 @@ const showModal = (message) => {
     margin-bottom: -50px;
 
     .ordertext {
-      font-size: 25px;
+      font-size: 30px;
       margin-top: 20px;
     }
 
@@ -415,11 +471,39 @@ const showModal = (message) => {
   display: flex;
   align-items: center;
   justify-content: flex-end;
-  font-size: 16px;
+  font-size: 18px;
   color: #7d7d7d;
-  
 }
+
+.filterandsearch {
+  display: flex;
+  align-items: center;
+  margin-bottom: -37px;
+}
+
+.filterbox {
+  flex: 0 0 120px;
+  position: relative;
+}
+
+.dropdown {
+  position: absolute;
+  top: 260px;
+  left: -1360px;
+  width: 250px;
+  height: 55px;
+  font-size: 22px;
+  padding: 5px 10px;
+  border: 2px solid #6c6c6c;
+  border-radius: 8px;
+  color: #6c6c6c;
+  background-color: #fff;
+  cursor: pointer;
+  text-align: center;
+}
+
 .ex1 {
+  flex: 1;
   display: flex;
   justify-content: center;
   width: 100%;
@@ -427,18 +511,33 @@ const showModal = (message) => {
 
 .search {
   border: 2px solid #ff6666;
+  height: 70px;
+  width: 1000px;
   border-radius: 15px;
+  margin-bottom: 121px;
   display: flex;
   align-items: center;
-  justify-content: center;
-  text-align: center;
-  margin-bottom: 100px;
+  position: relative;
+  padding: 8px 12px;
   color: #ff6666;
 }
+
+.searchtext {
+  flex: 1;
+  text-align: center;
+  font-size: 25px;
+  color: #ff6666;
+}
+
+.search_icon {
+  cursor: pointer;
+  right: 20px;
+}
+
 .box {
   display: flex;
   justify-content: center;
-  font-family: "Pretendard-Regular";
+  font-family: 'Pretendard-Regular';
   width: 1400px;
 
   font-size: 1.4em;
@@ -447,7 +546,7 @@ const showModal = (message) => {
 }
 
 .btn-t {
-  font-family: "BMJUA";
+  font-family: 'BMJUA';
   font-size: 1em;
   text-align: center;
   background-color: #fff;
@@ -498,7 +597,7 @@ const showModal = (message) => {
       }
 
       .textBox {
-        font-family: "BMJUA";
+        font-family: 'BMJUA';
         font-size: 1.5em;
         margin-left: 40px;
         margin-top: 10px;
@@ -509,14 +608,14 @@ const showModal = (message) => {
       width: 720px;
       height: 300px;
       margin-top: 30px;
-      font-family: "BMJUA";
+      font-family: 'BMJUA';
       font-size: 1.3em;
       margin-left: 30px;
 
       .menu {
         display: flex;
         justify-content: space-between;
-        font-family: "BMJUA";
+        font-family: 'BMJUA';
         margin-top: 10px;
 
         .name {
@@ -586,7 +685,7 @@ const showModal = (message) => {
     }
 
     .reviewBoxLeft {
-      font-family: "BMJUA";
+      font-family: 'BMJUA';
       font-size: 1.3em;
       margin-left: 30px;
       margin-top: 45px;
@@ -613,7 +712,7 @@ const showModal = (message) => {
       }
 
       .inputBox {
-        font-family: "Pretendard-Regular";
+        font-family: 'Pretendard-Regular';
         width: 400px;
         height: 150px;
         border: none;
@@ -643,7 +742,7 @@ const showModal = (message) => {
 }
 
 #imgOne {
-  font-family: "Pretendard-Regular";
+  font-family: 'Pretendard-Regular';
   font-size: 0.6em;
   margin-left: 10px;
   margin-bottom: 10px;
@@ -681,7 +780,7 @@ const showModal = (message) => {
     }
 
     .user {
-      font-family: "BMJUA";
+      font-family: 'BMJUA';
       font-size: 1.5em;
       letter-spacing: 1px;
       margin-left: 32px;
@@ -711,7 +810,7 @@ const showModal = (message) => {
 
   .right {
     text-align: center;
-    font-family: "BMJUA";
+    font-family: 'BMJUA';
     font-size: 20px;
     margin-top: 20px;
     margin-left: -170px;
@@ -759,6 +858,4 @@ const showModal = (message) => {
     opacity: 80%;
   }
 }
-
-
 </style>

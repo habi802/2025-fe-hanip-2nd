@@ -206,19 +206,17 @@ const idCheck = async () => {
           <div class="amountNum">{{ statusText }}</div>
         </div>
       </div>
-      <!-- 메뉴 삭제하기 버튼 -->
-      <div class="remove" @click="$emit('delete-order', props.order)">
-        <img class="removeImg" src="/src/imgs/remove.png" />
-      </div>
-    </div>
-    <!-- 버튼들 -->
+      <!-- 버튼들 -->
     <div class="btns">
       <div class="btn" @click="$emit('reorder', props.order)">재주문 하기</div>
       <div @click="reviewButton" class="btn btn-primary" :style="statusBtn">
         {{ revCheck !== null ? "리뷰 수정" : "리뷰 등록" }}
       </div>
       <div @click="orderDetail" class="btn">주문상세</div>
+      <div @click="$emit('delete-order', props.order)" class="btn">내역삭제</div>
+  </div>
     </div>
+    
     <!-- 리뷰 박스 -->
     <!-- <div class="reviewBigBox">
             <div class="reviewBox">
@@ -257,7 +255,7 @@ const idCheck = async () => {
   width: 1440px !important;
   border: #797979 2px solid !important;
   border-radius: 25px;
-  margin-bottom: 40px;
+  margin-bottom: -90px !important;
   //overflow: clip;
   display: flex;
   flex-direction: column;
@@ -266,8 +264,9 @@ const idCheck = async () => {
   .board {
     display: flex;
     width: 100%;
-    justify-content: space-around;
+    justify-content: space-between;
     align-items: center;
+    padding: 20px;
     //overflow: clip;
 
     .boardLeft {
@@ -316,7 +315,7 @@ const idCheck = async () => {
       }
 
       .menuBox {
-        margin-right: 50px;
+        
 
         .menu {
           display: flex;
@@ -451,11 +450,12 @@ const idCheck = async () => {
   }
 
   .btns {
+    
     display: flex;
-    width: 100%;
+    flex-direction: column;
     gap: 20px;
-    justify-content: right;
-    padding-right: 120px;
+    justify-content: flex-end;
+    align-items: flex-end;
 
     .btn {
       font-family: "BMJUA";
