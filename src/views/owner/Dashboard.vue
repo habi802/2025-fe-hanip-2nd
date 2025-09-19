@@ -45,11 +45,10 @@ const totalPrice = computed(() => {
     .reduce((sum, order) => sum + Math.round((order.amount || 0) / 10000), 0);
 });
 
-// 사장 대표자 이름
-const ownerName = inject("ownerName", "");
 
 // 시계
-const currentTime = ref('');
+const currentDate = ref('');
+const currentClock = ref("");
 
 const updateClock = () => {
   const now = new Date();
@@ -58,8 +57,15 @@ const updateClock = () => {
   const date = now.getDate();
   const dayNames = ['일', '월', '화', '수', '목', '금', '토'];
   const day = dayNames[now.getDay()];
+  currentDate.value = `${month}월 ${date}일 (${day})`;
+  
+  
+  const hours = now.getHours().toString().padStart(2, '0');
+  const minutes = now.getMinutes().toString().padStart(2, '0');
+  const seconds = now.getSeconds().toString().padStart(2, '0');
+  const time = `${hours}:${minutes}:${seconds}`;
+  currentClock.value = time;
 
-  currentTime.value = `오늘은 '${month}월 ${date}일 ${day}요일'`;
 };
 
 onMounted(() => {
@@ -71,8 +77,10 @@ onMounted(() => {
   <div class="wrap">
     <div class="total-wrap" > 
       <div class="datetime white-card text-center" style="grid-row: span 2;">
-        <span class="font-xlg"> 0월 0일 (금) </span>
-        <span class="font-xlg"> 14:00:00 </span>
+        <span class="font-xlg"> {{ currentDate }} </span>
+        <transition name="fade">
+        <div key="time" class="time-text">{{ currentClock }}</div>
+        </transition>
       </div>
       <div class="total-box white-card">
           <span class="total-title font-nomal">오늘 주문 수</span>
@@ -128,6 +136,13 @@ onMounted(() => {
     line-height: 1.1;  /* 여기서 간격 조절해. 기본보다 확 줄임 */
   }
   }
+
+.fade-enter-active, .fade-leave-active {
+  transition: opacity 0.5s;
+}
+.fade-enter-from, .fade-leave-to {
+  opacity: 0;
+}
 
   .total-box {
     //width: 280px;
