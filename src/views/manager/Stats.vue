@@ -6,12 +6,8 @@ import { reactive, ref, computed } from 'vue';
 import { getUserStats, getStoreStats, getOrderStats, getAmountStats } from '@/services/managerService';
 import StatsChartCard from '@/components/manager/StatsChartCard.vue';
 import { DatePicker as VDatePicker } from 'v-calendar'
-import dayjs from 'dayjs';
-import isoweek from 'dayjs/plugin/isoweek';
 import LoadingModal from '@/components/modal/LoadingModal.vue';
 import AlertModal from '@/components/modal/AlertModal.vue';
-
-dayjs.extend(isoweek);
 
 const state = reactive({
     form: {
@@ -117,20 +113,22 @@ const getStats = async () => {
 };
 
 // 차트에 들어갈 값 전달을 위해 임의로 만든 객체
-const chartData = [
-    {
-        label: ['2025년 6월', '2025년 7월', '2025년 8월'],
-        data: [47, 98, 250],
-    },
-    {
-        label: ['2025년 6월', '2025년 7월', '2025년 8월'],
-        data: [32, 63, 194],
-    },
-    {
-        label: ['2025년 6월', '2025년 7월', '2025년 8월'],
-        data: [78, 185, 302],
-    },
-];
+const chartData1 = {
+    label: ['2025년 6월', '2025년 7월', '2025년 8월'],
+    data: [132, 176, 200],
+};
+const chartData2 = {
+    label: ['2025년 6월', '2025년 7월', '2025년 8월'],
+    data: [178, 302, 264],
+};
+const chartData3 = {
+    label: ['2025년 6월', '2025년 7월', '2025년 8월'],
+    data: [274, 355, 361],
+};
+const chartData4 = {
+    label: ['2025년 6월', '2025년 7월', '2025년 8월'],
+    data: [412, 543, 645],
+};
 </script>
 
 <template>
@@ -174,22 +172,26 @@ const chartData = [
             <b-col cols="12">
                 <b-row>
                     <b-col cols="12" xl="6" class="mb-2">
-                        <div class="card">
+                        <div class="card p-2">
+                            <h5>가입자 수</h5>
                             <StatsChartCard title="가입자 수" :chart-data="chartData1" />
                         </div>
                     </b-col>
                     <b-col cols="12" xl="6" class="mb-2">
-                        <div class="card">
+                        <div class="card p-2">
+                            <h5>가게 등록 수</h5>
                             <StatsChartCard title="가게 등록 수" :chart-data="chartData2" />
                         </div>
                     </b-col>
                     <b-col cols="12" xl="6" class="mb-2">
-                        <div class="card">
+                        <div class="card p-2">
+                            <h5>주문 건 수</h5>
                             <StatsChartCard title="주문 건 수" :chart-data="chartData3" />
                         </div>
                     </b-col>
                     <b-col cols="12" xl="6" class="mb-2">
-                        <div class="card">
+                        <div class="card p-2">
+                            <h5>매출액</h5>
                             <StatsChartCard title="매출액" :chart-data="chartData4" />
                         </div>
                     </b-col>
