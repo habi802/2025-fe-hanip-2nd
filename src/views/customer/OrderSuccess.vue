@@ -226,7 +226,7 @@ const randomThreeStores = computed(() => {
 
       <div class="mb-4">
         <h4 class="mb-3">주문 처리 현황</h4>
-        <div class="border rounded-25px p-5">
+        <div class="border rounded p-5">
           <!-- 주문 상세로 들어왔을 때 -->
           <div v-if="route.query.id > 0">
             <div class="d-flex justify-content-between mb-2">
@@ -243,6 +243,39 @@ const randomThreeStores = computed(() => {
                 role="progressbar"
                 style="width: 100%; background-color: #ffeadd"
               ></div>
+            </div>
+            <!-- 주문 정보 -->
+            <div class="mb-4" v-if="route.query.id > 0">
+              <h4 class="mb-3">주문 정보</h4>
+              <div class="border rounded p-4">
+                <div class="info-line mb-2" v-for="(value, key) in orderInfo" :key="key">
+                  [ {{ key }}: {{ value }} ]
+                </div>
+              </div>
+            </div>
+            <!-- 주문상세내역 -->
+            <div class="mb-4" v-if="route.query.id > 0">
+              <h4 class="mb-3">주문 상세내역</h4>
+              <div class="border rounded p-4">
+                <table class="table">
+                  <thead>
+                    <tr>
+                      <th>메뉴명</th>
+                      <th>옵션</th>
+                      <th>수량</th>
+                      <th>가격</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr v-for="(item, index) in orderDetailList" :key="index">
+                      <td>{{ item.menuName }}</td>
+                      <td>{{ item.option }}</td>
+                      <td>{{ item.quantity }}</td>
+                      <td>{{ item.price.toLocaleString() }}원</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
             </div>
           </div>
           <!-- 아닐때 -->
@@ -455,11 +488,11 @@ const randomThreeStores = computed(() => {
   margin-bottom: 120px;
 }
 .mb-4 {
-  h4{
+  h4 {
     font-family: "BMJUA";
   }
-.status{
-  font-family: "BMJUA";
-}
+  .status {
+    font-family: "BMJUA";
+  }
 }
 </style>
