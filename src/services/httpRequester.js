@@ -3,7 +3,7 @@ import axios from 'axios';
 import { reissue } from './userService';
 import { useAccountStore } from '@/stores/account';
 
-axios.defaults.baseURL = import.meta.env.MODE === 'development' ? '/api' : `${import.meta.env.VITE_BASE_URL}/api/`;
+axios.defaults.baseURL = `${import.meta.env.VITE_BASE_URL}/api/`;
 axios.defaults.withCredentials = true;
 
 axios.interceptors.response.use(
