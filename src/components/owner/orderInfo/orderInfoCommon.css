@@ -1,0 +1,47 @@
+section {
+  width: 100%;
+}
+
+h3 {
+  font-size: 20px;
+  margin-top: 20px;
+  color: #ff8989;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 20px;
+}
+
+th,
+td {
+  text-align: center;
+  padding: 10px 12px;
+  border-top: 1px solid #e0e0e0;
+  border-bottom: 1px solid #e0e0e0;
+  font-size: 15px;
+}
+
+th {
+  background-color: #f7f7f7;
+  text-align: center;
+  width: 120px;
+  color: #555;
+}
+
+.menu-table th {
+  background-color: #f0f0f0;
+  color: #222;
+}
+.menu-table td:nth-child(4) {
+  text-align: right;
+  font-weight: 600;
+  padding-right: 60px;
+}
+.menu-table tr td:first-child {
+  font-weight: 500;
+}
+.menu-table tr td:first-child::before {
+  content: "";
+}/*# sourceMappingURL=orderInfoCommon.css.map */

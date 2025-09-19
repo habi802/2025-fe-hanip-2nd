@@ -2,21 +2,17 @@
 import 'v-calendar/style.css'
 import '@/assets/manager/manager.css'
 
-import { reactive, ref, computed, watch } from 'vue';
+import { reactive, ref, computed } from 'vue';
 import { getUserStats, getStoreStats, getOrderStats, getAmountStats } from '@/services/managerService';
 import StatsChartCard from '@/components/manager/StatsChartCard.vue';
 import { DatePicker as VDatePicker } from 'v-calendar'
-import dayjs from 'dayjs';
-import isoweek from 'dayjs/plugin/isoweek';
 import LoadingModal from '@/components/modal/LoadingModal.vue';
 import AlertModal from '@/components/modal/AlertModal.vue';
-
-dayjs.extend(isoweek);
 
 const state = reactive({
     form: {
         type: 'year',
-        date: '',
+        date: null,
     },
     stats: {
         user: [],
@@ -26,39 +22,69 @@ const state = reactive({
     }
 });
 
-// input에 표시할 포맷
-const formattedDate = computed(() => {
-  if (!state.form.date) return ''
-  const d = new Date(state.form.date)
-  switch(state.form.type) {
-    case 'year': return d.getFullYear()
-    case 'month': return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`
-    case 'week': {
-      // 단순히 선택한 날짜의 주차 표시
-      const onejan = new Date(d.getFullYear(),0,1)
-      const week = Math.ceil((((d - onejan) / 86400000) + onejan.getDay()+1)/7)
-      return `${d.getFullYear()}-W${week}`
-    }
-    case 'day': return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`
-  }
-});
-
-// 기간 선택 시 날짜 선택하는 부분이 기간에 맞춰 선택할 수 있게 바뀜
+// 기간 선택 시 날짜 선택 시 그 기간에 맞춰 입력됨(연간이면 2025, 월간이면 2025-09 이런 식으로)
 const datePickerMode = computed(() => {
     switch (state.form.type) {
         case 'year':
             return 'year';
         case 'month':
             return 'month';
-        default:
+        case 'week':
             return 'single';
+        default:
+            return 'day';
     }
+});
+
+// 날짜 input에 표시할 포맷
+const formattedDate = computed(() => {
+    if (!state.form.date) {
+        return '';
+    }
+
+    const d = new Date(state.form.date);
+    switch (state.form.type) {
+        case 'year':
+            return d.getFullYear();
+        case 'month':
+            return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;
+        case 'week':
+            const onejan = new Date(d.getFullYear(), 0, 1);
+            const week = Math.ceil((((d - onejan) / 86400000 + onejan.getDay() + 1) / 7));
+            return `${d.getFullYear()}-W${week}`;
+        case 'day':
+            return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+    }
+});
+
+// 주간 선택에서 선택한 주를 강조하는 함수
+const calendarAttributes = computed(() => {
+    if (state.form.type !== 'week' || !state.form.date) {
+        return [];
+    }
+
+    const d = new Date(state.form.date);
+    const dayOfWeek = (d.getDay() + 6) % 7;
+
+    const startOfWeek = new Date(d);
+    startOfWeek.setDate(d.getDate() - dayOfWeek);
+    const endOfWeek = new Date(startOfWeek);
+    endOfWeek.setDate(startOfWeek.getDate() + 6);
+
+    return [{
+        key: 'selected-week',
+        highlight: true,
+        dates: { start: startOfWeek, end: endOfWeek },
+        dot: false,
+        style: { backgroundColor: '#CCE5ff' }
+    }];
 });
 
 const loadingModalRef = ref(null);
 
 // 통계 조회
 const getStats = async () => {
+    console.log(state.form);
     loadingModalRef.value.open();
 
     const userStatsRes = await getUserStats(state.form);
@@ -85,6 +111,24 @@ const getStats = async () => {
 
     loadingModalRef.value.hide();
 };
+
+// 차트에 들어갈 값 전달을 위해 임의로 만든 객체
+const chartData1 = {
+    label: ['2025년 6월', '2025년 7월', '2025년 8월'],
+    data: [132, 176, 200],
+};
+const chartData2 = {
+    label: ['2025년 6월', '2025년 7월', '2025년 8월'],
+    data: [178, 302, 264],
+};
+const chartData3 = {
+    label: ['2025년 6월', '2025년 7월', '2025년 8월'],
+    data: [274, 355, 361],
+};
+const chartData4 = {
+    label: ['2025년 6월', '2025년 7월', '2025년 8월'],
+    data: [412, 543, 645],
+};
 </script>
 
 <template>
@@ -106,17 +150,11 @@ const getStats = async () => {
                         <label for="" class="form-label">날짜</label>
                         <b-row class="align-items-center">
                             <b-col>
-                                <VDatePicker v-model="state.form.date" :mode="datePickerMode">
-    <template #default="{ togglePopover }">
-      <input
-        type="text"
-        readonly
-        :value="formattedDate"
-        @click="togglePopover"
-        class="px-3 py-2 border rounded-md w-40"
-      />
-    </template>
-  </VDatePicker>
+                                <VDatePicker v-model="state.form.date" :mode="datePickerMode" :attributes="calendarAttributes">
+                                    <template #default="{ togglePopover }">
+                                        <input type="text" readonly :value="formattedDate" @click="togglePopover" class="px-3 py-2 border rounded-md w-40" />
+                                    </template>
+                                </VDatePicker>
                             </b-col>
                         </b-row>
                     </b-col>
@@ -134,23 +172,27 @@ const getStats = async () => {
             <b-col cols="12">
                 <b-row>
                     <b-col cols="12" xl="6" class="mb-2">
-                        <div class="card">
-                            <StatsChartCard title="user" :chart-data="state.stats.user" />
+                        <div class="card p-2">
+                            <h5>가입자 수</h5>
+                            <StatsChartCard title="가입자 수" :chart-data="chartData1" />
                         </div>
                     </b-col>
                     <b-col cols="12" xl="6" class="mb-2">
-                        <div class="card">
-                            <StatsChartCard title="store" :chart-data="state.stats.store" />
+                        <div class="card p-2">
+                            <h5>가게 등록 수</h5>
+                            <StatsChartCard title="가게 등록 수" :chart-data="chartData2" />
                         </div>
                     </b-col>
                     <b-col cols="12" xl="6" class="mb-2">
-                        <div class="card">
-                            <StatsChartCard title="order" :chart-data="state.stats.order" />
+                        <div class="card p-2">
+                            <h5>주문 건 수</h5>
+                            <StatsChartCard title="주문 건 수" :chart-data="chartData3" />
                         </div>
                     </b-col>
                     <b-col cols="12" xl="6" class="mb-2">
-                        <div class="card">
-                            <StatsChartCard title="amount" :chart-data="state.stats.amount" />
+                        <div class="card p-2">
+                            <h5>매출액</h5>
+                            <StatsChartCard title="매출액" :chart-data="chartData4" />
                         </div>
                     </b-col>
                 </b-row>
