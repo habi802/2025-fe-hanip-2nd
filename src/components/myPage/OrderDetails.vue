@@ -453,7 +453,7 @@ const showModal = (message) => {
     margin-bottom: -50px;
 
     .ordertext {
-      font-size: 25px;
+      font-size: 30px;
       margin-top: 20px;
     }
 
@@ -471,13 +471,14 @@ const showModal = (message) => {
   display: flex;
   align-items: center;
   justify-content: flex-end;
-  font-size: 16px;
+  font-size: 18px;
   color: #7d7d7d;
 }
 
 .filterandsearch {
   display: flex;
   align-items: center;
+  margin-bottom: -37px;
 }
 
 .filterbox {
@@ -489,15 +490,16 @@ const showModal = (message) => {
   position: absolute;
   top: 260px;
   left: -1360px;
-  width: 120px;
-  height: 40px;
-  font-size: 16px;
+  width: 250px;
+  height: 55px;
+  font-size: 22px;
   padding: 5px 10px;
   border: 2px solid #6c6c6c;
   border-radius: 8px;
   color: #6c6c6c;
   background-color: #fff;
   cursor: pointer;
+  text-align: center;
 }
 
 .ex1 {
@@ -509,9 +511,10 @@ const showModal = (message) => {
 
 .search {
   border: 2px solid #ff6666;
-  height: 50px;
+  height: 70px;
+  width: 1000px;
   border-radius: 15px;
-  margin-bottom: 100px;
+  margin-bottom: 121px;
   display: flex;
   align-items: center;
   position: relative;
@@ -522,7 +525,7 @@ const showModal = (message) => {
 .searchtext {
   flex: 1;
   text-align: center;
-  font-size: 20px;
+  font-size: 25px;
   color: #ff6666;
 }
 

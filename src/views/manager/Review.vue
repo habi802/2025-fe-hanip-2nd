@@ -216,7 +216,7 @@ onMounted(() => {
                                 <button class="btn btn-secondary w-100" @click="resetForm">초기화</button>
                             </b-col>
                             <b-col>
-                                <button class="btn btn-primary w-100">검색</button>
+                                <button class="btn btn-primary w-100" @click="getReviews">검색</button>
                             </b-col>
                         </b-row>
                     </b-col>
