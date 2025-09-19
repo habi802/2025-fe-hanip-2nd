@@ -41,17 +41,17 @@ onMounted(() => {
     });
 });
 
-watch(() => [props.chartData, props.title],
-    ([newData, newTitle]) => {
-        if (chartInstance) {
-            chartInstance.data.labels = newData.label;
-            chartInstance.data.datasets[0].data = newData.data;
-            chartInstance.data.datasets[0].label = newTitle;
-            chartInstance.update();
-        }
-    },
-    { deep: true }
-);
+// watch(() => [props.chartData, props.title],
+//     ([newData, newTitle]) => {
+//         if (chartInstance) {
+//             chartInstance.data.labels = newData.label;
+//             chartInstance.data.datasets[0].data = newData.data;
+//             chartInstance.data.datasets[0].label = newTitle;
+//             chartInstance.update();
+//         }
+//     },
+//     { deep: true }
+// );
 </script>
 
 <template>
