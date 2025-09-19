@@ -212,6 +212,13 @@ const router = createRouter({
       component: () => import("@/views/manager/Stats.vue"),
       meta: { layout: ManagerLayout }
     },
+    // 배달원 페이지
+    {
+      path: "/hanip-rider",
+      name: "rider",
+      component: () => import("@/views/rider/Rider.vue"),
+      meta: { layout: EmptyLayout }
+    },
   ],
 });
 
