@@ -7,6 +7,8 @@ import "@/services/test/mock.js"; //임시 목업데이터
 import VueDatePicker from '@vuepic/vue-datepicker';
 import '@vuepic/vue-datepicker/dist/main.css'
 
+import { setupCalendar } from 'v-calendar';
+
 import { createApp } from 'vue'
 import { createPinia } from 'pinia'
 
@@ -20,5 +22,6 @@ app.use(router)
 app.use(BootstrapVue3)
 
 app.component('VueDatePicker', VueDatePicker);
+setupCalendar(app);
 
 app.mount('#app')
