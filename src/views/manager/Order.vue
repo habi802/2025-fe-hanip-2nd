@@ -24,10 +24,11 @@ lastWeek.setDate(today.getDate() - 7);
 const defaultForm = {
     startDate: lastWeek.toISOString().slice(0, 10),
     endDate: today.toISOString().slice(0, 10),
-    name: '',
-    title: '',
-    comment: '',
-    managerComment: 0,
+    userName: '',
+    storeName: '',
+    address: '',
+    status: '',
+    payment: '',
     pageNumber: pagination.state.pageNumber,
     pageSize: pagination.state.pageSize
 }
@@ -53,13 +54,13 @@ const loadingModalRef = ref(null);
 const getOrders = async () => {
     loadingModalRef.value.open();
 
-    // const res = await getReviewList(state.form);
+    const res = await getOrderList(state.form);
 
-    // if (res !== undefined && res.status === 200) {
-    //     state.reviews = res.data.resultData.content;
+    if (res !== undefined && res.status === 200) {
+        state.orders = res.data.resultData.content;
 
-    //     pagination.state.totalRow = res.data.resultData.totalRow;
-    // }
+        pagination.state.totalRow = res.data.resultData.totalRow;
+    }
 
     loadingModalRef.value.hide();
 };
@@ -82,42 +83,43 @@ const addSelectedItemId = item => {
 // 주문 취소
 const cancelOrder = async () => {
     // 선택한 주문이 없을 경우(체크박스 중 체크된 항목이 없을 경우)
-    // if (ids.length === 0) {
-    //     alertModalRef.value.open('선택한 리뷰가 없습니다.');
-    //     return;
-    // }
+    if (ids.length === 0) {
+        alertModalRef.value.open('선택한 주문이 없습니다.');
+        return;
+    }
 
-    // const isConfirmed = await confirmModalRef.value.showModal('리뷰 상태를 변경하시겠습니까?');
-    // if (isConfirmed) {
-    //     loadingModalRef.value.open();
+    const isConfirmed = await confirmModalRef.value.showModal('주문 취소 시 고객의 결제도 함께 취소됩니다. 주문 상태를 취소로 변경하시겠습니까?');
+    if (isConfirmed) {
+        loadingModalRef.value.open();
 
-    //     const params = { id: ids, isHide };
-    //     const res = await patchIsHide(params);
+        const params = { id: ids, isHide };
+        const res = await patchIsHide(params);
         
-    //     if (res !== undefined && res.status === 200) {
-    //         alertModalRef.value.open('상태가 변경되었습니다.');
+        if (res !== undefined && res.status === 200) {
+            alertModalRef.value.open('상태가 변경되었습니다.');
 
-    //         // 상태가 변경된 항목은 state.reviews 에서 제거
-    //         ids.forEach(id => {
-    //             const idx = state.reviews.findIndex(item => item.reviewId === id);
-    //             if (idx >= 0) {
-    //                 state.reviews.splice(idx, 1);
-    //                 pagination.state.totalRow = pagination.state.totalRow - 1;
-    //             }
-    //         });
-    //     }
+            // 상태가 변경된 항목은 state.orders 에서 제거
+            ids.forEach(id => {
+                const idx = state.orders.findIndex(item => item.reviewId === id);
+                if (idx >= 0) {
+                    state.orders.splice(idx, 1);
+                    pagination.state.totalRow = pagination.state.totalRow - 1;
+                }
+            });
+        }
 
-    //     loadingModalRef.value.hide();
-    // }
+        loadingModalRef.value.hide();
+    }
 };
 
 // 테이블 필드
 const fields = [
-    { key: 'name', label: '작성자' },
-    { key: 'title', label: '제목' },
-    { key: 'comment', label: '내용' },
-    { key: 'createdAt', label: '작성일' },
-    { key: 'managerComment', label: '관리자 답변' },
+    { key: 'createdAt', label: '주문일' },
+    { key: 'userName', label: '주문자명' },
+    { key: 'storeName', label: '상호명' },
+    { key: 'address', label: '배달 주소' },
+    { key: 'status', label: '주문 상태' },
+    { key: 'payment', label: '결제 수단' },
 ];
 
 // 페이지 사이즈 변경
@@ -146,14 +148,14 @@ const order = ref({});
 const goToBoardSection = async item => {
     loadingModalRef.value.open();
 
-    // const res = await getReview(item.reviewId);
+    const res = await getOrder(item.orderId);
 
-    // if (res !== undefined && res.status === 200) {
-    //     review.value = res.data.resultData;
+    if (res !== undefined && res.status === 200) {
+        order.value = res.data.resultData;
 
-    //     // 상세 정보 보여주는 요소로 스크롤 이동
-    //     boardSection.value?.$el.scrollIntoView({ behavior: "smooth" });
-    // }
+        // 상세 정보 보여주는 요소로 스크롤 이동
+        boardSection.value?.$el.scrollIntoView({ behavior: "smooth" });
+    }
 
     loadingModalRef.value.hide();
 };
@@ -170,32 +172,39 @@ onMounted(() => {
             <b-col cols="12">
                 <b-row class="align-items-center">
                     <b-col cols="12" lg="6" xl="4" xxl="3" class="mb-2">
-                        <label for="" class="form-label">작성일</label>
+                        <label for="" class="form-label">주문일</label>
                         <b-row class="align-items-center">
                             <b-col>
-                                <VueDatePicker :enable-time-picker="false" :format="formatDate" v-model="state.form.startDate" />
+                                <VueDatePicker :enable-time-picker="false" :format="formatDate" v-model="state.form.startDate" @update:model-value="date => changeDate('startDate', date)" locale="ko" />
                             </b-col>
                             ~
                             <b-col>
-                                <VueDatePicker :enable-time-picker="false" :format="formatDate" v-model="state.form.endDate" />
+                                <VueDatePicker :enable-time-picker="false" :format="formatDate" v-model="state.form.endDate" @update:model-value="date => changeDate('endDate', date)" locale="ko" />
                             </b-col>
                         </b-row>
                     </b-col>
                     <b-col cols="6" xl="4" xxl="3" class="mb-2">
-                        <label for="loginId" class="form-label">작성자</label>
-                        <b-form-input type="text" id="loginId" v-model="state.form.customerName"></b-form-input>
+                        <label for="loginId" class="form-label">주문자명</label>
+                        <b-form-input type="text" id="loginId" v-model="state.form.userName"></b-form-input>
                     </b-col>
                     <b-col cols="6" xl="4" xxl="3" class="mb-2">
-                        <label for="loginId" class="form-label">제목</label>
-                        <b-form-input type="text" id="loginId" v-model="state.form.title"></b-form-input>
+                        <label for="loginId" class="form-label">상호명</label>
+                        <b-form-input type="text" id="loginId" v-model="state.form.storeName"></b-form-input>
                     </b-col>
                     <b-col cols="6" xl="4" xxl="3" class="mb-2">
-                        <label for="loginId" class="form-label">내용</label>
-                        <b-form-input type="text" id="loginId" v-model="state.form.comment"></b-form-input>
+                        <label for="loginId" class="form-label">배달 주소</label>
+                        <b-form-input type="text" id="loginId" v-model="state.form.address"></b-form-input>
                     </b-col>
                     <b-col cols="6" xl="4" xxl="3" class="mb-2">
-                        <label for="provider" class="form-label">관리자 답변</label>
-                        <b-form-select id="provider" v-model="state.form.managerComment">
+                        <label for="provider" class="form-label">주문 상태</label>
+                        <b-form-select id="provider" v-model="state.form.status">
+                            <option value="0">미등록</option>
+                            <option value="1">등록</option>
+                        </b-form-select>
+                    </b-col>
+                    <b-col cols="6" xl="4" xxl="3" class="mb-2">
+                        <label for="provider" class="form-label">결제 수단</label>
+                        <b-form-select id="provider" v-model="state.form.payment">
                             <option value="0">미등록</option>
                             <option value="1">등록</option>
                         </b-form-select>
@@ -207,7 +216,7 @@ onMounted(() => {
                                 <button class="btn btn-secondary w-100" @click="resetForm">초기화</button>
                             </b-col>
                             <b-col>
-                                <button class="btn btn-primary w-100">검색</button>
+                                <button class="btn btn-primary w-100" @click="getOrders">검색</button>
                             </b-col>
                         </b-row>
                     </b-col>
@@ -252,6 +261,10 @@ onMounted(() => {
             </b-col>
         </b-row>
     </b-container>
+
+    <LoadingModal ref="loadingModalRef" />
+    <AlertModal ref="alertModalRef" />
+    <ConfirmModal ref="confirmModalRef" />
 </template>
 
 <style scoped>

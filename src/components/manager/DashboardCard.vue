@@ -6,6 +6,8 @@ const props = defineProps({
     board: String,
     table: Object
 });
+
+const managerPath = import.meta.env.VITE_MANAGER_PATH;
 </script>
 
 <template>
@@ -13,7 +15,7 @@ const props = defineProps({
         <template #header>
             <div class="d-flex justify-content-between align-items-center">
                 <span>{{ props.title }}</span>
-                <a :href="`/${props.board}`" class="btn btn-sm btn-primary">더보기</a>
+                <a :href="`/hanip${managerPath}/${props.board}`" class="btn btn-sm btn-primary">더보기</a>
             </div>
         </template>
 
