@@ -175,8 +175,17 @@ const idCheck = async () => {
         </div>
         <div class="textBox">
           <div>{{ props.order?.storeName || "null" }}</div>
+
+          <div class="menumeta">
+          <span class="star">⭐{{ props.order?.rating || "4.8" }} ({{ props.order?.reviews || "983" }})</span>
+          <span class="heart">❤️ {{ props.order?.likes || "927" }}</span>
+        </div>
+        <div class="menuminimum">
+          최소 주문 금액 {{ props.order?.minPrice || "10,000원" }}
         </div>
       </div>
+        </div>
+        
       <!-- 카드 중앙 [ 메뉴 이름, 갯수, 가격 ] -->
       <div class="boardMiddle">
         <div class="menuBox">
@@ -297,10 +306,26 @@ const idCheck = async () => {
         font-weight: 700;
         margin-left: 10px;
         margin-top: 10px;
-        text-align: center;
-      }
+        text-align: left;
+      
+      
+      .menumeta{
+      display: flex;
+      justify-content: flex-start;
+      align-items: center;
+      gap: 12px;
+      font-size: 18px;
+      margin-bottom: 6px;
     }
 
+    .menuminimum{
+      font-size: 13px;
+      color: #6c6c6c;
+      text-align: left;
+      margin-bottom: 12px;
+    }
+    }
+  }
     .boardMiddle {
       width: 500px;
       margin-top: 20px;
