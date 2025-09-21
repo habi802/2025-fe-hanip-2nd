@@ -1,15 +1,15 @@
-import axios from './httpRequester';
+import axios from "./httpRequester";
 
-const path = '/menu';
+const path = "/menu";
 
 // 메뉴 추가
 export const saveMenu = (menuData) => {
   const config = {
     headers: {
-      'Content-Type': 'multipart/form-data',
+      "Content-Type": "multipart/form-data",
     },
   };
-  return axios.post(path, menuData,config).catch((e) => e.response);
+  return axios.post(path, menuData, config).catch((e) => e.response);
 };
 
 // 가게 메뉴 전체 조회
@@ -19,7 +19,7 @@ export const getOneMenu = (storeId) => {
 
 // 메뉴 조회
 export const getMenus = (menuId) => {
-  return axios.get(path, { params: menuId }).catch((e) => e.response);
+  return axios.get(`${path}/${menuId}`).catch((e) => e.response);
 };
 
 // 로그인 아이디에 따른 가게 메뉴 조회
@@ -31,10 +31,10 @@ export const getStoreIdAndMenus = () => {
 export const modifyMenu = (menuData) => {
   const config = {
     headers: {
-      'Content-Type': 'multipart/form-data',
+      "Content-Type": "multipart/form-data",
     },
   };
-  return axios.put(path, menuData,config).catch((e) => e.response);
+  return axios.put(path, menuData, config).catch((e) => e.response);
 };
 
 // 메뉴 삭제
