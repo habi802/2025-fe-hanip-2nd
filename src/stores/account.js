@@ -60,7 +60,7 @@ export const useOwnerStore = defineStore('owner',
                 if (res.status === 200 && res.data.resultData) {
                     state.storeId = res.data.resultData.id;
                     state.storeData = res.data.resultData; // ✅ 추가
-                    console.log("✅ 저장된 storeData:", this.storeData);
+                    console.log("✅ 저장된 storeData:", state.storeData);
                 } else {
                     console.error('가게 정보 불러오기 실패', res);
                 }

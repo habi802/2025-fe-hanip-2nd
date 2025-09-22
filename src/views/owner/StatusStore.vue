@@ -1,9 +1,40 @@
 <script setup>
-import { ref } from 'vue';
+import { reactive, ref } from 'vue';
+import { useOwnerStore } from '@/stores/account';
 import StoreStatusStaticInfo from '@/components/owner/StoreStatusStaticInfo.vue';
 import StoreStatusControl from '@/components/owner/StoreStatusControl.vue';
 
+const owner = useOwnerStore();
+
+const state = reactive({
+    form: {
+        dynamic: {
+            isOpen: owner.state.storeData.isOpen,
+            openTime: owner.state.storeData.openTime,
+            closeTime: owner.state.storeData.closeTime,
+            closedDay: owner.state.storeData.closedDay,
+            minAmount: owner.state.storeData.minAmount,
+            isPickUp: owner.state.storeData.isPickUp,
+            eventComment: owner.state.storeData.eventComment
+        },
+        static: {
+            tel1: owner.state.storeData.tel.split('-')[0],
+            tel2: owner.state.storeData.tel.split('-')[1],
+            tel3: owner.state.storeData.tel.split('-')[2],
+            imagePath: owner.state.storeData.imagePath,
+            comment: owner.state.storeData.comment
+        }
+    }
+});
+
 const selected = ref('control');
+
+// 가게 정보 저장
+const updateStore = async () => {
+    console.log(state.form);
+
+    
+};
 </script>
 
 <template>
@@ -18,13 +49,13 @@ const selected = ref('control');
         </div>
 
         <div class="white-card">
-            <StoreStatusStaticInfo v-if="selected === 'basic'" />
-            <StoreStatusControl v-if="selected === 'control'" />
+            <StoreStatusControl v-if="selected === 'control'" :form="state.form.dynamic" @update-form="val => state.form.dynamic = val" />
+            <StoreStatusStaticInfo v-if="selected === 'basic'" :form="state.form.static" @update-form="val => state.form.static = val" />
             <div class="btn-wrap">
                 <span>** 가게 정보 수정 시 내용을 꼭 확인해주세요.** </span>
                 <div class="button-row">
                 <button class="btn-cancle">취소</button>
-                <button class="owner-btn-white">저장하기</button>
+                <button type="button" class="owner-btn-white" @click="updateStore">저장하기</button>
                 </div>
             </div>
         </div>
@@ -33,7 +64,7 @@ const selected = ref('control');
 
 
 <style lang="scss" scoped>
-.section-wrap{
+.section-wrap {
     width: 95%;
     height: 95%;
     display: flex;
@@ -42,7 +73,7 @@ const selected = ref('control');
     align-items: center;
 }
 
-.white-card{
+.white-card {
     width: 100%;
     height: 100%;
     display: flex;
