@@ -8,7 +8,7 @@ export const getOrder = () => {
   return axios.get(`/order`).catch((e) => e.response);
 };
 
-export const activeStore = (id) => {
+export const patchIsOpen = (id) => {
   return axios.patch(`/store/${id}`).catch((e) => e.response);
 };
 
