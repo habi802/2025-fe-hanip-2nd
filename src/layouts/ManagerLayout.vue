@@ -1,8 +1,9 @@
 <script setup>
+import '@/assets/manager/manager.css';
+
 import LogoutButton from '@/components/manager/LogoutButton.vue';
 import Sidebar from '@/components/manager/Sidebar.vue';
 import Header from '@/components/manager/Header.vue';
-import '@/assets/manager/manager.css';
 </script>
 
 <template>

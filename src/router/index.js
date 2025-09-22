@@ -1,7 +1,5 @@
 import { createRouter, createWebHistory } from "vue-router";
-
-import { useAccountStore } from "@/stores/account";
-
+import { useAccountStore, useUserInfo } from "@/stores/account";
 import CustomerLayout from "@/layouts/CustomerLayout.vue";
 import OwnerLayout from "@/layouts/OwnerLayout.vue";
 import ManagerLayout from "@/layouts/ManagerLayout.vue";
@@ -159,9 +157,9 @@ const router = createRouter({
       meta: { layout: OwnerLayout },
     },
     {
-    path: "/owner/status",
-    component: () => import("@/views/owner/StatusStore.vue"),
-    meta: { layout: OwnerLayout },
+      path: "/owner/status",
+      component: () => import("@/views/owner/StatusStore.vue"),
+      meta: { layout: OwnerLayout },
     },
     // 관리자 페이지
     {
@@ -223,14 +221,21 @@ const router = createRouter({
 });
 
 const managerPath = import.meta.env.VITE_MANAGER_PATH;
-const managerPathList = [ `${managerPath}/login` ];
+const managerPathList = [`${managerPath}`, `${managerPath}/user`, `${managerPath}/store`, `${managerPath}/order`, `${managerPath}/review`, `${managerPath}/recommand`, `${managerPath}/stats`];
+const managerLoginPath = [`${managerPath}/login`];
 
 router.beforeEach((to, from) => {
   const account = useAccountStore();
-  // if (managerPathList.includes(to.path) && (!account.state.loggedIn || account.state.loggedIn)) {
-  //   // 로그인 상태가 아니거나, 관리자가 아닌 계정으로 로그인한 상태로 관리자 페이지로 이동하려고 하는 경우
-  //   return { path: '/' };
-  // }
+  const user = useUserInfo();
+  if (managerLoginPath.includes(to.path) && (account.state.loggedIn && user.state.userData.role !== '관리자')) {
+    // 관리자가 아닌 계정으로 관리자 로그인 페이지로 이동하려고 하는 경우
+    return { path: '/' };
+  }
+
+  if (managerPathList.includes(to.path) && (!account.state.loggedIn || (account.state.loggedIn && user.state.userData.role !== '관리자'))) {
+    // 로그인 상태가 아니거나, 관리자가 아닌 계정으로 로그인한 상태로 관리자 페이지로 이동하려고 하는 경우
+    return { path: '/' };
+  }
 });
 
 export default router;
