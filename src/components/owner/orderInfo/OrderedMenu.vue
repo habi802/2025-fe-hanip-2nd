@@ -58,7 +58,7 @@ section{
 
   tbody {
     display: block;      // tbody를 블록으로 만들어서 스크롤 가능하게
-    max-height: 42vh;  // 원하는 높이
+    max-height: 100%; //42vh;  // 원하는 높이
     overflow-y: auto;    // 세로 스크롤
     overflow-x: hidden;
   }

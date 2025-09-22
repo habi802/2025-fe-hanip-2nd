@@ -57,7 +57,6 @@ const onRowClick = (rowData)=>{
         <div>주문상태</div>
       </div>
 
-      <!-- 스크롤 가능한 바디 -->
       <div class="grid-body scrollbar">
         <div class="grid-table underline " v-for="n in 4" :key="n"
           role="button"
