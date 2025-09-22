@@ -25,4 +25,6 @@ app.use(pinia).use(router).use(BootstrapVue3)
 app.component('VueDatePicker', VueDatePicker);
 setupCalendar(app);
 
-app.mount('#app')
+router.isReady().then(() => {
+    app.mount('#app');
+});
