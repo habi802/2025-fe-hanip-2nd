@@ -214,15 +214,15 @@ onUnmounted(() => {
             </div>
             <ul class="nav nav-pills flex-column gap-4 align-items-center">
                 <li class="nav-item" v-for="menu in menus" :key="menu.text">
-                    <RouterLink :to="!isOpen && menu.text === '대시보드' ? '#' : menu.path"
+                    <RouterLink :to="menu.path"
                         class="nav-link w-80 text-center size d-flex justify-content-center align-items-center" :style="{
-                        backgroundColor: route.path === menu.path ? '#f66463' : '#dddddd',
-                        color:
-                            route.path === menu.path
-                            ? '#FFFFFF !important'
-                            : '#333333 !important',
-                        fontSize: '17px',
-                        }" @click.prevent="!isOpen ? null : null">
+                            backgroundColor: route.path === menu.path ? '#f66463' : '#dddddd',
+                            color:
+                                route.path === menu.path
+                                ? '#FFFFFF !important'
+                                : '#333333 !important',
+                            fontSize: '17px',
+                        }">
                         {{ menu.text }}
                     </RouterLink>
                 </li>
