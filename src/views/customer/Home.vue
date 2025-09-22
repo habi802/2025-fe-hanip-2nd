@@ -1,15 +1,65 @@
 <script setup>
 import '@/assets/customer/customer.css'
 
-import { onMounted } from 'vue';
+import { onMounted, nextTick } from 'vue';
 import Category from '@/components/customer/Category.vue';
 import HomeImg from '@/components/customer/HomeImg.vue';
 import Guide from '@/components/customer/Guide.vue';
 import RecommendStore from '@/components/customer/RecommendStore.vue';
+import { useRoute } from 'vue-router';
+import { naverGetCid } from '@/services/payment';
 
-// onMounted(() => {
-//     window.addEventListener('scroll', handleScroll);
-// });
+
+const route = useRoute();
+
+onMounted(() => {
+    // 라우터가 처음 로드됐을 때
+    naverPay();
+
+    // 쿼리가 나중에 들어오는 경우 대비
+    watch(
+        () => route.query,
+        (newQuery) => {
+            if (newQuery.orderId && newQuery.paymentId) {
+                console.log("watch로 쿼리 감지!", newQuery);
+                naverPay();
+            }
+        },
+        { immediate: true } // 처음에도 바로 실행
+    );
+});
+
+const naverPay = async () => {
+    if (route.query.orderId && route.query.paymentId) {
+        console.log("쿼리로 들어옴!", route.query);
+
+        const orderId = parseInt(route.query.orderId);
+        const paymentId = route.query.paymentId;
+
+
+        if (orderId || paymentId) {
+
+            const payreq = {
+                paymentId: route.query.paymentId
+            }
+
+            console.log("orderId", orderId);
+            console.log("paymentId", paymentId);
+
+            const tid = await naverGetCid(orderId, payreq);
+            console.log("cid 주입 완료", tid);
+
+        }
+
+
+    } else {
+        console.log("쿼리 없이 들어옴!");
+    }
+
+}
+
+
+
 
 const arrow = () => {
     window.scrollTo({

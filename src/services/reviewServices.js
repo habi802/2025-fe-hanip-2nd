@@ -44,3 +44,10 @@ export const putReview = (formData) => {
 export const getReviewOne = (orderId) => {
   return axios.get(`${path}/${orderId}`).catch((e) => e.response);
 };
+
+
+// 사장 코멘트 달린 리뷰 리스트 조회
+
+export const getOwnerCommentList = (storeId)=>{
+  return axios.get(`${path}/owner/comment/${storeId}`).catch((e)=> e.response);
+}

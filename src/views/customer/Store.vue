@@ -3,7 +3,7 @@ import { onMounted, reactive, ref, computed } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { getStore, getStoreList } from "@/services/storeService";
 import { getOneMenu } from "@/services/menuService";
-import { getReviewsByStoreId } from "@/services/reviewServices";
+import { getReviewsByStoreId, getOwnerCommentList } from "@/services/reviewServices";
 import { getFavorite, addFavorite, deleteFavorite } from "@/services/favoriteService";
 import { updateQuantity, removeItem, removeCart } from "@/services/cartService";
 import { useAccountStore } from "@/stores/account";
@@ -52,35 +52,7 @@ const state = reactive({
 // 장바구니 총 금액 표시하기 위한 변수
 const totalPrice = ref(0);
 
-// 가게 상세 조회하는 함수
-const loadStore = async (id) => {
-  const res = await getStore(id);
 
-  // 가게 상세 조회 실패 시(API에 알 수 없는 오류가 발생하거나 가게 테이블에 없는 데이터를 조회하려고 할 경우) 홈으로 돌아감
-  // 주소창에 입력해서 강제로 들어가는 것을 방지하기 위함
-  if (res === undefined || res.data.resultStatus !== 200) {
-    alertModal.value.showModal('조회에 실패하였습니다.');
-    router.push({ path: "/" });
-    return;
-  }
-
-  state.store = res.data.resultData;
-  console.log("state", state.store);
-
-  showMap(state.store.address);
-
-  //
-  const storeInfo = await getStoreList({ searchText: state.store.name });
-
-  // console.log("storeInfo", storeInfo);
-
-  state.storeInfo = storeInfo.data.resultData;
-  // console.log("storeInfo :", state.storeInfo[0]);
-  // console.log("storeId:", state.store.id);
-
-  // 조회 성공 시 가게 찜 추가 여부 조회 함수 호출
-  loadFavorite(id);
-};
 
 // 지도를 보여주는 함수
 let lat = 37.5665;
@@ -207,32 +179,32 @@ const loadCarts = async (id) => {
 };
 
 // 찜 목록 추가/삭제 함수
-const toggleFavorite = async (id) => {
-  if (account.state.loggedIn) {
-    const storeId = Number(id);
+// const toggleFavorite = async (id) => {
+//   if (account.state.loggedIn) {
+//     const storeId = Number(id);
 
-    console.log('[찜 토글 시도]', storeId);
+//     console.log('[찜 토글 시도]', storeId);
 
-    const res = state.store.favorite
-      ? await deleteFavorite(storeId)
-      : await addFavorite({ storeId });
+//     const res = state.store.favorite
+//       ? await deleteFavorite(storeId)
+//       : await addFavorite({ storeId });
 
-    if (res === undefined || res.data.resultStatus !== 200) {
-      // alert("찜 상태 변경 실패");
-      alertModal.value.showModal('찜하기에 실패하였습니다.');
-      return;
-    }
+//     if (res === undefined || res.data.resultStatus !== 200) {
+//       // alert("찜 상태 변경 실패");
+//       alertModal.value.showModal('찜하기에 실패하였습니다.');
+//       return;
+//     }
 
-    state.store.favorite = !state.store.favorite;
+//     state.store.favorite = !state.store.favorite;
 
-    // Pinia store에도 업데이트
-    favoriteStore.toggleFavorite(storeId);
-    console.log('찜 상태 저장됨:', favoriteStore.state.storeIds);
+//     // Pinia store에도 업데이트
+//     favoriteStore.toggleFavorite(storeId);
+//     console.log('찜 상태 저장됨:', favoriteStore.state.storeIds);
 
-    loadReviews(id);
-    loadStore(id);
-  }
-};
+//     loadReviews(id);
+//     loadStore(id);
+//   }
+// };
 
 // 장바구니 추가 함수(Menu.vue 컴포넌트에서 받아옴)
 const addCart = (newItem) => {
@@ -358,11 +330,6 @@ const toOrder = () => {
   router.push({ path: `/stores/${route.params.id}/order` });
 };
 
-onMounted(() => {
-  const storeId = route.params.id;
-
-  loadStore(storeId);
-});
 
 // 메뉴랑 리뷰보기 v-if 설정 함수
 
@@ -398,7 +365,7 @@ const reviewbutton = () => {
 const imgSrc = computed(() => {
 
   return state.store && state.store?.imagePath && state.store?.imagePath !== 'null'
-    ? `/pic/store-profile/${state.store.id}/${state.store?.imagePath}`
+    ? `/pic/store-profile/${store.storeInfo.id}/${store.storeInfo?.imagePath}`
     : defaultImage;
 
 })
@@ -420,6 +387,96 @@ const arrow = () => {
     behavior: 'smooth',
   });
 };
+
+
+
+// 새로 만든 함수
+import { getStoreId } from "@/services/storeService";
+
+
+onMounted(() => {
+  const storeId = route.params.id;
+  getStoreInfo(storeId);
+});
+
+
+
+const store = reactive({
+  storeInfo: Object,
+  reveiw: [],
+  openTime: null,
+  closeTime: null,
+  ownerComment: [],
+  todayReviewCount: 0
+})
+
+const getStoreInfo = async (id) => {
+
+  const res = await getStoreId(id);
+  store.storeInfo = res.data.resultData;
+
+  console.log("새로 가져온 스토어 정보", store.storeInfo)
+
+  const addressTest = `${store.storeInfo.address} ${store.storeInfo.addressDetail}`;
+
+  showMap(addressTest);
+
+  const reviewRes = await getReviewsByStoreId(id);
+  store.reveiw = reviewRes.data.resultData;
+  console.log("리뷰", store.reveiw)
+
+
+
+
+
+  const openTime = store.storeInfo.openTime;
+  const slideOpenTime = openTime.substring(0, 5);
+  store.openTime = slideOpenTime;
+
+  const closeTime = store.storeInfo.closeTime;
+  const slideCloseTime = closeTime.substring(0, 5);
+  store.closeTime = slideCloseTime
+
+  const ownerCommentList = await getOwnerCommentList(id);
+  store.ownerComment = ownerCommentList.data.resultData;
+
+  const today = new Date();
+  const todayString = today.toISOString().split('T')[0];
+
+  // 오늘 작성한 리뷰 개수 계산
+  const todayReviewCount = store.reveiw.filter(r => {
+    const reviewDate = r.createdAt.split(' ')[0];
+    return reviewDate === todayString;
+  }).length;
+
+  store.todayReviewCount = todayReviewCount;
+}
+
+
+
+const toggleFavorite = async (id) => {
+
+
+  const res = store.storeInfo.favorites
+    ? await deleteFavorite(id)
+    : await addFavorite({ storeId: id });
+
+  store.storeInfo.favorites = !store.storeInfo.favorites;
+
+
+
+
+
+
+}
+
+const getStoreMenu = () => {
+
+}
+
+
+
+
 </script>
 
 <template>
@@ -430,22 +487,24 @@ const arrow = () => {
 
     <div class="store-title-box">
       <div class="store-name">
-        {{ state.store.name }}
+        {{ store.storeInfo.name }}
       </div>
       <div class="title-box">
         <div class="title-info">
           <span>
-            <img class="restar" src="/src/imgs/starBoard.png" />
+            <div class="star">★</div>
           </span>
           <span class="star-num">
-            {{ isNaN(state.reviewNum) ? 0 : state.reviewNum }}
+            {{ store.storeInfo.rating }}
           </span>
-          <span class="text-color review-length star-num">( {{ state.reviews.length }} )</span>
+          <!-- 이거 수정 -->
+          <span class="text-color review-length star-num">( {{ store.reveiw.length }} )</span>
           <span>
-            <img class="favorite" @click="toggleFavorite(state.store.id)" :src="state.store.favorite ? lovet : lovef" />
+            <div class="favorite" @click="toggleFavorite(store.storeInfo.id)">{{ store.storeInfo.favorites ? "♥" : "♡"
+            }}</div>
           </span>
           <span class="favorite-num">
-            {{ state.storeInfo[0]?.favorites }}
+            {{ store.storeInfo.favorites ? store.storeInfo.favorites + 0 : store.storeInfo.favorites + 0 }}
           </span>
         </div>
       </div>
@@ -455,7 +514,7 @@ const arrow = () => {
         <!-- 가게 맵이 뜨는 왼쪽 박스 -->
         <div class="one-info-map">
           <div id="map" class="map-box"></div>
-          <span class="address-text">{{ state.store.address }}</span>
+          <span class="address-text">{{ store.storeInfo.address }} {{ store.storeInfo.addressDetail }}</span>
         </div>
 
         <div class="two-info-store">
@@ -463,24 +522,24 @@ const arrow = () => {
           <div class="store-info">
             <div class="name">
               <div class="text-color">상호명</div>
-              <div>{{ state.store.name }}</div>
+              <div>{{ store.storeInfo.name }}</div>
             </div>
             <!-- 하드코딩 -->
             <div class="open-time">
               <div class="text-color">운영시간</div>
-              <div>09:00 ~ 21:00</div>
+              <div>{{ store.openTime }} ~ {{ store.closeTime }}</div>
             </div>
             <div class="close-day">
               <div class="text-color">휴무일</div>
-              <div>매주 목요일</div>
+              <div>매주 {{ store.storeInfo.closedDay }}</div>
             </div>
             <div class="phone">
               <div class="text-color">전화번호</div>
-              <div>000-0000-0000</div>
+              <div>{{ store.storeInfo.businessNumber }}</div>
             </div>
             <div class="min-amount">
               <div class="text-color">최소 주문 금액</div>
-              <div>10,000원 이상</div>
+              <div>{{ store.storeInfo.minAmount }}원 이상</div>
             </div>
             <!-- 가게 소개 -->
             <div class="comment-title">
@@ -488,7 +547,7 @@ const arrow = () => {
               <hr>
               </hr>
               <div class="comment">
-                안녕하심까 닭도리탕 하나는 기가맥히게 끓이는 그..네..뭐..네..입니다.
+                {{ store.storeInfo.comment }}
               </div>
             </div>
             <div class="delivery-fee">
@@ -500,7 +559,7 @@ const arrow = () => {
                   기본
                 </div>
                 <div>
-                  3000원
+                  {{ store.storeInfo.minDeliveryFee }}원 이상
                 </div>
               </div>
             </div>
@@ -517,20 +576,17 @@ const arrow = () => {
               <hr>
               </hr>
               <div class="statistics-info">
-                <div>
-                  <!-- 주문 수 하드코딩 추가 바람 -->
-                  최근 주문 수 800+
+
+                <div> 전체 리뷰 수 {{ store.storeInfo.rating }}</div>
+                <div>찜 {{ store.storeInfo.favorites ? store.storeInfo.favorites + 0 : store.storeInfo.favorites + 0 }}
                 </div>
-                <div> 전체 리뷰 수 {{ state.reviews.length }}</div>
-                <div>찜 {{ state.storeInfo[0]?.favorites }}</div>
               </div>
               <div class="event">
                 <div class="text-color">이벤트 알림</div>
                 <hr>
                 </hr>
                 <div class="event-text" style="white-space: pre-line;">
-                  *리뷰이벤트공지*
-                  리뷰 해주시면 음료수 서비스로 드려요~
+                  {{ store.storeInfo.eventComment }}
                 </div>
               </div>
             </div>
@@ -594,8 +650,8 @@ const arrow = () => {
                     <div class="review-data">
                       <div>
                         <div class="review-text">가게 전체 평점</div>
-                        <span class="star" v-for="n in Math.floor(state.reviewNum || 0)" :key="n"
-                          v-if="state.reviewNum && state.reviewNum > 0">
+                        <span class="star" v-for="n in Math.floor(store.storeInfo.rating || 0)" :key="n"
+                          v-if="store.storeInfo.rating && store.storeInfo.rating > 0">
                           <img class="starImg" src="/src/imgs/starBoard.png" />
                         </span>
                         <span class="star" v-else>
@@ -605,7 +661,7 @@ const arrow = () => {
                           <img class="starImg" src="/src/imgs/starNull.png" />
                           <img class="starImg" src="/src/imgs/starNull.png" />
                         </span>
-                        <div class="review-num ">{{ isNaN(state.reviewNum) ? 0 : state.reviewNum }}</div>
+                        <div class="review-num ">{{ isNaN(store.storeInfo.rating) ? 0 : store.storeInfo.rating }}</div>
                       </div>
                       <!-- 오른쪽 텍스트 -->
                       <div class="left-box">
@@ -613,16 +669,16 @@ const arrow = () => {
                           <span>
                             총 리뷰 수
                           </span>
-                          <span class="count-num"> {{ state.reviews.length }}개</span>
+                          <span class="count-num"> {{ store.reveiw.length }}개</span>
                         </div>
                         <!-- 하드코딩 -->
                         <div>
                           <span>오늘 새로 달린 리뷰</span>
-                          <span class="count-num">10개</span>
+                          <span class="count-num">{{ store.todayReviewCount }}개 </span>
                         </div>
                         <div>
                           <span>사장님 댓글</span>
-                          <span class="count-num"> {{ state.ownerCommentNum }}개</span>
+                          <span class="count-num"> {{ store.ownerComment.length }}개</span>
                         </div>
                       </div>
                     </div>
@@ -660,6 +716,20 @@ const arrow = () => {
 </template>
 
 <style lang="scss" scoped>
+@font-face {
+  font-family: 'YFavorite';
+  src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/2410-1@1.0/YOnepickTTF-Regular.woff2') format('woff2');
+  font-weight: 400;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Binggre';
+  src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_one@1.0/Binggrae.woff') format('woff');
+  font-weight: normal;
+  font-display: swap;
+}
+
 .arrow {
   position: sticky;
   width: 3.8%;
@@ -706,7 +776,11 @@ const arrow = () => {
 
 
 .favorite {
+  font-family: 'YFavorite';
+  font-size: 1.25em;
+  color: red;
   width: 20px;
+  margin-bottom: 2px;
   cursor: pointer;
 }
 
@@ -849,7 +923,6 @@ const arrow = () => {
 .review-num {
   font-family: "BMJUA";
   font-size: 50px;
-  margin-top: -10px;
   color: #FF6666;
 }
 
@@ -895,6 +968,7 @@ const arrow = () => {
 
 .restar {
   width: 20px;
+  margin-bottom: 3px;
 }
 
 #order {
@@ -929,12 +1003,22 @@ const arrow = () => {
   font-family: "BMJUA";
 }
 
+.star {
+  font-family: 'Binggre';
+  font-size: 1.3em;
+  color: #FAC729;
+  width: 20px;
+}
+
 .star-num {
   font-family: "BMJUA";
+
 }
 
 .favorite-num {
+  width: 10px;
   font-family: "BMJUA";
+
 }
 
 .title-box {

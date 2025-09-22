@@ -32,4 +32,12 @@ export const getOwnerStore = () => {
   return axios.get("/store/owner").catch((e) => e.response);
 };
 
+
+
+
+// 새로 만든 서비스
+export const getStoreId = (storeId)=> {
+  return axios.get(`/store/${storeId}`).catch((e)=>e.response);
+}
+
 export default axios;
