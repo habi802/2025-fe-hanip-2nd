@@ -698,7 +698,7 @@ const caLink = async () => {
   align-items: center;
   gap: 12px;
   justify-content: flex-end;
-  font-size: 14px;
+  font-size: 18px;
   color: #ff7b7b;
 }
 

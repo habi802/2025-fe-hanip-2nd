@@ -199,7 +199,7 @@ const showModal = (message) => {
       </div> -->
     </div>
 
-    <div class="filterandsearch">
+    <!-- <div class="filterandsearch">
       <div class="filterbox">
         <select v-model="sleectedFilter" class="dropdown">
           <option :value="default">최근순</option>
@@ -209,7 +209,8 @@ const showModal = (message) => {
           <option value="6months">6개월</option>
         </select>
       </div>
-    </div>
+    </div> -->
+    
 
     <div class="board-box">
       <!-- 하단 주문 내역 -->
@@ -237,6 +238,27 @@ const showModal = (message) => {
           />
         </div>
       </div>
+      <div class="sort-options">
+  <span>
+    최근순
+  </span>
+  <span class="divider">|</span>
+  <span>
+    일주일
+  </span>
+  <span class="divider">|</span>
+  <span>
+    1개월
+  </span>
+  <span class="divider">|</span>
+  <span>
+    3개월
+  </span>
+  <span class="divider">|</span>
+  <span>
+    기간선택
+  </span>
+</div>
 
       <div
         v-for="order in visibleCards"
@@ -250,6 +272,7 @@ const showModal = (message) => {
         />
       </div>
     </div>
+    
 
     <!-- 미리보기 용 -->
     <!-- <order-and-review></order-and-review>
@@ -441,6 +464,7 @@ const showModal = (message) => {
 .all-box {
   display: flex;
   flex-wrap: wrap;
+  max-width: 1920px;
   width: 100%;
   justify-content: center;
   font-family: 'BMJUA';
@@ -448,11 +472,12 @@ const showModal = (message) => {
   overflow: clip;
 
   .orderList {
-    font-weight: 800;
+    font-weight: 500;
     text-align: center;
     margin-bottom: -50px;
 
     .ordertext {
+      font-weight: 600;
       font-size: 30px;
       margin-top: 20px;
     }
@@ -479,17 +504,18 @@ const showModal = (message) => {
   display: flex;
   align-items: center;
   margin-bottom: -37px;
+  max-width: 1400px;
 }
 
 .filterbox {
-  flex: 0 0 120px;
-  position: relative;
+  flex: 0 0 120px !important;
+  position: relative !important;
 }
 
 .dropdown {
   position: absolute;
   top: 260px;
-  left: -1360px;
+  right: 1230px;
   width: 250px;
   height: 55px;
   font-size: 22px;
@@ -539,6 +565,7 @@ const showModal = (message) => {
   justify-content: center;
   font-family: 'Pretendard-Regular';
   width: 1400px;
+  max-width: 100%;
 
   font-size: 1.4em;
   letter-spacing: -1.5px;
@@ -857,5 +884,29 @@ const showModal = (message) => {
   &:hover {
     opacity: 80%;
   }
+}
+// 검색 카테고리
+.sort-options {
+  position: absolute;
+  max-width: 1200px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 18px;
+  color: #ff7b7b;
+  margin-top: 270px;
+  margin-left: 1100px
+}
+
+.sort-options span {
+  cursor: pointer;
+}
+
+.sort-options .divider {
+  color: #ffa5a5;
+}
+
+.sort-options .active {
+  color: #ff4c4c;
 }
 </style>

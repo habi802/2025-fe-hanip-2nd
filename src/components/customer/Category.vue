@@ -45,25 +45,22 @@ const pizzaLink = () => {
 const nightLink = () => {
   router.push({ path: "/categoryList", query: { section: "night" } });
 };
+
+const aaa = () => {
+  router.push("/order-test")
+}
+
+
+
 </script>
 <!--           class="form-control p-3 me-3" -->
 <template>
   <div class="all">
     <div class="box d-flex">
       <div class="searchBar">
-        <input
-          v-model="search"
-          @keyup.enter="caLink"
-          type="text"
-          id="title"
-          class="searchBox"
-          placeholder="찾는 맛집 이름,메뉴가 무엇인가요?"
-        />
-        <img
-          @click="caLink"
-          class="searchImg"
-          src="/src//imgs/fluent_search.png"
-        />
+        <input v-model="search" @keyup.enter="caLink" type="text" id="title" class="searchBox"
+          placeholder="찾는 맛집 이름,메뉴가 무엇인가요?" />
+        <img @click="caLink" class="searchImg" src="/src//imgs/fluent_search.png" />
       </div>
     </div>
     <div class="textBox"></div>
@@ -78,31 +75,19 @@ const nightLink = () => {
           </div>
           <div class="koreanfood">
             <div class="imgBox">
-              <img
-                @click="koreanLink"
-                id="cImg"
-                src="/src/imgs/koreanfood.png"
-              />
+              <img @click="koreanLink" id="cImg" src="/src/imgs/koreanfood.png" />
             </div>
             <div id="cName">한식</div>
           </div>
           <div class="jjajangmyeon">
             <div class="imgBox">
-              <img
-                @click="chinaLink"
-                id="cImg"
-                src="/src/imgs/jjajangmyeon.png"
-              />
+              <img @click="chinaLink" id="cImg" src="/src/imgs/jjajangmyeon.png" />
             </div>
             <div id="cName">중식</div>
           </div>
           <div class="porkcutlet">
             <div class="imgBox">
-              <img
-                @click="japanLink"
-                id="cImg"
-                src="/src/imgs/porkcutlet.png"
-              />
+              <img @click="japanLink" id="cImg" src="/src/imgs/porkcutlet.png" />
             </div>
             <div id="cName">일식</div>
           </div>
@@ -122,36 +107,23 @@ const nightLink = () => {
         <div id="categoryItems" class="categoryItem2 d-flex">
           <div class="tteokbokki">
             <div class="imgBox">
-              <img
-                @click="snackLink"
-                id="cImg"
-                src="/src/imgs/tteokbokki.png"
-              />
+              <img @click="snackLink" id="cImg" src="/src/imgs/tteokbokki.png" />
             </div>
             <div id="cName">분식</div>
           </div>
           <div class="hamburger">
             <div class="imgBox">
-              <img
-                @click="fastFoodLink"
-                id="cImg"
-                src="/src/imgs/hamburger.png"
-              />
+              <img @click="fastFoodLink" id="cImg" src="/src/imgs/hamburger.png" />
             </div>
             <div id="cName">패스트푸드</div>
           </div>
           <div class="ricenoodles">
             <div class="imgBox">
-              <img
-                @click="asianLink"
-                id="cImg"
-                class="asia"
-                src="/src/imgs/nd.png"
-              />
+              <img @click="asianLink" id="cImg" class="asia" src="/src/imgs/nd.png" />
             </div>
             <div id="cName">아시안</div>
           </div>
-          
+
           <div class="chicken">
             <div class="imgBox">
               <img @click="chickenLink" id="cImg" src="/src/imgs/chicken.png" />
@@ -174,16 +146,17 @@ const nightLink = () => {
       </div>
     </div>
   </div>
+  <div @click="aaa"> 임시 버튼 </div>
 </template>
 
 <style lang="scss" scoped>
 @font-face {
   font-family: "BMJUA";
-  src: url("https://fastly.jsdelivr.net/gh/projectnoonnu/noonfonts_one@1.0/BMJUA.woff")
-    format("woff");
+  src: url("https://fastly.jsdelivr.net/gh/projectnoonnu/noonfonts_one@1.0/BMJUA.woff") format("woff");
   font-weight: normal;
   font-style: normal;
 }
+
 @font-face {
   // 프리텐다드
   font-family: 'Pretendard-Regular';
@@ -191,7 +164,8 @@ const nightLink = () => {
   font-weight: 400;
   font-style: normal;
 }
-*{
+
+* {
   font-family: 'Pretendard-Regular';
 }
 
@@ -270,8 +244,8 @@ const nightLink = () => {
         gap: 40px;
         // background-color: antiquewhite;
 
-        .imgBox{
-          width: 210px ;
+        .imgBox {
+          width: 210px;
           border-radius: 50%;
           overflow: hidden;
         }
@@ -282,6 +256,7 @@ const nightLink = () => {
           width: 210px;
           border-radius: 50%;
           transition: transform 0.3s ease-in-out;
+
           &:hover {
             transform: scale(1.2);
           }

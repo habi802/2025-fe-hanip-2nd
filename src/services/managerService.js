@@ -78,7 +78,7 @@ export const getOrder = id => {
     return axios.get(`${actionPath}/order/${id}`).catch(e => e.response);
 };
 
-// 주문 상태 변경
+// 주문 취소
 export const patchOrderStatus = params => {
     return axios.patch(
         `${actionPath}/order`, null, { 
@@ -95,4 +95,22 @@ export const patchOrderStatus = params => {
     ).catch(e => e.response);
 }
 
-// 통계 조회
+// 가입자 수 통계 조회
+export const getUserStats = params => {
+    return axios.get(`${actionPath}/user/stats`, { params }).catch(e => e.response);
+}
+
+// 가게 등록 수 통계 조회
+export const getStoreStats = params => {
+    return axios.get(`${actionPath}/store/stats`, { params }).catch(e => e.response);
+}
+
+// 주문 건 수 통계 조회
+export const getOrderStats = params => {
+    return axios.get(`${actionPath}/order/stats`, { params }).catch(e => e.response);
+}
+
+// 매출액 통계 조회
+export const getAmountStats = params => {
+    return axios.get(`${actionPath}/amount/stats`, { params }).catch(e => e.response);
+}
