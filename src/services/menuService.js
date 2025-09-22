@@ -3,13 +3,13 @@ import axios from "./httpRequester";
 const path = "/menu";
 
 // 메뉴 추가
-export const saveMenu = (menuData) => {
+export const saveMenu = (fromData) => {
   const config = {
     headers: {
       "Content-Type": "multipart/form-data",
     },
   };
-  return axios.post(path, menuData, config).catch((e) => e.response);
+  return axios.post(path, fromData, config).catch((e) => e.response);
 };
 
 // 가게 메뉴 전체 조회
@@ -28,13 +28,13 @@ export const getStoreIdAndMenus = () => {
 };
 
 // 메뉴 한개 수정
-export const modifyMenu = (menuData) => {
+export const modifyMenu = (fromData) => {
   const config = {
     headers: {
       "Content-Type": "multipart/form-data",
     },
   };
-  return axios.put(path, menuData, config).catch((e) => e.response);
+  return axios.put(path, fromData, config).catch((e) => e.response);
 };
 
 // 메뉴 삭제

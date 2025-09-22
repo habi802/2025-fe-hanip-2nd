@@ -212,7 +212,8 @@ const selectRange = async (range) => {
       {{ alert.message }}
       <button  type="button" class="btn-close" @click="removeAlert(alert.id)" ></button>
     </div>
-  </div><!-- alert 끝 -->
+  </div>
+  <!-- alert 끝 -->
 
   <div class="wrap">
     <div class="section-left">

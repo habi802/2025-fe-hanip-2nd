@@ -12,20 +12,20 @@ const props = defineProps({
 const emit = defineEmits(["selectMenu", "add"]);
 
 // 메뉴 종류 탭
-const tabs = ["전체", "단품", "세트", "사이드", "음료"];
+const tabs = ["전체", "단품", "세트", "사이드", "음료수"];
 
 const normalize = (t) => {
   const s = (t ?? "").toString().toLowerCase();
   if (s.includes("단품")) return "단품";
   if (s.includes("세트")) return "세트";
   if (s.includes("사이드")) return "사이드";
-  if (s.includes("음료") || s.includes("드링크")) return "음료";
+  if (s.includes("음료수") || s.includes("드링크")) return "음료수";
   return "기타";
 };
 
 // 고정 탭 및 검색
 const groupedAll = computed(() => {
-  const bucket = { 단품: [], 세트: [], 사이드: [], 음료: [], 기타: [] };
+  const bucket = { 단품: [], 세트: [], 사이드: [], 음료수: [], 기타: [] };
 
   for (const g of props.menus ?? []) {
     const cat = normalize(g.menuType);
@@ -38,7 +38,7 @@ const groupedAll = computed(() => {
     (m.name ?? "").toLowerCase().includes(q) ||
     (m.comment ?? "").toLowerCase().includes(q);
 
-  const ordered = ["단품", "세트", "사이드", "음료"]
+  const ordered = ["단품", "세트", "사이드", "음료수"]
     .map((cat) => ({ menuType: cat, menus: bucket[cat].filter(match) }))
     .filter((g) => g.menus.length);
 

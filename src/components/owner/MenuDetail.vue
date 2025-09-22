@@ -4,7 +4,7 @@ import defaultImage from "@/imgs/owner/haniplogo_sample.png";
 
 const props = defineProps({
   menu: { type: Object, default: null },
-  mode: { type: String, default: "create" }, // "create" | "edit"
+  mode: { type: String, default: "create" },
 });
 
 const emit = defineEmits(["saved", "deleted", "cancel"]);
@@ -13,13 +13,13 @@ onMounted(async () => {
   console.log("menuId:", props.menu.menuId, "// 메뉴 정보: ", props.menu);
 });
 
-// ===== 폼 상태 =====
+// 폼 상태
 const menuName = ref("");
 const price = ref(0);
 const desc = ref("");
 const category = ref("단품");
 
-// ===== 이미지 =====
+// 이미지
 const fileInput = ref(null);
 const selectedFile = ref(null);
 const previewImage = ref("");
@@ -27,7 +27,7 @@ const imageSrc = computed(
   () => previewImage.value || props.menu?.imagePath || defaultImage
 );
 
-// ===== 옵션 그룹 =====
+// 옵션 그룹
 const options = ref([
   { category: "필수", name: "", values: [{ opt: "", extra: 0 }] },
 ]);
@@ -44,7 +44,7 @@ const resetForm = () => {
   previewImage.value = "";
 };
 
-// 상세 응답 → 폼에 주입
+// 응답 -> 폼
 watch(
   () => props.menu,
   (m) => {
@@ -57,9 +57,9 @@ watch(
     desc.value = m.comment ?? "";
     category.value = m.menuType ?? "단품";
     const toValues = (node) => {
-      // children이 있으면 그걸 항목으로, 없으면 자기 자신을 단일 항목으로 취급
       if (Array.isArray(node.children) && node.children.length) {
         return node.children.map((c) => ({
+          id: c.optionId ?? nullm,
           opt: c.comment ?? c.name ?? "",
           extra: Number(c.price ?? 0),
         }));
@@ -72,18 +72,18 @@ watch(
       ];
     };
     options.value = (m.options ?? []).map((g) => ({
-      // 백엔드에 필수/선택 구분이 없으면 기본 '선택'으로
-      category: "선택",
+      id: g.optionId ?? null,
+      category: g.isRequired === 1 ? "필수" : "선택",
       name: g.comment ?? g.name ?? "",
       values: toValues(g),
     }));
-    previewImage.value = ""; // 기존 서버 이미지 사용, 새 파일 선택 시에만 프리뷰 교체
+    previewImage.value = "";
     selectedFile.value = null;
   },
   { immediate: true }
 );
 
-// ===== 파일 처리 =====
+// 파일 처리
 const triggerFileInput = () => fileInput.value?.click();
 const handleFileSelected = (e) => {
   const f = e.target.files?.[0];
@@ -92,7 +92,7 @@ const handleFileSelected = (e) => {
   previewImage.value = URL.createObjectURL(f);
 };
 
-// ===== 옵션 조작 =====
+// 옵션
 const addGroup = () => {
   options.value.push({
     category: "필수",
@@ -106,8 +106,7 @@ const addOption = (groupIdx) =>
 const removeOption = (groupIdx, valIdx) =>
   options.value[groupIdx].values.splice(valIdx, 1);
 
-// ===== 액션 =====
-// 저장은 부모가 통신하게 payload와 file만 넘겨줌(FormData 구성은 부모에서)
+// 메뉴 등록
 const save = () => {
   const payload = {
     menuId: props.menu?.menuId ?? null,
@@ -115,10 +114,19 @@ const save = () => {
     price: Number(price.value ?? 0),
     comment: desc.value,
     menuType: category.value,
-    optionGroups: options.value,
+    options: options.value.map((g) => ({
+      isRequired: g.category === "필수" ? 1 : 0,
+      comment: g.name ?? "",
+      children: (g.values ?? []).map((v) => ({
+        comment: v.opt ?? "",
+        price: Number(v.extra ?? 0),
+      })),
+    })),
   };
   emit("saved", payload, selectedFile.value);
 };
+
+// 메뉴 삭제
 const remove = () => {
   if (props.menu?.menuId) emit("deleted", props.menu.menuId);
 };
@@ -181,7 +189,7 @@ const remove = () => {
             <option>단품</option>
             <option>세트</option>
             <option>사이드</option>
-            <option>음료</option>
+            <option>음료수</option>
           </select>
         </div>
       </div>
