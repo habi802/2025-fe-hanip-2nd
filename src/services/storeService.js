@@ -32,4 +32,6 @@ export const getOwnerStore = () => {
   return axios.get("/store/owner").catch((e) => e.response);
 };
 
+
+
 export default axios;

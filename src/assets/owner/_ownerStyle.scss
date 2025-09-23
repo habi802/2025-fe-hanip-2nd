@@ -137,6 +137,22 @@ button{
   box-shadow: 2px 2px 5px 1px var(--grey1);
   border: none;
   color: #2B6118;
+  &:hover{
+    background-color: #a3e68b;
+  }
+}
+
+//레드버튼
+.darkred-btn{
+  background-color: #d13b36;
+  padding: var(--card-padding);
+  border-radius: var(--card-lg-radius);
+  box-shadow: 2px 2px 5px 1px var(--grey1);
+  border: none;
+  color: #ffffff;
+  &:hover{
+    background-color: #e44c46;
+  }
 }
 
 //흰색카드핑크글씨버튼

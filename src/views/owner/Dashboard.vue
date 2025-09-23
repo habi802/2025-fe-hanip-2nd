@@ -2,8 +2,11 @@
 import OrderCard from "@/components/owner/OrderCard.vue";
 import OrderDelivery from "@/components/owner/OrderDelivery.vue";
 import OrderPrepare from "@/components/owner/OrderPrepare.vue";
+import { useOwnerStore } from "@/stores/account";
 import { useOrderStore } from "@/stores/orderStore";
+import { is } from "date-fns/locale";
 import { inject, computed, onMounted, onUnmounted, ref } from "vue";
+import { patchIsOpen } from "@/services/storeService";
 
 
 const orderStore = useOrderStore();
@@ -48,7 +51,6 @@ const totalPrice = computed(() => {
 
 // 시계
 const currentDate = ref('');
-
 const date = () => {
   const now = new Date();
 
@@ -57,8 +59,6 @@ const date = () => {
   const dayNames = ['일', '월', '화', '수', '목', '금', '토'];
   const day = dayNames[now.getDay()];
   currentDate.value = `${month}월 ${date}일 (${day})`;
-
-
 };
 
 const hours = ref("");
@@ -73,6 +73,19 @@ const updateClock = () => {
   seconds.value = now.getSeconds().toString().padStart(2, "0");
   showColon.value = !showColon.value; // 콜론 깜빡이게
 };
+
+//영업중/정비중 버튼
+const ownerStore = useOwnerStore();
+const isOpen = computed(() => ownerStore.state.storeData.isOpen) 
+const toggleStoreStatus = async () => {
+  if(confirm("영업을 중단하시겠습니까?")){
+    const res = await patchIsOpen(ownerStore.state.storeData.id);
+    if(res !== undefined && res.status === 200) {
+      ownerStore.setIsOpen();
+      }
+    }
+    
+  }
 
 onMounted(() => {
   date();
@@ -110,7 +123,8 @@ onMounted(() => {
           <span class="total-title font-nomal">총 매출</span>
           <span class="font-xxlg">{{ totalPrice }}만</span>
       </div>
-      <button class="green-btn font-xxlg" style="grid-column: span 2;">영업 중</button>
+      <button class="green-btn font-xxlg" style="grid-column: span 2;" 
+      :class="['font-xxlg', isOpen ? 'green-btn' : 'darkred-btn']"  @click="toggleStoreStatus">{{ isOpen.value ? '영업 중' : '정비 중' }}</button>
       <RouterLink to="/owner/orders" class="total-box whitepink-btn"> <span class="font-xxlg">주문관리</span> </RouterLink>
       <RouterLink to="/owner/status" class="total-box whitepink-btn"> <span class="font-xxlg">가게상태</span> </RouterLink>
     </div>
