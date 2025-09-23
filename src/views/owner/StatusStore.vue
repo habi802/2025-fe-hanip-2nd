@@ -1,6 +1,7 @@
 <script setup>
 import { reactive, ref } from 'vue';
 import { useOwnerStore } from '@/stores/account';
+import { modify } from '@/services/storeService';
 import StoreStatusStaticInfo from '@/components/owner/StoreStatusStaticInfo.vue';
 import StoreStatusControl from '@/components/owner/StoreStatusControl.vue';
 
@@ -13,6 +14,8 @@ const state = reactive({
             openTime: owner.state.storeData.openTime,
             closeTime: owner.state.storeData.closeTime,
             closedDay: owner.state.storeData.closedDay,
+            minDeliveryFee: owner.state.storeData.minDeliveryFee,
+            maxDeliveryFee: owner.state.storeData.maxDeliveryFee,
             minAmount: owner.state.storeData.minAmount,
             isPickUp: owner.state.storeData.isPickUp,
             eventComment: owner.state.storeData.eventComment
@@ -22,7 +25,8 @@ const state = reactive({
             tel2: owner.state.storeData.tel.split('-')[1],
             tel3: owner.state.storeData.tel.split('-')[2],
             imagePath: owner.state.storeData.imagePath,
-            comment: owner.state.storeData.comment
+            comment: owner.state.storeData.comment,
+            categories: owner.state.storeData.categories
         }
     }
 });
@@ -33,7 +37,33 @@ const selected = ref('control');
 const updateStore = async () => {
     console.log(state.form);
 
+    const formData = new FormData();
     
+    const tel = `${state.form.static.tel1}-${state.form.static.tel2}-${state.form.static.tel3}`;
+
+    const payload = {
+        id: owner.state.storeData.id,
+        isOpen: state.form.dynamic.isOpen,
+        openTime: state.form.dynamic.openTime,
+        closeTime: state.form.dynamic.closeTime,
+        dayOfWeek: state.form.dynamic.closedDay,
+        minDeliveryFee: state.form.dynamic.minDeliveryFee,
+        maxDeliveryFee: state.form.dynamic.maxDeliveryFee,
+        minAmount: state.form.dynamic.minAmount,
+        isPickUp: state.form.dynamic.isPickUp,
+        eventComment: state.form.dynamic.eventComment,
+        tel: tel,
+        comment: state.form.static.comment,
+        storeCategory: state.form.static.categories,
+    };
+
+    formData.append('pic', state.form.static.imagePath);
+    formData.append('req', new Blob([JSON.stringify(payload)], { type: 'application/json' }));
+
+    const res = await modify(formData);
+    if (res !== undefined && res.status === 200) {
+        console.log('수정 완료');
+    }
 };
 </script>
 
