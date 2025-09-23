@@ -11,8 +11,10 @@ const props = defineProps({
 
 const emit = defineEmits(['update-form']);
 
+const baseUrl = import.meta.env.VITE_BASE_URL;
+
 const storeImageFileInput = ref(null);
-const storePreviewImage = ref(defaultImage);
+const storePreviewImage = ref(`${baseUrl}/images/store/${owner.state.storeData.id}/${props.form.imagePath}`);
 
 // 가게 이미지 미리보기 div 클릭 시 보이지 않게 해놓은 input을 강제로 클릭하게 하여 파일 첨부하는 창 열리게 함
 const selectStoreImageFile = () => {
