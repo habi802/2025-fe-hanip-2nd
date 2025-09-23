@@ -20,104 +20,125 @@ const router = createRouter({
     },
     {
       path: "/login",
+      name: "login",
       component: () => import("@/views/customer/Login.vue"),
       meta: { layout: CustomerLayout },
     },
     {
       path: "/join",
+      name: "join",
       component: () => import("@/views/customer/Join.vue"),
       meta: { layout: CustomerLayout },
     },
     {
       path: "/address",
+      name: "address",
       component: () => import("@/views/customer/Address.vue"),
     },
     {
       path: "/check",
+      name: "check",
       component: () => import("@/views/customer/Check.vue"),
     },
     {
       path: "/my-page",
+      name: "my-page",
       component: () => import("@/views/customer/Mypage.vue"),
       meta: { layout: CustomerLayout },
     },
     {
       path: "/categoryList",
+      name: "category",
       component: () => import("@/views/customer/Category.vue"),
       meta: { layout: CustomerLayout },
     },
     {
       path: "/contact",
+      name: "contact",
       component: () => import("@/views/customer/Contact.vue"),
     },
     {
       path: "/stores/:id",
+      name: "store",
       component: () => import("@/views/customer/Store.vue"),
       meta: { layout: CustomerLayout },
     },
     {
       path: "/stores/:id/order",
+      name: "order",
       component: () => import("@/views/customer/Order.vue"),
       meta: { layout: CustomerLayout },
     },
     {
       path: "/stores/:id/order/success",
+      name: "order-success",
       component: () => import("@/views/customer/OrderSuccess.vue"),
       meta: { layout: CustomerLayout },
     },
     {
       path: "/orders",
+      name: "orders",
       component: () => import("@/components/myPage/OrderDetails.vue"),
       meta: { layout: CustomerLayout },
     },
     {
       path: "/cart",
+      name: "cart",
       component: () => import("@/views/customer/Cart.vue"),
       meta: { layout: CustomerLayout },
     },
     {
       path: "/favorites",
+      name: "favorite",
       component: () => import("@/components/myPage/Favorites.vue"),
       meta: { layout: CustomerLayout },
     },
     {
       path: "/reviews-page/:id",
+      name: "review",
       component: () => import("@/components/myPage/ReviewPage.vue"),
       meta: { layout: CustomerLayout },
     },
     {
       path: "/review/ok",
+      name: "review-ok",
       component: () => import("@/components/myPage/ReviewRouter.vue"),
       meta: { layout: CustomerLayout },
     },
     {
       path: "/order-test",
+      name: "order-test",
       component: () => import("@/components/customer/OrderTest.vue"),
       meta: { layout: CustomerLayout },
     },
     // 사장 페이지
     {
       path: "/owner",
+      name: "owner",
       component: () => import("@/views/owner/Home.vue"),
       meta: { layout: OwnerLayout },
     },
     {
       path: "/owner/review",
+      name: "owner-review",
       component: () => import("@/components/owner/Review.vue"),
       meta: { layout: OwnerLayout },
     },
     {
       path: "/owner/menu",
+      name: "owner-menu",
       component: () => import("@/views/owner/OwnerMenu.vue"),
       meta: { layout: OwnerLayout },
     },
     {
       path: "/owner/store",
+      name: "owner-store",
       component: () => import("@/views/owner/StoreUpdate.vue"),
       meta: { layout: OwnerLayout },
     },
     {
       path: "/owner/orders",
+      name: "owner-order",
       component: () => import("@/views/owner/Orders.vue"),
       meta: { layout: OwnerLayout },
     },
@@ -128,11 +149,13 @@ const router = createRouter({
     },
     {
       path: "/owner/donations",
+      name: "owner-donations",
       component: () => import("@/views/owner/Donations.vue"),
       meta: { layout: OwnerLayout },
     },
     {
       path: "/owner/customer",
+      name: "owner-customer",
       component: () => import("@/views/owner/Customer.vue"),
       meta: { layout: OwnerLayout },
     },
@@ -148,16 +171,19 @@ const router = createRouter({
     },
     {
       path: "/owner/dashboard",
+      name: "owner-dashboard",
       component: () => import("@/views/owner/Dashboard.vue"),
       meta: { layout: OwnerLayout },
     },
     {
       path: "/owner/status/check",
+      name: "owner-check",
       component: () => import("@/views/owner/StatusStoreCheck.vue"),
       meta: { layout: OwnerLayout },
     },
     {
       path: "/owner/status",
+      name: "owner-status",
       component: () => import("@/views/owner/StatusStore.vue"),
       meta: { layout: OwnerLayout },
     },
@@ -225,6 +251,11 @@ const managerPathList = [`${managerPath}`, `${managerPath}/user`, `${managerPath
 const managerLoginPath = [`${managerPath}/login`];
 
 router.beforeEach((to, from) => {
+  if (!router.hasRoute(to.name)) {
+    // 라우터에 등록하지 않은 주소(없는 페이지)로 이동하려고 하는 경우
+    return { path: '/' };
+  }
+
   const account = useAccountStore();
   const user = useUserInfo();
   if (managerLoginPath.includes(to.path) && (account.state.loggedIn && user.state.userData.role !== '관리자')) {
