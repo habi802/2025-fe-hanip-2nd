@@ -18,8 +18,8 @@ export const getOneMenu = (storeId) => {
 };
 
 // 메뉴 조회
-export const getMenus = (menuId) => {
-  return axios.get(path, { params: menuId }).catch((e) => e.response);
+export const getMenus = (storeId) => {
+  return axios.get(path, { params: {storeId : storeId} }).catch((e) => e.response);
 };
 
 // 로그인 아이디에 따른 가게 메뉴 조회
@@ -41,5 +41,11 @@ export const modifyMenu = (menuData) => {
 export const deleteMenu = (menuId) => {
   return axios.delete(`${path}/${menuId}`).catch((e) => e.response);
 };
+
+
+//메뉴 옵션 조회용
+export const getOption = (menuId)=> {
+  return axios.get(`${path}/${menuId}`).catch((e)=> e.response);
+}
 
 export default axios;

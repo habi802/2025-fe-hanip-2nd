@@ -1,7 +1,11 @@
 <script setup>
-import { naverPayReserve } from '@/services/payment';
+import { naverGetCid, naverPayApply, naverPayReserve } from '@/services/payment';
 import ReviewModal from '../modal/ReviewModal.vue';
 import { ref, onMounted, reactive } from 'vue';
+import { useRoute, useRouter } from 'vue-router';
+
+const route = useRoute();
+const router = useRouter();
 
 const baseUrl = import.meta.env.VITE_BASE_URL;
 
@@ -23,8 +27,8 @@ const state = reactive({
 )
 
 const btns = async () => {
-    const orderI = 6;
-    console.log("6", orderI)
+    const orderI = 7;
+    console.log("orderI", orderI)
     console.log("왜이러지요")
     const res = await naverPayReserve(orderI);
     console.log("res", res)
@@ -53,7 +57,7 @@ onMounted(() => {
             try {
 
                 console.log("버튼 클릭 확인")
-                const orderId = 7;
+                const orderId = 12;
                 const res = await naverPayReserve(orderId);
                 console.log("res", res)
 
@@ -72,11 +76,45 @@ onMounted(() => {
                     returnUrl: item.returnUrl,
                     productItems: item.productItems
                 });
+
+
+
             } catch (err) {
                 console.error("네이버페이 reserve 호출 오류:", err);
             }
         });
+
     };
+
+    const paymentId = route.query.paymentId;
+    const paymentReq = {
+        paymentId: route.query.paymentId
+    }
+
+    if (paymentId != null) {
+        console.log("payId:", paymentId);
+        const orderId = 12;
+        const apply = async () => {
+            const check = await naverPayApply(paymentId, orderId);
+            console.log("체크 확인", check);
+            const finalPaymentId = check.data.resultData.body.paymentId;
+
+            if (check.data || check.data.resultStatus === 200) {
+                console.log("라우터 확인용", "잘 이동합니다")
+                console.log("쿼리 넘어오는 거 머있니", orderId, finalPaymentId)
+                router.push({ path: '/', query: { orderId, paymentId: finalPaymentId } })
+                    .then(() => console.log("라우터 이동 성공!"))
+                    .catch(error => console.error("라우터 이동 실패:", error));
+
+            }
+
+        }
+
+
+        apply();
+    }
+
+
 });
 
 </script>
