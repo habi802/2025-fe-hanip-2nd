@@ -1,9 +1,19 @@
 <script setup>
+import { ref } from 'vue';
+
 const props = defineProps({
     form: Object
 });
 
 const emit = defineEmits(['update-form']);
+
+const isOpen = ref(props.form.isOpen);
+const isPickUp = ref(props.form.isPickUp);
+
+// 토글로 된 데이터 상태 변경
+const updateToggle = key => {
+    updateForm(key, key === 'isOpen' ? isOpen.value : isPickUp.value);
+};
 
 // 부모 컴포넌트(StatusStore.vue)에 입력한 값 전달
 const updateForm = (key, value) => {
@@ -14,9 +24,9 @@ const updateForm = (key, value) => {
     <div>
         <div class="control-wrap">
             <span>영업 중</span>
-            <div class="toggle-container" style="height: 40px" >
+            <div class="toggle-container" style="height: 40px">
                 <label class="switch">
-                    <input type="checkbox" v-model="props.form.isOpen" :true-value="1" :false-value="0" @change="updateForm('isOpen', $event.target.value)" />
+                    <input type="checkbox" v-model="isOpen" :true-value="1" :false-value="0" @change="updateToggle('isOpen')" />
                     <span class="slider"></span>
                 </label>
             </div>
@@ -30,25 +40,31 @@ const updateForm = (key, value) => {
             
             <span>휴무일</span>
             <div class="d-flex gap-3">
-                <label><input type="radio" v-model="props.form.closedDay" @change="updateForm('closedDay', $event.target.value)" value="01">월</input></label>
-                <label><input type="radio" v-model="props.form.closedDay" @change="updateForm('closedDay', $event.target.value)" value="02">화</input></label>
-                <label><input type="radio" v-model="props.form.closedDay" @change="updateForm('closedDay', $event.target.value)" value="03">수</input></label>
-                <label><input type="radio" v-model="props.form.closedDay" @change="updateForm('closedDay', $event.target.value)" value="04">목</input></label>
-                <label><input type="radio" v-model="props.form.closedDay" @change="updateForm('closedDay', $event.target.value)" value="05">금</input></label>
-                <label><input type="radio" v-model="props.form.closedDay" @change="updateForm('closedDay', $event.target.value)" value="06">토</input></label>
-                <label><input type="radio" v-model="props.form.closedDay" @change="updateForm('closedDay', $event.target.value)" value="07">일</input></label> 
+                <label><input type="radio" v-model="props.form.closedDay" @change="updateForm('closedDay', $event.target.value)" value="월요일">월</input></label>
+                <label><input type="radio" v-model="props.form.closedDay" @change="updateForm('closedDay', $event.target.value)" value="화요일">화</input></label>
+                <label><input type="radio" v-model="props.form.closedDay" @change="updateForm('closedDay', $event.target.value)" value="수요일">수</input></label>
+                <label><input type="radio" v-model="props.form.closedDay" @change="updateForm('closedDay', $event.target.value)" value="목요일">목</input></label>
+                <label><input type="radio" v-model="props.form.closedDay" @change="updateForm('closedDay', $event.target.value)" value="금요일">금</input></label>
+                <label><input type="radio" v-model="props.form.closedDay" @change="updateForm('closedDay', $event.target.value)" value="토요일">토</input></label>
+                <label><input type="radio" v-model="props.form.closedDay" @change="updateForm('closedDay', $event.target.value)" value="일요일">일</input></label> 
             </div>
 
-            <span>배달 최소 주문 금액</span>
+            <span>최소 주문 금액</span>
             <label for="minOrderPrice">
                 <input type="text" v-model="props.form.minAmount" @input="updateForm('minAmount', $event.target.value)" class="gray-content" id="minOrderPrice" placeholder="원 이상 주문가능">
             </label>
 
-            <!-- 토글버튼 -->
+            <span>배달료</span>
+            <div class="d-flex gap-3">
+                <input type="text" v-model="props.form.minDeliveryFee" @change="updateForm('minDeliveryFee', $event.target.value)" class="gray-content">
+                <span>~</span>
+                <input type="text" v-model="props.form.maxDeliveryFee" @change="updateForm('maxDeliveryFee', $event.target.value)" class="gray-content">
+            </div>
+
             <span>포장 주문 가능</span>
             <div class="toggle-container" style="height: 40px">
                 <label class="switch">
-                    <input type="checkbox" v-model="props.form.isPickUp" :true-value="1" :false-value="0" @change="updateForm('isPickUp', $event.target.value)" />
+                    <input type="checkbox" v-model="isPickUp" :true-value="1" :false-value="0" @change="updateToggle('isPickUp')" />
                     <span class="slider"></span>
                 </label>
             </div>

@@ -22,7 +22,7 @@ export const modify = (formData) => {
       "Content-Type": "multipart/form-data",
     },
   };
-  return axios.put("/store", formData, config).catch((e) => e.response);
+  return axios.put("/store/update", formData, config).catch((e) => e.response);
 };
 export const getStoreList = (params) => {
   return axios.get("/store", { params }).catch((e) => e.response);
