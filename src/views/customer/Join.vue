@@ -1,9 +1,10 @@
 <script setup>
 import { reactive, ref, watch, nextTick } from "vue";
 import { useRouter } from "vue-router";
-import { join, findId } from "@/services/userService.js";
+import { join } from "@/services/userService.js";
 import CustomerForm from "@/components/join/CustomerForm.vue";
 import OwnerForm from "@/components/join/OwnerForm.vue";
+import axios from "axios";
 
 const router = useRouter();
 const memberType = ref("customer"); // 회원 구분 상태
@@ -28,34 +29,54 @@ const errors = reactive({
 
 // form 데이터 상태 관리
 const state = reactive({
+  // 공통 회원 정보
   form: {
     name: "",
     loginId: "",
     loginPw: "",
-    postcode: "",
-    address: "",
-    addressDetail: "",
     phone: {
       phone1: "010",
       phone2: "",
       phone3: "",
     },
     email: "",
-    role: "",
+    role: "", // USER / OWNER
   },
+
+  // 주소 정보 (리스트로 관리)
+  addresses: [
+    {
+      title: "기본 주소",
+      isMain: 1, // 1 = 메인, 0 = 추가
+      postcode: "",
+      address: "",
+      addressDetail: "",
+    },
+  ],
+
+  // 업주 정보
   owner: {
-    name: "",
-    category: "",
+    name: "", // 상호명
+    comment: "", // 가게 소개
+    businessNumber: "",
+    licensePath: "",
+    imagePath: "", // 업주 프로필 이미지
+    postcode: "",
+    address: "",
+    addressDetail: "",
     ownerTel1: "02",
     ownerTel2: "",
     ownerTel3: "",
     ownerPhone1: "010",
     ownerPhone2: "",
     ownerPhone3: "",
-    businessNumber: "",
-    licenesPath: "",
-    imagePath: "",
+    ownerName: "", // 대표자 이름
+    openDate: "", // 오픈일
+    category: [], // EnumStoreCategory 배열
   },
+
+  // 프로필 이미지 (선택)
+  profilePic: null,
 });
 
 // 아이디 중복 검사 유효성 코드
@@ -183,30 +204,30 @@ function onlyNumberInput(event) {
   }
 }
 
-// 아이디 중복 검사 함수
-const checkDuplicateId = async () => {
-  validateLoginId();
-  if (errors.loginId) {
-    showModal("아이디 형식을 확인해주세요.");
-    return;
-  }
+// // 아이디 중복 검사 함수
+// const checkDuplicateId = async () => {
+//   validateLoginId();
+//   if (errors.loginId) {
+//     showModal("아이디 형식을 확인해주세요.");
+//     return;
+//   }
 
-  try {
-    const res = await join(state.form.loginId);
-    if (res.data.exists) {
-      checkResult.value = "";
-      errors.loginId = "이미 사용 중인 아이디입니다.";
-      isIdChecked.value = false;
-    } else {
-      checkResult.value = "사용 가능한 아이디입니다.";
-      errors.loginId = "";
-      isIdChecked.value = true;
-    }
-  } catch (err) {
-    console.error(err);
-    showModal("아이디 중복 확인 중 오류가 발생했습니다.");
-  }
-};
+//   try {
+//     const res = await join(state.form.loginId);
+//     if (res.data.exists) {
+//       checkResult.value = "";
+//       errors.loginId = "이미 사용 중인 아이디입니다.";
+//       isIdChecked.value = false;
+//     } else {
+//       checkResult.value = "사용 가능한 아이디입니다.";
+//       errors.loginId = "";
+//       isIdChecked.value = true;
+//     }
+//   } catch (err) {
+//     console.error(err);
+//     showModal("아이디 중복 확인 중 오류가 발생했습니다.");
+//   }
+// };
 
 // 아이디 입력 수정 시 중복 체크 초기화
 watch(
@@ -294,16 +315,15 @@ const submit = async () => {
     return;
   }
 
-  // 2. 필수 항목 체크
   if (!state.form.loginId || !state.form.loginPw || !state.form.email) {
     showModal("아이디, 비밀번호, 이메일은 필수입니다.");
     return;
   }
 
-  if (!isIdChecked.value) {
-    showModal("아이디 중복 확인을 해주세요.");
-    return;
-  }
+  // if (!isIdChecked.value) {
+  //   showModal("아이디 중복 확인을 해주세요.");
+  //   return;
+  // }
 
   if (memberType.value === "customer" && !state.form.name) {
     showModal("이름은 필수입니다.");
@@ -329,43 +349,80 @@ const submit = async () => {
     return;
   }
 
-  // 3. 전화번호 합치기 (customer)
+  // 2. 전화번호 합치기
   const phoneStr = `${state.form.phone.phone1}-${state.form.phone.phone2}-${state.form.phone.phone3}`;
-  // 4. 업주일 경우 tel 합치기
-  let ownerPayload = null;
+
+  // 3. 업주 StoreJoinReq 생성
+  let storeJoinReq = null;
   if (memberType.value === "owner") {
-    const telStr = `${state.owner.tel1}-${state.owner.tel2}-${state.owner.tel3}`;
-    ownerPayload = { ...state.owner, tel: telStr };
+    const ownerTel = `${state.owner.ownerTel1}-${state.owner.ownerTel2}-${state.owner.ownerTel3}`;
+    const ownerPhone = `${state.owner.ownerPhone1}-${state.owner.ownerPhone2}-${state.owner.ownerPhone3}`;
+
+    storeJoinReq = {
+      id: 0, // 신규 등록이면 0
+      name: state.owner.name,
+      comment: state.owner.comment,
+      businessNumber: state.owner.businessNumber,
+      licensePath: state.owner.licensePath ?? "",
+      imagePath: state.owner.imagePath ?? "",
+      postcode: state.owner.postcode,
+      address: state.owner.address,
+      addressDetail: state.owner.addressDetail,
+      tel: ownerTel,
+      ownerName: state.owner.ownerName,
+      openDate: state.owner.openDate,
+      enumStoreCategory: state.owner.category, // EnumStoreCategory 배열
+    };
   }
 
-  // 5. 최종 payload 구성
+  // 4. 주소 리스트 UserAddressPostReq
+  const userAddressPostReq = state.addresses.map((addr) => ({
+    title: addr.title,
+    isMain: addr.isMain,
+    address: addr.address,
+    postcode: addr.postcode,
+    addressDetail: addr.addressDetail,
+  }));
+
+  // 5. 최종 payload 생성
   const payload = {
-    id: 0, // 서버에서 auto-increment면 보내도 되고, 안 보내도 무방
+    id: 0,
     name: state.form.name,
     loginId: state.form.loginId,
     loginPw: state.form.loginPw,
-    postcode: state.form.postcode,
-    address: state.form.address,
-    addressDetail: state.form.addressDetail,
     phone: phoneStr,
-    email: state.form.email ?? "", // null 방지
-    imagePath: "", // 아직 업로드 없다면 빈 문자열
-    role: memberType.value === "owner" ? "OWNER" : "CUSTOMER",
-    ...(memberType.value === "owner" ? { owner: ownerPayload } : {}),
+    email: state.form.email || "",
+    imagePath: "",
+    role: memberType.value === "owner" ? "사장" : "고객",
+    storeJoinReq: storeJoinReq || {},
+    userAddressPostReq: userAddressPostReq || {},
   };
 
   try {
-    // 6. 서버 요청
-    const res = await join(payload);
+    const formData = new FormData();
+
+    // JSON 객체를 Blob으로 변환해서 append
+    formData.append(
+      "req",
+      new Blob([JSON.stringify(payload)], { type: "application/json" })
+    );
+
+    // 이미지가 있으면 append
+    if (state.profilePic) {
+      formData.append("pic", state.profilePic);
+    }
+
+    // Axios POST
+    const res = await axios.post("/user/join", formData);
+
     if (res.status === 200) {
       showModal("회원가입 완료!");
       localStorage.setItem("user", JSON.stringify(res.data.resultData));
-      router.push("/"); // 메인 페이지로 이동
+      router.push("/");
     } else {
-      showModal("입력 정보를 다시 확인해 주세요.");
+      showModal(res.data?.message || "입력 정보를 다시 확인해 주세요.");
     }
   } catch (err) {
-    // 7. 오류 처리
     console.error(err);
     showModal("회원가입 중 오류 발생");
   }
@@ -446,13 +503,12 @@ const showModal = (message) => {
                     @input="handleLoginIdInput"
                     placeholder="영문 소문자/숫자, 4~16자"
                   />
-                  <button class="idbox" type="button" @click="checkDuplicateId">
-                    아이디 중복
-                  </button>
+                  <button class="idbox" type="button">아이디 중복</button>
+                  <!-- @click="checkDuplicateId" -->
                 </div>
                 <div class="id-message">
                   <p v-if="errors.loginId" class="error-msg">{{ errors.loginId }}</p>
-                  <p v-else-if="checkResult" class="success-msg">{{ checkResult }}</p>
+                  <!-- <p v-else-if="checkResult" class="success-msg">{{ checkResult }}</p> -->
                 </div>
               </div>
             </div>
@@ -648,7 +704,6 @@ const showModal = (message) => {
 </template>
 
 <style lang="scss" scoped>
-
 * {
   font-family: "Pretendard-Regular";
   box-sizing: border-box;
