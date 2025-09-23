@@ -37,6 +37,11 @@ export const modifyMenu = (fromData) => {
   return axios.put(path, fromData, config).catch((e) => e.response);
 };
 
+// 메뉴 숨기기
+export const modifiyMenuHide = (body) => {
+  return axios.patch(`${path}`, body).catch((e) => e.response);
+}
+
 // 메뉴 삭제
 export const deleteMenu = (menuId) => {
   return axios.delete(`${path}/${menuId}`).catch((e) => e.response);

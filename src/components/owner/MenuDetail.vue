@@ -7,10 +7,11 @@ const props = defineProps({
   mode: { type: String, default: "create" },
 });
 
-const emit = defineEmits(["saved", "deleted", "cancel"]);
+const emit = defineEmits(["saved", "deleted", "hide"]);
 
 onMounted(async () => {
   console.log("menuId:", props.menu.menuId, "// 메뉴 정보: ", props.menu);
+  console.log("imgSrc:", imgSrc.value);
 });
 
 // 폼 상태
@@ -22,10 +23,18 @@ const category = ref("단품");
 // 이미지
 const fileInput = ref(null);
 const selectedFile = ref(null);
-const previewImage = ref("");
-const imageSrc = computed(
-  () => previewImage.value || props.menu?.imagePath || defaultImage
-);
+const previewImage = ref(defaultImage);
+const baseUrl = ref(import.meta.env.VITE_BASE_URL);
+
+const imgSrc = computed(() => {
+  if (previewImage.value && previewImage.value !== defaultImage) {
+    return previewImage.value;
+  }
+  if (props.menu?.imagePath && props.menu.imagePath !== "null") {
+    return `${baseUrl.value}/images/store/${props.menu.storeId}/menu/${props.menu.menuId}/${props.menu.imagePath}`;
+  }
+  return defaultImage;
+});
 
 // 옵션 그룹
 const options = ref([
@@ -41,7 +50,7 @@ const resetForm = () => {
     { category: "필수", name: "", values: [{ opt: "", extra: 0 }] },
   ];
   selectedFile.value = null;
-  previewImage.value = "";
+  previewImage.value = defaultImage;
 };
 
 // 응답 -> 폼
@@ -130,6 +139,17 @@ const save = () => {
 const remove = () => {
   if (props.menu?.menuId) emit("deleted", props.menu.menuId);
 };
+
+// 메뉴 숨김
+const hide = () => {
+  const payload = {
+    menuId: props.menu?.menuId,
+    isSoldOut: props.menu?.isSoldOut,
+    isHide: props.menu?.isHide,
+  }
+  console.log("payload: ", payload)
+  emit("hide", payload);
+};
 </script>
 
 <template>
@@ -144,7 +164,7 @@ const remove = () => {
       <!-- 이미지 -->
       <div class="col-md-4 text-center">
         <img
-          :src="imageSrc"
+          :src="imgSrc"
           alt="메뉴 이미지"
           class="detail-img mb-2"
           @click="triggerFileInput"
@@ -288,8 +308,8 @@ const remove = () => {
 
     <!-- 버튼 -->
     <div class="d-flex justify-content-end gap-2 mt-4">
-      <button class="owner-btn-cancel" @click="$emit('cancel')">
-        등록취소
+      <button v-if="mode === 'edit'" class="owner-btn-cancel" @click="hide">
+        숨기기
       </button>
       <button class="owner-btn-white" @click="save">
         {{ mode === "edit" ? "수정완료" : "등록완료" }}

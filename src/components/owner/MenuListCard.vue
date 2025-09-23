@@ -1,7 +1,24 @@
 <script setup>
+import { ref, computed } from 'vue';
+import defaultImage from "@/imgs/owner/haniplogo_sample.png";
+
 const props = defineProps({
   menu: { type: Object, required: true },
 });
+
+const previewImage = ref(defaultImage);
+const baseUrl = ref(import.meta.env.VITE_BASE_URL);
+
+const imgSrc = computed(() => {
+  if (previewImage.value && previewImage.value !== defaultImage) {
+    return previewImage.value;
+  }
+  if (props.menu?.imagePath && props.menu.imagePath !== "null") {
+    return `${baseUrl.value}/images/store/${props.menu.storeId}/menu/${props.menu.menuId}/${props.menu.imagePath}`;
+  }
+  return defaultImage;
+});
+
 const emit = defineEmits(["select"]);
 </script>
 
@@ -20,7 +37,7 @@ const emit = defineEmits(["select"]);
         >{{ Number(menu.price ?? 0).toLocaleString() }} 원</span
       >
       <img
-        :src="menu.imagePath || '/img/placeholder-menu.png'"
+        :src="imgSrc"
         alt="menu"
         class="menu-img ms-3"
       />

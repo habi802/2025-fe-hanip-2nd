@@ -6,6 +6,8 @@ import {
   getMenus,
   saveMenu,
   modifyMenu,
+  deleteMenu,
+  modifiyMenuHide
 } from "@/services/menuService";
 import { onMounted, reactive } from "vue";
 
@@ -22,6 +24,7 @@ const fetchMenus = async () => {
     console.log("res: ", res.data.resultData);
   } else {
     console.error("메뉴 조회 실패:", res);
+    showAlert("메뉴 불러오기에 실패했습니다.");
   }
 };
 
@@ -34,6 +37,7 @@ const handleSelectMenu = async (menuOrId) => {
     state.selectedMenu = res.data?.resultData ?? null;
   } else {
     console.error("상세 조회 실패:", res);
+    showAlert("해당 메뉴 불러오기에 실패했습니다.");
   }
 };
 
@@ -103,6 +107,7 @@ const handleSaved = async (payload, file) => {
   );
   if (file) {
     formData.append("pic", file);
+    console.log("pic", file)
   }
 
   const res = isEdit ? await modifyMenu(formData) : await saveMenu(formData);
@@ -125,6 +130,35 @@ const handleSaved = async (payload, file) => {
   }
 };
 
+// 삭제하기
+const handleDeleted = async(menuId) => {
+  // console.log("ㅎㅇ: ", menuId)
+  const res = await deleteMenu(menuId);
+  if (res?.status !== 200) {
+    showAlert("삭제에 실패했습니다.");
+    return;
+  }
+  await fetchMenus();
+
+  if (state.selectedMenu?.menuId === menuId) {
+    state.selectedMenu = null;
+    state.mode = "create";
+  }
+
+  showAlert("메뉴가 정상적으로 삭제됐습니다.", "alert-success");
+}
+
+// 숨기기
+const hadleHide = async(payload) => {
+  // console.log("req: ", payload)
+  const res = await modifiyMenuHide(payload)
+  if (res?.status !== 200) {
+    showAlert("수정에 실패했습니다.");
+    return;
+  }
+  await fetchMenus();
+  showAlert("메뉴가 정상적으로 숨김 처리되었습니다.", "alert-success");
+}
 onMounted(async () => {
   await fetchMenus();
 });
@@ -179,7 +213,8 @@ const removeAlert = (id) => {
         :menu="state.selectedMenu"
         :mode="state.mode"
         @saved="handleSaved"
-        @deleted="fetchMenus"
+        @deleted="handleDeleted"
+        @hide="hadleHide"
       />
     </div>
   </div>
@@ -220,5 +255,21 @@ const removeAlert = (id) => {
 
 .menu-item:hover {
   background-color: #f9fafb;
+}
+
+/* alert 에니메이션 */
+.fade.show {
+  animation: slideDown 0.5s ease;
+}
+
+@keyframes slideDown {
+  from {
+    transform: translateY(-20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
 }
 </style>
