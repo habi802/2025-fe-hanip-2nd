@@ -192,7 +192,7 @@ const checkDuplicateId = async () => {
   }
 
   try {
-    const res = await findId(state.form.loginId);
+    const res = await join(state.form.loginId);
     if (res.data.exists) {
       checkResult.value = "";
       errors.loginId = "이미 사용 중인 아이디입니다.";
@@ -277,6 +277,14 @@ function toggleAllAgree() {
   agreement.sms = checked;
   agreement.email = checked;
 }
+// 쇼핑정보 수신 동의
+watch(
+  () => agreement.marketing,
+  (newVal) => {
+    agreement.sms = newVal;
+    agreement.email = newVal;
+  }
+);
 
 // 유저 정보 제출
 const submit = async () => {
@@ -465,6 +473,7 @@ const showModal = (message) => {
                 :class="{ invalid: errors.loginPw }"
                 @input="() => (errors.loginPw = '')"
                 @blur="validatePassword"
+                autocomplete="new-password"
                 placeholder="비밀번호는 영문, 숫자, 특수문자 포함 8~16자"
               />
               <p v-if="errors.loginPw" class="error-msg">
@@ -488,6 +497,7 @@ const showModal = (message) => {
                 @input="() => (errors.confirmPw = '')"
                 @blur="validateConfirmPw"
                 :class="{ invalid: errors.confirmPw }"
+                autocomplete="new-password"
                 placeholder="비밀번호 재입력"
               />
               <p v-if="errors.confirmPw" class="error-msg">
@@ -638,6 +648,7 @@ const showModal = (message) => {
 </template>
 
 <style lang="scss" scoped>
+
 * {
   font-family: "Pretendard-Regular";
   box-sizing: border-box;
