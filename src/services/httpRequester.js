@@ -9,7 +9,6 @@ axios.defaults.withCredentials = true;
 axios.interceptors.response.use(
     res => res,
     async err => {
-        //console.log('err:', err.response);
         const account = useAccountStore();
 
         if (err.response) {
@@ -22,6 +21,9 @@ axios.interceptors.response.use(
                 await reissue();
 
                 return await axios.request(err.config);
+            } else {
+                // 그 외의 오류인 경우 API에서 보낸 오류 메세지를 출력 
+                console.log(err.response.data?.message);
             }
         }
 

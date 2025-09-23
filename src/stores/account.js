@@ -17,32 +17,35 @@ export const useAccountStore = defineStore('account',
 );
 
 // 로그인 정보 불러오기
-export const useUserInfo = defineStore('userInfo', {
-    state: () => ({
-        userId: null,
-        userName: null,
-        userAddr: '', 
-    }),
-    actions: {
-        async fetchStore() {
-            //console.log("📣 fetchStore 호출됨");
+export const useUserInfo = defineStore('userInfo',
+    () => {
+        const state = reactive({
+            userId: null,
+            userName: null,
+            userAddr: '',
+            userData: null,
+        });
+
+        const fetchStore = async () => {
             try {
                 const res = await getUser();
-                //console.log("🤢유저 정보", res);
+
                 if (res?.status === 200 && res?.data?.resultData) {
-                    const data = res.data.resultData;
-                    const address = (data.address ?? '') + (data.address_detail ?? '');
-                    this.userId = data.id;
-                    this.userName = data.name;
-                    this.userAddr = address;
+                    const address = (res.data.resultData.address ?? '') + (res.data.resultData.address_detail ?? '');
+                    state.userId = res.data.resultData.id;
+                    state.userName = res.data.resultData.name;
+                    state.userAddr = address;
+                    state.userData = res.data.resultData;
                 }
-                //console.log("🟢 저장된 주소:", this.userAddr);
             } catch (err) {
                 console.error('유저 정보 불러오기 실패', err);
             }
-        }
-    }
-});
+        };
+
+        return { state, fetchStore };
+    },
+    { persist: true }
+);
 
 // 가게 정보 불러오기
 export const useOwnerStore = defineStore('owner',
