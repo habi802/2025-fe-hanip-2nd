@@ -366,6 +366,7 @@ onMounted(() => {
 const store = reactive({
   storeInfo: Object,
   menus: [],
+  menuOption: [],
   reveiw: [],
   openTime: null,
   closeTime: null,
@@ -435,6 +436,7 @@ const getStoreMenu = async (storeId) => {
   console.log("메뉴 정보", store.menus);
 
 }
+
 
 const sortedMenus = computed(() => {
   return store.menus.slice().sort((a, b) => {

@@ -3,12 +3,19 @@ import { addItem } from '@/services/cartService';
 import { useAccountStore } from '@/stores/account';
 import defaultImage from '@/imgs/owner/owner-service3.png';
 import { computed, ref } from 'vue';
+import { getOption } from '@/services/menuService';
 
 import OptionModal from '../modal/OptionModal.vue';
 
 const optionModal = ref(null);
 
-const openModal = () => {
+const openModal = async () => {
+
+
+    const res = await getOption(props.item.menuId);
+    props.item.options = res.data.resultData.options;
+
+
     optionModal.value.setMenuData(props.item)
     const modalElement = optionModal.value.$el;
     const modal = new bootstrap.Modal(modalElement);
@@ -24,9 +31,12 @@ const props = defineProps({
         name: String,
         price: Number,
         comment: String,
-        imagePath: String
+        imagePath: String,
+        options: []
     }
 });
+
+
 
 
 
@@ -57,7 +67,6 @@ const addCart = async () => {
         emit('addCart', props.item);
     }
 };
-console.log("props.img", props.item);
 // 모달창 함수
 const showModal = (message, onCloseCallback) => {
     const modalBody = document.getElementById("alertModalBody");

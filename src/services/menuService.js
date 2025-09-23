@@ -42,4 +42,10 @@ export const deleteMenu = (menuId) => {
   return axios.delete(`${path}/${menuId}`).catch((e) => e.response);
 };
 
+
+//메뉴 옵션 조회용
+export const getOption = (menuId)=> {
+  return axios.get(`${path}/${menuId}`).catch((e)=> e.response);
+}
+
 export default axios;
