@@ -2,6 +2,7 @@
 import { ref, watch } from 'vue';
 import { useRouter, useRoute } from "vue-router";
 import { useUserInfo, useAccountStore } from "@/stores/account";
+import { logout } from "@/services/userService";
 import AlertModal from "../modal/AlertModal.vue";
 
 const router = useRouter();
