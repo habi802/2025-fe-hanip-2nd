@@ -40,4 +40,5 @@ export const getStoreId = (storeId)=> {
   return axios.get(`/store/${storeId}`).catch((e)=>e.response);
 }
 
+
 export default axios;

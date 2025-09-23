@@ -1,4 +1,25 @@
 <script setup>
+import { reactive } from 'vue';
+
+const menuData = reactive({
+    name: '',
+    comment: '',
+    price: 0,
+    options: []
+});
+const setMenuData = (data) => {
+    menuData.name = data.name;
+    menuData.comment = data.comment;
+    menuData.price = data.price;
+    menuData.options = data.options || [];
+};
+
+defineExpose({ setMenuData, menuData })
+console.log("메뉴 데이터", menuData)
+
+
+
+
 </script>
 
 <template>
@@ -6,14 +27,16 @@
         aria-labelledby="staticBackdropLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
-                <img src="/src/imgs/foods.png"></img>
+                <div class="option-title"> 옵션 </div>
+                <hr>
+                </hr>
                 <div class="header">
                     <!-- 메뉴 이름 -->
-                    <div class="menu-name" id="staticBackdropLabel">닭도리도리탕</div>
+                    <div class="menu-name" id="staticBackdropLabel">{{ menuData.name }}</div>
                     <!-- 메뉴 설명 -->
                     <!-- <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button> -->
                 </div>
-                <div class="menu-comment">매운데 좀 덜매운데 맛있게 매운 맛</div>
+                <div class="menu-comment">{{ menuData.comment }}</div>
                 <div class="body">
                     <!-- 여기 v-for 돌려야 함 option-body가 하나의 옵션  -->
                     <div class="option-body">
@@ -165,6 +188,13 @@
 </template>
 
 <style scoped lang="scss">
+.option-title {
+    margin: 30px 0px 30px 0px;
+    text-align: center;
+    font-weight: 400;
+    font-size: 1.2em;
+}
+
 .header {
     font-weight: 600;
     font-size: 1.3em;
@@ -178,6 +208,7 @@
 }
 
 .menu-comment {
+    padding: 0px 40px 0px 40px;
     text-align: center;
     font-weight: 400;
     margin-bottom: 30px;

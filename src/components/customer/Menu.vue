@@ -9,6 +9,7 @@ import OptionModal from '../modal/OptionModal.vue';
 const optionModal = ref(null);
 
 const openModal = () => {
+    optionModal.value.setMenuData(props.item)
     const modalElement = optionModal.value.$el;
     const modal = new bootstrap.Modal(modalElement);
     modal.show();
@@ -21,21 +22,11 @@ const props = defineProps({
     item: {
         menuId: Number,
         name: String,
-        comment: String,
         price: Number,
+        comment: String,
         imagePath: String
     }
 });
-
-//메뉴 이미지
-
-// const menuImg = `/pic/menu-profile/${props.item.id}/${props.item?.imagePath}`
-
-// const imgSrc = computed(() => {
-//   return state.store && state.storeInfo[0]?.imagePath && state.storeInfo[0]?.imagePath !== 'null'
-//   ? `/pic/store-profile/${state.store.id}/${state.storeInfo[0]?.imagePath}`
-//   : defaultImage;
-// })
 
 
 
@@ -84,20 +75,17 @@ const showModal = (message, onCloseCallback) => {
 </script>
 
 <template>
-    <div class="menu border rounded-4 p-3 mb-2" @click="openModal">
-        <div class="row">
-            <div class="col-8 col-md-10">
-                <h5>{{ props.item.name }}</h5>
-                <p class="comment">{{ props.item.comment }}</p>
-                <div class="bottom-box">
-                    <span>{{ props.item.price.toLocaleString() }}원</span>
-                    <span class="check">
-                        <!-- 0이 되면 스타일 바뀌게 해야함 -->
-                        <!-- <div class="check-box"> - </div> -->
-                        <!-- 갯수 -->
-                        <!-- <div> 0 </div> -->
-                        <!-- <div class="check-box"> + </div> -->
-                    </span>
+    <div class="menu border rounded-4" @click="openModal">
+        <div class="row-box">
+            <div class="container">
+                <div class="menu-box">
+                    <h5>{{ props.item.name }}</h5>
+                    <p class="comment">{{ props.item.comment }}</p>
+                    <div class="bottom-box">
+                        <span>{{ props.item.price.toLocaleString() }}원</span>
+                        <span class="check">
+                        </span>
+                    </div>
                 </div>
             </div>
             <div id="menuImgs" class="col-4 col-md-2 border rounded">
@@ -156,7 +144,10 @@ const showModal = (message, onCloseCallback) => {
 }
 
 .menu {
+    display: flex;
+    justify-content: space-between;
     cursor: pointer;
+    padding: 20px 10px 20px 10px;
     margin-top: 20px;
 
     &:hover {
@@ -165,14 +156,13 @@ const showModal = (message, onCloseCallback) => {
 }
 
 #menuImgs {
-    margin-left: -15px;
-    margin-top: 3px;
     display: flex;
     width: 170px;
     height: 104px;
     overflow: hidden;
     justify-content: center;
     align-items: center;
+    margin-left: 25px;
 
     .menuImgBox {
         width: 170px;
@@ -184,38 +174,24 @@ const showModal = (message, onCloseCallback) => {
     justify-content: space-between;
 }
 
-.check {
-    display: flex;
-    padding-right: 30px;
-    gap: 10px;
-}
 
-.check-box {
+
+
+.row-box {
     display: flex;
     justify-content: center;
     align-items: center;
-    width: 25px;
-    height: 25px;
-    border: #000 2px solid;
-    font-size: 23px;
-    border-radius: 5px;
-}
-
-.row {
-    display: flex;
-    justify-content: center;
 
 }
 
-.col-8 {
-    width: 80%;
-    margin-left: -15px;
-}
+
+
 
 .comment {
     font-size: 18px;
     margin-top: 10px;
     width: 600px;
+    min-height: 30px;
     color: #9E9E9E;
     word-wrap: break-word;
     white-space: pre-wrap;

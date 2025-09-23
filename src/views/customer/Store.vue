@@ -2,7 +2,7 @@
 import { onMounted, reactive, ref, computed } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { getStore, getStoreList } from "@/services/storeService";
-import { getOneMenu } from "@/services/menuService";
+import { getMenus } from "@/services/menuService";
 import { getReviewsByStoreId, getOwnerCommentList } from "@/services/reviewServices";
 import { getFavorite, addFavorite, deleteFavorite } from "@/services/favoriteService";
 import { updateQuantity, removeItem, removeCart } from "@/services/cartService";
@@ -178,34 +178,6 @@ const loadCarts = async (id) => {
   }
 };
 
-// 찜 목록 추가/삭제 함수
-// const toggleFavorite = async (id) => {
-//   if (account.state.loggedIn) {
-//     const storeId = Number(id);
-
-//     console.log('[찜 토글 시도]', storeId);
-
-//     const res = state.store.favorite
-//       ? await deleteFavorite(storeId)
-//       : await addFavorite({ storeId });
-
-//     if (res === undefined || res.data.resultStatus !== 200) {
-//       // alert("찜 상태 변경 실패");
-//       alertModal.value.showModal('찜하기에 실패하였습니다.');
-//       return;
-//     }
-
-//     state.store.favorite = !state.store.favorite;
-
-//     // Pinia store에도 업데이트
-//     favoriteStore.toggleFavorite(storeId);
-//     console.log('찜 상태 저장됨:', favoriteStore.state.storeIds);
-
-//     loadReviews(id);
-//     loadStore(id);
-//   }
-// };
-
 // 장바구니 추가 함수(Menu.vue 컴포넌트에서 받아옴)
 const addCart = (newItem) => {
   const existIdx = state.carts.findIndex(item => item.menuId === newItem.menuId);
@@ -351,17 +323,6 @@ const reviewbutton = () => {
 //
 
 
-
-// 가게 이미지가 없을 시 대체 이미지 나타내기
-// const imgSrc = computed(() => {
-//   return props.stores && props.stores.imagePath && props.stores.imagePath !== 'null'
-//   ? `/pic/store-profile/${props.stores.storeId}/${props.stores.imagePath}`
-//   : defaultImage;
-// })
-
-// 가게 이미지
-// const storeImg = `/pic/store-profile/${state.store.id}/${state.storeInfo[0]?.imagePath}`;/
-
 const imgSrc = computed(() => {
 
   return state.store && state.store?.imagePath && state.store?.imagePath !== 'null'
@@ -397,12 +358,14 @@ import { getStoreId } from "@/services/storeService";
 onMounted(() => {
   const storeId = route.params.id;
   getStoreInfo(storeId);
+  getStoreMenu(storeId);
 });
 
 
 
 const store = reactive({
   storeInfo: Object,
+  menus: [],
   reveiw: [],
   openTime: null,
   closeTime: null,
@@ -410,6 +373,7 @@ const store = reactive({
   todayReviewCount: 0
 })
 
+// 가게 정보 조회
 const getStoreInfo = async (id) => {
 
   const res = await getStoreId(id);
@@ -453,7 +417,7 @@ const getStoreInfo = async (id) => {
 }
 
 
-
+// 찜 추가, 삭제 토글
 const toggleFavorite = async (id) => {
 
 
@@ -462,18 +426,22 @@ const toggleFavorite = async (id) => {
     : await addFavorite({ storeId: id });
 
   store.storeInfo.favorites = !store.storeInfo.favorites;
+}
 
-
-
-
-
+// 가게 메뉴 조회
+const getStoreMenu = async (storeId) => {
+  const res = await getMenus(storeId);
+  store.menus = res.data.resultData;
+  console.log("메뉴 정보", store.menus);
 
 }
 
-const getStoreMenu = () => {
-
-}
-
+const sortedMenus = computed(() => {
+  return store.menus.slice().sort((a, b) => {
+    const order = ["단품", "세트", "사이드", "음료수"]; // 원하는 순서
+    return order.indexOf(a.menuType) - order.indexOf(b.menuType);
+  });
+});
 
 
 
@@ -621,21 +589,18 @@ const getStoreMenu = () => {
 
 
             <div v-if="menubtn" class="pt-2 mb-3">
-              <!-- 메뉴보기 리스트 -->
-              <!-- v-for 돌릴때 해당 구분 칸 같이 돌리기 -->
-              <div class="menu-division">
-                <div class="division-text">세트 메뉴</div>
-              </div>
-              <!--  -->
-              <div v-if="state.menus.length > 0">
-                <div v-for="item in state.menus" :key="item.id">
-                  <Menu :item="item" />
+              <div v-for="item in sortedMenus" :key="item.id">
+                <div class="menu-division">
+                  <div class="division-text">{{ item.menuType }}</div>
+                </div>
+                <div v-for="menus in item.menus" :key="menus.id">
+                  <Menu :key="item.menuId" :item="menus"></Menu>
                 </div>
               </div>
-              <div v-else class="d-flex mt-5 justify-content-center align-items-center w-100"
-                style="font-size: 40px; flex-direction: column;"> 등록된 메뉴가 없습니다.
-                <img src="/src/imgs/owner/owner-service5.png" alt="메뉴없엉">
-              </div>
+            </div>
+            <div v-else class="d-flex mt-5 justify-content-center align-items-center w-100"
+              style="font-size: 40px; flex-direction: column;"> 등록된 메뉴가 없습니다.
+              <img src="/src/imgs/owner/owner-service5.png" alt="메뉴없엉">
             </div>
 
             <!-- 리뷰보기 리스트 -->
@@ -842,7 +807,7 @@ const getStoreMenu = () => {
   justify-content: center;
   width: 100%;
   margin-bottom: 120px;
-  margin-top: 81px;
+  margin-top: 20px;
 }
 
 .detailBox {
@@ -1151,7 +1116,7 @@ hr {
   border: #FF6666 1px solid;
   border-radius: 10px;
   padding: 10px 20px 10px 20px;
-  margin-bottom: 20px;
+  margin-top: 20px;
 }
 
 .division-text {
