@@ -1,83 +1,156 @@
 <script setup>
-import { ref, watch } from "vue";
+import { ref, reactive, watch } from "vue";
 
+// 부모에서 내려주는 데이터
 const props = defineProps({
-  form: Object,
-  owner: Object,
-  errors: Object,
-});
-const emit = defineEmits([
-  "update:form",
-  "update:owner",
-  "update:errors",
-  "validateBusinessNumber",
-]);
-
-const { form, owner, errors } = props;
-
-// 가게전화 쪼개기
-const ownerTel1 = ref("02");
-const ownerTel2 = ref("");
-const ownerTel3 = ref("");
-
-// 휴대전화 쪼개기
-const ownerPhone1 = ref("010");
-const ownerPhone2 = ref("");
-const ownerPhone3 = ref("");
-
-//  숫자만 입력 허용
-const onlyNumberInput = (e) => {
-  if (!/[0-9]/.test(e.key) && e.key !== "Backspace") {
-    e.preventDefault();
-  }
-};
-
-// 전화번호 입력 시 자동 이동
-const onOwnerTelInput = (e, current, next) => {
-  if (e.target.value.length === 4 && next) {
-    const nextInput = e.target
-      .closest(".phone-input")
-      .querySelector(`input[v-model='${next}']`);
-    if (nextInput) nextInput.focus();
-  }
-};
-const onOwnerPhoneInput = (e, current, next) => {
-  if (e.target.value.length === 4 && next) {
-    const nextInput = e.target
-      .closest(".phone-input")
-      .querySelector(`input[v-model='${next}']`);
-    if (nextInput) nextInput.focus();
-  }
-};
-
-// 값이 바뀌면 form/owner 갱신
-watch([ownerTel1, ownerTel2, ownerTel3], () => {
-  form.storePhone = `${ownerTel1.value}-${ownerTel2.value}-${ownerTel3.value}`;
-  emit("update:form", form);
-});
-watch([ownerPhone1, ownerPhone2, ownerPhone3], () => {
-  form.phone = `${ownerPhone1.value}-${ownerPhone2.value}-${ownerPhone3.value}`;
-  emit("update:form", form);
+  form: Object, // 공용 입력 값 (주소, 대표자 이름 등)
+  owner: Object, // 업주 전용 값 (사업자 번호, 상호명, 카테고리 등)
+  errors: Object, // 유효성 검사 에러 메시지
 });
 
-// 사업자 등록번호
-const businessNumber = ref(owner.businessNumber);
+const emit = defineEmits(["update:form", "update:errors", "addressSearch"]);
 
-// 사업자 등록번호 변경 시 부모에게 전달
-const onBusinessNumberChange = (e) => {
-  businessNumber.value = e.target.value;
-  emit("validateBusinessNumber", businessNumber.value); // 부모로 사업자 등록번호 전달
-};
+// localForm 복사
+const localForm = reactive({
+  ownerName: props.form.ownerName ?? "",
+  storeName: props.form.storeName ?? "",
+  postcode: props.form.postcode ?? "",
+  address: props.form.address ?? "",
+  addressDetail: props.form.addressDetail ?? "",
+  ownerPhone1: props.form.ownerPhone?.phone1 ?? "010",
+  ownerPhone2: props.form.ownerPhone?.phone2 ?? "",
+  ownerPhone3: props.form.ownerPhone?.phone3 ?? "",
+  storePhone1: props.form.storePhone?.phone1 ?? "02",
+  storePhone2: props.form.storePhone?.phone2 ?? "",
+  storePhone3: props.form.storePhone?.phone3 ?? "",
+  businessNumber: props.form.businessNumber ?? "", 
+});
 
-// 부모에서 전달받은 에러 메시지 처리
+
+// input 변경 시 emit
+function updateField(field, value) {
+  if (["ownerPhone1", "ownerPhone2", "ownerPhone3"].includes(field)) {
+    emit("update:form", {
+      ...props.form,
+      ownerPhone: { ...props.form.ownerPhone, [field]: value },
+    });
+  } else if (["storePhone1", "storePhone2", "storePhone3"].includes(field)) {
+    emit("update:form", {
+      ...props.form,
+      storePhone: { ...props.form.storePhone, [field]: value },
+    });
+  } else {
+    emit("update:form", { ...props.form, [field]: value });
+  }
+}
+
+// 에러 초기화
+function clearError(field) {
+  emit("update:errors", { ...props.errors, [field]: "" });
+}
+
+// 주소 검색
+function handleAddressSearch() {
+  emit("addressSearch");
+}
+
+// 부모 form 변경 시 localForm 동기화
 watch(
-  () => errors.businessNumber,
-  (newValue) => {
-    if (newValue) {
-      emit("update:errors", { businessNumber: newValue });
-    }
-  }
+  () => props.form,
+  (newVal) => {
+    Object.assign(localForm, {
+      ownerName: newVal.ownerName ?? "",
+      storeName: newVal.storeName ?? "",
+      postcode: newVal.postcode ?? "",
+      address: newVal.address ?? "",
+      addressDetail: newVal.addressDetail ?? "",
+      ownerPhone1: newVal.ownerPhone?.phone1 ?? "010",
+      ownerPhone2: newVal.ownerPhone?.phone2 ?? "",
+      ownerPhone3: newVal.ownerPhone?.phone3 ?? "",
+      storePhone1: newVal.storePhone?.phone1 ?? "02",
+      storePhone2: newVal.storePhone?.phone2 ?? "",
+      storePhone3: newVal.storePhone?.phone3 ?? "",
+    });
+  },
+  { deep: true }
 );
+
+//localForm → 부모 form 변환 
+
+function getFormFromLocal() {
+  return {
+    ...props.form,
+    ownerName: localForm.ownerName,
+    storeName: localForm.storeName,
+    postcode: localForm.postcode,
+    address: localForm.address,
+    addressDetail: localForm.addressDetail,
+    businessNumber: localForm.businessNumber, // ← 반영
+    ownerPhone: {
+      phone1: localForm.ownerPhone1,
+      phone2: localForm.ownerPhone2,
+      phone3: localForm.ownerPhone3,
+    },
+    storePhone: {
+      phone1: localForm.storePhone1,
+      phone2: localForm.storePhone2,
+      phone3: localForm.storePhone3,
+    },
+  };
+}
+
+// 숫자만 입력 처리
+function handlePhoneInput(e, field) {
+  let value = e.target.value.replace(/\D/g, "").slice(0, 4); // 숫자만, 최대 4자리
+  localForm[field] = value;
+  emit("update:form", getFormFromLocal()); // ← 변경: 부모 form에 항상 반영
+  validatePhone(field); // ← 새로 추가: 입력 즉시 유효성 검사
+}
+
+function validatePhone(field) {
+  if (field.endsWith("2") || field.endsWith("3")) {
+    const value = localForm[field];
+    let errorMsg = "";
+    if (!value) errorMsg = "전화번호를 입력해주세요.";
+    else if (!/^\d{3,4}$/.test(value)) errorMsg = "전화번호 형식이 올바르지 않습니다.";
+
+    emit("update:errors", {
+      ...props.errors,
+      [field]: errorMsg,
+    });
+  }
+}
+// 사업자 등록증 업로드
+const fileInput = ref(null); // 파일 input 참조
+const selectedFile = ref(null); // 선택된 파일
+const previewUrl = ref(null); // 이미지 미리보기
+
+// 파일 선택 시 실행
+function onFileChange(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+
+  selectedFile.value = file;
+
+  // 이미지 파일이면 미리보기
+  if (file.type.startsWith("image/")) {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      previewUrl.value = e.target.result;
+    };
+    reader.readAsDataURL(file);
+  } else {
+    previewUrl.value = null; // 이미지 아닌 경우 미리보기 없음
+  }
+
+  // 필요하면 부모로 파일 emit 가능
+  emit("update:form", { ...props.form, businessFile: file });
+}
+
+// 버튼 클릭 시 파일 input 열기
+function triggerFileInput() {
+  fileInput.value?.click();
+}
 </script>
 
 <template>
@@ -134,39 +207,39 @@ watch(
       </div>
       <input
         type="text"
-        :value="form.name"
-        @input="(e) => updateField('name', e.target.value)"
-        @focus="() => clearError('name')"
+        v-model="localForm.ownerName"
+        @input="(e) => updateField('ownerName', e.target.value)"
+        @focus="() => clearError('ownerName')"
       />
     </div>
     <div class="sevLine"></div>
 
-    <!-- 가게 주소 부분 -->
+    <!-- 가게 주소 -->
     <div class="form-group address-group">
       <div class="sortation">
         <span>*</span>
         <p>가게 주소</p>
       </div>
       <div class="address-box">
-        <!-- 1줄: 우편번호 + 주소검색 -->
         <div class="address-row">
-          <input type="text" :value="form.postcode" placeholder="우편번호" readonly />
-          <button @click="$emit('addressSearch')" type="button">주소검색</button>
+          <input
+            type="text"
+            :value="localForm.postcode"
+            placeholder="우편번호"
+            readonly
+          />
+          <button @click="handleAddressSearch" type="button">주소검색</button>
         </div>
-
-        <!-- 2줄: 기본주소 -->
         <input
           type="text"
-          :value="form.address"
+          :value="localForm.address"
           placeholder="기본주소"
           readonly
           class="full-width"
         />
-
-        <!-- 3줄: 상세주소 -->
         <input
           type="text"
-          :value="form.addressDetail"
+          v-model="localForm.addressDetail"
           placeholder="상세주소"
           @input="(e) => updateField('addressDetail', e.target.value)"
           class="full-width"
@@ -183,8 +256,8 @@ watch(
       </div>
       <div class="phone-input">
         <select
-          :value="form.ownerTel1"
-          @change="(e) => updateField('ownerTel1', e.target.value)"
+          v-model="localForm.storePhone1"
+          @change="(e) => updateField('storePhone1', e.target.value)"
         >
           <option>02</option>
           <option>031</option>
@@ -205,28 +278,25 @@ watch(
         </select>
         <input
           type="text"
-          v-model="ownerTel2"
           maxlength="4"
-          @input="onOwnerTelInput($event, 'ownerTel2', 'ownerTel3')"
-          :class="{ invalid: errors.ownerTel2 }"
-          @keydown="onlyNumberInput"
+          @input="(e) => handlePhoneInput(e, 'storePhone2')"
+          :class="{ invalid: errors.storePhone2 }"
         />
+
         <input
           type="text"
-          v-model="ownerTel3"
           maxlength="4"
-          @input="onOwnerTelInput($event, 'ownerTel3')"
-          :class="{ invalid: errors.ownerTel3 }"
-          @keydown="onlyNumberInput"
+          @input="(e) => handlePhoneInput(e, 'storePhone3')"
+          :class="{ invalid: errors.storePhone3 }"
         />
       </div>
     </div>
-    <p v-if="errors.ownerTel2 || errors.ownerTel3" class="error-msg">
-      {{ errors.ownerTel2 || errors.ownerTel3 }}
+    <p v-if="errors.storePhone2 || errors.storePhone3" class="error-msg">
+      {{ errors.storePhone2 || errors.storePhone3 }}
     </p>
     <div class="sevLine"></div>
 
-    <!-- 전화번호 -->
+    <!-- 대표자 전화번호 -->
     <div class="form-group">
       <div class="sortation">
         <span>*</span>
@@ -234,7 +304,7 @@ watch(
       </div>
       <div class="phone-input">
         <select
-          :value="form.ownerPhone1"
+          v-model="localForm.ownerPhone1"
           @change="(e) => updateField('ownerPhone1', e.target.value)"
         >
           <option>010</option>
@@ -245,24 +315,20 @@ watch(
         </select>
         <input
           type="text"
-          v-model="ownerPhone2"
           maxlength="4"
-          @input="onOwnerPhoneInput($event, 'ownerphone2', 'ownerphone3')"
+          @input="(e) => handlePhoneInput(e, 'ownerPhone2')"
           :class="{ invalid: errors.ownerPhone2 }"
-          @keydown="onlyNumberInput"
         />
         <input
           type="text"
-          v-model="ownerPhone3"
           maxlength="4"
-          @input="onOwnerPhoneInput($event, 'ownerPhone3')"
+          @input="(e) => handlePhoneInput(e, 'ownerPhone3')"
           :class="{ invalid: errors.ownerPhone3 }"
-          @keydown="onlyNumberInput"
         />
       </div>
     </div>
-    <p class="error-msg" v-if="errors.ownerPhone2 || errors.ownerPhone3">
-      {{ errors.ownerPhone2 || errors.owerPhone3 }}
+    <p v-if="errors.ownerPhone2 || errors.ownerPhone3" class="error-msg">
+      {{ errors.ownerPhone2 || errors.ownerPhone3 }}
     </p>
     <div class="sevLine"></div>
 
@@ -273,13 +339,35 @@ watch(
         <p>사업자 등록증</p>
       </div>
       <div class="upload-box">
-        <button type="button">업로드</button>
+        <!-- 숨겨진 파일 input -->
+        <input
+          type="file"
+          ref="fileInput"
+          @change="onFileChange"
+          accept="image/*,.pdf"
+          style="display: none"
+        />
+
+        <!-- 업로드 버튼 -->
+        <button type="button" @click="triggerFileInput">업로드</button>
+
+        <!-- 파일명 표시 -->
+        <span v-if="selectedFile" class="file-name">
+          {{ selectedFile.name }}
+        </span>
+
+        <!-- 이미지 미리보기 -->
+        <div v-if="previewUrl" class="preview">
+          <!-- <img :src="previewUrl" alt="미리보기" /> -->
+        </div>
+
         <li>등록증 전체가 선명하게 촬영된 이미지 또는 PDF 파일을 업로드해야 합니다.</li>
         <li>
           사업자등록상의 대표자명과 가입자 정보가 다를 경우, 추가 인증이 필요합니다.
         </li>
       </div>
     </div>
+
     <div class="sevLine"></div>
 
     <!-- 가게 상호명 및 카테고리 -->
@@ -400,11 +488,6 @@ select {
   transition: border 0.2s ease;
 }
 
-input:focus,
-select:focus {
-  border-color: #ff6666;
-  outline: none;
-}
 
 input.invalid,
 select.invalid {
@@ -449,7 +532,21 @@ select.invalid {
     }
   }
 }
-
+// 업로드 파일명
+.file-name {
+  margin-left: 25px;
+  padding: 10px 16px;
+  border: 1px solid #c8c8c8;
+  border-radius: 10px;
+  color: #555;
+}
+// 업로드 주의사항
+li {
+  color: #555;
+  margin-left: 20px;
+  margin-top: 5px;
+  font-size: 14px;
+}
 .form-group {
   display: flex;
   align-items: flex-start; // 기본 input 위쪽 맞춤

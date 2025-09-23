@@ -599,6 +599,7 @@ const showModal = (message) => {
           v-model:form="state.form"
           v-model:owner="state.owner"
           v-model:errors="errors"
+          @addressSearch="addressSearch"
         />
 
         <!-- 약관 동의 및 제출 -->
