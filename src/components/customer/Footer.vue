@@ -58,7 +58,7 @@
 
 .footer {
   width: 100%;
-  background-color: #525252;
+  background-color: #888;
   color: white;
   padding: 2rem 1rem 1rem;
   font-size: 0.8rem;

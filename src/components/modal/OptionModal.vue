@@ -27,6 +27,7 @@ const setMenuData = (data) => {
     menuData.options = data.options;
     console.log("필수 선택 배열", sortedOptions)
     console.log("메뉴옵션 데이터", menuData.options)
+    quantityNum.value = 1;
 
 
     // 필수 옵션 자동 추가용
@@ -90,7 +91,6 @@ const goCart = async () => {
 
     if (res.data.resultStatus === 200) {
         console.log("카트 메뉴 담기 성공 !")
-        closeModal();
     }
 }
 
@@ -157,7 +157,7 @@ const goCart = async () => {
 
                 <div class="footer-btn">
                     <button type="button" class="hn-btn-gray" data-bs-dismiss="modal">주문취소</button>
-                    <button type="button" class="hn-btn-gray" @click="readyCart">메뉴담기</button>
+                    <button type="button" class="hn-btn-gray" @click="readyCart" data-bs-dismiss="modal">메뉴담기</button>
                 </div>
             </div>
         </div>

@@ -7,7 +7,7 @@ import { getReviewsByStoreId, getOwnerCommentList } from "@/services/reviewServi
 import { getFavorite, addFavorite, deleteFavorite } from "@/services/favoriteService";
 import { updateQuantity, removeItem, removeCart } from "@/services/cartService";
 import { useAccountStore } from "@/stores/account";
-import { useCartStore } from "@/stores/cart";
+import { useCartStore } from "@/stores/cartStore";
 import Menu from "@/components/customer/Menu.vue";
 import Review from "@/components/customer/Review.vue";
 import { useFavoriteStore } from "@/stores/favoriteStore";
@@ -180,15 +180,22 @@ const loadCarts = async (id) => {
 
 // 장바구니 추가 함수(Menu.vue 컴포넌트에서 받아옴)
 const addCart = (newItem) => {
-  const existIdx = state.carts.findIndex(item => item.menuId === newItem.menuId);
+  const existIdx = state.carts.findIndex(item => {
+    const itemOptionIds = item.options?.map(opt => opt.children[0]?.id).sort().join(",");
+    const newItemOptionIds = newItem.options?.map(opt => opt.children[0]?.id).sort().join(",");
+
+    return item.menuId === newItem.menuId && itemOptionIds === newItemOptionIds;
+  });
 
   if (existIdx !== -1) {
-    increaseQuantity(existIdx);
+    // 기존 카트 수량 증가
+    state.carts[existIdx].quantity++;
   } else {
     newItem.quantity = 1;
     state.carts.push(newItem);
-    calculateTotal();
   }
+
+  calculateTotal();
 };
 
 // 장바구니 메뉴 개수 감소시키는 함수
@@ -509,7 +516,7 @@ const sortedMenus = computed(() => {
             </div>
             <div class="min-amount">
               <div class="text-color">최소 주문 금액</div>
-              <div>{{ store.storeInfo.minAmount }}원 이상</div>
+              <div>{{ (store.storeInfo.minAmount ?? 0).toLocaleString() }}원 이상</div>
             </div>
             <!-- 가게 소개 -->
             <div class="comment-title">
@@ -529,7 +536,7 @@ const sortedMenus = computed(() => {
                   기본
                 </div>
                 <div>
-                  {{ store.storeInfo.minDeliveryFee }}원 이상
+                  {{ (store.storeInfo.minDeliveryFee ?? 0).toLocaleString() }}원 이상
                 </div>
               </div>
             </div>
@@ -547,7 +554,7 @@ const sortedMenus = computed(() => {
               </hr>
               <div class="statistics-info">
 
-                <div> 전체 리뷰 수 {{ store.storeInfo.rating }}</div>
+                <div> 전체 리뷰 수 {{ store.reveiw.length }}</div>
                 <div>찜 {{ store.storeInfo.favorites ? store.storeInfo.favorites + 0 : store.storeInfo.favorites + 0 }}
                 </div>
               </div>
