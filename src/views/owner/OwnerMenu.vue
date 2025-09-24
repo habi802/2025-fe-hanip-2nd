@@ -115,7 +115,7 @@ const handleSaved = async (payload, file) => {
   if (res?.status === 200) {
     await fetchMenus();
     if (isEdit && reqBody.menuId) {
-      const d = await getMenus(reqBody.menuId);
+      const d = await getOneMenu(reqBody.menuId);
       state.selectedMenu = d?.data?.resultData ?? null;
       showAlert("메뉴가 정상적으로 수정됐습니다.", "alert-success");
       
