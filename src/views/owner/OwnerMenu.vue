@@ -3,7 +3,7 @@ import MenuDetail from "@/components/owner/MenuDetail.vue";
 import MenuList from "@/components/owner/MenuList.vue";
 import {
   getStoreIdAndMenus,
-  getMenus,
+  getOneMenu,
   saveMenu,
   modifyMenu,
   deleteMenu,
@@ -32,7 +32,7 @@ const handleSelectMenu = async (menuOrId) => {
   const menuId = typeof menuOrId === "object" ? menuOrId.menuId : menuOrId;
 
   state.mode = "edit";
-  const res = await getMenus(menuId);
+  const res = await getOneMenu(menuId);
   if (res?.status === 200) {
     state.selectedMenu = res.data?.resultData ?? null;
   } else {
