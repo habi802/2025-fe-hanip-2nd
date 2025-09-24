@@ -1,4 +1,99 @@
 <script setup>
+import { onMounted, ref } from "vue";
+import { getOrderDelivery , patchDeliveryCompleted } from "@/services/riderService";
+
+const order = ref({})
+onMounted(async ()=>{
+
+  await fetchOrders();
+
+  try {
+    const res = await getOrderDelivery();
+    order.value = res.data.resultData ?? {}; // 안전하게 데이터 할당
+    console.log("order:", order.value);
+  } catch (e) {
+    console.error("주문 정보 로드 실패:", e);
+  }
+});
+
+
+//주문정보 불러오기
+const fetchOrders = async() => {
+  try {
+    const res = await getOrderDelivery();
+    order.value = res.data.resultData ?? {};
+    console.log("로드된 주문: ", order.value);
+
+    // 새로운 주문이 로드되면 isCallAccepted는 false여야 다음 콜 수락이 가능함
+    isCallAccepted.value = false;
+    isFoodPickedUp.value = false;
+    isDeliveryCompleted.value = false;
+
+    // 만약 주문이 바로 없으면 "현재 대기 중인 주문이 없습니다" 등으로 표시 가능
+    if (Object.keys(order.value).length === 0) {
+        console.log("현재 대기 중인 새로운 주문이 없습니다.");
+    }
+  }catch (e) {
+    console.error("주문 정보 로드 실패:", e);
+    order.value = {}; // 실패 시에도 초기화 유지
+    isCallAccepted.value = false; // 에러 시에도 상태 초기화
+    isFoodPickedUp.value = false;
+    isDeliveryCompleted.value = false;
+  }
+}
+
+
+//콜 수락 버튼
+const isCallAccepted = ref(false);
+const handleAcceptCall = () => {
+  if (!isCallAccepted.value && Object.keys(order.value).length > 0) { // 주문이 있을 때만 수락 가능
+    isCallAccepted.value = true;
+    console.log("콜이 수락되었습니다! 주문:", order.value.id);
+  } else if (Object.keys(order.value).length === 0) {
+    console.log("현재 대기 중인 주문이 없습니다.");
+  } else {
+    console.log("이미 콜을 수락했습니다.");
+  }
+};
+
+//음식 픽업 버튼
+const isFoodPickedUp = ref(false);
+const handleFoodPickup = () => {
+  if (isCallAccepted.value && !isFoodPickedUp.value) { // 콜이 수락되었고 아직 픽업 전일 때
+    isFoodPickedUp.value = true;
+    console.log("음식을 픽업했습니다! 주문:", order.value.id);
+  } else {
+    console.log("픽업 조건이 충족되지 않았거나 이미 픽업했습니다.");
+  }
+};
+
+//배달완료 버튼
+const isDeliveryCompleted = ref(false);
+const handleCompleteDelivery = async () => {
+  if (isFoodPickedUp.value && !isDeliveryCompleted.value) {
+    // 먼저 UI 상태부터 업데이트 (통신 전에)
+    isDeliveryCompleted.value = true;
+    
+    await patchDeliveryCompleted(order.value.id);
+
+    // 잠깐 배달완료 메시지 보여주기 (선택사항)
+    setTimeout(() => {
+      // 3. 모든 상태 초기화해서 대기 화면으로 돌아가기
+      isCallAccepted.value = false;
+      isFoodPickedUp.value = false;
+      isDeliveryCompleted.value = false;
+      order.value = {}; // 주문 정보도 초기화
+      
+      // 4. 여기서 통신은 안 하고 그냥 "대기중" 상태로만 UI 변경
+      console.log("대기 화면으로 전환 완료!");
+    }, 1000); // 1초 후 초기화 (너무 빨리 바뀌면 사용자가 못 볼 수 있으니까)
+  }
+  
+
+
+};
+
+
 
 </script>
 
@@ -13,11 +108,10 @@
 
       <section class="pickup">
         <h4 class="box-title">음식픽업</h4>
-        <div class="info-box pickup-box">
-          <p class="store-name">신당동 냉떡볶이</p>
+        <div class="info-box" :class="{'active-box' :  isCallAccepted && !isFoodPickedUp }">
+          <p class="store-name">{{ order.storeName || "배달대기중" }}</p>
           <p class="store-addr">
-            대구 달서구 야외음악당로 20길 49,<br />
-            205동 203호
+            {{ order.storeAddress || "" }}
           </p>
         </div>
       </section>
@@ -26,28 +120,35 @@
 
       <section class="customer">
         <h4 class="box-title">고객주소</h4>
-        <div class="info-box customer-box">
+        <div class="info-box" :class="{'active-box' : isFoodPickedUp }">
           <p>
-            대구 달서구 야외음악당로 20길 49,<br />
-            205동 203호
+            {{ order.address || "" }}
           </p>
         </div>
       </section>
 
-      <aside class="order-info">
+      <aside v-if="isCallAccepted && Object.keys(order).length > 0" class="order-info">
         <ul>
-          <li><strong>주문번호</strong> <span>0001</span></li>
-          <li><strong>메뉴</strong> <span>황금올리브 외 4건</span></li>
-          <li><strong>결제금액</strong> <span>23,500원</span></li>
-          <li><strong>요청사항</strong> <span>8282구다사이</span></li>
+          <li><strong>주문번호</strong> <span> 00-{{ order.id || "" }}</span></li>
+          <li><strong>메뉴</strong> <span>{{ order.menu || "" }}</span></li>
+          <li><strong>결제금액</strong> <span>{{ order.amount ? order.amount.toLocaleString() : "" }}</span></li>
+          <li><strong>요청사항</strong> <span>{{ order.riderRequest || "" }}</span></li>
         </ul>
       </aside>
+
     </main>
 
     <footer class="rider-footer">
-      <button class="pickup-btn">음식 픽업</button>
+      <button v-if="Object.keys(order).length > 0 && !isCallAccepted" class="pickup-btn" @click="handleAcceptCall">콜 수락</button>
+      <button v-if="isCallAccepted && !isFoodPickedUp" class="pickup-btn" @click="handleFoodPickup">음식 픽업</button>
+      <button v-if="isFoodPickedUp && !isDeliveryCompleted" class="pickup-btn" @click="handleCompleteDelivery">배달 완료</button>
     </footer>
+
+    <!-- 배달 완료 시 보여줄 메시지 -->
+    <p v-if="isDeliveryCompleted && !isCallAccepted" class="completed-message">배달 완료! 다음 주문을 기다리는 중...</p>
   </div>
+
+  
 </template>
 
 <style scoped>
@@ -113,7 +214,7 @@ body {
   width: 500px;
   height: 300px;
   padding: 30px;
-  border-radius: 8px;
+  border-radius: 15px;
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -125,14 +226,9 @@ body {
   font-weight: bold;
 }
 
-.pickup-box {
+.active-box {
   background: #ff6868;
   color: #fff;
-}
-
-.customer-box {
-  background: #fff;
-  color: #000;
 }
 
 .store-name {
@@ -153,6 +249,7 @@ body {
 .order-info {
   width: 300px;
   padding: 20px;
+  margin-top: 50px;
 }
 
 .order-info ul {
