@@ -1,6 +1,6 @@
 <script setup>
 import { onMounted, ref } from "vue";
-import { getOrderDelivery } from "@/services/riderService";
+import { getOrderDelivery , patchDeliveryCompleted } from "@/services/riderService";
 
 const order = ref({})
 onMounted(async ()=>{
@@ -71,10 +71,12 @@ const handleFoodPickup = () => {
 const isDeliveryCompleted = ref(false);
 const handleCompleteDelivery = async () => {
   if (isFoodPickedUp.value && !isDeliveryCompleted.value) {
-    // 1. 먼저 UI 상태부터 업데이트 (통신 전에)
+    // 먼저 UI 상태부터 업데이트 (통신 전에)
     isDeliveryCompleted.value = true;
     
-    // 2. 잠깐 배달완료 메시지 보여주기 (선택사항)
+    await patchDeliveryCompleted(order.value.id);
+
+    // 잠깐 배달완료 메시지 보여주기 (선택사항)
     setTimeout(() => {
       // 3. 모든 상태 초기화해서 대기 화면으로 돌아가기
       isCallAccepted.value = false;
@@ -86,6 +88,9 @@ const handleCompleteDelivery = async () => {
       console.log("대기 화면으로 전환 완료!");
     }, 1000); // 1초 후 초기화 (너무 빨리 바뀌면 사용자가 못 볼 수 있으니까)
   }
+  
+
+
 };
 
 
