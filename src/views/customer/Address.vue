@@ -1,18 +1,71 @@
 <script setup>
 import { ref, onMounted, reactive } from "vue";
-import { getAddresses, patchMainAddress, deleteAddress } from "@/services/addressService";
+import { getAddresses, addAddress, putAddress, patchMainAddress, deleteAddress } from "@/services/addressService";
 import AddressBar from "@/components/customer/address/AddressBar.vue";
 import AddressCard from "@/components/customer/address/AddressCard.vue";
 import EditAddress from "@/components/customer/address/EditAddress.vue";
 import AlertModal from "@/components/modal/AlertModal.vue";
 import ConfirmModal from "@/components/modal/ConfirmModal.vue";
 
+const defaultForm = {
+    id: 0,
+    title: '',
+    postcode: '',
+    address: '',
+    addressDetail: '',
+}
+
 const state = reactive({
+    form: { ...defaultForm },
+    mode: 'add',
     addresses: []
 });
 
-// 한 페이지 당 보여줄 개수
-const SHOW_COUNT = ref(4);
+// 주소 추가 및 수정
+const saveAddress = async data => {
+    let res;
+
+    if (data.mode === 'add') {
+        // 새로운 주소 추가
+        state.form.title = data.title;
+        state.form.postcode = data.postcode;
+        state.form.address = data.address;
+        state.form.addressDetail = data.addressDetail;
+
+        res = await addAddress(state.form);
+        if (res !== undefined && res.status === 200) {
+            state.addresses.push({
+                id: res.data.resultData.id,
+                title: state.form.title,
+                postcode: state.form.postcode,
+                address: state.form.address,
+                addressDetail: state.form.addressDetail
+            });
+
+            addressModal.value = false;
+        }
+    } else {
+        // 기존 주소 수정
+        state.form.id = data.id;
+        state.form.title = data.title;
+        state.form.postcode = data.postcode;
+        state.form.address = data.address;
+        state.form.addressDetail = data.addressDetail;
+
+        res = await putAddress(state.form);
+        if (res !== undefined && res.status === 200) {
+            const putData = state.addresses.find(address => address.id === state.form.id);
+            if (putData) {
+                putData.title = state.form.title;
+                putData.postcode = state.form.postcode;
+                putData.address = state.form.address;
+                putData.addressDetail = state.form.addressDetail;
+            }
+
+            addressModal.value = false;
+        }
+    }
+};
 
 // 기본 주소 변경
 const setMainAddress = async id => {
@@ -38,6 +91,28 @@ const setMainAddress = async id => {
     }
 };
 
+const addressModal = ref(false);
+
+// 주소 추가 및 수정 창 열기
+const openEditModal = data => {
+    console.log(data);
+    Object.assign(state.form, defaultForm);
+    
+    if (data.id) {
+        state.form = { ...data };
+        state.mode = 'edit';
+    } else {
+        state.form.address = data;
+        state.mode = 'add';
+    }
+    addressModal.value = true;
+};
+
+// 주소 추가 및 수정 창 닫기
+const closeModal = () => {
+    addressModal.value = false;
+}
+
 const alertModalRef = ref(null);
 const confirmModalRef = ref(null);
 
@@ -61,6 +136,12 @@ const removeAddress = async id => {
     }
 };
 
+// 한 페이지 당 보여줄 개수
+const SHOW_COUNT = ref(4);
+
+// 더보기 버튼
+const loadMore = () => (SHOW_COUNT.value += 4);
+
 onMounted(async () => {
     const res = await getAddresses();
 
@@ -68,40 +149,6 @@ onMounted(async () => {
         state.addresses = res.data.resultData;
     }
 });
-
-// 수정 모달 관리
-const showModal = ref(false);
-const selectedAddress = ref({}); // 수정 모달용 선택 주소
-const modalMode = ref("edit"); // edit / add
-
-// 모달 열기 (수정)
-const openEditModal = (addr) => {
-    selectedAddress.value = { ...addr };
-    showModal.value = true;
-};
-
-// 모달 열기 (추가)
-const openAddModal = () => {
-    selectedAddress.value = {}; // 초기화
-    showModal.value = true;
-};
-
-// 수정 저장
-const saveAddress = (updatedAddr) => {
-    if (updatedAddr.mode === "add") {
-        // 새로운 주소 추가
-        addresses.value.push({ ...updatedAddr, address_id: Date.now() });
-    } else {
-        // 기존 주소 수정
-        const index = addresses.value.findIndex(
-            (a) => a.address_id === updatedAddr.address_id
-        );
-        if (index !== -1) addresses.value[index] = updatedAddr;
-    }
-};
-
-// 더보기 버튼
-const loadMore = () => (SHOW_COUNT.value += 4);
 </script>
 
 <template>
@@ -111,12 +158,12 @@ const loadMore = () => (SHOW_COUNT.value += 4);
             <div class="titleLine"></div>
 
             <!-- 주소 검색 바 -->
-            <AddressBar />
+            <AddressBar @create-address="openEditModal" />
 
             <!-- 주소 카드 리스트 -->
             <div class="address-list">
                 <AddressCard v-for="address in state.addresses" :key="address.id" :address="address"
-                    @set-main-address="setMainAddress" @edit="openEditModal" @remove-address="removeAddress"
+                    @set-main-address="setMainAddress" @edit-address="openEditModal" @remove-address="removeAddress"
                 />
             </div>
 
@@ -125,13 +172,13 @@ const loadMore = () => (SHOW_COUNT.value += 4);
                 <button class="plus-btn" @click="loadMore">더보기</button>
             </div>
         </div>
-
-        <!-- 수정 모달 -->
-        <EditAddress :show="showModal" :address="selectedAddress" @close="showModal = false" @save="saveAddress" />
-
-        <AlertModal ref="alertModalRef" />
-        <ConfirmModal ref="confirmModalRef" />
     </div>
+
+    <!-- 수정 모달 -->
+    <EditAddress :isShow="addressModal" :form="state.form" :mode="state.mode" @save-address="saveAddress" @close-modal="closeModal" />
+
+    <AlertModal ref="alertModalRef" />
+    <ConfirmModal ref="confirmModalRef" />
 </template>
 
 <style lang="scss" scoped>
@@ -158,6 +205,7 @@ const loadMore = () => (SHOW_COUNT.value += 4);
     border-bottom: 3px solid #000;
     margin: 0 auto 3rem;
 }
+
 // 카드 리스트 배치
 .address-list {
     display: grid;

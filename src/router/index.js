@@ -34,6 +34,7 @@ const router = createRouter({
       path: "/address",
       name: "address",
       component: () => import("@/views/customer/Address.vue"),
+      meta: { layout: CustomerLayout },
     },
     {
       path: "/check",
