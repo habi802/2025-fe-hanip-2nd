@@ -29,6 +29,7 @@ const localForm = reactive({
 
 // input 변경 시 emit
 function updateField(field, value) {
+  localForm[field] = value;
   if (["ownerPhone1", "ownerPhone2", "ownerPhone3"].includes(field)) {
     emit("update:form", {
       ...props.form,
