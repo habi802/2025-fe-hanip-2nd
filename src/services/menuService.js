@@ -47,6 +47,11 @@ export const modifiyMenuHide = (body) => {
   return axios.patch(`${path}`, body).catch((e) => e.response);
 }
 
+// 메뉴 품절
+export const modifiyMenuSoldOut = (body) => {
+  return axios.patch(`${path}`, body).catch((e) => e.response);
+}
+
 //메뉴 옵션 조회용
 export const getOption = (menuId)=> {
   return axios.get(`${path}/${menuId}`).catch((e)=> e.response);

@@ -4,6 +4,7 @@ import MenuListCard from "./MenuListCard.vue";
 
 const searchQuery = ref("");
 const activeTab = ref("전체");
+const sortOption = ref("전체");
 
 // 데이터
 const props = defineProps({
@@ -48,19 +49,39 @@ const groupedAll = computed(() => {
 
 // 탭 필터
 const filteredGroups = computed(() => {
-  if (activeTab.value === "전체") return groupedAll.value;
-  return groupedAll.value.filter((g) => g.menuType === activeTab.value);
+  let groups = activeTab.value === "전체"
+    ? groupedAll.value
+    : groupedAll.value.filter((g) => g.menuType === activeTab.value);
+
+  if (sortOption.value === "가격 순") {
+    groups = groups.map((g) => ({
+      ...g,
+      menus: [...g.menus].sort((a, b) => (a.price ?? 0) - (b.price ?? 0)),
+    }));
+  } else if (sortOption.value === "숨긴 메뉴") {
+    groups = groups.map((g) => ({
+      ...g,
+      menus: g.menus.filter((m) => m.isHide === 0), // 숨김만
+    })).filter((g) => g.menus.length);
+  } else if (sortOption.value === "품절 메뉴") {
+    groups = groups.map((g) => ({
+      ...g,
+      menus: g.menus.filter((m) => m.isSoldOut === 0), // 품절만
+    })).filter((g) => g.menus.length);
+  }
+
+  return groups;
 });
 </script>
 
 <template>
   <div class="menu-list">
     <div class="d-flex justify-content-between align-items-center mb-3">
-      <select class="form-select" style="width: 150px">
-        <option>메뉴전체</option>
-        <option>카테고리별</option>
-        <option>이름 순</option>
-        <option>월 등록 기간</option>
+      <select v-model="sortOption" class="form-select" style="width: 150px">
+        <option>전체</option>
+        <option>가격 순</option>
+        <option>숨긴 메뉴</option>
+        <option>품절 메뉴</option>
       </select>
       <input
         v-model="searchQuery"
@@ -104,10 +125,20 @@ const filteredGroups = computed(() => {
           />
         </div>
       </template>
-      <p v-else class="text-center mt-5 text-muted">
+      <p v-else class="text-center mt-5 empty-text">
+        <img 
+        src="@/imgs/owner/owner-service6.png" 
+        alt="빈 상태 이미지" 
+        class="empty-img mb-3"
+        />
+
+        <br />
+
         {{
-          searchQuery ? "검색 결과가 없습니다." : "아직 등록된 메뉴가 없습니다."
+          searchQuery ? "검색 결과가 없습니다." : "등록된 메뉴가 없습니다."
         }}
+
+<br />
       </p>
     </div>
   </div>
@@ -183,4 +214,16 @@ const filteredGroups = computed(() => {
   background-color: #ff8989;
   color: #fff;
 }
+
+.empty-img {
+  width: 250px;
+  opacity: 0.6;
+}
+
+.empty-text {
+  font-size: 20px;   
+  font-weight: 500; 
+  color: #9c9c9c;    
+}
+
 </style>
