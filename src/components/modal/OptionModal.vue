@@ -2,16 +2,6 @@
 import { reactive, computed, ref } from 'vue';
 import { addItem } from '@/services/cartService';
 
-
-// 모달 끄는 용도
-const closeModal = () => {
-    const modalEl = document.getElementById('staticBackdrop');
-    if (modalEl) {
-        const modalInstance = bootstrap.Modal.getInstance(modalEl);
-        if (modalInstance) modalInstance.hide();
-    }
-};
-
 const menuData = reactive({
     menuId: 0,
     name: '',
@@ -29,18 +19,18 @@ const setMenuData = (data) => {
     console.log("메뉴옵션 데이터", menuData.options)
     quantityNum.value = 1;
 
-
     // 필수 옵션 자동 추가용
+
     menuOption.optionId = [];
-    data.options.forEach(optionItem => {
+    menuData.options.forEach(optionItem => {
         if (optionItem.isRequired === 1 && optionItem.children.length > 0) {
-            // 필수 옵션이면 첫 번째 자식을 기본 선택
-            menuOption.optionId.push(optionItem.optionId);
-            menuOption.optionId.push(optionItem.children[0].optionId);
+            menuOption.optionId.push(optionItem.optionId);           // 부모 옵션 ID
+            menuOption.optionId.push(optionItem.children[0].optionId); // 첫 번째 자식 ID
         }
     });
 
 };
+
 
 defineExpose({ setMenuData, menuData })
 
@@ -88,9 +78,10 @@ const readyCart = () => {
 
 const goCart = async () => {
     const res = await addItem(menuOption);
-
     if (res.data.resultStatus === 200) {
         console.log("카트 메뉴 담기 성공 !")
+        menuOption.optionId = [];
+        menuData.options.children = [];
     }
 }
 
@@ -124,7 +115,7 @@ const goCart = async () => {
                             <div class="option-select">
                                 <div class="options" v-for="child in optionItem.children" :key="child.optionId">
                                     <input class="option-btn" type="radio" :name="'option-' + optionItem.optionId"
-                                        :checked="optionItem.isRequired === 1 && child === optionItem.children[0]"
+                                        :checked="menuOption.optionId.includes(child.optionId)"
                                         @change="onOptionSelect(optionItem.optionId, child.optionId)" />
                                     <span class="option-detail">{{ child.comment }}</span>
                                     <div class="menu-price">{{ child.price }}원</div>

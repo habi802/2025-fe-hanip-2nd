@@ -123,7 +123,9 @@ const calculateTotal = () => {
   state.items.forEach((item) => {
     const price = item.price * item.quantity;
     totalPrice.value += price;
+    console.log("이거 왜이렇게 비싸", item.price)
   });
+
 };
 
 
@@ -131,16 +133,38 @@ const calculateTotal = () => {
 // 가게 이미지
 const imgSrc = computed(() => {
   return state.store.id && state.store.imagePath && state.store.imagePath !== 'null'
-    ? `/pic/store-profile/${state.store.id}/${state.store.imagePath}`
+    ? `${baseUrl.value}/images/store/${state.store.id}/${state.store.imagePath}`
     : defaultImage;
 })
-// 메뉴 이미지
 
-const menuIgmSrc = items => {
-  return items?.menuId && items?.imagePath && items?.imagePath !== 'null'
-    ? `/pic/menu-profile/${items?.menuId}/${items?.imagePath}`
-    : defaultImage;
-}
+const previewImage = ref(defaultImage);
+const baseUrl = ref(import.meta.env.VITE_BASE_URL);
+
+// 메뉴 이미지
+const menuIgmSrc = (item) => {
+  if (previewImage.value && previewImage.value !== defaultImage) {
+    return previewImage.value;
+  }
+  if (item?.imagePath && item.imagePath !== "null") {
+    return `${baseUrl.value}/images/store/${state.store.id}/menu/${item.menuId}/${item.imagePath}`;
+  }
+  return defaultImage;
+};
+
+// const menuIgmSrc = computed(() => {
+//   if (previewImage.value && previewImage.value !== defaultImage) {
+//     return previewImage.value;
+//   }
+//   if (props.menu?.imagePath && props.menu.imagePath !== "null") {
+//     return `${baseUrl.value}/images/store/${state.store.id}/menu/${items?.menuId}/${items?.imagePath}`;
+//   }
+//   return defaultImage;
+// });
+
+
+
+
+
 
 // 신규 함수
 
@@ -272,7 +296,7 @@ const decreaseQty = async (item) => {
                       <div class="option-name">{{ value.children[0]?.comment }}</div>
                     </div>
                     <div class="option-price-box">
-                      <div class="option-price">{{ value.children[0]?.price }}</div>
+                      <div class="option-price">{{ (value.children[0]?.price ?? 0).toLocaleString() }}원</div>
                     </div>
                   </div>
                 </div>
@@ -346,7 +370,7 @@ const decreaseQty = async (item) => {
   flex-wrap: wrap;
   justify-content: center;
   width: 100%;
-  font-weight: normal;
+  font-weight: 300;
   text-align: center;
   margin-top: 95px;
   font-size: 25px;
@@ -364,10 +388,12 @@ const decreaseQty = async (item) => {
       position: absolute;
       left: 50%;
       transform: translateX(-50%);
+      color: #6c6c6c;
     }
 
     // 01 음식선택 > 02 장바구니 > 03 주문/결제 > 04 주문 완료
     .step-horizontal {
+      color: #6c6c6c;
       width: 100%;
       display: flex;
       justify-content: right;
@@ -384,7 +410,7 @@ const decreaseQty = async (item) => {
 
   .solid {
     width: 1470px;
-    border: 1px #000 solid;
+    border: 1px #6c6c6c solid;
     margin: 50px 0 80px;
   }
 }

@@ -45,7 +45,7 @@ const decreaseQty = async (item) => {
     item.quantity -= 1;
     await minusQuantity(item.id);
   }
-  if (item.quantity === 1) {
+  else {
     await removeItem(item.id);
     items.value = items.value.filter(i => i.id !== item.id);
   }
