@@ -105,7 +105,6 @@ const toggleStoreStatus = async () => {
     
   }
 
-  
   onMounted( async () => {
     date();
     updateClock();
@@ -116,9 +115,9 @@ const toggleStoreStatus = async () => {
   //해당 컴포넌트에서도 fetchOrders 재시도
   onMounted(async () => {
     if (!orderStore.orders.length) {
-
       if (ownerStore.state.storeData?.id) {
         await orderStore.fetchOrders(ownerStore.state.storeData.id);
+        console.log("주문 데이터:", orderStore.orders.map(o => o.status));
       }else{
         console.log("스토어아이디 없음!")
       }
@@ -163,9 +162,9 @@ const toggleStoreStatus = async () => {
         🚫 영업 중단! 주문 받기를 중단했습니다.
     </div>
     <div v-if="hasOrders" class="order-status d-flex flex-column gap-2" style="margin-bottom: 10px; ">
-      <OrderCard title="주문대기" :orders="orderStore.orderedList"/>
-      <OrderCard title="조리대기" :orders="orderStore.orders"/>
-      <OrderCard title="배달현황" :orders="orderStore.orders"/>
+      <OrderCard title="주문대기" :orders="orderStore.paidList"/>
+      <OrderCard title="조리대기" :orders="orderStore.preparingList"/>
+      <OrderCard title="배달현황" :orders="orderStore.deliveringList"/>
     </div>
     <div v-else>
     주문정보 로딩 중...

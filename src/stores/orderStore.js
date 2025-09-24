@@ -32,6 +32,7 @@ export const useOrderStore = defineStore("order", {
     일치시키기
     */
     orderedList: (state) => state.orders.filter((o) => o.status === "01"),
+    paidList: (state) => state.orders.filter((o) => o.status === "02"), // 👈 추가
     preparingList: (state) => state.orders.filter((o) => o.status === "03"),
     deliveringList: (state) => state.orders.filter((o) => o.status === "04"),
     completedList: (state) => state.orders.filter((o) => o.status === "05"),
