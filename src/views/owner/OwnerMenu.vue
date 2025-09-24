@@ -7,7 +7,8 @@ import {
   saveMenu,
   modifyMenu,
   deleteMenu,
-  modifiyMenuHide
+  modifiyMenuHide,
+  modifiyMenuSoldOut
 } from "@/services/menuService";
 import { onMounted, reactive } from "vue";
 
@@ -115,7 +116,7 @@ const handleSaved = async (payload, file) => {
   if (res?.status === 200) {
     await fetchMenus();
     if (isEdit && reqBody.menuId) {
-      const d = await getMenus(reqBody.menuId);
+      const d = await getOneMenu(reqBody.menuId);
       state.selectedMenu = d?.data?.resultData ?? null;
       showAlert("메뉴가 정상적으로 수정됐습니다.", "alert-success");
       
@@ -149,16 +150,59 @@ const handleDeleted = async(menuId) => {
 }
 
 // 숨기기
-const hadleHide = async(payload) => {
+const handleHide = async(payload) => {
   // console.log("req: ", payload)
-  const res = await modifiyMenuHide(payload)
+  const newHide = payload.isHide === 1 ? 0 : 1;
+  const req = { ...payload, isHide: newHide };
+
+  const res = await modifiyMenuHide(req)
   if (res?.status !== 200) {
     showAlert("수정에 실패했습니다.");
     return;
   }
+
+  const target = state.menus.find(m => m.menuId === req.menuId);
+  if (target) {
+      target.isHide = payload.isHide;
+    }
+
+  if (state.selectedMenu?.menuId === payload.menuId) {
+    state.selectedMenu.isHide = newHide;
+  }
+
+  showAlert(
+    !newHide ? "메뉴가 숨김 처리되었습니다." : "메뉴가 다시 표시되었습니다.",
+    "alert-success"
+  );
   await fetchMenus();
-  showAlert("메뉴가 정상적으로 숨김 처리되었습니다.", "alert-success");
 }
+
+const handleSoldOut = async(payload) => {
+  const newSoldOut = payload.isSoldOut === 1 ? 0 : 1;
+  const req = { ...payload, isSoldOut: newSoldOut };
+
+  const res = await modifiyMenuSoldOut(req)
+  if (res?.status !== 200) {
+    showAlert("수정에 실패했습니다.");
+    return;
+  }
+
+  const target = state.menus.find(m => m.menuId === req.menuId);
+  if (target) {
+      target.isSoldOut = payload.isSoldOut;
+    }
+
+  if (state.selectedMenu?.menuId === payload.menuId) {
+    state.selectedMenu.isSoldOut = newSoldOut;
+  }
+
+  showAlert(
+    !newSoldOut ? "메뉴가 품절 처리되었습니다." : "메뉴가 판매중입니다.",
+    "alert-success"
+  );
+  await fetchMenus();
+}
+
 onMounted(async () => {
   await fetchMenus();
 });
@@ -214,7 +258,8 @@ const removeAlert = (id) => {
         :mode="state.mode"
         @saved="handleSaved"
         @deleted="handleDeleted"
-        @hide="hadleHide"
+        @hide="handleHide"
+        @soldOut="handleSoldOut"
       />
     </div>
   </div>
