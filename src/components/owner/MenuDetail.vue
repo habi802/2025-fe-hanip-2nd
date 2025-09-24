@@ -7,7 +7,7 @@ const props = defineProps({
   mode: { type: String, default: "create" },
 });
 
-const emit = defineEmits(["saved", "deleted", "hide"]);
+const emit = defineEmits(["saved", "deleted", "hide", "soldOut"]);
 
 onMounted(async () => {
   console.log("menuId:", props.menu.menuId, "// 메뉴 정보: ", props.menu);
@@ -141,15 +141,26 @@ const remove = () => {
 };
 
 // 메뉴 숨김
-const hide = () => {
+const isHide = ref(props.menu?.isHide ?? 0);
+const toggleHide = () => {
   const payload = {
     menuId: props.menu?.menuId,
-    isSoldOut: props.menu?.isSoldOut,
-    isHide: props.menu?.isHide,
+    isHide: props.menu?.isHide
   }
-  console.log("payload: ", payload)
+  console.log("토글 요청 payload:", payload)
   emit("hide", payload);
-};
+}
+
+// 메뉴 품절
+const isSoldOut = ref(props.menu?.isSoldOut ?? 0);
+const toggleSoldOut = () => {
+  const payload = {
+    menuId: props.menu?.menuId,
+    isSoldOut: props.menu?.isSoldOut
+  }
+  console.log("토글 요청 payload:", payload)
+  emit("soldOut", payload);
+}
 </script>
 
 <template>
@@ -307,21 +318,63 @@ const hide = () => {
     </div>
 
     <!-- 버튼 -->
-    <div class="d-flex justify-content-end gap-2 mt-4">
-      <button v-if="mode === 'edit'" class="owner-btn-cancel" @click="hide">
-        숨기기
-      </button>
-      <button class="owner-btn-white" @click="save">
-        {{ mode === "edit" ? "수정완료" : "등록완료" }}
-      </button>
-      <button
-        v-if="mode === 'edit'"
-        class="btn btn-outline-danger ms-2"
-        @click="remove"
+<div class="d-flex justify-content-between align-items-center mt-4">
+  <!-- 왼쪽: 숨김 버튼 -->
+  <div>
+    <button 
+      v-if="mode === 'edit'"
+      class="btn-icon" 
+      @click="toggleHide"
+      :title="!props.menu?.isHide ? '숨김 해제' : '숨김 처리'"
       >
-        삭제
-      </button>
-    </div>
+      <img
+        v-if="!props.menu?.isHide"
+        src="@/imgs/owner/hide.png"
+        alt="숨김"
+        class="icon-img"
+      />
+      <img
+        v-else
+        src="@/imgs/owner/show.png"
+        alt="보임"
+        class="icon-img"
+      />
+    </button>
+    <button 
+      v-if="mode === 'edit'"
+      class="btn-icon" 
+      @click="toggleSoldOut"
+      :title="!props.menu?.isSoldOut ? '품절 해제' : '품절 처리'"
+      >
+      <img
+        v-if="!props.menu?.isSoldOut"
+        src="@/imgs/owner/soldout.png"
+        alt="품절됨"
+        class="icon-img"
+      />
+      <img
+        v-else
+        src="@/imgs/owner/sold.png"
+        alt="판매 가능"
+        class="icon-img"
+      />
+    </button>
+  </div>
+
+  <!-- 오른쪽: 삭제 + 수정/등록 버튼 -->
+  <div class="d-flex gap-2">
+    <button
+      v-if="mode === 'edit'"
+      class="btn btn-outline-danger"
+      @click="remove"
+    >
+      삭제
+    </button>
+    <button class="owner-btn-white" @click="save">
+      {{ mode === "edit" ? "수정완료" : "등록완료" }}
+    </button>
+  </div>
+</div>
   </div>
 </template>
 
@@ -349,5 +402,18 @@ const hide = () => {
 }
 .option-group {
   background: #fafafa;
+}
+
+.btn-icon {
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+}
+
+.icon-img {
+  width: 50px; 
+  height: 50px;
+  display: inline-block;
 }
 </style>
