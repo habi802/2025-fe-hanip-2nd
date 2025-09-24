@@ -256,6 +256,14 @@ button{
   border-radius: 50%;
 }
 
+input:checked+.slider {
+  background-color: #ff6666;
+}
+
+input:checked+.slider::before {
+  transform: translateX(34px);
+}
+
 
 .submenu-btn{
   background: #fff;
