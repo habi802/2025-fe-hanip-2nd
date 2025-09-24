@@ -1,6 +1,6 @@
 <script setup>
 import { ref } from "vue";
-import EditAddress from "@/components/address/EditAddress.vue";
+import EditAddress from "@/components/customer/address/EditAddress.vue";
 
 // 🔹 모달 열림 상태 (추가용)
 const addModalOpen = ref(false);
