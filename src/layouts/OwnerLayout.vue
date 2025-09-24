@@ -35,8 +35,13 @@ onMounted(async () => {
 
         if (owner.state.storeId) {
             await orderStore.fetchOrders(owner.state.storeId);
+            console.log(orderStore.fetchOrders);
         }
     }
+
+    
+
+    
 });
 
 // 알림 갱신
