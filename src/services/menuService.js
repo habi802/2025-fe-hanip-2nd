@@ -13,13 +13,13 @@ export const saveMenu = (menuData) => {
 };
 
 // 가게 메뉴 전체 조회
-export const getOneMenu = (storeId) => {
-  return axios.get(`${path}/${storeId}`).catch((e) => e.response);
+export const getMenus = (storeId) => {
+  return axios.get(path, { params: {storeId : storeId} }).catch((e) => e.response);
 };
 
 // 메뉴 조회
-export const getMenus = (storeId) => {
-  return axios.get(path, { params: {storeId : storeId} }).catch((e) => e.response);
+export const getOneMenu = (menuId) => {
+  return axios.get(`${path}/${menuId}`).catch((e) => e.response);
 };
 
 // 로그인 아이디에 따른 가게 메뉴 조회

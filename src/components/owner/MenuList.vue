@@ -2,83 +2,59 @@
 import { ref, computed } from "vue";
 import MenuListCard from "./MenuListCard.vue";
 
-const menus = [
-  {
-    id: 1,
-    name: "1인 순살닭도리탕 세트",
-    price: 13900,
-    desc: "100% 닭다리살 + 각종 재료",
-    img: "menu1.jpg",
-    category: "단품메뉴",
-  },
-  {
-    id: 2,
-    name: "골드덤 2인세트",
-    price: 25000,
-    desc: "국물찜닭 + 추가재료",
-    img: "menu2.jpg",
-    category: "세트메뉴",
-  },
-  {
-    id: 3,
-    name: "사이드 감자튀김",
-    price: 5000,
-    desc: "바삭바삭 감자튀김",
-    img: "menu3.jpg",
-    category: "사이드메뉴",
-  },
-  {
-    id: 3,
-    name: "사이드 감자튀김",
-    price: 5000,
-    desc: "바삭바삭 감자튀김",
-    img: "menu3.jpg",
-    category: "사이드메뉴",
-  },
-  {
-    id: 3,
-    name: "사이드 감자튀김",
-    price: 5000,
-    desc: "바삭바삭 감자튀김",
-    img: "menu3.jpg",
-    category: "사이드메뉴",
-  },
-];
-
-const activeTab = ref("전체");
 const searchQuery = ref("");
+const activeTab = ref("전체");
 
-const tabs = ["전체", "단품메뉴", "세트메뉴", "사이드메뉴", "음료"];
+// 데이터
+const props = defineProps({
+  menus: { type: Array, default: () => [] },
+});
+const emit = defineEmits(["selectMenu", "add"]);
 
-// 검색 필터 적용
-const searchedMenus = computed(() => {
-  if (!searchQuery.value) return menus;
-  const q = searchQuery.value.toLowerCase();
-  return menus.filter(
-    (m) => m.name.toLowerCase().includes(q) || m.desc.toLowerCase().includes(q)
-  );
+// 메뉴 종류 탭
+const tabs = ["전체", "단품", "세트", "사이드", "음료수"];
+
+const normalize = (t) => {
+  const s = (t ?? "").toString().toLowerCase();
+  if (s.includes("단품")) return "단품";
+  if (s.includes("세트")) return "세트";
+  if (s.includes("사이드")) return "사이드";
+  if (s.includes("음료수") || s.includes("드링크")) return "음료수";
+  return "기타";
+};
+
+// 고정 탭 및 검색
+const groupedAll = computed(() => {
+  const bucket = { 단품: [], 세트: [], 사이드: [], 음료수: [], 기타: [] };
+
+  for (const g of props.menus ?? []) {
+    const cat = normalize(g.menuType);
+    bucket[cat].push(...(Array.isArray(g.menus) ? g.menus : []));
+  }
+
+  const q = searchQuery.value.trim().toLowerCase();
+  const match = (m) =>
+    !q ||
+    (m.name ?? "").toLowerCase().includes(q) ||
+    (m.comment ?? "").toLowerCase().includes(q);
+
+  const ordered = ["단품", "세트", "사이드", "음료수"]
+    .map((cat) => ({ menuType: cat, menus: bucket[cat].filter(match) }))
+    .filter((g) => g.menus.length);
+
+  const etc = bucket["기타"].filter(match);
+  return etc.length ? [...ordered, { menuType: "기타", menus: etc }] : ordered;
 });
 
-// 카테고리별 그룹화
-const groupedMenus = computed(() => {
-  const groups = {};
-  searchedMenus.value.forEach((menu) => {
-    if (!groups[menu.category]) groups[menu.category] = [];
-    groups[menu.category].push(menu);
-  });
-  return groups;
-});
-
-// 특정 탭 선택 시 메뉴
-const filteredMenus = computed(() => {
-  if (activeTab.value === "전체") return searchedMenus.value;
-  return searchedMenus.value.filter((m) => m.category === activeTab.value);
+// 탭 필터
+const filteredGroups = computed(() => {
+  if (activeTab.value === "전체") return groupedAll.value;
+  return groupedAll.value.filter((g) => g.menuType === activeTab.value);
 });
 </script>
 
 <template>
   <div class="menu-list">
-    <!-- 상단 카테고리 & 검색 -->
     <div class="d-flex justify-content-between align-items-center mb-3">
       <select class="form-select" style="width: 150px">
         <option>메뉴전체</option>
@@ -87,14 +63,13 @@ const filteredMenus = computed(() => {
         <option>월 등록 기간</option>
       </select>
       <input
-        type="text"
         v-model="searchQuery"
+        type="text"
         placeholder="검색"
         class="form-control"
       />
     </div>
 
-    <!-- 상단: 카테고리 탭 -->
     <div class="menu-tabs d-flex gap-4 mb-3">
       <button
         v-for="tab in tabs"
@@ -107,52 +82,33 @@ const filteredMenus = computed(() => {
       </button>
     </div>
 
-    <!-- 메뉴 추가 버튼 -->
     <div class="add-menu mb-3 text-center">
-      <button class="btn-add">+ 메뉴 추가하기</button>
+      <button class="btn-add" @click="emit('add')">+ 메뉴 추가하기</button>
     </div>
 
-    <!-- 메뉴 리스트 -->
     <div class="menu-scroll">
-      <!-- 전체일 때 -->
-      <template v-if="activeTab === '전체'">
-        <template v-if="searchedMenus.length > 0">
-          <div
-            v-for="(menus, category) in groupedMenus"
-            :key="category"
-            class="mb-4"
-          >
-            <h5 class="fw-bold mb-2">{{ category }}</h5>
-            <MenuListCard
-              v-for="menu in menus"
-              :key="menu.id"
-              :menu="menu"
-              class="menu-item"
-            />
-          </div>
-        </template>
-        <!-- 검색/등록 여부 구분 -->
-        <p v-else class="text-center mt-5" :class="searchQuery ? 'text-muted' : 'text-muted'">
-          {{ searchQuery ? "검색 결과가 없습니다." : "아직 등록된 메뉴가 없습니다." }}
-        </p>
-      </template>
+      <template v-if="filteredGroups.length">
+        <div
+          v-for="(group, gi) in filteredGroups"
+          :key="group.menuType ?? gi"
+          class="mb-4"
+        >
+          <h5 class="fw-bold mb-2">{{ group.menuType }}</h5>
 
-      <!-- 특정 탭일 때 -->
-      <template v-else>
-        <template v-if="filteredMenus.length > 0">
-          <h5 class="fw-bold mb-2">{{ activeTab }}</h5>
           <MenuListCard
-            v-for="menu in filteredMenus"
-            :key="menu.id"
+            v-for="(menu, mi) in group.menus"
+            :key="menu.menuId ?? `${group.menuType}-${mi}`"
             :menu="menu"
             class="menu-item"
+            @select="emit('selectMenu', $event)"
           />
-        </template>
-        <!-- 검색/등록 여부 구분 -->
-        <p v-else class="text-center mt-5" :class="searchQuery ? 'text-muted' : 'text-muted'">
-          {{ searchQuery ? "검색 결과가 없습니다." : "아직 등록된 메뉴가 없습니다." }}
-        </p>
+        </div>
       </template>
+      <p v-else class="text-center mt-5 text-muted">
+        {{
+          searchQuery ? "검색 결과가 없습니다." : "아직 등록된 메뉴가 없습니다."
+        }}
+      </p>
     </div>
   </div>
 </template>
