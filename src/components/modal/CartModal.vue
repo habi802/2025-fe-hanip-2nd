@@ -10,7 +10,7 @@ const isVisible = ref(false);
 // 모달 내부에서 보여줄 items (부모에서 전달)
 const items = ref([]);
 
-// 라우터
+// 라우터 
 const router = useRouter();
 const route = useRoute();
 
@@ -45,7 +45,7 @@ const decreaseQty = async (item) => {
     item.quantity -= 1;
     await minusQuantity(item.id);
   }
-  if (item.quantity === 1) {
+  else {
     await removeItem(item.id);
     items.value = items.value.filter(i => i.id !== item.id);
   }
@@ -89,7 +89,15 @@ const goToCategoryList = () => {
 
 
 
-
+const optionTotal = (item) => {
+  if (!item.options) return 0;
+  return item.options.reduce(
+    (sum, option) =>
+      sum +
+      (option.children?.reduce((cSum, c) => cSum + (c.price ?? 0), 0) ?? 0),
+    0
+  );
+};
 
 
 
@@ -106,10 +114,13 @@ const goToCategoryList = () => {
         <!-- 장바구니에 아이템 있을 때 -->
         <div v-if="items.length > 0" class="cart-container">
           <div class="storeName">{{ items[0].storeName }}</div>
-          <hr>
-          </hr>
-          <div v-for="(item, idx) in items" :key="item.id" class="cart-item">
-            <div>
+          <hr />
+
+
+          <div class="big-box">
+
+            <div v-for="(item, idx) in items" :key="item.id" class="cart-item">
+
               <div class="item-info">
                 <div class="item-name">{{ item.name }}</div>
                 <div class="item-controls">
@@ -122,18 +133,32 @@ const goToCategoryList = () => {
                   </div>
                 </div>
                 <div class="item-price">
-                  {{ (item.price * item.quantity).toLocaleString() }}원
+                  {{ (item.price * item.quantity + optionTotal(item)).toLocaleString() }}원
                 </div>
               </div>
+              <div class="option-box">
 
-              <div v-for="value in item.options" class="options" :key="value.id">
-                <div> {{ value.children[0]?.comment }}</div>
-                <div>{{ (value.children[0]?.price ?? 0).toLocaleString() }}원</div>
+                <div v-if="item.options?.length" class="options-wrapper">
+                  <div v-for="option in item.options" :key="option.optionId" class="option-row">
+                    <div class="option-comment">{{ option.comment }}</div>
+                    <div class="option-price" v-if="option.children?.length">
+                      <div v-for="child in option.children" :key="child.optionId">
+                        {{ child.comment }} (+{{ child.price.toLocaleString() }}원)
+                      </div>
+                    </div>
+                  </div>
+                </div>
 
               </div>
+
+
+
+
+
+
+              <hr v-if="idx !== items.length - 1" />
             </div>
 
-            <hr v-if="idx !== items.length - 1" />
           </div>
 
           <!-- 총 합계 -->
@@ -206,7 +231,7 @@ const goToCategoryList = () => {
 // 모달 wrapper
 .modal-wrapper {
   position: absolute;
-  top: 10%;
+  top: 100px;
   left: 70%;
   z-index: 1000;
 
@@ -249,13 +274,10 @@ const goToCategoryList = () => {
 //장바구니 아이템
 .cart-item {
   display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 10px;
-  margin-left: 10px;
+  width: 100%;
+  flex-direction: column;
 }
 
-// 수량 조절 버튼 영역
 .item-controls {
   display: flex;
   align-items: center;
@@ -363,30 +385,34 @@ span.total {
 }
 
 .item-info {
-  width: 100%;
   display: flex;
-  align-items: center;
   justify-content: space-between;
+  width: 100%;
+}
 
+.option-item {
+  display: flex;
+  justify-content: flex-start;
+  width: 100%;
 }
 
 .cart-container {
   padding: 20px;
-  border: 2px solid #ccc;
+  border: #888 1px solid;
   border-radius: 10px;
 }
 
-.quantity {
-  width: 20px;
-  text-align: center;
-  font-size: 1.1em;
-  font-weight: 400;
-  font-family: "Pretendard-Regular";
+.options-wrapper {
+
+  gap: 16px;
+  overflow-x: auto;
+  padding: 10px 0;
 }
 
-.options {
-  color: #ccc;
+.option-row {
+  white-space: nowrap;
   display: flex;
+  color: #ccc;
   justify-content: space-between;
 }
 </style>

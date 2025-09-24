@@ -1,6 +1,8 @@
 <script setup>
 import { reactive, computed, ref } from 'vue';
 import { addItem } from '@/services/cartService';
+import { modifyMenu } from '@/services/cartService';
+
 
 const menuData = reactive({
     menuId: 0,
@@ -9,90 +11,103 @@ const menuData = reactive({
     price: 0,
     options: []
 });
+
+
+const selectData = reactive({
+    cartId: 0,
+    menuId: 0,
+    optionId: [],
+    quantity: 0,
+});
+
+let quantityNum = ref(1);
+
 const setMenuData = (data) => {
     menuData.menuId = data.menuId;
     menuData.name = data.name;
     menuData.comment = data.comment;
     menuData.price = data.price;
-    menuData.options = data.options;
-    console.log("필수 선택 배열", sortedOptions)
+    // data가 옵션 배열이라면 바로 할당
+    menuData.options = Array.isArray(data) ? data : (data.options || []);
     console.log("메뉴옵션 데이터", menuData.options)
-    quantityNum.value = 1;
 
-    // 필수 옵션 자동 추가용
-
-    menuOption.optionId = [];
-    menuData.options.forEach(optionItem => {
-        if (optionItem.isRequired === 1 && optionItem.children.length > 0) {
-            menuOption.optionId.push(optionItem.optionId);           // 부모 옵션 ID
-            menuOption.optionId.push(optionItem.children[0].optionId); // 첫 번째 자식 ID
-        }
-    });
 
 };
 
+//선택했던 옵션 들고오기...
+const setSelectData = (data) => {
+    selectData.menuId = data.menuId;
+    selectData.quantity = data.quantity;
+    selectData.optionId = data.optionId;
+    console.log("내가 선택한 옵션", selectData.optionId)
+    quantityNum = data.quantity;
 
-defineExpose({ setMenuData, menuData })
+    menuOption.optionId = data.optionId;
+    menuOption.quantity = data.quantity;
+    selectData.cartId = data.cartId;
+}
 
 
-const sortedOptions = computed(() => {
-    return [...menuData.options].sort((a, b) => b.isRequired - a.isRequired);
-});
+defineExpose({ setMenuData, setSelectData })
 
 
-let quantityNum = ref(1);
+
+
 
 const quantityNumM = () => {
-    if (quantityNum.value > 1)
-        quantityNum.value -= 1;
+    if (selectData.quantity > 1)
+        selectData.quantity -= 1;
 }
 
 
 const quantityNumP = () => {
-    if (quantityNum.value < 100)
-        quantityNum.value += 1;
+    if (selectData.quantity < 100)
+        selectData.quantity += 1;
 }
 
 const onOptionSelect = (optionId, childId) => {
 
+    const optId = Number(optionId);
+    const chId = Number(childId);
 
-    const groupChildren = menuData.options.find(opt => opt.optionId === optionId)?.children.map(c => c.optionId) || [];
+    // 선택한 부모의 기존 인덱스 찾기
+    const existingParentIndex = menuOption.optionId.findIndex(id => id === optId);
 
-    let idx = menuOption.optionId.indexOf(optionId);
-    if (idx !== -1) menuOption.optionId.splice(idx, 1);
+    if (existingParentIndex !== -1) {
+        // 기존 부모 + 그 다음 인덱스(자식) 제거
+        menuOption.optionId.splice(existingParentIndex, 2);
+    }
 
-    menuOption.optionId = menuOption.optionId.filter(id => !groupChildren.includes(id));
-
-    menuOption.optionId.push(optionId);
-    menuOption.optionId.push(childId);
-    console.log('선택된 옵션 아이디:', optionId);
-    console.log('선택된 자식 아이디:', childId);
+    // 새 부모 + 자식 추가
+    menuOption.optionId.push(optId, chId);
+    console.log('선택된 옵션 아이디:', optId);
+    console.log('선택된 자식 아이디:', chId);
 
     console.log("전체 옵션", menuOption.optionId)
-
 };
 
 
 const menuOption = reactive({
+    cartId: 0,
     menuId: 0,
     optionId: [],
     quantity: 0,
 })
 
-const readyCart = () => {
-    menuOption.menuId = menuData.menuId;
-    menuOption.quantity = quantityNum.value;
+const readyCart = (cartId) => {
+    menuOption.cartId = cartId;
+    menuOption.menuId = selectData.menuId;
+    menuOption.quantity = selectData.quantity;
     console.log("카트에 담길 것 확인", menuOption)
 
-    goCart();
+    goCart(cartId);
 }
 
-const goCart = async () => {
-    const res = await addItem(menuOption);
+const goCart = async (cartId) => {
+    const res = await modifyMenu(cartId, menuOption);
     if (res.data.resultStatus === 200) {
         console.log("카트 메뉴 담기 성공 !")
-        menuOption.optionId = [];
-        menuData.options.children = [];
+
     }
 }
 
@@ -103,15 +118,16 @@ const goCart = async () => {
         aria-labelledby="staticBackdropLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
-                <div class="option-title"> 옵션 </div>
+                <div class="option-title"> 옵션 변경 </div>
+                <div class="top-title"> * 옵션을 변경하지 않을 시 돌아가기 버튼을 눌러주세요</div>
                 <hr>
                 </hr>
                 <div class="header">
                     <!-- 메뉴 이름 -->
-                    <div class="menu-name" id="staticBackdropLabel">{{ menuData.name }}</div>
+                    <!-- <div class="menu-name" id="staticBackdropLabel">{{ menuData.name }}</div> -->
                     <!-- 메뉴 설명 -->
                 </div>
-                <div class="menu-comment">{{ menuData.comment }}</div>
+                <!-- <div class="menu-comment">{{ menuData.comment }}</div> -->
                 <div class="body">
                     <div class="option-body">
                         <div v-for="optionItem in menuData.options" :key="optionItem.optionId" class="option-body">
@@ -126,7 +142,7 @@ const goCart = async () => {
                             <div class="option-select">
                                 <div class="options" v-for="child in optionItem.children" :key="child.optionId">
                                     <input class="option-btn" type="radio" :name="'option-' + optionItem.optionId"
-                                        :checked="menuOption.optionId.includes(child.optionId)"
+                                        :checked="selectData.optionId.map(Number).includes(Number(child.optionId))"
                                         @change="onOptionSelect(optionItem.optionId, child.optionId)" />
                                     <span class="option-detail">{{ child.comment }}</span>
                                     <div class="menu-price">{{ child.price }}원</div>
@@ -147,7 +163,7 @@ const goCart = async () => {
                             <div class="quantity-text-m" @click="quantityNumM">–</div>
                         </div>
                         <div class="quantity-num">
-                            {{ quantityNum }}
+                            {{ selectData.quantity }}
                         </div>
                         <div class="quantity-box">
                             <div class="quantity-text-p" @click="quantityNumP">+</div>
@@ -159,7 +175,8 @@ const goCart = async () => {
 
                 <div class="footer-btn">
                     <button type="button" class="hn-btn-gray" data-bs-dismiss="modal">주문취소</button>
-                    <button type="button" class="hn-btn-gray" @click="readyCart" data-bs-dismiss="modal">메뉴담기</button>
+                    <button type="button" class="hn-btn-gray" @click="readyCart(selectData.cartId)"
+                        data-bs-dismiss="modal">메뉴담기</button>
                 </div>
             </div>
         </div>
@@ -306,5 +323,12 @@ input:checked::before {
     max-width: 495px;
     max-height: 500px;
     overflow-y: auto;
+}
+
+.top-title {
+    text-align: center;
+    padding-bottom: 10px;
+    font-size: 0.8em;
+    color: #ccc;
 }
 </style>
