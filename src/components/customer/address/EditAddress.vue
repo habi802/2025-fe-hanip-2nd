@@ -1,5 +1,5 @@
 <script setup>
-import { watch, nextTick } from "vue";
+import { watch, nextTick, reactive } from "vue";
 import { useGeocodeStore } from "@/stores/geocode";
 
 const geocode = useGeocodeStore();
@@ -22,6 +22,9 @@ watch(
     () => props.isShow,
     (newVal) => {
         if (newVal) {
+            setErrorsTitle();
+            setErrorsAddress();
+
             nextTick(async () => {
                 try {
                     const geocodeRes = await geocode.fetchCoordinates(props.form.address);
@@ -82,12 +85,38 @@ const searchAddress = () => {
 
             // 지도에 검색된 주소 표시
             markWithAddress(data.roadAddress);
+
+            setErrorsAddress();
         },
     }).open();
 };
 
+// 유효성 검사 관련 변수 및 함수들
+const errors = reactive({
+    title: false,
+    postcode: false,
+    address: false
+});
+
+const setErrorsTitle = () => {
+    errors.title = false;
+}
+
+const setErrorsAddress = () => {
+    errors.postcode = false;
+    errors.address = false;
+}
+
 // 주소 추가 및 수정
 const saveAddress = () => {
+    errors.title = !props.form.title;
+    errors.postcode = !props.form.postcode;
+    errors.address = !props.form.address;
+
+    if (errors.title || errors.postcode || errors.address) {
+        return;
+    }
+
     emit('save-address', { ...props.form, mode: props.mode });
 };
 </script>
@@ -102,12 +131,18 @@ const saveAddress = () => {
             <div id="map"></div>
 
             <!-- 주소 입력 -->
-            <input v-model="props.form.title" placeholder="주소 제목" />
+            <div class="input-wrapper">
+                <input v-model="props.form.title" :class="{ 'input-error': errors.title }" placeholder="주소 제목" @input="setErrorsTitle" />
+                <p v-if="errors.title" class="error-text">주소 제목을 입력하세요.</p>
+            </div>
             <div class="postcode-wrapper">
-                <input v-model="props.form.postcode" class="postcode-input" placeholder="우편번호" readonly />
+                <input v-model="props.form.postcode" class="postcode-input" :class="{ 'input-error': errors.postcode }" placeholder="우편번호" readonly />
                 <button @click="searchAddress" class="location-btn">주소 검색</button>
             </div>
-            <input v-model="props.form.address" placeholder="주소" readonly />
+            <div class="input-wrapper">
+                <input v-model="props.form.address" :class="{ 'input-error': errors.address }" placeholder="주소" readonly />
+                <p v-if="errors.postcode || errors.address" class="error-text">찾으시는 주소를 검색하여 입력하세요.</p>
+            </div>
             <input v-model="props.form.addressDetail" placeholder="상세 주소" />
 
             <!-- 안내 문구 -->
@@ -130,7 +165,7 @@ const saveAddress = () => {
 <style lang="scss" scoped>
 #map {
     width: 700px;
-    height: 400px;
+    height: 350px;
     border-radius: 12px;
     margin-bottom: 20px;
 }
@@ -168,6 +203,10 @@ const saveAddress = () => {
             margin-bottom: 20px;
             border-radius: 8px;
             padding: 15px 15px;
+
+            &.input-error {
+                border: 1px solid red;
+            }
         }
 
         input:read-only {
@@ -175,6 +214,10 @@ const saveAddress = () => {
             cursor: default;
             pointer-events: none;
             color: #7d7d7d;
+
+            &.input-error {
+                border: 1px solid red;
+            }
         }
 
         .location-btn {
@@ -207,7 +250,7 @@ const saveAddress = () => {
                 cursor: pointer;
 
                 &:hover {
-                background-color: darken(#ff6666, 5%);
+                    background-color: darken(#ff6666, 5%);
                 }
             }
 
@@ -233,6 +276,13 @@ const saveAddress = () => {
         font-weight: 600;
         font-size: 20px;
     }
+}
+
+.error-text {
+    color: #ff6666;
+    font-size: 13px;
+    margin-top: -15px;
+    margin-bottom: 0.5rem;
 }
 
 .postcode-wrapper {

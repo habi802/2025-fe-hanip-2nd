@@ -22,21 +22,46 @@ const state = reactive({
 });
 
 // 주소 추가 및 수정
-const saveAddress = async (updatedAddr) => {
+const saveAddress = async data => {
     let res;
 
-    if (updatedAddr.mode === 'add') {
+    if (data.mode === 'add') {
         // 새로운 주소 추가
-        res = await addAddress();
+        state.form.title = data.title;
+        state.form.postcode = data.postcode;
+        state.form.address = data.address;
+        state.form.addressDetail = data.addressDetail;
+
+        res = await addAddress(state.form);
         if (res !== undefined && res.status === 200) {
+            state.addresses.push({
+                id: res.data.resultData.id,
+                title: state.form.title,
+                postcode: state.form.postcode,
+                address: state.form.address,
+                addressDetail: state.form.addressDetail
+            });
 
             addressModal.value = false;
         }
     } else {
         // 기존 주소 수정
-        res = await putAddress();
+        state.form.id = data.id;
+        state.form.title = data.title;
+        state.form.postcode = data.postcode;
+        state.form.address = data.address;
+        state.form.addressDetail = data.addressDetail;
+
+        res = await putAddress(state.form);
         if (res !== undefined && res.status === 200) {
-            
+            const putData = state.addresses.find(address => address.id === state.form.id);
+            if (putData) {
+                putData.title = state.form.title;
+                putData.postcode = state.form.postcode;
+                putData.address = state.form.address;
+                putData.addressDetail = state.form.addressDetail;
+            }
+
             addressModal.value = false;
         }
     }
@@ -70,6 +95,7 @@ const addressModal = ref(false);
 
 // 주소 추가 및 수정 창 열기
 const openEditModal = data => {
+    console.log(data);
     Object.assign(state.form, defaultForm);
     
     if (data.id) {
