@@ -71,22 +71,25 @@ const handleFoodPickup = () => {
 const isDeliveryCompleted = ref(false);
 const handleCompleteDelivery = async () => {
   if (isFoodPickedUp.value && !isDeliveryCompleted.value) {
-    // 먼저 UI 상태부터 업데이트 (통신 전에)
+
     isDeliveryCompleted.value = true;
-    
-    await patchDeliveryCompleted(order.value.id);
+    const res = await patchDeliveryCompleted(order.value.id);
 
     // 잠깐 배달완료 메시지 보여주기 (선택사항)
-    setTimeout(() => {
-      // 3. 모든 상태 초기화해서 대기 화면으로 돌아가기
+    setTimeout( async () => {
+      // 모든 상태 초기화해서 대기 화면으로 돌아가기
       isCallAccepted.value = false;
       isFoodPickedUp.value = false;
       isDeliveryCompleted.value = false;
       order.value = {}; // 주문 정보도 초기화
       
-      // 4. 여기서 통신은 안 하고 그냥 "대기중" 상태로만 UI 변경
+      //새 주문 가져오기 추가
+      await fetchOrders();
+
+
+      //"대기중" 상태로 UI 변경
       console.log("대기 화면으로 전환 완료!");
-    }, 1000); // 1초 후 초기화 (너무 빨리 바뀌면 사용자가 못 볼 수 있으니까)
+    }, 1000); // 1초 후 초기화
   }
   
 
@@ -104,10 +107,9 @@ const handleCompleteDelivery = async () => {
       <img src="@/imgs/rider.png" alt="rider logo" class="logo" />
     </header>
 
-    <main class="rider-main">
-
+    <main v-if="order && Object.keys(order).length > 0" class="rider-main">
       <section class="pickup">
-        <h4 class="box-title">음식픽업</h4>
+        <h4 class="box-title" :class="{'active-text' :  isCallAccepted && !isFoodPickedUp }">음식픽업</h4>
         <div class="info-box" :class="{'active-box' :  isCallAccepted && !isFoodPickedUp }">
           <p class="store-name">{{ order.storeName || "배달대기중" }}</p>
           <p class="store-addr">
@@ -119,7 +121,7 @@ const handleCompleteDelivery = async () => {
       <div class="arrow">&gt;</div>
 
       <section class="customer">
-        <h4 class="box-title">고객주소</h4>
+        <h4 class="box-title" :class="{'active-text' : isFoodPickedUp }">고객주소</h4>
         <div class="info-box" :class="{'active-box' : isFoodPickedUp }">
           <p>
             {{ order.address || "" }}
@@ -137,15 +139,18 @@ const handleCompleteDelivery = async () => {
       </aside>
 
     </main>
+    <main v-else class="rider-main">
+      <div style="font-size: 30px;">다음 주문을 기다리는 중...</div>
+    </main>
 
     <footer class="rider-footer">
       <button v-if="Object.keys(order).length > 0 && !isCallAccepted" class="pickup-btn" @click="handleAcceptCall">콜 수락</button>
       <button v-if="isCallAccepted && !isFoodPickedUp" class="pickup-btn" @click="handleFoodPickup">음식 픽업</button>
       <button v-if="isFoodPickedUp && !isDeliveryCompleted" class="pickup-btn" @click="handleCompleteDelivery">배달 완료</button>
+      <!-- 배달 완료 시 보여줄 메시지 -->
+      <div v-if="isDeliveryCompleted" style="font-size: 30px;"> 배달 완료! 다음 주문을 기다리는 중...</div>
     </footer>
 
-    <!-- 배달 완료 시 보여줄 메시지 -->
-    <p v-if="isDeliveryCompleted && !isCallAccepted" class="completed-message">배달 완료! 다음 주문을 기다리는 중...</p>
   </div>
 
   
@@ -206,7 +211,7 @@ body {
   text-align: center;
   font-size: 24px;
   font-weight: bold;
-  margin-bottom: 10px;
+  margin-bottom: 30px;
   color: #000;
 }
 
@@ -220,10 +225,14 @@ body {
   justify-content: center;
   align-items: center; 
   text-align: center;
-  font-size: 16px;
+  font-size: 24px;
   border: 2px solid #ff6868;
   box-sizing: border-box;
   font-weight: bold;
+}
+
+.active-text {
+  color: #ff6868;
 }
 
 .active-box {
@@ -244,12 +253,13 @@ body {
   font-size: 60px;
   color: #ff6868;
   align-self: center;
+  transform: translateY(30%);
 }
 
 .order-info {
   width: 300px;
   padding: 20px;
-  margin-top: 50px;
+  transform: translateY(15%);
 }
 
 .order-info ul {
