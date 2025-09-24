@@ -10,10 +10,10 @@ const emit = defineEmits(['set-main-address', 'edit', 'remove-address']);
 // 기본 주소 변경
 const setMainAddress = () => emit('set-main-address', props.address.id);
 
-// 수정 모달 열기
-const openEdit = () => emit('edit', { ...props.address });
+// 주소 수정 창 열기
+const editAddress = () => emit('edit-address', { ...props.address });
 
-// 삭제 버튼 클릭 시 emit 이벤트 추가
+// 주소 삭제
 const removeAddress = () => emit('remove-address', props.address.id);
 </script>
 
@@ -29,7 +29,7 @@ const removeAddress = () => emit('remove-address', props.address.id);
         <p>{{ address.address }}</p>
         <p>{{ address.addressDetail }}</p>
         <div class="card-actions">
-            <button class="primary-btn" @click="openEdit">수정</button>
+            <button class="primary-btn" @click="editAddress">수정</button>
             <button class="secondary-btn" @click="removeAddress">삭제</button>
         </div>
     </div>
