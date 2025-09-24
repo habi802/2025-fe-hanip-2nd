@@ -9,7 +9,7 @@ export const modifyStatus = (params) => {
 }
 
 export const getOwnerOrder = (id) => {
-  return axios.get(`/order/owner/${id}`).catch((e) => e.response);
+  return axios.get(`/order/status/ordered/${id}`).catch((e) => e.response);
 }
 
 export const getOwnerOrder2 = (id) => {
