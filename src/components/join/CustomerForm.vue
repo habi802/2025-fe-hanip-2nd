@@ -62,10 +62,8 @@ watch(
 function handlePhoneInput(event, field) {
   let value = event.target.value.replace(/\D/g, ""); // 숫자만
   if (value.length > 4) value = value.slice(0, 4);
-
   // localForm 업데이트
   localForm[field] = value;
-
   // 부모 form으로 emit
   emit("update:form", {
     ...props.form,
@@ -74,7 +72,6 @@ function handlePhoneInput(event, field) {
       [field]: value,
     },
   });
-
   // 입력 중 실시간 유효성 검사
   validatePhone(field);
 }
