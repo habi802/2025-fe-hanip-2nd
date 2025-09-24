@@ -12,6 +12,9 @@ import defaultImage from '@/imgs/owner/owner-service3.png';
 
 import { plusQuantity, minusQuantity } from "@/services/cartService";
 
+import { getOption } from "@/services/menuService";
+import { getOptions } from "@/services/cartService";
+
 //const cartStore = useCartStore();
 
 const router = useRouter();
@@ -23,6 +26,7 @@ const state = reactive({
   reviewNum: 0,
   favorites: [],
   store: {},
+  reviewLeng: [],
 });
 
 // 장바구니 목록 불러오는 함수
@@ -42,6 +46,9 @@ const storeMap = reactive({});
 const fetchStoreDetails = async () => {
   const storeId = state.items[0].storeId;
 
+  const review = await getReviewsByStoreId(storeId);
+
+  state.store.reviewLeng = review.data.resultData;
   if (!storeMap[storeId]) {
     const res = await getStore(storeId);
 
@@ -62,23 +69,11 @@ const fetchStoreDetails = async () => {
     }
   }
 
-  loadReviews();
-};
-
-// 가게 평균 별점 및 리뷰 수를 보여주기 위한 함수
-const loadReviews = () => {
-  // 리뷰 총점 구하기
-  let ratingNumCal = 0;
-
-  for (let i = 0; i < state.reviews.length; i++) {
-    ratingNumCal += state.reviews[i].rating;
-  }
-  const count = (ratingNumCal / state.reviews.length).toFixed(1);
-
-  state.reviewNum = count;
-
   calculateTotal();
+  console.log("가게 정보", state.store)
 };
+
+
 
 onMounted(() => {
   load();
@@ -92,29 +87,21 @@ const goToOrder = (items) => {
     return;
   }
 
-  const orderItems = group.items.map((item) => ({
-    id: item.id,
-    menuId: item.menuId,
-    quantity: item.quantity,
-    price: item.price,
-    name: item.name,
-    imagePath: item.image_path,
-  }));
+  // const orderItems = group.items.map((item) => ({
+  //   id: item.id,
+  //   menuId: item.menuId,
+  //   quantity: item.quantity,
+  //   price: item.price,
+  //   name: item.name,
+  //   imagePath: item.image_path,
+  // }));
 
-  localStorage.setItem("orderItems", JSON.stringify(orderItems));
-  router.push(`/stores/${items[0].storeId}/order`);
+  // localStorage.setItem("orderItems", JSON.stringify(orderItems));
+  router.push(`/stores/${items}/order`);
 };
-
-
 
 // 장바구니 총 금액 표시하기 위한 변수
 const totalPrice = ref(0);
-
-
-
-
-
-
 
 // 장바구니 총 금액 계산하는 함수
 const calculateTotal = () => {
@@ -151,15 +138,6 @@ const menuIgmSrc = (item) => {
   return defaultImage;
 };
 
-// const menuIgmSrc = computed(() => {
-//   if (previewImage.value && previewImage.value !== defaultImage) {
-//     return previewImage.value;
-//   }
-//   if (props.menu?.imagePath && props.menu.imagePath !== "null") {
-//     return `${baseUrl.value}/images/store/${state.store.id}/menu/${items?.menuId}/${items?.imagePath}`;
-//   }
-//   return defaultImage;
-// });
 
 
 
@@ -195,6 +173,66 @@ const decreaseQty = async (item) => {
   }
   emit("update-items", item.value);
 };
+
+// 모달용
+import OptionModalModify from "@/components/modal/OptionModalModify.vue";
+
+const optionModal = ref(null);
+
+
+
+const menu = reactive({
+  item: {
+    menuId: Number,
+    name: String,
+    price: Number,
+    comment: String,
+    imagePath: String,
+    options: []
+  }
+});
+
+const openOptionModal = async (item) => {
+
+  const res = await getOption(item.menuId);
+
+  menu.item.options = res.data.resultData.options;
+
+  console.log("메뉴 확인", menu.item.options)
+
+  optionModal.value.setMenuData(menu.item.options)
+  const modalElement = optionModal.value.$el;
+  const modal = new bootstrap.Modal(modalElement);
+
+  // 내가 선택했던 옵션
+  console.log("선택한 옵션 보이는지 확인", item.options)
+
+  const optionRes = await getOptions(item.id)
+
+  const info = optionRes.data.resultData;
+
+  selectOption.info.menuId = info.menuId;
+  selectOption.info.optionId = info.optionId;
+  selectOption.info.quantity = info.quantity;
+  selectOption.info.cartId = item.id;
+
+  console.log("내가 넣은 데이터 조회", selectOption.info)
+
+  optionModal.value.setSelectData(selectOption.info);
+  modal.show();
+
+};
+
+// 내가 선택한거 담기용
+
+const selectOption = reactive({
+  info: {
+    menuId: 0,
+    optionId: [],
+    quantity: 0,
+    cartId: 0,
+  }
+})
 
 
 </script>
@@ -249,8 +287,8 @@ const decreaseQty = async (item) => {
             <div class="rating">
               <img id="icon" src="/src/imgs/star.png" alt="별점" />
               <div v-if="state.reviewNum !== 'NaN'">
-                <span class="score">{{ state.reviewNum ? state.reviewNum : '0' }}</span>
-                <span class="count">({{ state.reviewNum.length ? state.reviewNum.length : '0' }})</span>
+                <span class="score">{{ state.store.rating }}</span>
+                <span class="count">({{ (state.store.reviewLeng || []).length }})</span>
               </div>
               <div v-else>
                 <span class="score"> 0</span>
@@ -266,11 +304,12 @@ const decreaseQty = async (item) => {
           <div class="store-info">
             <p>
               최소 주문 금액
-              {{ storeMap[state.items[0].storeId]?.minOrderAmount?.toLocaleString() || '10,000' }}원
+              {{ state.store.minAmount.toLocaleString() || '10,000' }}원
             </p>
             <p>
               배달료
-              {{ storeMap[state.items[0].storeId]?.deliveryFeeRange || '0원 ~ 3,000원' }}
+              {{ (state.store.minDeliveryFee ?? 0).toLocaleString() || "3,000" }}원
+              ~ {{ (state.store.maxDeliveryFee ?? 0).toLocaleString() }}원
             </p>
           </div>
         </div>
@@ -289,17 +328,32 @@ const decreaseQty = async (item) => {
               <img :src="menuIgmSrc(item)" @error="e => e.target.src = defaultImage" />
               <div class="item-content">
                 <div class="menu-info-option">
-                  <div class="item-name">{{ item.name }}</div>
+                  <div class="item-infos">
+                    <div class="item-name">{{ item.name }}</div>
+                    <div class="item-price">{{ (item.price ?? 0).toLocaleString() }}원</div>
+                  </div>
                   <div v-for="value in item.options" :key="value.id" class="options-box">
-                    <div class="menu-option-box">
+                    <div class="menu-option-row">
+
+
+
+                      <!-- 부모 옵션 이름 -->
                       <div class="option-name">{{ value.comment }}</div>
-                      <div class="option-name">{{ value.children[0]?.comment }}</div>
-                    </div>
-                    <div class="option-price-box">
-                      <div class="option-price">{{ (value.children[0]?.price ?? 0).toLocaleString() }}원</div>
+
+                      <!-- 자식 옵션명과 가격을 한 쌍으로 묶기 -->
+
+                      <div v-for="child in value.children" :key="child.optionId"
+                        style="display: flex; gap: 4px; align-items: center;" class="child-box">
+
+                        <div class="child-option">{{ child.comment }}</div>
+                        <div class="child-price">{{ (child.price ?? 0).toLocaleString() }}원</div>
+                      </div>
+
                     </div>
                   </div>
                 </div>
+              </div>
+              <div class="options-box">
                 <div class="btns">
                   <div @click="decreaseQty(item)" class="quantity-box">
                     <div class="quantity-text-m">–</div>
@@ -308,6 +362,9 @@ const decreaseQty = async (item) => {
                   <div @click="increaseQty(item)" class="quantity-box">
                     <div class="quantity-text-p">+</div>
                   </div>
+                </div>
+                <div class="option-box">
+                  <div class="option-modify" @click="openOptionModal(item)">옵션 변경</div>
                 </div>
               </div>
             </div>
@@ -327,7 +384,7 @@ const decreaseQty = async (item) => {
     </div>
 
     <div class="groupContainer">
-      <div class="hn-btn-white" @click="goToOrder(state.items)">주문하기</div>
+      <div class="hn-btn-white" @click="goToOrder(state.store.id)">주문하기</div>
     </div>
   </div>
 
@@ -347,6 +404,7 @@ const decreaseQty = async (item) => {
       </div>
     </div>
   </div>
+  <option-modal-modify ref="optionModal"></option-modal-modify>
 </template>
 
 <style lang="scss" scoped>
@@ -409,7 +467,7 @@ const decreaseQty = async (item) => {
   }
 
   .solid {
-    width: 1470px;
+    width: 1140px;
     border: 1px #6c6c6c solid;
     margin: 50px 0 80px;
   }
@@ -684,7 +742,7 @@ const decreaseQty = async (item) => {
 
 .item-content {
   // 메뉴 박스
-  display: flex;
+  // display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 20px;
@@ -765,21 +823,17 @@ const decreaseQty = async (item) => {
 }
 
 .btns {
+  width: 100px;
   display: flex;
-  gap: 20px;
+  gap: 10px;
   font-weight: 400;
   align-items: center;
+  justify-content: space-between;
 }
 
 .quantity {
   font-size: 1.3em;
   font-weight: 500;
-}
-
-.menu-info-option {
-  display: flex;
-  flex-direction: column;
-  width: 100%;
 }
 
 .menu-option-box {
@@ -791,4 +845,46 @@ const decreaseQty = async (item) => {
   display: flex;
   justify-content: space-between;
 }
+
+.quanyity-box {
+  align-self: stretch;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
+  gap: 20px;
+}
+
+.option-modify {
+  text-align: center;
+  font-size: 1em;
+  padding: 2px 8px;
+  border: #ccc 1px solid;
+  border-radius: 5px;
+  color: #ccc;
+}
+
+.options-box {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.item-infos {
+  display: flex;
+}
+
+.menu-option-row {
+  color: #ccc;
+  display: flex;
+  justify-content: space-between;
+}
+
+.child-box {
+  display: flex;
+  justify-content: space-between;
+  width: 80%;
+}
+
+.child-option {}
 </style>
