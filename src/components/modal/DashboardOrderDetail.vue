@@ -25,9 +25,9 @@ import PaymentDetails from '@/components/owner/orderInfo/PaymentDetails.vue'
       <OrderedMenu></OrderedMenu>
     </div>
     <div class="btn-wrap">
-      <button class="owner-btn-cancel">주문 거절</button>
-      <button class="owner-btn-white">주문 수락</button>
-      <button class="owner-btn-white">확인</button>
+      <button class="owner-btn-cancel" >주문 거절</button>
+      <button class="owner-btn-white" >주문 수락</button>
+      <button class="owner-btn-white" @click.self="$emit('close')">확인</button>
     </div>
   </div><!-- modal-wrap 끝-->
 </template>

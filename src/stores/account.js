@@ -30,7 +30,7 @@ export const useUserInfo = defineStore('userInfo',
             try {
                 const res = await getUser();
 
-                if (res?.status === 200 && res?.data?.resultData) {
+                if (res !== undefined && res.status === 200) {
                     const address = (res.data.resultData.address ?? '') + (res.data.resultData.address_detail ?? '');
                     state.userId = res.data.resultData.id;
                     state.userName = res.data.resultData.name;
@@ -58,12 +58,10 @@ export const useOwnerStore = defineStore('owner',
         const fetchStoreInfo = async () => {
             try {
                 const res = await getOwnerStore();
-                console.log("📦 getOwnerStore 응답:", res);
 
-                if (res.status === 200 && res.data.resultData) {
+                if (res !== undefined && res.status === 200) {
                     state.storeId = res.data.resultData.id;
-                    state.storeData = res.data.resultData; // ✅ 추가
-                    console.log("✅ 저장된 storeData:", state.storeData);
+                    state.storeData = res.data.resultData;
                 } else {
                     console.error('가게 정보 불러오기 실패', res);
                 }

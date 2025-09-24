@@ -2,8 +2,11 @@
 import OrderCard from "@/components/owner/OrderCard.vue";
 import OrderDelivery from "@/components/owner/OrderDelivery.vue";
 import OrderPrepare from "@/components/owner/OrderPrepare.vue";
+import { useOwnerStore } from "@/stores/account";
 import { useOrderStore } from "@/stores/orderStore";
-import { inject, computed, onMounted, ref } from "vue";
+import { is } from "date-fns/locale";
+import { inject, computed, onMounted, onUnmounted, ref } from "vue";
+import { patchIsOpen } from "@/services/storeService";
 
 
 const orderStore = useOrderStore();
@@ -48,9 +51,7 @@ const totalPrice = computed(() => {
 
 // 시계
 const currentDate = ref('');
-const currentClock = ref("");
-
-const updateClock = () => {
+const date = () => {
   const now = new Date();
 
   const month = now.getMonth() + 1;
@@ -58,19 +59,41 @@ const updateClock = () => {
   const dayNames = ['일', '월', '화', '수', '목', '금', '토'];
   const day = dayNames[now.getDay()];
   currentDate.value = `${month}월 ${date}일 (${day})`;
-  
-  
-  const hours = now.getHours().toString().padStart(2, '0');
-  const minutes = now.getMinutes().toString().padStart(2, '0');
-  const seconds = now.getSeconds().toString().padStart(2, '0');
-  const time = `${hours}:${minutes}:${seconds}`;
-  currentClock.value = time;
-
 };
 
+const hours = ref("");
+const minutes = ref("");
+const seconds = ref("");
+const showColon = ref(true);
+
+const updateClock = () => {
+  const now = new Date();
+  hours.value = now.getHours().toString().padStart(2, "0");
+  minutes.value = now.getMinutes().toString().padStart(2, "0");
+  seconds.value = now.getSeconds().toString().padStart(2, "0");
+  showColon.value = !showColon.value; // 콜론 깜빡이게
+};
+
+//영업중/정비중 버튼
+const ownerStore = useOwnerStore();
+const isOpen = computed(() => ownerStore.state.storeData.isOpen) 
+const toggleStoreStatus = async () => {
+  if(confirm("영업을 중단하시겠습니까?")){
+    const res = await patchIsOpen(ownerStore.state.storeData.id);
+    if(res !== undefined && res.status === 200) {
+      ownerStore.setIsOpen();
+      }
+    }
+    
+  }
+
 onMounted(() => {
+  date();
   updateClock();
+  const timer = setInterval(updateClock, 1000);
+  onUnmounted(() => clearInterval(timer));
 });
+
 </script>
 
 <template>
@@ -79,7 +102,9 @@ onMounted(() => {
       <div class="datetime white-card text-center" style="grid-row: span 2;">
         <span class="font-xlg"> {{ currentDate }} </span>
         <transition name="fade">
-        <div key="time" class="time-text">{{ currentClock }}</div>
+          <div class="font-xlg">
+            {{ hours }}<span :class="{ blink: showColon }">:</span>{{ minutes }}<span :class="{ blink: showColon }">:</span>{{ seconds }}
+          </div>
         </transition>
       </div>
       <div class="total-box white-card">
@@ -98,7 +123,8 @@ onMounted(() => {
           <span class="total-title font-nomal">총 매출</span>
           <span class="font-xxlg">{{ totalPrice }}만</span>
       </div>
-      <button class="green-btn font-xxlg" style="grid-column: span 2;">영업 중</button>
+      <button class="green-btn font-xxlg" style="grid-column: span 2;" 
+      :class="['font-xxlg', isOpen ? 'green-btn' : 'darkred-btn']"  @click="toggleStoreStatus">{{ isOpen.value ? '영업 중' : '정비 중' }}</button>
       <RouterLink to="/owner/orders" class="total-box whitepink-btn"> <span class="font-xxlg">주문관리</span> </RouterLink>
       <RouterLink to="/owner/status" class="total-box whitepink-btn"> <span class="font-xxlg">가게상태</span> </RouterLink>
     </div>
@@ -122,28 +148,21 @@ onMounted(() => {
   grid-template-columns: repeat(5, 1fr); /* 한 줄에 4개 */
   gap: 15px; /* 카드 사이 간격 */
 
-
+  //시계
   .datetime{
     width: 280px;
     display: flex;
-    flex-direction: column; /* 세로 정렬 */
-    justify-content: center; /* 수직 가운데 정렬 */
-    align-items: center;     /* 수평 가운데 정렬 */
-    height: 100%; /* 높이 확실히 잡아줘야 잘 먹힘 */
-
-    span.font-lg {
-    display: block;
-    line-height: 1.1;  /* 여기서 간격 조절해. 기본보다 확 줄임 */
+    flex-direction: column;
+    justify-content: center; 
+    align-items: center;     
+    height: 100%;
+    gap: 1rem; 
+    
+    .blink {
+    opacity: 0;
+    transition: opacity 0.3s;
+    }
   }
-  }
-
-.fade-enter-active, .fade-leave-active {
-  transition: opacity 0.5s;
-}
-.fade-enter-from, .fade-leave-to {
-  opacity: 0;
-}
-
   .total-box {
     //width: 280px;
     height: 90px;
