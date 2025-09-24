@@ -1,5 +1,5 @@
 <script setup>
-import { ref } from 'vue';
+import { ref, computed, onMounted } from 'vue';
 import { useOwnerStore } from '@/stores/account';
 import defaultImage from '@/imgs/owner/owner-service2.png';
 
@@ -11,8 +11,10 @@ const props = defineProps({
 
 const emit = defineEmits(['update-form']);
 
+const baseUrl = import.meta.env.VITE_BASE_URL;
+
 const storeImageFileInput = ref(null);
-const storePreviewImage = ref(defaultImage);
+const storePreviewImage = ref(`${baseUrl}/images/store/${owner.state.storeData.id}/${props.form.imagePath}`);
 
 // 가게 이미지 미리보기 div 클릭 시 보이지 않게 해놓은 input을 강제로 클릭하게 하여 파일 첨부하는 창 열리게 함
 const selectStoreImageFile = () => {
@@ -28,9 +30,34 @@ const changeStoreImageFile = e => {
     }
 };
 
+const selectedCategory = ref([]);
+const showCategoryDropdown = ref(false);
+
+// 카테고리 option 선택
+function toggleCategoryItem(option) {
+    const idx = selectedCategory.value.indexOf(option);
+    if (idx === -1) {
+        selectedCategory.value.push(option);
+    } else {
+        selectedCategory.value.splice(idx, 1);
+    }
+
+    updateForm('categories', [...sortedSelectedCategory.value]);
+}
+
+const categoryOption = ['한식', '중식', '일식', '양식', '디저트', '분식', '패스트푸드', '아시안', '치킨', '피자', '야식'];
+
+// 선택한 카테고리 정렬
+const sortedSelectedCategory = computed(() => categoryOption.filter(option => selectedCategory.value.includes(option)));
+
+// 백엔드에서 받아 온 가게의 카테고리를 selectedCategory에 넣음
+onMounted(() => {
+    selectedCategory.value = props.form.categories.filter(val => categoryOption.includes(val));
+});
+
 // 부모 컴포넌트(StatusStore.vue)에 입력한 값 전달
 const updateForm = (key, value) => {
-    emit('update-form', { ...props.form, [key]: value })
+    emit('update-form', { ...props.form, [key]: value });
 }
 </script>
 
@@ -59,19 +86,22 @@ const updateForm = (key, value) => {
             </div>
 
             <span>업종</span>
-            <select multiple class="gray-content">
-                <option value="01">한식</option>
-                <option value="02">중식</option>
-                <option value="03">일식</option>
-                <option value="04">양식</option>
-                <option value="05">디저트</option>
-                <option value="06">분식</option>
-                <option value="07">패스트푸드</option>
-                <option value="08">아시안</option>
-                <option value="09">치킨</option>
-                <option value="10">피자</option>
-                <option value="11">야식</option>
-            </select>
+            <div class="gray-content select-category">
+                <input type="text" :value="sortedSelectedCategory.join(', ')" @click="showCategoryDropdown = !showCategoryDropdown" readonly />
+                <ul v-if="showCategoryDropdown" class="select-category-dropdown">
+                    <li @click="toggleCategoryItem('한식')" :class="{ selected: selectedCategory.includes('한식') }">한식</li>
+                    <li @click="toggleCategoryItem('중식')" :class="{ selected: selectedCategory.includes('중식') }">중식</li>
+                    <li @click="toggleCategoryItem('일식')" :class="{ selected: selectedCategory.includes('일식') }">일식</li>
+                    <li @click="toggleCategoryItem('양식')" :class="{ selected: selectedCategory.includes('양식') }">양식</li>
+                    <li @click="toggleCategoryItem('디저트')" :class="{ selected: selectedCategory.includes('디저트') }">디저트</li>
+                    <li @click="toggleCategoryItem('분식')" :class="{ selected: selectedCategory.includes('분식') }">분식</li>
+                    <li @click="toggleCategoryItem('패스트푸드')" :class="{ selected: selectedCategory.includes('패스트푸드') }">패스트푸드</li>
+                    <li @click="toggleCategoryItem('아시안')" :class="{ selected: selectedCategory.includes('아시안') }">아시안</li>
+                    <li @click="toggleCategoryItem('치킨')" :class="{ selected: selectedCategory.includes('치킨') }">치킨</li>
+                    <li @click="toggleCategoryItem('피자')" :class="{ selected: selectedCategory.includes('피자') }">피자</li>
+                    <li @click="toggleCategoryItem('야식')" :class="{ selected: selectedCategory.includes('야식') }">야식</li>
+                </ul>
+            </div>
         </div>
 
         <div class="store-info-wrap2">
@@ -111,6 +141,42 @@ form {
 
     .call-box {
         display: flex;
+    }
+
+    .select-category {
+        position: relative;
+    }
+
+    .select-category input {
+        width: 100%;
+        border: none;
+        outline: none;
+        box-shadow: none;
+        cursor: pointer;
+    }
+
+    .select-category-dropdown {
+        position: absolute;
+        top: 100%;
+        left: 0;
+        width: 100%;
+        border: 1px solid #ccc;
+        background: white;
+        list-style: none;
+        margin: 0;
+        padding: 0;
+        max-height: 150px;
+        overflow-y: auto;
+        z-index: 10;
+    }
+
+    .select-category-dropdown li {
+        padding: 5px;
+        cursor: pointer;
+    }
+
+    .select-category-dropdown li.selected {
+        background-color: #dedede;
     }
 }
 

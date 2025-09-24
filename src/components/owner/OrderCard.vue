@@ -7,7 +7,9 @@ import DashboardOrderDetail from "@/components/modal/DashboardOrderDetail.vue"
 
 const props = defineProps({
   title: String,
+  orders: Object
 })
+
 
 // 피니아
 const orderStore = useOrderStore();
@@ -57,14 +59,10 @@ const onRowClick = (rowData)=>{
         <div>주문상태</div>
       </div>
 
-      <!-- 스크롤 가능한 바디 -->
       <div class="grid-body scrollbar">
-        <div class="grid-table underline " v-for="n in 4" :key="n"
-          role="button"
-          tabindex="0"
-          @click="onRowClick()">
+        <div class="grid-table underline " v-for="n in 4" :key="n" role="button" tabindex="0"  @click="onRowClick()">
           <div>000{{ n }}</div>
-          <div>17:12</div>
+          <div>{{props.orders ? props.orders : "-"}}</div>
           <div>{{ n }}분</div>
           <div class="address">
             대구 달서구 야외음악당로 20길 49,<br />205동 203호

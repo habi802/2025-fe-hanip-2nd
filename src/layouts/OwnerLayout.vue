@@ -35,8 +35,13 @@ onMounted(async () => {
 
         if (owner.state.storeId) {
             await orderStore.fetchOrders(owner.state.storeId);
+            console.log(orderStore.fetchOrders);
         }
     }
+
+    
+
+    
 });
 
 // 알림 갱신
@@ -295,7 +300,7 @@ onUnmounted(() => {
     border-radius: 10px;
     width: 800px;
     height: 50px;
-    }
+}
 
 .red-dot {
     width: 12px;
@@ -312,15 +317,6 @@ onUnmounted(() => {
     width: 1.5px;
     height: 45px;
     background-color: #d1d1d1;
-}
-
-
-input:checked+.slider {
-    background-color: #ff6666;
-}
-
-input:checked+.slider::before {
-    transform: translateX(34px);
 }
 
 // 왼쪽사이드 메뉴버튼

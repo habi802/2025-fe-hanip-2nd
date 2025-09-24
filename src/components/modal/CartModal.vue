@@ -1,6 +1,8 @@
 <script setup>
-import { ref, computed, watch } from "vue";
+import { ref, computed, watch, reactive, onMounted } from "vue";
 import { useRouter, useRoute } from "vue-router";
+import { minusQuantity, plusQuantity, removeItem } from "@/services/cartService";
+import { it } from "date-fns/locale";
 
 // 모달 표시 상태
 const isVisible = ref(false);
@@ -29,20 +31,32 @@ const totalPrice = computed(() =>
 );
 
 // 수량 증가/감소
-const increaseQty = (item) => {
-  item.quantity += 1;
-  emit("update-items", items.value);
+const increaseQty = async (item) => {
+
+  if (item.quantity < 100) {
+    item.quantity += 1;
+    await plusQuantity(item.id);
+    emit("update-items", items.value);
+  }
+
 };
-const decreaseQty = (item) => {
-  if (item.quantity > 1) item.quantity -= 1;
+const decreaseQty = async (item) => {
+  if (item.quantity > 1) {
+    item.quantity -= 1;
+    await minusQuantity(item.id);
+  }
+  if (item.quantity === 1) {
+    await removeItem(item.id);
+    items.value = items.value.filter(i => i.id !== item.id);
+  }
   emit("update-items", items.value);
 };
 
 // 삭제
-const removeItem = (id) => {
-  items.value = items.value.filter((i) => i.id !== id);
-  emit("update-items", items.value);
-};
+// const removeItem = (id) => {
+//   items.value = items.value.filter((i) => i.id !== id);
+//   emit("update-items", items.value);
+// };
 
 // 모달 열기 (부모에서 items 전달 가능)
 const open = (cartItems = []) => {
@@ -59,7 +73,28 @@ const close = () => {
 defineExpose({ open, close });
 
 // 페이지 이동
-const goToCategoryList = () => router.push("/categoryList");
+const goToCategoryList = () => {
+  if (items.value.length > 0) {
+
+    router.push("/cart")
+
+  } else {
+
+    router.push("/categoryList");
+  }
+
+
+}
+
+
+
+
+
+
+
+
+
+
 </script>
 
 <template>
@@ -70,19 +105,34 @@ const goToCategoryList = () => router.push("/categoryList");
 
         <!-- 장바구니에 아이템 있을 때 -->
         <div v-if="items.length > 0" class="cart-container">
+          <div class="storeName">{{ items[0].storeName }}</div>
+          <hr>
+          </hr>
           <div v-for="(item, idx) in items" :key="item.id" class="cart-item">
-            <div class="item-info">
-              <div class="item-name">{{ item.name }}</div>
-              <div class="item-controls">
-                <button @click="decreaseQty(item)">-</button>
-                <span class="quantity">{{ item.quantity }}</span>
-                <button @click="increaseQty(item)">+</button>
+            <div>
+              <div class="item-info">
+                <div class="item-name">{{ item.name }}</div>
+                <div class="item-controls">
+                  <div class="quantity-box">
+                    <div class="quantity-text-m" @click="decreaseQty(item)">-</div>
+                  </div>
+                  <span class="quantity">{{ item.quantity }}</span>
+                  <div class="quantity-box">
+                    <div class="quantity-text-p" @click="increaseQty(item)">+</div>
+                  </div>
+                </div>
+                <div class="item-price">
+                  {{ (item.price * item.quantity).toLocaleString() }}원
+                </div>
               </div>
-              <div class="item-price">
-                {{ (item.price * item.quantity).toLocaleString() }}원
+
+              <div v-for="value in item.options" class="options" :key="value.id">
+                <div> {{ value.children[0]?.comment }}</div>
+                <div>{{ (value.children[0]?.price ?? 0).toLocaleString() }}원</div>
+
               </div>
-              <button class="remove-btn" @click="removeItem(item.id)">삭제</button>
             </div>
+
             <hr v-if="idx !== items.length - 1" />
           </div>
 
@@ -92,7 +142,7 @@ const goToCategoryList = () => router.push("/categoryList");
             <span>{{ totalPrice.toLocaleString() }}원</span>
           </div>
           <button type="submit" class="order-btn" @click="goToCategoryList">
-            음식 담으러 가기
+            옵션 변경 / 주문하러 가기
           </button>
         </div>
 
@@ -120,19 +170,29 @@ const goToCategoryList = () => router.push("/categoryList");
 <style lang="scss" scoped>
 @font-face {
   font-family: "BMJUA";
-  src: url("https://fastly.jsdelivr.net/gh/projectnoonnu/noonfonts_one@1.0/BMJUA.woff")
-    format("woff");
+  src: url("https://fastly.jsdelivr.net/gh/projectnoonnu/noonfonts_one@1.0/BMJUA.woff") format("woff");
   font-weight: normal;
   font-style: normal;
 }
 
 @font-face {
   font-family: "Pretendard-Regular";
-  src: url("https://fastly.jsdelivr.net/gh/Project-Noonnu/noonfonts_2107@1.1/Pretendard-Regular.woff")
-    format("woff");
+  src: url("https://fastly.jsdelivr.net/gh/Project-Noonnu/noonfonts_2107@1.1/Pretendard-Regular.woff") format("woff");
   font-weight: 400;
   font-style: normal;
 }
+
+.item-name {
+  width: 200px;
+  min-height: 20px;
+}
+
+.storeName {
+  font-family: "Pretendard-Regular";
+  font-size: 1.7em;
+  text-align: center;
+}
+
 // 전체 overlay (투명, 화면 덮기)
 .modal-overlay {
   position: fixed;
@@ -146,10 +206,10 @@ const goToCategoryList = () => router.push("/categoryList");
 // 모달 wrapper
 .modal-wrapper {
   position: absolute;
-  top: 430px;
-  left: 80%;
-  transform: translate(-50%, -50%);
+  top: 10%;
+  left: 70%;
   z-index: 1000;
+
   @media (max-width: 768px) {
     position: fixed;
     top: 60px;
@@ -158,6 +218,7 @@ const goToCategoryList = () => router.push("/categoryList");
     width: calc(100% - 20px);
   }
 }
+
 // 모달 콘텐츠 영역
 .modal-content {
   background: white;
@@ -167,18 +228,22 @@ const goToCategoryList = () => router.push("/categoryList");
   overflow-y: auto;
   border-radius: 12px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+
   @media (max-width: 700px) {
     width: 100%;
     max-height: 80vh;
   }
 }
+
+
 // 모달 제목
 .modal-title {
   font-size: 25px;
   font-weight: 600;
   text-align: center;
   color: #ff6666;
-  font-family: "BMJUA";
+  font-family: "Pretendard-Regular";
+  margin-bottom: 10px;
 }
 
 //장바구니 아이템
@@ -187,12 +252,15 @@ const goToCategoryList = () => router.push("/categoryList");
   align-items: center;
   justify-content: space-between;
   margin-bottom: 10px;
+  margin-left: 10px;
 }
+
 // 수량 조절 버튼 영역
 .item-controls {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 10px;
+
 }
 
 .item-controls button {
@@ -205,9 +273,10 @@ const goToCategoryList = () => router.push("/categoryList");
 }
 
 .item-price {
-  width: 75px;
+  width: 100px;
   text-align: right;
 }
+
 // 총 합계 영역
 .cart-total {
   display: flex;
@@ -215,15 +284,18 @@ const goToCategoryList = () => router.push("/categoryList");
   font-weight: 700;
   font-size: 1.1em;
   padding-top: 12px;
-  border-top: 2px solid #ff6666;
-  margin-top: 15px;
+  border-top: 1px solid #ccc;
+  margin-top: 25px;
 }
+
 span.label {
   margin-left: 100px;
 }
+
 span.total {
   margin-right: 100px;
 }
+
 // 주문 버튼
 .order-btn {
   width: 100%;
@@ -235,6 +307,7 @@ span.total {
   margin-top: 15px;
   cursor: pointer;
 }
+
 // 빈 장바구니 스타일v
 .empty-cart {
   text-align: center;
@@ -283,8 +356,37 @@ span.total {
   background-color: #fff;
   color: #ff6666;
   cursor: pointer;
+
   &:hover {
     background-color: #ffe5e5;
   }
+}
+
+.item-info {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+}
+
+.cart-container {
+  padding: 20px;
+  border: 2px solid #ccc;
+  border-radius: 10px;
+}
+
+.quantity {
+  width: 20px;
+  text-align: center;
+  font-size: 1.1em;
+  font-weight: 400;
+  font-family: "Pretendard-Regular";
+}
+
+.options {
+  color: #ccc;
+  display: flex;
+  justify-content: space-between;
 }
 </style>

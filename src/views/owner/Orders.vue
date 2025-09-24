@@ -4,7 +4,11 @@ import { computed, ref, reactive, inject } from "vue";
 import { useOrderStore } from "@/stores/orderStore";
 import { deleteOrder, getOrderByDate } from "@/services/orderService";
 import { useAccountStore, useOwnerStore } from "@/stores/account";
-import PaymentDetails from "@/components/owner/orderInfo/PaymentDetails.vue";
+import OrderDetails from '@/components/owner/orderInfo/OrderDetails.vue'
+import OrderStatus from '@/components/owner/orderInfo/OrderStatus.vue'
+import OrderedMenu from '@/components/owner/orderInfo/OrderedMenu.vue'
+import PaymentDetails from '@/components/owner/orderInfo/PaymentDetails.vue'
+
 
 
 const orderStore = useOrderStore();
@@ -212,7 +216,8 @@ const selectRange = async (range) => {
       {{ alert.message }}
       <button  type="button" class="btn-close" @click="removeAlert(alert.id)" ></button>
     </div>
-  </div><!-- alert 끝 -->
+  </div>
+  <!-- alert 끝 -->
 
   <div class="wrap">
     <div class="section-left">
@@ -278,114 +283,23 @@ const selectRange = async (range) => {
       <div class="orders-wrap white-card">
         <div class="orders-detail">
           <!-- 주문정보 -->
-           <!-- <OrderDetails></OrderDetails> -->
-          <section>
-            <h3>주문 정보</h3>
-            <table class="info-table">
-              <tbody>
-                <tr>
-                  <th>고객명</th>
-                  <td>{{ selectedOrder?.userName || "--" }}</td>
-                </tr>
-                <tr>
-                  <th>전화</th>
-                  <td>{{ selectedOrder?.phone || "--" }}</td>
-                </tr>
-                <tr>
-                  <th>주소</th>
-                  <td>{{ selectedOrder?.address || "--" }}</td>
-                </tr>
-                <tr>
-                  <th>특이사항</th>
-                  <td>{{ selectedOrder?.storeRequest || "--" }}</td>
-                </tr>
-              </tbody>
-            </table>
-          </section>
+          <OrderDetails></OrderDetails>
           <!-- 주문상세 -->
-          <!-- <OrderedMenu></OrderedMenu> -->
-          <section>
-            <h3>주문 상세</h3>
-            <table class="menu-table">
-              <thead>
-                <tr>
-                  <th>메뉴명</th>
-                  <th>옵션</th>
-                  <th>수량</th>
-                  <th>가격</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr
-                  v-if="!selectedOrder?.menus || selectedOrder.menus.length === 0"
-                >
-                  <td>--</td>
-                  <td>--</td>
-                  <td>--</td>
-                  <td>--</td>
-                </tr>
-                <tr
-                  v-for="(menu, index) in selectedOrder?.menus || []"
-                  :key="menu.id || index"
-                >
-                  <td>{{ menu.name }}</td>
-                  <td>{{ menu.option || "--" }}</td>
-                  <td>{{ menu.quantity }}</td>
-                  <td>{{ menu.price.toLocaleString() }}원</td>
-                </tr>
-              </tbody>
-            </table>
-          </section>
+          <OrderedMenu style="height: 300px;"></OrderedMenu>
           <!-- 주문현황 -->
-          <!-- <OrderStatus></OrderStatus> -->
-          <section>
-            <h3>주문 현황</h3>
-            <table class="menu-table">
-              <thead>
-                <tr>
-                  <th>상태</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td>{{ statusText }}</td>
-                </tr>
-              </tbody>
-            </table>
-          </section>
+            <section style="height: 300px;">
+              <OrderStatus></OrderStatus>
+            </section>
           <!-- 결제내역 -->
-           <!-- <PaymentDetails></PaymentDetails> -->
-          <section>
-            <h3>결제 내역</h3>
-            <table class="info-table">
-              <tbody>
-                <tr>
-                  <th>결제일시</th>
-                  <td>{{ formatDateTime(selectedOrder?.updated) || "--" }}</td>
-                </tr>
-                <tr>
-                  <th>결제수단</th>
-                  <td>{{ selectedOrder?.payment || "--" }}</td>
-                </tr>
-                <tr>
-                  <th>결제금액</th>
-                  <td>{{ selectedOrder?.amount.toLocaleString() || "--" }}원</td>
-                </tr>
-                <tr>
-                  <th>할인내역</th>
-                  <td>없음</td>
-                </tr>
-              </tbody>
-            </table>
-          </section>
+          <PaymentDetails></PaymentDetails>
         </div><!-- orders-detail 끝-->
-        <button class="btn" @click="deleteOrderOne">
+        <!-- <button class="btn" @click="deleteOrderOne">
           <img
             class="trash-icon"
             src="/src/imgs/owner/Icon_휴지통.svg"
             alt="휴지통"
           />
-        </button>
+        </button> -->
       </div><!-- orders-wrap 끝-->
     </div><!-- section-left 끝-->
   </div><!-- wrap 끝 -->

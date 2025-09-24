@@ -22,7 +22,7 @@ export const modify = (formData) => {
       "Content-Type": "multipart/form-data",
     },
   };
-  return axios.put("/store", formData, config).catch((e) => e.response);
+  return axios.put("/store/update", formData, config).catch((e) => e.response);
 };
 export const getStoreList = (params) => {
   return axios.get("/store", { params }).catch((e) => e.response);
@@ -31,5 +31,14 @@ export const getStoreList = (params) => {
 export const getOwnerStore = () => {
   return axios.get("/store/owner").catch((e) => e.response);
 };
+
+
+
+
+// 새로 만든 서비스
+export const getStoreId = (storeId)=> {
+  return axios.get(`/store/${storeId}`).catch((e)=>e.response);
+}
+
 
 export default axios;

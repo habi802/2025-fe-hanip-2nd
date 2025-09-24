@@ -1,7 +1,7 @@
 import axios from './httpRequester';
 
-export const addItem = params => {
-  return axios.post('/cart', params).catch(e => e.response);
+export const addItem = data => {
+  return axios.post('/cart', data).catch(e => e.response);
 }
 
 export const getItem = () => {
@@ -18,4 +18,12 @@ export const removeItem = cartId => {
 
 export const removeCart = () => {
   return axios.delete('/cart').catch(e => e.response);
+}
+
+export const plusQuantity = cartId => {
+  return axios.patch(`/cart/plus/${cartId}`).catch((e)=>e.response);
+}
+
+export const minusQuantity = cartId => {
+  return axios.patch(`/cart/minus/${cartId}`).catch((e)=>e.response);
 }

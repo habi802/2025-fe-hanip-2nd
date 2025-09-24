@@ -10,6 +10,8 @@ import { getFavoriteList } from "@/services/favoriteService";
 // 에러 이미지
 import defaultImage from '@/imgs/owner/owner-service3.png';
 
+import { plusQuantity, minusQuantity } from "@/services/cartService";
+
 //const cartStore = useCartStore();
 
 const router = useRouter();
@@ -40,25 +42,25 @@ const storeMap = reactive({});
 const fetchStoreDetails = async () => {
   const storeId = state.items[0].storeId;
 
-    if (!storeMap[storeId]) {
-      const res = await getStore(storeId);
+  if (!storeMap[storeId]) {
+    const res = await getStore(storeId);
 
-      // 리뷰 찾을려고 추기작성
-      const rev = await getReviewsByStoreId(storeId);
-      if (rev?.status === 200 && rev.data?.resultStatus === 200) {
-        state.reviews = rev.data.resultData;
-      }
-      // 찜하기 찾을려고 추가 작성
-      const ref = await getFavoriteList(storeId);
-      if (ref?.status === 200 && ref.data?.resultStatus === 200) {
-        state.favorites = ref.data.resultData;
-      }
-
-      if (res?.status === 200 && res.data?.resultStatus === 200) {
-        storeMap[storeId] = res.data.resultData;
-        state.store = res.data.resultData;
-      }
+    // 리뷰 찾을려고 추기작성
+    const rev = await getReviewsByStoreId(storeId);
+    if (rev?.status === 200 && rev.data?.resultStatus === 200) {
+      state.reviews = rev.data.resultData;
     }
+    // 찜하기 찾을려고 추가 작성
+    const ref = await getFavoriteList(storeId);
+    if (ref?.status === 200 && ref.data?.resultStatus === 200) {
+      state.favorites = ref.data.resultData;
+    }
+
+    if (res?.status === 200 && res.data?.resultStatus === 200) {
+      storeMap[storeId] = res.data.resultData;
+      state.store = res.data.resultData;
+    }
+  }
 
   loadReviews();
 };
@@ -103,97 +105,16 @@ const goToOrder = (items) => {
   router.push(`/stores/${items[0].storeId}/order`);
 };
 
-// const groupedItems = computed(() => {
-//   const groups = {};
-//   for (const item of state.items) {
-//     if (!groups[item.storeName]) {
-//       groups[item.storeName] = {
-//         storeId: item.storeId,
-//         storeName: item.storeName,
-//         storeNotice: item.storeNotice,
-//         items: [],
-//       };
-//     }
-//     groups[item.storeName].items.push(item);
-//   }
-//   return Object.values(groups);
-// });
+
 
 // 장바구니 총 금액 표시하기 위한 변수
 const totalPrice = ref(0);
 
-// 장바구니 삭제 함수
-const deleteItem = async (cartId) => {
-  const res = await removeItem(cartId);
-  if (res === undefined || res.status !== 200) return;
-  // cartStore.clearCart();
 
-  if (res.data.resultData === 1) {
-    const deleteIdx = state.items.findIndex((item) => item.id === cartId);
-    if (deleteIdx > -1) {
-      state.items.splice(deleteIdx, 1);
-      calculateTotal();
-    }
-  }
-};
 
-// 장바구니 메뉴 개수 증가시키는 함수
-const increaseQuantity = async idx => {
-  if (state.items[idx].quantity > 1) {
-    const params = {
-      cartId: state.items[idx].id,
-      quantity: state.items[idx].quantity + 1,
-    };
 
-    // 메뉴 개수 수정하는 API 함수 호출
-    const res = await updateQuantity(params);
 
-    if (res === undefined) {
-      const modal = new bootstrap.Modal(document.getElementById("putF"));
-      modal.show();
-      return;
-    } else if (res.data.resultStatus !== 200) {
-      // alert(res.data.resultMessage);
-      const modal = new bootstrap.Modal(document.getElementById("putF"));
-      modal.show();
-      return;
-    }
 
-    state.items[idx].quantity++;
-    calculateTotal();
-  } else if (state.items[idx].quantity == 1) {
-    deleteItem(state.items[idx].id);
-  }
-};
-
-// 장바구니 메뉴 개수 감소시키는 함수
-const decreaseQuantity = async idx => {
-  if (state.items[idx].quantity > 1) {
-    const params = {
-      cartId: state.items[idx].id,
-      quantity: state.items[idx].quantity - 1,
-    };
-
-    // 메뉴 개수 수정하는 API 함수 호출
-    const res = await updateQuantity(params);
-
-    if (res === undefined) {
-      const modal = new bootstrap.Modal(document.getElementById("putF"));
-      modal.show();
-      return;
-    } else if (res.data.resultStatus !== 200) {
-      // alert(res.data.resultMessage);
-      const modal = new bootstrap.Modal(document.getElementById("putF"));
-      modal.show();
-      return;
-    }
-
-    state.items[idx].quantity--;
-    calculateTotal();
-  } else if (state.items[idx].quantity == 1) {
-    deleteItem(state.items[idx].id);
-  }
-};
 
 // 장바구니 총 금액 계산하는 함수
 const calculateTotal = () => {
@@ -205,15 +126,7 @@ const calculateTotal = () => {
   });
 };
 
-// 총 가격
-// const grandTotalPrice = computed(() => {
-//   return groupedItems.value.reduce((groupSum, group) => {
-//     return (
-//       groupSum +
-//       group.items.reduce((sum, item) => sum + item.price * item.quantity, 0)
-//     );
-//   }, 0);
-// });
+
 
 // 가게 이미지
 const imgSrc = computed(() => {
@@ -226,35 +139,58 @@ const imgSrc = computed(() => {
 const menuIgmSrc = items => {
   return items?.menuId && items?.imagePath && items?.imagePath !== 'null'
     ? `/pic/menu-profile/${items?.menuId}/${items?.imagePath}`
-    : defaultImage;  
+    : defaultImage;
 }
 
-// 모달창 함수
-const showModal = (message) => {
-  const modalBody = document.getElementById("alertModalBody");
-  if (modalBody) modalBody.textContent = message;
-  const modal = new bootstrap.Modal(document.getElementById("alertModal"));
-  modal.show();
+// 신규 함수
+
+// 수량 증가/감소
+const increaseQty = async (item) => {
+
+  if (item.quantity < 100) {
+    item.quantity += 1;
+    await plusQuantity(item.id);
+    calculateTotal();
+  }
+  emit("update-items", item.value);
+
 };
+const decreaseQty = async (item) => {
+  if (item.quantity > 1) {
+    item.quantity -= 1;
+    await minusQuantity(item.id);
+    calculateTotal();
+  } else {
+    // 수량 1이고 - 클릭하면 삭제
+    await removeItem(item.id);
+    const idx = state.items.findIndex(i => i.id === item.id);
+    if (idx !== -1) {
+      state.items.splice(idx, 1); // 배열에서 제거 -> 반응성 보장
+    }
+    calculateTotal();
+  }
+  emit("update-items", item.value);
+};
+
 
 </script>
 
 <template>
-<div class="section-header">
-  <div class="section-title">
-    <div class="text-top">장바구니</div>
-    <div class="step-horizontal">
-      <span class="step-text">01 음식선택</span>
-      <span class="arrow"><img src="/src/imgs/cartimgs/arrow-back.png" /></span>
-      <span class="step-text current">02 장바구니</span>
-      <span class="arrow"><img src="/src/imgs/cartimgs/arrow-back.png" /></span>
-      <span class="step-text">03 주문/결제</span>
-      <span class="arrow"><img src="/src/imgs/cartimgs/arrow-back.png" /></span>
-      <span class="step-text">04 주문완료</span>
+  <div class="section-header">
+    <div class="section-title">
+      <div class="text-top">장바구니</div>
+      <div class="step-horizontal">
+        <span class="step-text">01 음식선택</span>
+        <span class="arrow"><img src="/src/imgs/cartimgs/arrow-back.png" /></span>
+        <span class="step-text current">02 장바구니</span>
+        <span class="arrow"><img src="/src/imgs/cartimgs/arrow-back.png" /></span>
+        <span class="step-text">03 주문/결제</span>
+        <span class="arrow"><img src="/src/imgs/cartimgs/arrow-back.png" /></span>
+        <span class="step-text">04 주문완료</span>
+      </div>
     </div>
+    <div class="solid"></div>
   </div>
-  <div class="solid"></div>
-</div>  
 
   <!-- 1. 로그인 안 했고 장바구니 비었을 때 -->
   <div v-if="!account.state.loggedIn && state.items.length === 0">
@@ -264,80 +200,7 @@ const showModal = (message) => {
     </div>
   </div>
 
-  <!-- 2. 비로그인 상태로 장바구니 담겼을떄  -->
-  <div v-else-if="!account.state.loggedIn" class="unlogin">
-    <div class="store-layout">
-      <div class="store-card">
-        <img class="thumbnail" src="@/imgs/chicken.png" />
-        <div class="store-content">
-          <h3 class="store-name">가게 이름</h3>
-
-          <div class="store-meta">
-            <div class="rating">
-              <img id="icon" src="/src/imgs/star.png" alt="별점" />
-              <span class="score">{{ state.reviewNum ? state.reviewNum : '0' }}</span>
-              <span class="count">({{ state.reviewNum.length ? state.reviewNum.length : '0' }})</span>
-            </div>
-            <div class="likes">
-              <img id="icon" src="/src/imgs/love.png" alt="찜" />
-              <span class="like-count">{{ state.favorites.length }}</span>
-            </div>
-          </div>
-
-          <div class="store-info">
-            <p>최소 주문 금액 10,000원</p>
-            <p>배달료 0원 ~ 3,000원</p>
-          </div>
-        </div>
-      </div>
-      <div v-for="group in groupedItems" :key="group.storeName" class="store-box">
-        <!-- 가게 음식 정보 -->
-        <div class="store-info">
-          <p class="store-name">{{ group.storeName }}</p>
-          <p class="store-sub">{{ group.storeNotice }}</p>
-        </div>
-        <!-- 장바구니 음식 리스트 -->
-        <div v-for="item in group.items" :key="item.id" class="cart-item">
-          <img :src="item.image_path" alt="음식 이미지" style="width: 60px; height: 60px" />
-          <div class="item-content">
-            <p class="item-name">{{ item.name }}</p>
-            <p class="item-comment"></p>
-            <div class="qty-box">
-              <!-- ❌ 수량이 1일 때는 X버튼으로 삭제 -->
-              <button v-if="item.quantity === 1" @click="deleteItem(item.id)"
-                :class="{ 'delete-button': true, danger: true }">
-                x
-              </button>
-
-              <!-- ➖ 수량이 2 이상일 때는 수량 감소 -->
-              <button v-else @click="decreaseQty(item)" class="qty-button">
-                -
-              </button>
-
-              <span>{{ item.quantity }}</span>
-              <button @click="increaseQty(item)">+</button>
-            </div>
-            >
-            <p class="item-price">
-              {{ (item.price * item.quantity).toLocaleString() }}원
-            </p>
-            <!-- <button @click="remove(item.id)">X</button> -->
-          </div>
-        </div>
-        <!-- 각 그룹마다 주문 버튼 배치 -->
-        <div class="cart-footer">
-          <p class="total">총 결제 금액:</p>
-          <p class="total">{{ grandTotalPrice.toLocaleString() }}원</p>
-        </div>
-      </div>
-    </div>
-    <!-- 주문하기 버튼 -->
-    <div class="groupContainer">
-      <div class="div19" @click="goToOrder(group)">로그인후 주문하기</div>
-    </div>
-  </div>
-
-  <!-- 3. 로그인 했고 장바구니 비었을 때 -->
+  <!-- 2. 로그인 했고 장바구니 비었을 때 -->
   <div v-else-if="state.items.length === 0">
     <div class="div18">장바구니에 담은 음식이 없습니다.</div>
     <div class="groupContainer">
@@ -348,7 +211,7 @@ const showModal = (message) => {
     </div>
   </div>
 
-  <!-- 4. 로그인 후 장바구니에 음식 있음 -->
+  <!-- 3. 로그인 후 장바구니에 음식 있음 -->
   <div v-else>
     <!-- 음식점 가게 카드 -->
     <div class="store-layout">
@@ -389,57 +252,63 @@ const showModal = (message) => {
         </div>
       </div>
 
-      <!-- 그룹 반복 렌더링 -->
-      <!-- <div v-for="group in groupedItems" :key="group.storeName" class="store-box"> -->
+      <!-- 오른쪽 박스 -->
       <div class="store-box">
-        <!-- 가게 음식 정보 -->
-        <div class="store-info">
-          <p class="store-name">{{ state.store.name }}</p>
-          <!-- <p class="store-sub">{{ group.storeNotice }}</p> -->
-        </div>
 
+        <!-- 오른쪽  -->
         <!-- 장바구니 음식 리스트 -->
-        <div v-for="(item, idx) in state.items" :key="item.id" class="cart-item">
-          <img :src="menuIgmSrc(item)" @error="e => e.target.src = defaultImage" />
-          <div class="item-content">
-            <p class="item-name">{{ item.name }}</p>
-            <p class="item-comment"></p>
-            <div class="qty-box">
-              <button v-if="item.quantity === 1" @click="deleteItem(item.id)"
-                :class="{ 'delete-button': true, danger: true }">
-                X
-              </button>
-              <button v-else @click="decreaseQuantity(idx)" class="qty-button">-</button>
-              <span>{{ item.quantity }}</span>
-              <button @click="increaseQuantity(idx)">+</button>
+
+        <div class="menu-box">
+
+          <div v-for="(item, idx) in state.items" :key="item.id">
+            <div class="cart-item">
+              <img :src="menuIgmSrc(item)" @error="e => e.target.src = defaultImage" />
+              <div class="item-content">
+                <div class="menu-info-option">
+                  <div class="item-name">{{ item.name }}</div>
+                  <div v-for="value in item.options" :key="value.id" class="options-box">
+                    <div class="menu-option-box">
+                      <div class="option-name">{{ value.comment }}</div>
+                      <div class="option-name">{{ value.children[0]?.comment }}</div>
+                    </div>
+                    <div class="option-price-box">
+                      <div class="option-price">{{ value.children[0]?.price }}</div>
+                    </div>
+                  </div>
+                </div>
+                <div class="btns">
+                  <div @click="decreaseQty(item)" class="quantity-box">
+                    <div class="quantity-text-m">–</div>
+                  </div>
+                  <div class="quantity">{{ item.quantity }}</div>
+                  <div @click="increaseQty(item)" class="quantity-box">
+                    <div class="quantity-text-p">+</div>
+                  </div>
+                </div>
+              </div>
             </div>
-            <p class="item-price">
-              {{ (item.price * item.quantity).toLocaleString() }}원
-            </p>
+            <div class="menu-border"></div>
           </div>
         </div>
 
         <!-- 총 금액 표시만 -->
-        <div class="cart-footer">
-          <p class="total">총 결제 금액:</p>
-          <p class="total">{{ totalPrice.toLocaleString() }}원</p>
+        <div>
+          <div class="total-border"></div>
+          <div class="cart-footer">
+            <div class="total">총 결제 금액:</div>
+            <div class="total">{{ totalPrice.toLocaleString() }}원</div>
+          </div>
         </div>
       </div>
     </div>
 
     <div class="groupContainer">
-      <div class="div19" @click="goToOrder(state.items)">주문하기</div>
+      <div class="hn-btn-white" @click="goToOrder(state.items)">주문하기</div>
     </div>
   </div>
 
-<!--  -->
-<div
-    class="modal fade"
-    id="alertModal"
-    tabindex="-1"
-    role="dialog"
-    aria-hidden="true"
-  >
+  <!--  -->
+  <div class="modal fade" id="alertModal" tabindex="-1" role="dialog" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered" role="document">
       <div class="modal-content">
         <div class="modal-header">
@@ -457,12 +326,8 @@ const showModal = (message) => {
 </template>
 
 <style lang="scss" scoped>
-@font-face {
-  // 배민 주아체
-  font-family: "BMJUA";
-  src: url("https://fastly.jsdelivr.net/gh/projectnoonnu/noonfonts_one@1.0/BMJUA.woff") format("woff");
-  font-weight: normal;
-  font-style: normal;
+* {
+  font-family: "Pretendard-Regular";
 }
 
 @font-face {
@@ -480,44 +345,47 @@ const showModal = (message) => {
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
-  font-family: "BMJUA";
   width: 100%;
   font-weight: normal;
   text-align: center;
   margin-top: 95px;
   font-size: 25px;
-  
-  .section-title{
+
+  .section-title {
     width: 1470px;
     display: flex;
-    justify-content: space-between;  /* 왼쪽과 오른쪽 끝 정렬 */
+    justify-content: space-between;
+    /* 왼쪽과 오른쪽 끝 정렬 */
     align-items: center;
     position: relative;
     margin: 5px 0;
-    .text-top{
+
+    .text-top {
       position: absolute;
       left: 50%;
       transform: translateX(-50%);
     }
+
     // 01 음식선택 > 02 장바구니 > 03 주문/결제 > 04 주문 완료
     .step-horizontal {
-    width: 100%;
-    display: flex;
-    justify-content: right;
-    align-items: center;
-    gap: 8px;
-    font-family: "BMJUA";
-    font-size: 16px;
+      width: 100%;
+      display: flex;
+      justify-content: right;
+      align-items: center;
+      gap: 8px;
+      font-size: 16px;
+
       .step-text.current {
         // 02 장바구니
         color: #ff6666;
-      } 
+      }
     }
   }
+
   .solid {
-  width: 1470px;
-  border: 1px #000 solid;
-  margin: 50px 0 80px;
+    width: 1470px;
+    border: 1px #000 solid;
+    margin: 50px 0 80px;
   }
 }
 
@@ -534,7 +402,6 @@ const showModal = (message) => {
 
 .title-wrap {
   // < 장바구니
-  font-family: "BMJUA";
   display: flex;
   align-items: center;
 
@@ -627,6 +494,7 @@ const showModal = (message) => {
   justify-content: center;
   margin-top: 20px;
   gap: 20px;
+  margin-bottom: 200px;
 }
 
 .div-login {
@@ -650,7 +518,6 @@ const showModal = (message) => {
   background-color: #fff;
   border-radius: 15px;
   font-size: 32px;
-  font-family: "BMJUA";
   margin-bottom: 80px;
   margin-top: 80px;
   cursor: pointer;
@@ -663,7 +530,7 @@ const showModal = (message) => {
 
   &:hover {
     background-color: #ff6666;
-    color:#fff;
+    color: #fff;
   }
 }
 
@@ -673,7 +540,7 @@ const showModal = (message) => {
   margin: auto; // 전체 가운데 정렬
   display: flex;
   justify-content: center;
-  align-items: flex-start; 
+  align-items: flex-start;
   gap: 15px;
   flex-wrap: nowrap; // 줄바꿈 방지
 }
@@ -682,7 +549,7 @@ const showModal = (message) => {
 // 음식점 가게 카드
 .store-card {
   width: 368px; // 카드 전체 너비
-  border: 2px solid #797979;
+  border: 2px solid #ccc;
   border-radius: 25px;
   overflow: hidden; // 내부 요소 넘칠 경우 숨김
   cursor: pointer;
@@ -697,8 +564,8 @@ const showModal = (message) => {
   .store-content {
     padding: 20px; // 내부 여백
 
+
     .store-name {
-      font-family: "BMJUA";
       font-size: 25px;
       font-weight: bold;
       margin-bottom: 12px;
@@ -749,37 +616,17 @@ const showModal = (message) => {
 
 .store-box {
   // 각 음식점별 장바구니 박스
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
   width: 830px;
-  min-height: 553px;
-  margin: 0 auto 0px 50px;
+  min-height: 556px;
   padding: 50px;
-  border: 2px solid #797979;
+  border: 2px solid #ccc;
   border-radius: 15px;
   background-color: #fff;
-  display: flex;
-  flex-direction: column; // 세로 정렬
 
-  .store-info {
-    // 음식점 정보 영역 (이름, 공지사항)
-    margin-bottom: 20px;
-  }
 
-  .cart-footer {
-    // 총금액 구역박스
-    margin: auto;
-    display: flex;
-    justify-content: flex-end;
-    gap: 50px;
-
-    .total {
-      // 총 금액
-      font-family: "BMJUA";
-      font-size: 30px;
-      margin-right: 40px;
-      color: #ff6666;
-      margin: 0 !important;
-    }
-  }
 }
 
 .store-name {
@@ -798,6 +645,7 @@ const showModal = (message) => {
   align-items: center;
   margin-bottom: 16px;
   gap: 16px;
+  flex-wrap: wrap;
 
   img {
     // 장바구니 이미지
@@ -818,12 +666,10 @@ const showModal = (message) => {
 
   .item-name {
     // 메뉴 이름
-    font-family: "BMJUA";
     font-size: 20px;
     font-weight: 600;
     flex: 1;
     margin-bottom: 8px;
-    margin-left: 24px;
   }
 
   .item-comment {
@@ -835,7 +681,6 @@ const showModal = (message) => {
 
   .item-price {
     // 메뉴 가격
-    font-family: "BMJUA";
     font-size: 20px;
     margin-bottom: -0.5px;
     margin-left: 70px;
@@ -847,46 +692,7 @@ const showModal = (message) => {
   }
 }
 
-.qty-box {
-  // 수량 조절 박스
-  font-family: "Pretendard-Regular";
-  font-size: 20px;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  text-align: center;
-  justify-content: center;
 
-  button {
-    // 수량버튼
-    width: 25px;
-    height: 25px;
-
-    // 테두리 및 배경 설정
-    border: 1px solid #999;
-    border-radius: 6px;
-    background-color: #fff;
-    color: #000;
-
-    // 가운데 정렬 및 클릭 커서 설정
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-
-  span {
-    // 숫자 표시 박스 크기 설정
-    width: 32px;
-    height: 32px;
-
-    // 텍스트 정렬 설정
-    text-align: center;
-    line-height: 32px;
-    font-size: 16px;
-    font-weight: bold;
-  }
-}
 
 .delete-button {
   cursor: pointer;
@@ -905,5 +711,58 @@ const showModal = (message) => {
   }
 }
 
-</style>
+//신규
 
+.hn-btn-white {
+  margin-top: 80px;
+  margin-bottom: 100px;
+  padding: 10px 200px 10px 200px;
+  font-size: 1.8em;
+}
+
+
+.cart-footer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 200px;
+
+}
+
+.total {
+  font-size: 1.5em;
+}
+
+.menu-border {
+  border: 1px #ccc solid;
+  margin-bottom: 20px;
+}
+
+.btns {
+  display: flex;
+  gap: 20px;
+  font-weight: 400;
+  align-items: center;
+}
+
+.quantity {
+  font-size: 1.3em;
+  font-weight: 500;
+}
+
+.menu-info-option {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
+.menu-option-box {
+  display: flex;
+  color: #ccc;
+}
+
+.options-box {
+  display: flex;
+  justify-content: space-between;
+}
+</style>
