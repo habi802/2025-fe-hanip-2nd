@@ -1,14 +1,14 @@
 <script setup>
 import { onMounted, reactive, computed } from "vue";
-import { getStoreList } from "@/services/storeService";
+import { useRoute } from "vue-router";
 import { getOwnerOrder2 } from "@/services/orderService";
 
-import Randomstore from "@/components/customer/RandomStore.vue";
 import defaultImage from "@/imgs/owner/haniplogo_sample2.png";
+
+const route = useRoute();
 
 const state = reactive({
     order: {},
-    stores: [],
 });
 
 const baseUrl = import.meta.env.VITE_BASE_URL;
@@ -21,16 +21,10 @@ const storeImage = computed(() => {
 });
 
 onMounted(async () => {
-    const orderId = 5;
-    const res = await getOwnerOrder2(orderId);
+    const res = await getOwnerOrder2(route.params.id);
     if (res !== undefined && res.status === 200) {
+        console.log(res.data.resultData);
         state.order = res.data.resultData;
-
-        // 가게 목록을 가져온 뒤, 가게 목록을 무작위로 섞는다.
-        const storeRes = await getStoreList({ page: 0, size: 10 });
-        if (storeRes !== undefined && storeRes.status === 200) {
-            state.stores = storeRes.data.resultData;
-        }
     }
 });
 
@@ -50,25 +44,23 @@ const status = computed(() => {
     }
 });
 
-// 가게 목록 무작위로 섞기
-const shuffle = (array) => {
-    return array
-        .map((value) => ({ value, sort: Math.random() }))
-        .sort((a, b) => a.sort - b.sort)
-        .map(({ value }) => value);
-};
+// 결제 수단
+const getPayment = computed(() => {
+    switch (state.order?.payment) {
+        case 'NONE':
+            return '-';
+        case 'KAKAO_PAY':
+            return '카카오페이';
+        case 'NAVER_PAY':
+            return '네이버페이';
+    }
+});
 </script>
 
 <template>
     <div class="order-wrapper">
         <div class="order-header">
-            <h2>주문완료</h2>
-            <div class="order-steps">
-                <span>01 음식 선택</span> >
-                <span>02 장바구니</span> >
-                <span>03 주문/결제</span> >
-                <span class="current">04 주문완료</span>
-            </div>
+            <h2>주문상세</h2>
             <div class="solid"></div>
         </div>
 
@@ -146,15 +138,27 @@ const shuffle = (array) => {
                 </div>
             </div>
 
-            <div id="random-box">
-                <h4 class="mb-3">다른 가게 주문</h4>
-                <div>
-                    <div class="big-Box">
-                        <div class="for">
-                            <div v-for="store in state.stores" :key="store.id">
-                                <Randomstore class="board" :store="store" />
-                            </div>
-                        </div>
+            <!-- <div class="mb-4">
+                <h4 class="mb-3">주문 정보</h4>
+                <div class="border rounded p-5">
+
+                </div>
+            </div> -->
+
+            <div class="mb-4">
+                <h4 class="mb-3">결재 내역</h4>
+                <div class="border rounded p-5">
+                    <div class="row mb-3">
+                        <div class="col-3 text-muted">결제일시</div>
+                        <div class="col">{{ state.order.payment !== 'NONE' ? '2025년 9월 21일 19:34:00' : '-' }}</div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-3 text-muted">결제 수단</div>
+                        <div class="col">{{ getPayment }}</div>
+                    </div>
+                    <div class="row">
+                        <div class="col-3 text-muted">결제 금액</div>
+                        <div class="col">{{ state.order.payment !== 'NONE' ? state.order.amount?.toLocaleString() + '원' : '-' }}</div>
                     </div>
                 </div>
             </div>
