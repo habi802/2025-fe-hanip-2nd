@@ -1,51 +1,44 @@
 <script setup>
-import { computed, ref, inject, onMounted } from "vue";
-import DeatailOrderCard from "./OrderCardDetail.vue";
-import { useOrderStore } from "@/stores/orderStore";
-import DashboardOrderDetail from "@/components/modal/DashboardOrderDetail.vue"
-
+import { ref } from "vue";
+import DashboardOrderDetail from "@/components/modal/DashboardOrderDetail.vue";
 
 const props = defineProps({
   title: String,
-  orders: Object
-})
-console.log("🥵props.orders : ",props.orders)
+  orders: { type: Array, default: () => [] },
+});
 
-
-
-// // ref 더보기
-// const visibleCount = ref(4);
-// const visibleOrders = computed(() => {
-//   return orderStore.orderedList.slice(0, visibleCount.value);
-// });
-
-// 가게 활성화 여부
-// const isOpen = inject("isOpen");
-
-
-// 주문리스트 클릭이벤트 발생 함수
 const isModalOpen = ref(false);
 const selectedRow = ref(null);
-const onRowClick = (rowData)=>{
-  console.log("오예에");
-  //selectedRow.value = rowData;
+
+const onRowClick = (rowData) => {
+  selectedRow.value = rowData;
   isModalOpen.value = true;
-   console.log(isModalOpen.value);
-}
+  console.log("주문 클릭:", rowData);
+};
 
+const emit = defineEmits(["accept", "cancel", "assign"]);
 
-
+// 주문 상태
+const onAccept = (order) => {
+  emit("accept", order.orderId);
+};
+const onCancel = (order) => {
+  emit("cancel", order.orderId);
+};
+const onAssign = (order) => {
+  emit("assign", order.orderId);
+};
 </script>
 
 <template>
   <div class="main-grid">
     <!-- 주문리스트 왼쪽 타이틀 카드 -->
     <div class="white-card status-title">
-        {{ props.title }}
+      {{ props.title }}
     </div>
 
     <!-- 주문 리스트 -->
-    <div class="order-list white-card ">
+    <div class="order-list white-card">
       <!-- 리스트 컬럼 -->
       <div class="grid-table t-header">
         <div>주문번호</div>
@@ -58,33 +51,78 @@ const onRowClick = (rowData)=>{
       </div>
 
       <div class="grid-body scrollbar">
-        <div class="grid-table underline " v-for="(order, index) in props.orders.slice(0, 4)" :key="index" role="button" tabindex="0"  @click="onRowClick()">
+        <!-- 주문이 없을 때 -->
+        <div v-if="!props.orders || props.orders.length === 0" class="empty-row">
+          주문이 없습니다.
+        </div>
+
+        <!-- 주문이 있을 때 -->
+        <div
+          v-else
+          class="grid-table underline"
+          v-for="(order, index) in props.orders.slice(0, 4)"
+          :key="index"
+          role="button"
+          tabindex="0"
+          @click="onRowClick(order)"
+        >
           <div>{{ order.orderId || "-" }}</div>
-          <div>00-00-00</div>
-          <div>0분</div>
+          <div>{{ order.createdTime || "00-00-00" }}</div>
+          <div>{{ order.elapsed || "0분" }}</div>
           <div class="address">
-            {{order.address || "-" }}<br />{{order.addressDetail || "-" }}
+            {{ order.address || "-" }}<br />{{ order.addressDetail || "-" }}
           </div>
-          <div>{{order.menuItems[0].name || "-" }}외 {{order.menuItems.length}}건</div>
-          <div>{{order.amount ? order.amount.toLocaleString() : "-" }}원</div>
           <div>
-            <!-- TODO : 각 상태마다 버튼 다르게하기 -->
-            <!-- 행 클릭과 내부 버튼 클릭을 분리: 내부 버튼 클릭시 부모 클릭 중단 -->
-            <button class="owner-btn-white" @click.stop="onAssign()">배차하기</button>
+            {{ order.menuItems[0]?.name || "-" }} 외 {{ order.menuItems.length }}건
           </div>
-        </div><!-- grid-table 끝-->
-      </div><!-- grid-body 끝-->
-    </div><!-- order-list 끝-->
-  </div><!-- main-grid 끝-->
-  <dashboard-order-detail  v-if="isModalOpen" :data="selectedRow" @close="isModalOpen = false"></dashboard-order-detail> 
+          <div>{{ order.amount ? order.amount.toLocaleString() : "-" }}원</div>
+          <div>
+            <!-- 상태별 버튼 분기 -->
+            <template v-if="order.status === '02'">
+              <button class="owner-btn-white" @click.stop="onAccept(order)">
+                주문 수락
+              </button>
+              <button class="owner-btn-cancel" @click.stop="onCancel(order)">
+                주문 취소
+              </button>
+            </template>
+
+            <template v-else-if="order.status === '03'">
+              <button class="owner-btn-white" @click.stop="onAssign(order)">
+                배차하기
+              </button>
+            </template>
+
+            <template v-else-if="order.status === '04'">
+              <div class="rider-info">
+                <div>{{ order.riderName || "라이더 미지정" }}</div>
+                <div>{{ order.riderPhone || "-" }}</div>
+              </div>
+            </template>
+
+            <template v-else>
+              <span>-</span>
+            </template>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 상세 모달 -->
+  <dashboard-order-detail
+    v-if="isModalOpen"
+    :data="selectedRow"
+    @close="isModalOpen = false"
+  />
 </template>
 
 <style scoped lang="scss">
-.white-card{
+.white-card {
   padding: 0;
 }
+
 .main-grid {
-  /* 주문리스트 컬럼 정의: 테이블 헤더와 데이터 행이 동일한 값을 참조하도록 CSS 변수로 정의 */
   --cols: 100px 100px 80px 1.5fr 1fr 120px 280px;
   display: grid;
   grid-template-columns: 180px 1fr;
@@ -105,6 +143,14 @@ const onRowClick = (rowData)=>{
   line-height: 1.2;
 }
 
+.order-list {
+  display: flex;
+  flex-direction: column;
+  height: 250px;
+  border-radius: 15px;
+  overflow: hidden;
+}
+
 /* ====== Grid Table ====== */
 .grid-table {
   display: grid;
@@ -117,12 +163,14 @@ const onRowClick = (rowData)=>{
 }
 
 .t-header {
+  flex: 0 0 auto;
   background: #f5f7fa;
   font-weight: 600;
   color: #555;
   border-bottom: 1px solid #e5e7eb;
   border-radius: 15px 15px 0 0;
   text-align: center;
+  z-index: 1;
 }
 
 .underline {
@@ -130,7 +178,6 @@ const onRowClick = (rowData)=>{
   color: #333;
 }
 
-/* 주소는 왼쪽 정렬 */
 .address {
   display: flex;
   justify-content: center;
@@ -138,9 +185,33 @@ const onRowClick = (rowData)=>{
 }
 
 .grid-body {
-  max-height: 220px; /* 3줄 정도 보이도록 */
+  flex: 1 1 auto;
   overflow-y: auto;
-  overflow-x: auto;
+  overflow-x: hidden;
+  display: flex;
+  flex-direction: column;
 }
 
+.empty-row {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #999;
+  font-size: 16px;
+  font-weight: 500;
+  text-align: center;
+}
+
+.rider-info {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  font-size: 13px;
+  color: #333;
+}
+
+.owner-btn-white {
+  margin-right: 8px;
+}
 </style>

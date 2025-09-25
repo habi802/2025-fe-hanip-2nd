@@ -27,3 +27,12 @@ export const plusQuantity = cartId => {
 export const minusQuantity = cartId => {
   return axios.patch(`/cart/minus/${cartId}`).catch((e)=>e.response);
 }
+
+export const getOptions = cartId => {
+  return axios.get(`/cart/options/${cartId}`).catch((e)=>e.response);
+}
+
+export const modifyMenu = (cartId,data) => {
+
+  return axios.post(`/cart/${cartId}`,data).catch((e)=>e.response);
+}
