@@ -21,8 +21,8 @@ const errors = reactive({
   phone2: "",
   phone3: "",
   businessNumber: "",
-  ownerTel2: "",
-  ownerTel3: "",
+  storePhone2: "",
+  storePhone3: "",
   ownerPhone2: "",
   ownerPhone3: "",
 });
@@ -197,7 +197,6 @@ function handlePhoneInput(event, field, type = "customer") {
     else if (field.includes("Phone")) validateOwnerPhone();
   }
 }
-
 // 사업자 등록번호 입력 처리
 function handleBusinessNumberInput(event) {
   let value = event.target.value.replace(/\D/g, "");
@@ -206,7 +205,6 @@ function handleBusinessNumberInput(event) {
   state.owner.businessNumber = value;
   validateBusinessNumber();
 }
-
 // 숫자 외 입력 차단
 function onlyNumberInput(event) {
   const allowedKeys = ["Backspace", "ArrowLeft", "ArrowRight", "Tab"];
@@ -285,8 +283,8 @@ const addressSearch = () => {
     oncomplete: (data) => {
       if (memberType.value === "customer") {
         // 고객 주소만 수정
-        state.addresses[0].postcode = data.zonecode;
-        state.addresses[0].address = data.roadAddress;
+        state.owner.postcode = data.zonecode;
+        state.owner.address = data.roadAddress;
         // 상세주소는 기존 값 유지
       } else {
         // 오너 주소만 수정
@@ -470,7 +468,39 @@ const termsText = {
   privacyPolicy: "개인정보 처리방침 내용...",
   thirdParty: "제3자 제공 안내 내용...",
 };
+async function submitForm() {
+  if (memberType.value === "owner") {
+    validateOwnerFields();
+  }
 
+  const hasError = Object.values(errors).some((msg) => msg && msg.length > 0);
+  if (hasError) {
+    showModal("필수 항목을 모두 확인해주세요.");
+    return;
+  }
+
+  try {
+    const formData = new FormData();
+    for (const key in form) {
+      // OwnerForm의 파일과 카테고리는 JSON 변환 또는 FormData append
+      if (key === "ownerPhone" || key === "storePhone" || key === "category") {
+        formData.append(key, JSON.stringify(form[key]));
+      } else if (key === "businessFile" || key === "imagePath") {
+        if (form[key]) formData.append(key, form[key]);
+      } else {
+        formData.append(key, form[key]);
+      }
+    }
+
+    const response = await join(formData);
+    console.log("회원가입 성공:", response.data);
+    alert("회원가입이 완료되었습니다.");
+    router.push("/login");
+  } catch (err) {
+    console.error(err);
+    alert("회원가입 중 오류가 발생했습니다.");
+  }
+}
 // 모달창 함수
 const showModal = (message) => {
   const modalBody = document.getElementById("alertModalBody");
@@ -1104,5 +1134,11 @@ button {
   &:hover {
     background-color: #ffe5e5;
   }
+}
+// 모달 버튼 전용 스타일
+#alertModal .btn {
+  margin: 0;
+  width: auto;
+  padding: 0.5rem 1rem;
 }
 </style>

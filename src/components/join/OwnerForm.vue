@@ -1,6 +1,6 @@
 <script setup>
 import { ref, reactive, watch } from "vue";
-
+import { nextTick } from "vue";
 // 부모에서 내려주는 데이터
 const props = defineProps({
   form: Object, // 공용 입력 값
@@ -10,25 +10,28 @@ const props = defineProps({
 // 부모로 이벤트 전달
 const emit = defineEmits(["update:form", "update:errors", "addressSearch"]);
 
-// readonly props를 직접 수정할 수 없으므로 localForm에 복사
+// readonly props를 직접 수정할 수 없으므로 localOwner에 복사
 const localOwner = reactive({
-  ownerName: props.owner.ownerName ?? "",
-  storeName: props.owner.storeName ?? "",
-  postcode: props.owner.postcode ?? "",
-  address: props.owner.address ?? "",
-  addressDetail: props.owner.addressDetail ?? "",
-  ownerPhone1: props.owner.ownerPhone1 ?? "010",
-  ownerPhone2: props.owner.ownerPhone2 ?? "",
-  ownerPhone3: props.owner.ownerPhone3 ?? "",
-  storePhone1: props.owner.storePhone1 ?? "02",
-  storePhone2: props.owner.storePhone2 ?? "",
-  storePhone3: props.owner.storePhone3 ?? "",
-  businessNumber: props.owner.businessNumber ?? "",
-  openingDate: props.owner.openingDate ?? "",
-  category: Array.isArray(props.owner.category) ? props.owner.category : [],
-  businessFile: props.owner.businessFile ?? null,
-  imagePath: props.owner.imagePath ?? null,
+  ownerName: props.owner?.ownerName ?? "",
+  storeName: props.owner?.name ?? "",
+  postcode: props.owner?.postcode ?? "",
+  address: props.owner?.address ?? "",
+  addressDetail: props.owner?.addressDetail ?? "",
+  ownerPhone1: props.owner?.ownerPhone1 ?? "010",
+  ownerPhone2: props.owner?.ownerPhone2 ?? "",
+  ownerPhone3: props.owner?.ownerPhone3 ?? "",
+  storePhone1: props.owner?.storePhone1 ?? "02",
+  storePhone2: props.owner?.storePhone2 ?? "",
+  storePhone3: props.owner?.storePhone3 ?? "",
+  businessNumber: props.owner?.businessNumber ?? "",
+  openDate: props.owner?.openDate ?? "",
+  category: Array.isArray(props.owner?.category) ? props.owner.category : [],
+  businessFile: props.owner?.licensePath ?? null,
+  imagePath: props.owner?.imagePath ?? null,
 });
+function clearError(field) {
+  emit("update:errors", { ...props.errors, [field]: "" });
+}
 
 // input 변경 시 emit
 function updateField(field, value) {
@@ -45,36 +48,27 @@ function updateField(field, value) {
     value = value.replace(/\D/g, "").slice(0, 4);
   }
   localOwner[field] = value;
-
+  // 입력 시 기존 에러 초기화
   if (value && props.errors[field]) {
     emit("update:errors", { ...props.errors, [field]: "" });
   }
-  updateParent(); // 반드시 호출
-}
-
-
-// 에러 초기화
-function clearError(field) {
-  emit("update:errors", { ...props.errors, [field]: "" });
+  updateParent(); // 부모 form 업데이트
 }
 
 // 주소 검색
 function handleAddressSearch() {
   emit("addressSearch");
 }
-
-// 부모 form 변경 시 localForm 동기화
+// 부모 owner 변경 시 localOwner 동기화
 watch(
   () => props.owner,
   (newVal) => {
-    // 여기서 기존에는 Object.assign을 사용했으나, 이제 주소만 동기화
-    // 나머지 값은 기존 localOwner 값을 그대로 유지
     if (newVal.postcode !== undefined) {
+      // 주소만 동기화, 기존 localOwner 값 유지
       localOwner.postcode = newVal.postcode ?? localOwner.postcode;
       localOwner.address = newVal.address ?? localOwner.address;
       localOwner.addressDetail = newVal.addressDetail ?? localOwner.addressDetail;
     }
-    // 나머지 값은 덮어쓰지 않음
   },
   { deep: true, immediate: true }
 );
@@ -82,17 +76,17 @@ watch(
 function updateParent() {
   emit("update:form", getFormFromLocal());
 }
-//localForm → 부모 form 변환
+//localOwner → 부모 form 변환
 function getFormFromLocal() {
   return {
     ...props.form,
     ownerName: localOwner.ownerName,
-    storeName: localOwner.storeName,
+    name: localOwner.storeName,
     postcode: localOwner.postcode,
     address: localOwner.address,
     addressDetail: localOwner.addressDetail,
     businessNumber: localOwner.businessNumber,
-    openingDate: localOwner.openingDate,
+    openDate: localOwner.openDate,
     category: localOwner.category,
     ownerPhone: {
       phone1: localOwner.ownerPhone1,
@@ -108,6 +102,7 @@ function getFormFromLocal() {
     imagePath: localOwner.imagePath,
   };
 }
+
 // 주소 검색 결과 세팅
 function setAddress(postcode, roadAddress) {
   localOwner.postcode = postcode;
@@ -152,12 +147,11 @@ function validateBusinessNumber() {
   }
 }
 
-function validateOpeningDate() {
-  if (!/^\d{4}\.\d{2}\.\d{2}$/.test(localOwner.openingDate)) {
-    emit("update:errors", {
-      ...props.errors,
-      openingDate: "개업일 형식은 YYYY.MM.DD 입니다.",
-    });
+function validateopenDate() {
+  if (!localOwner.openDate) {
+    emit("update:errors", { ...props.errors, openDate: "개업일을 선택해주세요." });
+  } else {
+    emit("update:errors", { ...props.errors, openDate: "" });
   }
 }
 
@@ -213,22 +207,31 @@ function onCategorySelect(e) {
   if (!category) return;
 
   if (localOwner.category.includes(category)) {
-    alert("이미 선택된 카테고리입니다.");
+    showModal("이미 선택된 카테고리입니다.");
     return;
   }
   if (localOwner.category.length >= 3) {
-    alert("카테고리는 최대 3개까지 선택할 수 있습니다.");
+    showModal("카테고리는 최대 3개까지 선택할 수 있습니다.");
     return;
   }
   localOwner.category.push(category);
   updateParent();
-  e.target.value = ""; // 선택 후 select 초기화
+  e.target.value = "";
 }
-// 선택 삭제
+
 function removeCategory(index) {
   localOwner.category.splice(index, 1);
   updateParent();
 }
+
+// 모달창 함수
+const showModal = (message) => {
+  const modalBody = document.getElementById("alertModalBody");
+  if (modalBody) modalBody.textContent = message;
+
+  const modal = new bootstrap.Modal(document.getElementById("alertModal"));
+  modal.show();
+};
 </script>
 
 <template>
@@ -271,13 +274,14 @@ function removeCategory(index) {
         <p>개업년월일</p>
       </div>
       <input
-        type="text"
-        v-model="localOwner.openingDate"
-        @blur="validateOpeningDate"
+        type="date"
+        :value="localOwner.openDate"
+        @input="updateField('openDate', $event.target.value)"
+        @blur="validateopenDate"
         placeholder="ex) 2025.09.01"
       />
     </div>
-      <p v-if="errors.openingDate" class="error-msg">{{ errors.openingDate }}</p>
+    <p v-if="errors.openDate" class="error-msg">{{ errors.openDate }}</p>
     <div class="sevLine"></div>
 
     <!-- 대표자 이름 -->
@@ -322,12 +326,17 @@ function removeCategory(index) {
           type="text"
           :value="localOwner.addressDetail"
           @blur="validateAddress"
-          @input="(e) => updateField('addressDetail', e.target.value)"
+          @input="
+            (e) => {
+              updateField('addressDetail', e.target.value);
+              if (errors.address) emit('update:errors', { ...errors, address: '' });
+            }
+          "
           class="full-width"
           placeholder="상세주소"
         />
       </div>
-        <p v-if="errors.address" class="error-msg">{{ errors.address }}</p>
+      <p v-if="errors.address" class="error-msg">{{ errors.address }}</p>
     </div>
     <div class="sevLine"></div>
 
@@ -834,5 +843,11 @@ input[readonly] {
   border: 1px solid #ccc; // 기본 테두리 유지
   color: #7d7d7d;
   pointer-events: none;
+}
+// 모달 버튼 전용 스타일
+#alertModal .btn {
+  margin: 0; /* 불필요한 상하 여백 제거 */
+  width: auto; /* 필요 시 조정 */
+  padding: 0.5rem 1rem; /* 버튼 크기 조정 */
 }
 </style>
