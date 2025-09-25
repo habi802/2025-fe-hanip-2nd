@@ -4,8 +4,9 @@ import { useRoute, useRouter } from 'vue-router';
 import { updateQuantity, removeItem } from '@/services/cartService';
 import { addOrder } from '@/services/orderService';
 import { useAccountStore } from '@/stores/account';
-import { useCartStore } from '@/stores/cart';
+import { useCartStore } from '@/stores/cartStore';
 import { getUser } from '@/services/userService';
+import { getStore } from '@/services/storeService';
 
 const route = useRoute();
 const router = useRouter();
@@ -14,20 +15,19 @@ const account = useAccountStore();
 const cart = useCartStore();
 
 const state = reactive({
-    // 장바구니 정보
-    carts: cart.state.items,
-    // 주문 등록 form 정보
-    form: {
-        storeId: route.params.id,
-        address: '',
-        addressDetail: '',
-        phone: '',
-        storeRequest: '',
-        riderRequest: '',
-        payment: 'CARD',
-        orders: [],
-        agree: false
-    }
+  carts: [],
+  form: {
+    storeId: route.params.id,
+    address: '',
+    addressDetail: '',
+    phone: '',
+    storeRequest: '',
+    riderRequest: '',
+    payment: 'CARD',
+    orders: [],
+    agree: false
+  },
+  storeInfo: Object
 });
 
 const phone1 = ref('010');
@@ -38,166 +38,158 @@ const phone3 = ref('');
 const totalPrice = ref(0);
 
 onMounted(async () => {
-    // // 나현 씨가 담당한 장바구니 화면에서 받아오려고 쓴 변수(자바스크립트 localStorage 검색)
-    // const saved = localStorage.getItem('orderItems');
-    // const items = saved ? JSON.parse(saved) : [];
+  const res = await getUser();
 
-    // 
-    // 주소창에 입력해서 강제로 들어가는 것을 방지하기 위함
-    if (!account.state.loggedIn) {
-        showModal("로그인 후 주문이 가능합니다");
-        router.push({ path: '/' });
-        return;
-    } else if (cart.state.items < 1 && items.length < 1) {
-        showModal("메뉴를 선택해주세요");
-        router.back();
-        return;
-    }
 
-    const res = await getUser();
+  state.form.address = res.data.resultData.address;
+  const phone = res.data.resultData.phone.split('-');
+  phone1.value = phone[0];
+  phone2.value = phone[1];
+  phone3.value = phone[2];
+  state.form.phone = `${phone1.value}-${phone2.value}-${phone3.value}`;
 
-    if (res === undefined) {
-        showModal("조회 실패");
-        router.push({ path: '/' });
-        return;
-    } else if (res.data.resultStatus === 401) {
-        showModal(res.data.resultMessage);
-        router.push({ path: '/' });
-        return;
-    }
 
-    state.form.address = res.data.resultData.address;
-    const phone = res.data.resultData.phone.split('-');
-    phone1.value = phone[0];
-    phone2.value = phone[1];
-    phone3.value = phone[2];
-    state.form.phone = `${phone1.value}-${phone2.value}-${phone3.value}`;
+  await cart.getCart();
 
-    // state.carts = items.length !== 0 ? items : cart.state.items;
-    state.carts = cart.state.items;
-    calculateTotal();
+  console.log("카트스토어 넘어왔는지", cart.items);
+  state.carts = cart.items;
+
+  console.log("state.carts", state.carts)
+
+  calculateTotal();
+  storeInfo();
 });
 
+
+const storeInfo = async () => {
+
+  const storeInfo = await getStore(state.form.storeId);
+
+  state.storeInfo = storeInfo.data.resultData;
+  console.log("스토어 정보", state.storeInfo)
+}
+
+
 watch([phone1, phone2, phone3], () => {
-    state.form.phone = `${phone1.value}-${phone2.value}-${phone3.value}`;
+  state.form.phone = `${phone1.value}-${phone2.value}-${phone3.value}`;
 });
 
 const decreaseQuantity = async idx => {
-    if (state.carts[idx].quantity > 1) {
-        const params = {
-            cartId: state.carts[idx].id,
-            quantity: state.carts[idx].quantity - 1
-        }
-
-        const res = await updateQuantity(params);
-
-        if (res === undefined || res.data.resultStatus !== 200) {
-            showModal(res.data.resultMessage);
-            return;
-        }
-
-        state.carts[idx].quantity--;
-        calculateTotal();
-    } else if (state.carts[idx].quantity == 1) {
-        deleteItem(state.carts[idx].id);
-    }
-}
-
-const increaseQuantity = async idx => {
+  if (state.carts[idx].quantity > 1) {
     const params = {
-        cartId: state.carts[idx].id,
-        quantity: state.carts[idx].quantity + 1
+      cartId: state.carts[idx].id,
+      quantity: state.carts[idx].quantity - 1
     }
 
     const res = await updateQuantity(params);
 
     if (res === undefined || res.data.resultStatus !== 200) {
-        showModal(res.data.resultMessage);
-        return;
+      showModal(res.data.resultMessage);
+      return;
     }
 
-    state.carts[idx].quantity++;
+    state.carts[idx].quantity--;
     calculateTotal();
+  } else if (state.carts[idx].quantity == 1) {
+    deleteItem(state.carts[idx].id);
+  }
+}
+
+const increaseQuantity = async idx => {
+  const params = {
+    cartId: state.carts[idx].id,
+    quantity: state.carts[idx].quantity + 1
+  }
+
+  const res = await updateQuantity(params);
+
+  if (res === undefined || res.data.resultStatus !== 200) {
+    showModal(res.data.resultMessage);
+    return;
+  }
+
+  state.carts[idx].quantity++;
+  calculateTotal();
 }
 
 const deleteItem = async cartId => {
-    const res = await removeItem(cartId);
+  const res = await removeItem(cartId);
 
-    if (res === undefined || res.data.resultStatus !== 200) {
-        showModal("삭제 실패");
-        return;
+  if (res === undefined || res.data.resultStatus !== 200) {
+    showModal("삭제 실패");
+    return;
+  }
+
+  if (res.data.resultData === 1) {
+    const deleteIdx = state.carts.findIndex(item => item.id === cartId);
+    if (deleteIdx > -1) {
+      state.carts.splice(deleteIdx, 1);
+      calculateTotal();
     }
 
-    if (res.data.resultData === 1) {
-        const deleteIdx = state.carts.findIndex(item => item.id === cartId);
-        if (deleteIdx > -1) {
-            state.carts.splice(deleteIdx, 1);
-            calculateTotal();
-        }
-
-        if (state.carts < 1) {
-            showModal("메뉴가 전부 삭제되었습니다");
-            router.back();
-        }
+    if (state.carts < 1) {
+      showModal("메뉴가 전부 삭제되었습니다");
+      router.back();
     }
+  }
 }
 
 const calculateTotal = () => {
-    totalPrice.value = 0;
+  totalPrice.value = 0;
 
-    state.carts.forEach(item => {
-        const price = item.price * item.quantity;
-        totalPrice.value += price;
-    });
+  state.carts.forEach(item => {
+    const price = item.price * item.quantity;
+    totalPrice.value += price;
+  });
 };
 
 const submit = async () => {
-    if (state.form.address.trim().length === 0) {
-        showModal("주소를 입력해주세요");
-        return;
-    } else if (state.form.addressDetail.trim().length === 0) {
-        showModal("상세 주소를 입력해주세요");
+  if (state.form.address.trim().length === 0) {
+    showModal("주소를 입력해주세요");
+    return;
+  } else if (state.form.addressDetail.trim().length === 0) {
+    showModal("상세 주소를 입력해주세요");
 
-        return;
-    } else if (phone2.value.trim().length === 0 || phone3.value.trim().length === 0) {
-        showModal("전화번호를 입력해주세요");
-        return;
-    } else if (!state.form.agree) {
-        showModal("결제 약관에 동의해주세요");
-        return;
-    }
+    return;
+  } else if (phone2.value.trim().length === 0 || phone3.value.trim().length === 0) {
+    showModal("전화번호를 입력해주세요");
+    return;
+  } else if (!state.form.agree) {
+    showModal("결제 약관에 동의해주세요");
+    return;
+  }
 
-    state.form.orders = state.carts.map(item => ({
-        menuId: item.menuId,
-        quantity: item.quantity
-    }));
+  state.form.orders = state.carts.map(item => ({
+    menuId: item.menuId,
+    quantity: item.quantity
+  }));
 
-    const res = await addOrder(state.form);
+  const res = await addOrder(state.form);
 
-    if (res === undefined || res.status !== 200) {
-        showModal("등록 실패");
-        return;
-    }
+  if (res === undefined || res.status !== 200) {
+    showModal("등록 실패");
+    return;
+  }
 
-    if (state.form.payment === 'BANK') {
+  if (state.form.payment === 'BANK') {
 
-    }
+  }
 
-    if (cart.state.items.length < 1) {
-        cart.state.items = state.carts;
-    }
-    cart.setLatestOrder([...cart.state.items]);
+  if (cart.state.items.length < 1) {
+    cart.state.items = state.carts;
+  }
+  cart.setLatestOrder([...cart.state.items]);
 
-    cart.clearCart()
-    await router.push({ path: `/stores/${route.params.id}/order/success` });
+  cart.clearCart()
+  await router.push({ path: `/stores/${route.params.id}/order/success` });
 };
 
 // 모달창 함수
 const showModal = (message) => {
-    const modalBody = document.getElementById("alertModalBody");
-    if (modalBody) modalBody.textContent = message;
-    const modal = new bootstrap.Modal(document.getElementById("alertModal"));
-    modal.show();
+  const modalBody = document.getElementById("alertModalBody");
+  if (modalBody) modalBody.textContent = message;
+  const modal = new bootstrap.Modal(document.getElementById("alertModal"));
+  modal.show();
 };
 // 모달 버튼 색상 변경
 
@@ -225,55 +217,84 @@ const showModal = (message) => {
           <input id="address" type="text" class="field" placeholder="주소 입력" v-model="state.form.address" />
 
           <label class="sr-only">상세주소</label>
-          <input id="address-detail" type="text" class="field" placeholder="(필수) 상세주소 입력" v-model="state.form.addressDetail" />
+          <input id="address-detail" type="text" class="field" placeholder="(필수) 상세주소 입력"
+            v-model="state.form.addressDetail" />
 
           <label class="field-label">휴대전화번호</label>
           <input id="phone" type="text" class="field" placeholder="(필수) 휴대전화번호 입력" v-model="state.form.phone" />
 
           <label class="field-label">주문 시 요청사항 (가게)</label>
-          <textarea id="store-request" class="textarea" placeholder="예) 간장 빼주세요, 덜 맵게 해주세요" v-model="state.form.storeRequest"></textarea>
+          <textarea id="store-request" class="textarea" placeholder="예) 간장 빼주세요, 덜 맵게 해주세요"
+            v-model="state.form.storeRequest"></textarea>
 
           <label class="field-label">주문 시 요청사항 (라이더)</label>
-          <textarea id="rider-request" class="textarea" placeholder="예) 상세 요청사항을 입력해주세요" v-model="state.form.riderRequest"></textarea>
+          <textarea id="rider-request" class="textarea rider-area" placeholder="예) 상세 요청사항을 입력해주세요"
+            v-model="state.form.riderRequest"></textarea>
 
-          <div class="payment-section">
-            <div class="payment-title">결제수단 선택</div>
-            <div class="payment-list">
-              <label class="radio-label"><input type="radio" value="CARD" v-model="state.form.payment" /> 카드 결제</label>
-              <label class="radio-label"><input type="radio" value="BANK" v-model="state.form.payment" /> 무통장 입금</label>
-              <label class="radio-label"><input type="radio" value="KAKAOPAY" v-model="state.form.payment" /> KakaoPay 결제</label>
-              <label class="radio-label"><input type="radio" value="NPAY" v-model="state.form.payment" /> NPay 결제</label>
-              <label class="radio-label"><input type="radio" value="ON_SITE" v-model="state.form.payment" /> 현장 결제</label>
-            </div>
-          </div>
+
         </div>
 
         <div class="right">
           <h4 class="section-title">주문내역</h4>
 
+          <div class="store-name">가게명 {{ state.storeInfo.name }}</div>
           <div class="summary">
-            <div class="store-name">가게명</div>
+
 
             <div class="items">
               <div v-if="state.carts.length > 0" class="items-list">
-                <div v-for="(item) in state.carts" :key="item.id" class="item-row">
+                <div v-for="item in state.carts" :key="item.id" class="item-row">
                   <div class="item-name">
-                    <div class="name">{{ item.name }}</div>
-                    <div v-if="item.optionName" class="option">　└ {{ item.optionName }}</div>
-                    <div v-for="(ex, i) in item.extra" :key="i" class="option">└ {{ ex }}</div>
+                    <div class="name">{{ item.name || '' }}</div>
+                    <template v-if="item.options && item.options.length > 0">
+                      <template v-for="opt in item.options" :key="opt.optionId">
+                        <div class="option">
+                          - {{ opt.comment || '-' }}
+                          <span v-if="opt.price && opt.price > 0">
+                            (+{{ opt.price.toLocaleString() }}원)
+                          </span>
+                        </div>
+                        <template v-if="opt.children && opt.children.length > 0">
+                          <div v-for="child in opt.children" :key="child.optionId" class="option-child">
+                            └ {{ child.comment || '-' }}
+                            <span v-if="child.price && child.price > 0">
+                              (+{{ child.price.toLocaleString() }}원)
+                            </span>
+                            <template v-if="child.children && child.children.length > 0">
+                              <div v-for="grand in child.children" :key="grand.optionId" class="option-grandchild">
+                                └ {{ grand.comment || '-' }}
+                                <span v-if="grand.price && grand.price > 0">
+                                  (+{{ grand.price.toLocaleString() }}원)
+                                </span>
+                              </div>
+                            </template>
+                          </div>
+                        </template>
+                      </template>
+                    </template>
                   </div>
-                  <div class="item-qty">{{ item.quantity }}개</div>
-                  <div class="item-price">{{ (item.price * item.quantity).toLocaleString() }}원</div>
+
+                  <div class="item-qty">{{ item.quantity || 0 }}개</div>
+                  <div class="item-price">
+                    {{
+                      (
+                        (item.price || 0) +
+                        item.options.reduce((sum, option) => sum + (option.price || 0), 0)
+                      ) * (item.quantity || 0)
+                      | toLocaleString
+                    }}원
+                  </div>
                 </div>
               </div>
               <div v-else class="empty">메뉴를 선택해주세요.</div>
             </div>
+
           </div>
 
           <div class="fee-box">
             <div class="fee-row">
               <span>배달료</span>
-              <span>2,000원</span>
+              <span>{{ state.storeInfo.minDeliveryFee }}</span>
             </div>
           </div>
 
@@ -290,8 +311,20 @@ const showModal = (message) => {
               이용약관, 개인정보 수집 및 이용, 개인정보 제 3자 제공, 전자금융거래 이용약관, 만 14세 이상 이용자 내용 확인하였으며 결제에 동의합니다.
             </label>
           </div>
+          <div class="pay-box">
 
-          <button type="submit" class="btn-outline">결제하기</button>
+            <div class="naver-pay-box">
+              <div class="slide-img">
+                <img src="/src/imgs/pay/btn_ext_buying.svg" alt="네이버페이" class="naver-pay"></img>
+              </div>
+            </div>
+            <div class="kakao-pay-box">
+              <div class="kokao-slide-img">
+                <img src="/src/imgs/pay/kakaopay.JPG" alt="카카오페이" class="kakao-pay"></img>
+              </div>
+            </div>
+
+          </div>
         </div>
       </form>
     </div>
@@ -299,7 +332,9 @@ const showModal = (message) => {
     <div id="alertModal" class="modal fade" tabindex="-1" aria-hidden="true">
       <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
-          <div class="modal-header"><h5 class="modal-title">알림</h5></div>
+          <div class="modal-header">
+            <h5 class="modal-title">알림</h5>
+          </div>
           <div class="modal-body" id="alertModalBody">내용</div>
           <div class="modal-footer"><button type="button" class="btn" data-bs-dismiss="modal">확인</button></div>
         </div>
@@ -501,12 +536,18 @@ const showModal = (message) => {
 }
 
 .item-qty {
+  display: flex;
+  justify-content: center;
+  height: 100%;
   text-align: center;
   font-size: 13px;
   color: #666;
 }
 
 .item-price {
+  display: flex;
+  justify-content: center;
+  height: 100%;
   text-align: right;
   font-size: 13px;
   color: #222;
@@ -576,10 +617,75 @@ const showModal = (message) => {
   .order-form {
     flex-direction: column;
   }
-  .left, .right { flex: 1 1 100%; }
-  .order-steps { position: static; text-align: left; margin-top: 8px; }
+
+  .left,
+  .right {
+    flex: 1 1 100%;
+  }
+
+  .order-steps {
+    position: static;
+    text-align: left;
+    margin-top: 8px;
+  }
+}
+
+.rider-area {
+  margin-bottom: 200px;
+}
+
+.option-child {
+  color: #ccc;
+  font-size: 0.8em;
+  font-weight: 200;
+}
+
+.naver-pay-box {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 50px;
+  border: 1.5px #3fc754 solid;
+  border-radius: 10px;
+  overflow: hidden;
+  cursor: pointer;
+}
+
+.kakao-pay-box {
+  background-color: #fbe200;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 50px;
+  border-radius: 10px;
+  overflow: hidden;
+  cursor: pointer;
+
+  margin-bottom: 200px;
+}
+
+
+.slide-img {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
+  width: 200px;
+}
+
+.kakao-pay {
+  height: 50px;
+}
+
+.naver-pay {
+  height: 60px;
+
+  display: block;
+}
+
+.pay-box {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
 }
 </style>
-
-
-

@@ -11,6 +11,7 @@ export const useOrderStore = defineStore("order", {
       this.isLoading = true;
       try {
         const res = await getOwnerOrder(id);
+        
         console.log("😁res" , res)
         this.orders = res.data.resultData ?? [];
       } catch (err) {
