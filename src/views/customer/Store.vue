@@ -178,25 +178,6 @@ const loadCarts = async (id) => {
   }
 };
 
-// 장바구니 추가 함수(Menu.vue 컴포넌트에서 받아옴)
-const addCart = (newItem) => {
-  const existIdx = state.carts.findIndex(item => {
-    const itemOptionIds = item.options?.map(opt => opt.children[0]?.id).sort().join(",");
-    const newItemOptionIds = newItem.options?.map(opt => opt.children[0]?.id).sort().join(",");
-
-    return item.menuId === newItem.menuId && itemOptionIds === newItemOptionIds;
-  });
-
-  if (existIdx !== -1) {
-    // 기존 카트 수량 증가
-    state.carts[existIdx].quantity++;
-  } else {
-    newItem.quantity = 1;
-    state.carts.push(newItem);
-  }
-
-  calculateTotal();
-};
 
 // 장바구니 메뉴 개수 감소시키는 함수
 const decreaseQuantity = async (idx) => {

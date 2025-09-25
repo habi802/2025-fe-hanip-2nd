@@ -13,36 +13,40 @@ const route = useRoute();
 
 const account = useAccountStore();
 const owner = useOwnerStore();
+const orderStore = useOrderStore();
 
 const redDot = ref(false);
-const orderStore = useOrderStore();
+// const orderStore = useOrderStore();
 const notifications = ref([]); // 알림배열
 const removedNotification = ref(new Set());
 
-onMounted(async () => {
-    const res = await getOwnerStore();
+onMounted( async () => {
+    //가게정보 피니아
+    await owner.fetchStoreInfo();
 
-    if (res !== undefined && res.status === 200) {
-        owner.state.storeId = res.data.resultData.id;
-        owner.state.storeData = res.data.resultData;
+    // const res = await getOwnerStore();
+    // if (res !== undefined && res.status === 200) {
+        
+        // owner.state.storeId = res.data.resultData.id;
+        // owner.state.storeData = res.data.resultData;
 
-        // provide를 통해 하위 컴포넌트에 값을 물려줌. 하위 컴포넌트에서는 inject를 써서 그 값을 물려받을 수 있음
-        provide("isOpen", owner.state.storeData.isOpen);
-        provide("ownerName", owner.state.storeData.ownerName);
-        provide("storeId", owner.state.storeData.id);
-        provide("storeActive", owner.state.storeData.isActive);
-        //provide("toggleBusiness", toggleBusiness);
+    //     // provide를 통해 하위 컴포넌트에 값을 물려줌. 하위 컴포넌트에서는 inject를 써서 그 값을 물려받을 수 있음
+    //     // provide("isOpen", owner.state.storeData.isOpen);
+    //     // provide("ownerName", owner.state.storeData.ownerName);
+    //     // provide("storeId", owner.state.storeData.id);
+    //     // provide("storeActive", owner.state.storeData.isActive);
+    //     // provide("toggleBusiness", toggleBusiness);
+        
+    // }
 
-        if (owner.state.storeId) {
-            await orderStore.fetchOrders(owner.state.storeId);
-            console.log(orderStore.fetchOrders);
-        }
+    //storeData.id가 있으면 주문 불러오기
+    if (owner.state.storeData?.id) {
+        await orderStore.fetchOrders(owner.state.storeData.id);
+    } else {
+        console.error("storeData.id 없음!");
     }
-
-    
-
-    
 });
+
 
 // 알림 갱신
 onMounted(async () => {
@@ -248,6 +252,10 @@ onUnmounted(() => {
             <!--  헤더 끝 :  혹시나 다시 필요할때 위치참고용 주석-->
             <!-- 라우터뷰 -->
             <div class="section">
+                <!-- storeData 준비 안되면 로딩 UI 노출 -->
+                <div v-if="!owner.state.storeData?.id">
+                    가게 정보를 불러오는 중...
+                </div>
                 <router-view />
             </div>
         </div>
@@ -264,6 +272,7 @@ onUnmounted(() => {
     display: flex;
     justify-content: center; // 가로 가운데
     align-items: center; // 세로 가운데
+    width: 100%;
     height: 100%; // 부모 높이 꽉 차게
 }
 

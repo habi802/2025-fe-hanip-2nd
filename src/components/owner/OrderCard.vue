@@ -1,5 +1,5 @@
 <script setup>
-import { computed, ref, inject } from "vue";
+import { computed, ref, inject, onMounted } from "vue";
 import DeatailOrderCard from "./OrderCardDetail.vue";
 import { useOrderStore } from "@/stores/orderStore";
 import DashboardOrderDetail from "@/components/modal/DashboardOrderDetail.vue"
@@ -9,22 +9,19 @@ const props = defineProps({
   title: String,
   orders: Object
 })
+console.log("🥵props.orders : ",props.orders)
 
 
-// 피니아
-const orderStore = useOrderStore();
 
-// ref 더보기
-const visibleCount = ref(4);
-const visibleOrders = computed(() => {
-  return orderStore.orderedList.slice(0, visibleCount.value);
-});
+// // ref 더보기
+// const visibleCount = ref(4);
+// const visibleOrders = computed(() => {
+//   return orderStore.orderedList.slice(0, visibleCount.value);
+// });
 
 // 가게 활성화 여부
-const isOpen = inject("isOpen");
-const test1 = () => {
-  console.log("테스트중");
-};
+// const isOpen = inject("isOpen");
+
 
 // 주문리스트 클릭이벤트 발생 함수
 const isModalOpen = ref(false);
@@ -35,6 +32,7 @@ const onRowClick = (rowData)=>{
   isModalOpen.value = true;
    console.log(isModalOpen.value);
 }
+
 
 
 </script>
@@ -60,15 +58,15 @@ const onRowClick = (rowData)=>{
       </div>
 
       <div class="grid-body scrollbar">
-        <div class="grid-table underline " v-for="n in 4" :key="n" role="button" tabindex="0"  @click="onRowClick()">
-          <div>000{{ n }}</div>
-          <div>{{props.orders ? props.orders : "-"}}</div>
-          <div>{{ n }}분</div>
+        <div class="grid-table underline " v-for="(order, index) in props.orders.slice(0, 4)" :key="index" role="button" tabindex="0"  @click="onRowClick()">
+          <div>{{ order.orderId || "-" }}</div>
+          <div>00-00-00</div>
+          <div>0분</div>
           <div class="address">
-            대구 달서구 야외음악당로 20길 49,<br />205동 203호
+            {{order.address || "-" }}<br />{{order.addressDetail || "-" }}
           </div>
-          <div>황금올리브 외 4건</div>
-          <div>23,500원</div>
+          <div>{{order.menuItems[0].name || "-" }}외 {{order.menuItems.length}}건</div>
+          <div>{{order.amount ? order.amount.toLocaleString() : "-" }}원</div>
           <div>
             <!-- TODO : 각 상태마다 버튼 다르게하기 -->
             <!-- 행 클릭과 내부 버튼 클릭을 분리: 내부 버튼 클릭시 부모 클릭 중단 -->
@@ -134,6 +132,8 @@ const onRowClick = (rowData)=>{
 
 /* 주소는 왼쪽 정렬 */
 .address {
+  display: flex;
+  justify-content: center;
   text-align: left;
 }
 

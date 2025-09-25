@@ -25,10 +25,7 @@ import { useOrderStore } from "@/stores/orderStore";
       </div>
 
       <template v-else>
-        <div
-          v-if="orderStore.deliveringList.length === 0"
-          class="text-center text-muted"
-        >
+        <div v-if="orderStore.deliveringList.length === 0" class="text-center text-muted" >
           현재 들어온 주문이 없습니다.
         </div>
 
