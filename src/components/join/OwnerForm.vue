@@ -276,8 +276,8 @@ function removeCategory(index) {
         @blur="validateOpeningDate"
         placeholder="ex) 2025.09.01"
       />
-      <p v-if="errors.openingDate" class="error-msg">{{ errors.openingDate }}</p>
     </div>
+      <p v-if="errors.openingDate" class="error-msg">{{ errors.openingDate }}</p>
     <div class="sevLine"></div>
 
     <!-- 대표자 이름 -->
@@ -326,8 +326,8 @@ function removeCategory(index) {
           class="full-width"
           placeholder="상세주소"
         />
-        <p v-if="errors.address" class="error-msg">{{ errors.address }}</p>
       </div>
+        <p v-if="errors.address" class="error-msg">{{ errors.address }}</p>
     </div>
     <div class="sevLine"></div>
 

@@ -60,9 +60,9 @@ const state = reactive({
     postcode: "",
     address: "",
     addressDetail: "",
-    ownerTel1: "02",
-    ownerTel2: "",
-    ownerTel3: "",
+    storePhone1: "02",
+    storePhone2: "",
+    storePhone3: "",
     ownerPhone1: "010",
     ownerPhone2: "",
     ownerPhone3: "",
@@ -114,7 +114,7 @@ function validateAddress() {
     memberType.value === "customer" ? state.addresses[0]?.address : state.owner.address;
 
   const trimmedValue = (rawValue ?? "").trim();
-  errors.address = trimmedValue ? "" : "가게 주소를 입력해주세요.";
+  errors.address = trimmedValue ? "" : "가게 상세 주소를 입력해주세요.";
 }
 
 // 일반 고객 번호
@@ -133,10 +133,10 @@ const validatePhone = () => {
 const validateOwnerTel = () => {
   const middleRegex = /^\d{3,4}$/;
   const lastRegex = /^\d{4}$/;
-  errors.ownerTel2 = middleRegex.test(state.owner.ownerTel2)
+  errors.storePhone2 = middleRegex.test(state.owner.storePhone2)
     ? ""
     : "전화번호 다시 한번 확인해주세요.";
-  errors.ownerTel3 = lastRegex.test(state.owner.ownerTel3)
+  errors.storePhone3 = lastRegex.test(state.owner.storePhone3)
     ? ""
     : "전화번호 다시 한번 확인해주세요.";
 };
@@ -263,7 +263,7 @@ const agreement = reactive({
 
 // 회원구분
 watch(memberType, (val) => {
-  state.form.role = val;
+  state.form.role = val === "owner" ? "OWNER" : "CUSTOMER";
 });
 
 // input 이벤트 핸들러
@@ -372,7 +372,7 @@ const submit = async () => {
     showModal("비밀번호 확인이 일치하지 않습니다.");
     return;
   }
-
+  console.log("업주(사장용 폼 확인용)", state.owner);
   // 2. 전화번호 합치기
   const phoneStr = `${state.form.phone.phone1}-${state.form.phone.phone2}-${state.form.phone.phone3}`;
 
@@ -380,7 +380,7 @@ const submit = async () => {
   let storeJoinReq = null;
   if (memberType.value === "owner") {
     // 가게 전화 합치기
-    const ownerTel = `${state.owner.ownerTel1}-${state.owner.ownerTel2}-${state.owner.ownerTel3}`;
+    const storePhone = `${state.owner.storePhone1}-${state.owner.storePhone2}-${state.owner.storePhone3}`;
     // 오너 개인 전화는 필요시 사용 가능 (현재 payload에는 없음)
     const ownerPhone = `${state.owner.ownerPhone1}-${state.owner.ownerPhone2}-${state.owner.ownerPhone3}`;
 
@@ -394,11 +394,12 @@ const submit = async () => {
       postcode: state.owner.postcode,
       address: state.owner.address,
       addressDetail: state.owner.addressDetail,
-      tel: ownerTel, // 가게 전화
+      tel: storePhone, // 가게 전화
       ownerName: state.owner.ownerName,
       openDate: state.owner.openDate,
       enumStoreCategory: state.owner.category, // 카테고리 배열
     };
+    console.log("storeJoinReq 확인용", storeJoinReq);
   }
 
   // 4. 주소 리스트 UserAddressPostReq
@@ -409,7 +410,6 @@ const submit = async () => {
     postcode: addr.postcode,
     addressDetail: addr.addressDetail,
   }));
-
   // 업주 주소도 포함
   if (memberType.value === "owner") {
     userAddressPostReq.push({
@@ -420,6 +420,7 @@ const submit = async () => {
       addressDetail: state.owner.addressDetail,
     });
   }
+  console.log(" userAddressPostReq 확인용", userAddressPostReq);
 
   // 5. 최종 payload 생성
   const payload = {
@@ -430,11 +431,11 @@ const submit = async () => {
     phone: phoneStr,
     email: state.form.email || "",
     imagePath: "", // 기본 프로필 이미지
-    role: memberType.value === "owner" ? "사장" : "고객",
+    role: memberType.value === "owner" ? "OWNER" : "CUSTOMER",
     storeJoinReq: storeJoinReq || {}, // 업주 데이터 포함
     userAddressPostReq: userAddressPostReq, // 주소 리스트 포함
   };
-
+  console.log("payload 확인용", payload);
   try {
     const formData = new FormData();
 
@@ -449,7 +450,7 @@ const submit = async () => {
 
     // Axios POST 요청
     const res = await axios.post("/user/join", formData);
-
+    console.log("server response 확인용", res);
     if (res.status === 200) {
       showModal("회원가입 완료!");
       localStorage.setItem("user", JSON.stringify(res.data.resultData));
@@ -458,6 +459,7 @@ const submit = async () => {
       showModal(res.data?.message || "입력 정보를 다시 확인해 주세요.");
     }
   } catch (err) {
+    console.error("submit error 오류 확인용", err);
     console.error(err);
     showModal("회원가입 중 오류 발생");
   }
