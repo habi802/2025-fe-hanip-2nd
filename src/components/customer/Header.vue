@@ -1,6 +1,6 @@
 <script setup>
 import { reactive, ref, computed, onMounted, watch } from "vue";
-import { useRouter } from "vue-router";
+import { useRouter, useRoute } from "vue-router";
 import { storeToRefs } from "pinia";
 import { useUserInfo, useAccountStore } from "@/stores/account";
 import { logout } from "@/services/userService";
@@ -11,6 +11,7 @@ import CartModal from "../modal/CartModal.vue";
 import { useCartStore } from "@/stores/cartStore";
 
 const router = useRouter();
+const route = useRoute();
 
 // 유저 정보
 const account = useAccountStore();
@@ -51,6 +52,10 @@ const showCart = async () => {
   } catch (err) {
     console.error("카트 가져오기 실패", err);
     alert("장바구니를 불러오는데 실패했습니다.");
+  }
+  if (route.name === "order") {
+    e.preventDefault();
+    return;
   }
 };
 

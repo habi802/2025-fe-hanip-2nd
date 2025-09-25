@@ -12,51 +12,51 @@ import { naverGetCid } from '@/services/payment';
 
 const route = useRoute();
 
-// onMounted(() => {
-//     // 라우터가 처음 로드됐을 때
-//     naverPay();
+onMounted(() => {
+    // 라우터가 처음 로드됐을 때
+    naverPay();
 
-//     // 쿼리가 나중에 들어오는 경우 대비
-//     watch(
-//         () => route.query,
-//         (newQuery) => {
-//             if (newQuery.orderId && newQuery.paymentId) {
-//                 console.log("watch로 쿼리 감지!", newQuery);
-//                 naverPay();
-//             }
-//         },
-//         { immediate: true } // 처음에도 바로 실행
-//     );
-// });
+    // 쿼리가 나중에 들어오는 경우 대비
+    watch(
+        () => route.query,
+        (newQuery) => {
+            if (newQuery.routeOrderId && newQuery.paymentId) {
+                console.log("쿼리 감지용", newQuery);
+                naverPay();
+            }
+        },
+        { immediate: true } // 처음에도 바로 실행
+    );
+});
 
-// const naverPay = async () => {
-//     if (route.query.orderId && route.query.paymentId) {
-//         console.log("쿼리로 들어옴!", route.query);
+const naverPay = async () => {
+    if (route.query.routeOrderId && route.query.paymentId) {
+        console.log("쿼리 들어옴", route.query);
 
-//         const orderId = parseInt(route.query.orderId);
-//         const paymentId = route.query.paymentId;
-
-
-//         if (orderId || paymentId) {
-
-//             const payreq = {
-//                 paymentId: route.query.paymentId
-//             }
-
-//             console.log("orderId", orderId);
-//             console.log("paymentId", paymentId);
-
-//             const tid = await naverGetCid(orderId, payreq);
-//             console.log("cid 주입 완료", tid);
-
-//         }
+        const orderId = parseInt(route.query.routeOrderId);
+        const paymentId = route.query.paymentId;
 
 
-//     } else {
-//         console.log("쿼리 없이 들어옴!");
-//     }
+        if (orderId || paymentId) {
 
-// }
+            const payreq = {
+                paymentId: route.query.paymentId
+            }
+
+            console.log("orderId", orderId);
+            console.log("paymentId", paymentId);
+
+            const tid = await naverGetCid(orderId, payreq);
+            console.log("cid 주입 완료", tid);
+
+        }
+
+
+    } else {
+        console.log("쿼리 안 옴");
+    }
+
+}
 
 
 

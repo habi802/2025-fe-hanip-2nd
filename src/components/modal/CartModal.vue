@@ -1,7 +1,7 @@
 <script setup>
 import { ref, computed, watch, reactive, onMounted } from "vue";
 import { useRouter, useRoute } from "vue-router";
-import { minusQuantity, plusQuantity, removeItem } from "@/services/cartService";
+import { minusQuantity, plusQuantity, removeItem, getItem } from "@/services/cartService";
 import { it } from "date-fns/locale";
 
 // 모달 표시 상태
@@ -25,17 +25,34 @@ watch(
   }
 );
 
-// 총 합계 계산
-const totalPrice = computed(() =>
-  items.value.reduce((sum, item) => sum + item.price * item.quantity, 0)
-);
+
+
+// 장바구니 총 금액 표시하기 위한 변수
+const totalPrice = ref(0);
+
+// 장바구니 총 금액 계산하는 함수
+const calculateTotal = () => {
+  let _totalPrice = 0;
+
+  items.value.forEach((item) => {
+    _totalPrice += item.price;
+    console.log("이거 왜이렇게 비싸", item.price)
+  });
+
+  totalPrice.value = _totalPrice;
+
+};
 
 // 수량 증가/감소
 const increaseQty = async (item) => {
 
   if (item.quantity < 100) {
     item.quantity += 1;
+    item.price = item.oneMenuPrice
+      * item.quantity;
+    calculateTotal();
     await plusQuantity(item.id);
+
     emit("update-items", items.value);
   }
 
@@ -44,6 +61,9 @@ const decreaseQty = async (item) => {
   if (item.quantity > 1) {
     item.quantity -= 1;
     await minusQuantity(item.id);
+    item.price = item.oneMenuPrice
+      * item.quantity;
+    calculateTotal();
   }
   else {
     await removeItem(item.id);
@@ -52,16 +72,11 @@ const decreaseQty = async (item) => {
   emit("update-items", items.value);
 };
 
-// 삭제
-// const removeItem = (id) => {
-//   items.value = items.value.filter((i) => i.id !== id);
-//   emit("update-items", items.value);
-// };
-
 // 모달 열기 (부모에서 items 전달 가능)
 const open = (cartItems = []) => {
   items.value = cartItems;
   isVisible.value = true;
+  calculateTotal();
 };
 
 // 모달 닫기
@@ -82,7 +97,6 @@ const goToCategoryList = () => {
 
     router.push("/categoryList");
   }
-
 
 }
 
@@ -133,7 +147,7 @@ const optionTotal = (item) => {
                   </div>
                 </div>
                 <div class="item-price">
-                  {{ (item.price * item.quantity + optionTotal(item)).toLocaleString() }}원
+                  {{ (item.price).toLocaleString() }}원
                 </div>
               </div>
               <div class="option-box">
