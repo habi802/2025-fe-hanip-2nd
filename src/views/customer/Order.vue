@@ -40,6 +40,7 @@ const phone3 = ref('');
 const totalPrice = ref(0);
 
 onMounted(async () => {
+  storeInfo();
   const res = await getUser();
 
   state.form.postcode = res.data.resultData.postcode;
@@ -62,7 +63,6 @@ onMounted(async () => {
   console.log("state.carts", state.carts)
 
   calculateTotal();
-  storeInfo();
 
   //네이버페이 payId 받았을때만 
   const routeOrderId = route.query.orderId;
@@ -100,8 +100,8 @@ onMounted(async () => {
 
 
 const storeInfo = async () => {
-
-  const storeInfo = await getStore(state.form.storeId);
+  const storeId = route.params.id;
+  const storeInfo = await getStore(storeId);
 
   state.storeInfo = storeInfo.data.resultData;
   console.log("스토어 정보", state.storeInfo)
@@ -198,8 +198,8 @@ const ordering = async () => {
   }
 
   console.log("데이터 넘어갓나요?", res)
-
   const orderId = res.data.resultData.id;
+  console.log("오더아이디 확인", orderId)
 
   // SDK 로드 후 바로 결제 화면 열기
   const script = document.createElement('script');
