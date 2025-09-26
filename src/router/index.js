@@ -79,7 +79,7 @@ const router = createRouter({
     {
       path: "/orders",
       name: "orders",
-      component: () => import("@/components/myPage/OrderDetails.vue"),
+      component: () => import("@/views/customer/Orders.vue"),
       meta: { layout: CustomerLayout },
     },
     {

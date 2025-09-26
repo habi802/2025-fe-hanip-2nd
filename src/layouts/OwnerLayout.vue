@@ -4,7 +4,6 @@ import { RouterLink, useRouter, useRoute } from "vue-router";
 import { useAccountStore, useOwnerStore } from "@/stores/account";
 import { logout } from "@/services/userService";
 import { patchIsOpen, getOwnerStore } from "@/services/storeService";
-import { getOwnerOrder } from "@/services/orderService";
 import { useOrderStore } from "@/stores/orderStore";
 import "@/assets/owner/_ownerStyle.scss";
 
@@ -38,13 +37,6 @@ onMounted( async () => {
     //     // provide("toggleBusiness", toggleBusiness);
         
     // }
-
-    //storeData.id가 있으면 주문 불러오기
-    if (owner.state.storeData?.id) {
-        await orderStore.fetchOrders(owner.state.storeData.id);
-    } else {
-        console.error("storeData.id 없음!");
-    }
 });
 
 

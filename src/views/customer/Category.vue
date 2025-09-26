@@ -27,6 +27,7 @@ const route = useRoute();
 const state = reactive({
   stores: [],
 });
+const stores = ref([]);
 
 // 쿼리에서 검색어 추출
 const query = ref(route.query.search_text || '');
@@ -37,14 +38,17 @@ const searchText = async (search_text) => {
   try {
     const params = { search_text };
     console.log('api 파라미터:', params);
-    const res = await getStoreList(params);
+    const res = await getStoreList({page: 0, size:10});
     console.log('api:', res.data.resultData);
-    result.value = res.data.resultData;
+
+    result.value = res.data.resultData || [];
     state.stores = result.value;
+
     console.log('state.stores: ', state.stores);
   } catch (error) {
     console.error('에러 발생:', error);
     result.value = [];
+    state.stores = [];
   }
 };
 
@@ -61,9 +65,10 @@ const name = reactive({
 //
 
 onMounted(() => {
+  searchText(query.value);
+  console.log('state.stores mounted:', state.stores);
   nextTick(() => {
     if (query.value) {
-      searchText(query.value);
       name.text = query.value;
     }
     const text = router.currentRoute.value.query.section;
@@ -207,7 +212,7 @@ const searchLateNight = () => {
 
 const findAll = async (params) => {
   const res = await getStoreList(params);
-  state.stores = res.data.resultData;
+  state.stores = res.data.resultData || [];
 };
 
 const sortKey = ref('');
@@ -411,18 +416,25 @@ const caLink = async () => {
     <img @click="caLink" class="searchImg" src="/src//imgs/fluent_search.png" />
   </div>
   <div class="sort-options">
-    <span :class="{ active: sortKey.value === 'price' }" @click="setSort('price')">
-      주문 금액 순
-    </span>
-    <span class="divider">|</span>
-    <span :class="{ active: sortKey.value === 'rating' }" @click="setSort('rating')">
-      별점순 {{ sortOrder.value === 'asc' ? '▲' : '▼' }}
-    </span>
-    <span class="divider">|</span>
-    <span :class="{ active: sortKey.value === 'review' }" @click="setSort('review')">
-      리뷰순
-    </span>
-  </div>
+  <span :class="{ active: sortKey === 'price' }"
+    @click="setSort('price')">
+    주문 금액 순
+  </span>
+  <span class="divider">|</span>
+  <span
+    class="sort-item"
+    :class="{ active: sortKey === 'rating' }"
+    @click="setSort('rating')"
+  >
+    <span>별점순</span>
+    <span class="arrow" aria-hidden="true">{{ sortKey === 'rating' ? (sortOrder === 'asc' ? '▲' : '▼') : '' }}</span>
+  </span>
+  <span class="divider">|</span>
+  <span :class="{ active: sortKey === 'review' }"
+    @click="setSort('review')">
+    리뷰순
+  </span>
+</div>
   <div class="card-list">
     <div class="card" v-for="store in stores" :key="store.id">
       <div class="card-img-wrapper">
@@ -459,8 +471,8 @@ const caLink = async () => {
         style="position: absolute; transform: translateX(540px)"
       />
     </div>
-    <div v-for="stores in state.stores" :key="stores.storeId">
-      <StoreList :stores="stores" />
+    <div v-for="store in state.stores" :key="store.storeId">
+      <StoreList :stores="store" />
     </div>
     <!--  -->
     <!--  -->
@@ -796,7 +808,6 @@ const caLink = async () => {
 }
 
 .sort-options .active::after {
-  content: '▲';
   font-size: 10px;
   margin-left: 4px;
 }
