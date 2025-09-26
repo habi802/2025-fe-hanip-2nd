@@ -4,33 +4,40 @@ import OrderStatus from '@/components/owner/orderInfo/OrderStatus.vue'
 import OrderedMenu from '@/components/owner/orderInfo/OrderedMenu.vue'
 import PaymentDetails from '@/components/owner/orderInfo/PaymentDetails.vue'
 
-//defineEmits(['close'])
+defineProps({
+  order: { type: Object, required: true }, // 단일 주문 데이터
+});
 
+defineEmits(["close", "accept", "cancel", "assign"]);
 </script>
+
 <template>
-  <!-- @click="$emit('row-click', { id: n, time: '17:12' }) -->
-  <div class="gray-box" @click.self="$emit('close')">
-  </div>
+  <div class="gray-box" @click.self="$emit('close')"></div>
   <div class="modal-wrap white-card">
     <div class="modal-title">
       <span>주문상세</span>
-      <span style="color: var(--grey1); font-size: 16px;">　002-000-0000 (주문번호(임시))</span>
-      <hr>
+      <span style="color: var(--grey1); font-size: 16px;">
+        {{ order.orderId }} (주문번호)
+      </span>
+      <hr />
     </div>
+
     <div class="modal-contents">
       <div class="op d-flex flex-column">
-        <OrderDetails></OrderDetails> 
-        <PaymentDetails></PaymentDetails>
+        <OrderDetails :order="order" />
+        <PaymentDetails :payment="order.payment" />
       </div>
-      <OrderedMenu></OrderedMenu>
+      <OrderedMenu :menus="order.menus" />
     </div>
+
     <div class="btn-wrap">
-      <button class="owner-btn-cancel" >주문 거절</button>
-      <button class="owner-btn-white" >주문 수락</button>
-      <button class="owner-btn-white" @click.self="$emit('close')">확인</button>
+      <button class="owner-btn-cancel" @click="$emit('cancel', order.orderId)">주문 거절</button>
+      <button class="owner-btn-white" @click="$emit('accept', order.orderId)">주문 수락</button>
+      <button class="owner-btn-white" @click="$emit('close')">확인</button>
     </div>
-  </div><!-- modal-wrap 끝-->
+  </div>
 </template>
+
 <style scoped lang="scss">
 .gray-box {
   position: fixed;
