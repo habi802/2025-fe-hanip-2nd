@@ -104,10 +104,10 @@ const validateEmail = () => {
   const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   errors.email = regex.test(state.form.email) ? "" : "유효한 이메일 주소를 입력하세요.";
 };
-// 이름
-const validateName = () => {
-  errors.name = state.form.name.trim().length >= 2 ? "" : "이름은 2자 이상이어야 합니다.";
-};
+// // 이름
+// const validateName = () => {
+//   errors.name = state.form.name.trim().length >= 2 ? "" : "이름은 2자 이상이어야 합니다.";
+// };
 
 // 주소
 const validateAddress = () => {
@@ -172,7 +172,6 @@ const validateForm = () => {
   validatePassword();
   validateConfirmPw();
   validateEmail();
-  validateName();
   validateAddress();
   if (memberType.value === "customer") validatePhone();
   else {
@@ -181,7 +180,7 @@ const validateForm = () => {
     validateBusinessNumber();
     validateOpenDate();
   }
-
+  console.log("errors:", JSON.stringify(errors));
   return Object.values(errors).every((msg) => msg === "");
 };
 // 업주 input 시 에러 초기화
@@ -355,51 +354,341 @@ const getUserAddressPostReq = () => {
 };
 
 // 제출 함수
+// const submit = async () => {
+//   console.log("state.owner:", state.owner);
+
+//   if (!validateForm()) {
+//     console.log("state.owner", JSON.stringify(state.owner));
+//     showModal("입력값을 다시 확인해주세요.");
+//     return;
+//   }
+
+//   try {
+//     // FormData 생성
+//     const formData = new FormData();
+
+//     // 공통 payload
+//     const payload = {
+//       id: 0,
+//       name: state.form.name,
+//       loginId: state.form.loginId,
+//       loginPw: state.form.loginPw,
+//       phone: getPhoneStr(),
+//       email: state.form.email,
+//       imagePath: "", // 공통 이미지 (프로필)
+//       role: memberType.value === "customer" ? "고객" : "사장", // Enum 매핑
+//       userAddressPostReq: getUserAddressPostReq(),
+//     };
+
+//     // 업주 회원인 경우 storeJoinReq 포함
+//     if (memberType.value === "owner") {
+//       payload.storeJoinReq = getStoreJoinReq();
+//     }
+
+//     // FormData에 JSON Blob으로 추가
+//     formData.append(
+//       "req",
+//       new Blob([JSON.stringify(payload)], { type: "application/json" })
+//     );
+
+//     // 업주 라이선스 파일 첨부
+//     if (memberType.value === "owner" && state.owner.businessFile) {
+//       formData.append("licenseFile", state.owner.businessFile);
+//     }
+
+//     // 프로필 이미지 첨부
+//     if (state.profilePic) {
+//       formData.append("pic", state.profilePic);
+//     }
+
+//     // axios 요청
+//     const res = await axios.post("/user/join", formData, {
+//       headers: { "Content-Type": "multipart/form-data" },
+//     });
+
+//     // 가입 성공 처리
+//     if (res.status === 200) {
+//       showModal("회원가입 완료!");
+//       localStorage.setItem("user", JSON.stringify(res.data.resultData));
+//       router.push("/");
+//     } else {
+//       showModal(res.data?.message || "입력 정보를 다시 확인해 주세요.");
+//     }
+//   } catch (err) {
+//     console.error(err);
+//     showModal("회원가입 중 오류 발생");
+//   }
+// };
+// const submit = async () => {
+//   console.log("▶️ 제출 직전 state.owner:", JSON.stringify(state.owner));
+//   console.log("openDate 값:", state.owner.openDate);
+//   // 유효성 검사
+//   if (!validateForm()) {
+//     showModal("입력값을 다시 확인해주세요.");
+//     return;
+//   }
+
+//   try {
+//     const formData = new FormData();
+
+//     // 공통 유저 정보
+//     const payload = {
+//       id: 0,
+//       name: state.form.name,
+//       loginId: state.form.loginId,
+//       loginPw: state.form.loginPw,
+//       phone: getPhoneStr(), // "010-1234-5678"
+//       email: state.form.email,
+//       role: memberType.value === "owner" ? "OWNER" : "CUSTOMER", // ✅ 서버 Enum 매핑
+//       userAddressPostReq: getUserAddressPostReq(), // [{title,isMain,postcode,address,addressDetail}]
+//     };
+
+//     // 업주 전용 데이터
+//     if (memberType.value === "owner") {
+//       const storeReq = {
+//         id: 0,
+//         name: state.owner.name,
+//         comment: state.owner.comment,
+//         businessNumber: state.owner.businessNumber,
+//         licensePath: state.owner.licensePath ?? "",
+//         imagePath: state.owner.imagePath ?? "",
+//         postcode: state.owner.postcode,
+//         address: state.owner.address,
+//         addressDetail: state.owner.addressDetail,
+//         tel: `${state.owner.storePhone1}-${state.owner.storePhone2}-${state.owner.storePhone3}`,
+//         ownerName: state.owner.ownerName,
+//         openDate: state.owner.openDate,
+//         enumStoreCategory: state.owner.category, // ✅ 배열 그대로 전송
+//       };
+
+//       // 업주 JSON append
+//       formData.append(
+//         "storeJoinReq",
+//         new Blob([JSON.stringify(storeReq)], { type: "application/json" })
+//       );
+
+//       // 사업자 등록증 파일 첨부
+//       if (state.owner.businessFile) {
+//         formData.append("licenseFile", state.owner.businessFile);
+//       }
+//     }
+
+//     // 공통 JSON append
+//     formData.append(
+//       "req",
+//       new Blob([JSON.stringify(payload)], { type: "application/json" })
+//     );
+
+//     // 프로필 이미지 (선택)
+//     if (state.profilePic) {
+//       formData.append("pic", state.profilePic);
+//     }
+
+//     // axios POST
+//     const res = await axios.post("/user/join", formData, {
+//       headers: { "Content-Type": "multipart/form-data" },
+//     });
+
+//     // 결과 처리
+//     if (res.status === 200) {
+//       showModal("회원가입이 완료되었습니다!");
+//       localStorage.setItem("user", JSON.stringify(res.data.resultData));
+//       router.push("/"); // 메인 페이지로 이동
+//     } else {
+//       showModal(res.data?.message || "회원가입 실패: 입력 정보를 확인해주세요.");
+//     }
+//   } catch (err) {
+//     console.error("❌ 회원가입 중 오류:", err);
+//     showModal("회원가입 중 오류가 발생했습니다.");
+//   }
+// };
+// const submit = async () => {
+//   console.log("▶️ 제출 직전 state.owner:", JSON.stringify(state.owner));
+
+//   // 1️⃣ 유효성 검사
+//   if (!validateForm()) {
+//     showModal("입력값을 다시 확인해주세요.");
+//     return;
+//   }
+
+//   // 2️⃣ openDate 형식 확인
+//   const openDateRegex = /^\d{4}-\d{2}-\d{2}$/;
+//   if (memberType.value === "owner" && !openDateRegex.test(state.owner.openDate)) {
+//     showModal("개업일을 YYYY-MM-DD 형식으로 입력해주세요.");
+//     return;
+//   }
+
+//   try {
+//     const formData = new FormData();
+
+//     // 3️⃣ 공통 유저 정보 payload
+//     const userPayload = {
+//       id: 0,
+//       name: state.form.name,
+//       loginId: state.form.loginId,
+//       loginPw: state.form.loginPw,
+//       phone: `${state.form.phone.phone1}-${state.form.phone.phone2}-${state.form.phone.phone3}`,
+//       email: state.form.email,
+//       role: memberType.value === "owner" ? "사장" : "고객",
+//       userAddressPostReq: state.addresses.map((a) => ({
+//         title: a.title ?? "기본 주소",
+//         isMain: a.isMain ?? 1,
+//         postcode: a.postcode ?? "",
+//         address: a.address ?? "",
+//         addressDetail: a.addressDetail ?? "",
+//       })),
+//     };
+
+//     formData.append(
+//       "req",
+//       new Blob([JSON.stringify(userPayload)], { type: "application/json" })
+//     );
+
+//     // 4️⃣ 업주 회원이면 storeJoinReq 추가
+//     if (memberType.value === "owner") {
+//       const storePayload = {
+//         id: 0,
+//         name: state.owner.storeName,
+//         comment: state.owner.comment,
+//         businessNumber: state.owner.businessNumber,
+//         licensePath: state.owner.licensePath ?? "",
+//         imagePath: state.owner.imagePath ?? "",
+//         postcode: state.owner.postcode,
+//         address: state.owner.address,
+//         addressDetail: state.owner.addressDetail,
+//         tel: `${state.owner.storePhone1}-${state.owner.storePhone2}-${state.owner.storePhone3}`,
+//         ownerName: state.owner.ownerName,
+//         openDate: state.owner.openDate,
+//         enumStoreCategory: state.owner.category, // 배열 그대로 전송
+//       };
+
+//       formData.append(
+//         "storeJoinReq",
+//         new Blob([JSON.stringify(storePayload)], { type: "application/json" })
+//       );
+
+//       // 사업자 등록증 파일 첨부
+//       if (state.owner.businessFile) {
+//         formData.append("licenseFile", state.owner.businessFile);
+//       }
+//     }
+
+//     // 5️⃣ 프로필 이미지 첨부
+//     if (state.profilePic) {
+//       formData.append("pic", state.profilePic);
+//     }
+
+//     // 6️⃣ Axios POST
+//     const res = await axios.post("/user/join", formData, {
+//       headers: { "Content-Type": "multipart/form-data" },
+//     });
+
+//     // 7️⃣ 결과 처리
+//     if (res.status === 200) {
+//       showModal("회원가입 완료!");
+//       localStorage.setItem("user", JSON.stringify(res.data.resultData));
+//       router.push("/");
+//     } else {
+//       showModal(res.data?.message || "회원가입 실패: 입력 정보를 확인해주세요.");
+//     }
+//   } catch (err) {
+//     console.error("❌ 회원가입 중 오류:", err);
+//     showModal("회원가입 중 오류가 발생했습니다.");
+//   }
+// };
 const submit = async () => {
+  console.log("▶️ 제출 직전 state.owner:", JSON.stringify(state.owner));
+
+  // 1️⃣ 유효성 검사
   if (!validateForm()) {
     showModal("입력값을 다시 확인해주세요.");
     return;
   }
 
-  const payload = {
-    id: 0,
-    name: state.form.name,
-    loginId: state.form.loginId,
-    loginPw: state.form.loginPw,
-    phone: getPhoneStr(),
-    email: state.form.email,
-    imagePath: "",
-    role: memberType.value === "owner" ? "사장" : "고객",
-    userAddressPostReq: getUserAddressPostReq(),
-  };
+  // 2️⃣ openDate 형식 체크
+  const openDateRegex = /^\d{4}-\d{2}-\d{2}$/;
+  if (memberType.value === "owner" && !openDateRegex.test(state.owner.openDate)) {
+    showModal("개업일을 YYYY-MM-DD 형식으로 입력해주세요.");
+    return;
+  }
 
   try {
-    let res;
     const formData = new FormData();
+
+    // 3️⃣ 공통 유저 정보 JSON Blob
+    const userPayload = {
+      id: 0,
+      name: state.form.name,
+      loginId: state.form.loginId,
+      loginPw: state.form.loginPw,
+      phone: `${state.form.phone.phone1}-${state.form.phone.phone2}-${state.form.phone.phone3}`,
+      email: state.form.email,
+      role: memberType.value === "owner" ? "사장" : "고객",
+      userAddressPostReq: state.addresses.map((a) => ({
+        title: a.title ?? "기본 주소",
+        isMain: a.isMain ?? 1,
+        postcode: a.postcode ?? "",
+        address: a.address ?? "",
+        addressDetail: a.addressDetail ?? "",
+      })),
+    };
+
     formData.append(
       "req",
-      new Blob([JSON.stringify(payload)], { type: "application/json" })
+      new Blob([JSON.stringify(userPayload)], { type: "application/json" })
     );
 
-    if (state.profilePic) formData.append("pic", state.profilePic);
-    if (memberType.value === "owner")
+    // 4️⃣ 업주 회원이면 storeJoinReq 추가
+    if (memberType.value === "owner") {
+      const storePayload = {
+        id: 0,
+        ownerName: state.owner.ownerName,
+        name: state.owner.storeName,
+        postcode: state.owner.postcode,
+        address: state.owner.address,
+        addressDetail: state.owner.addressDetail,
+        tel: `${state.owner.storePhone1}-${state.owner.storePhone2}-${state.owner.storePhone3}`,
+        ownerPhone: `${state.owner.ownerPhone1}-${state.owner.ownerPhone2}-${state.owner.ownerPhone3}`,
+        businessNumber: state.owner.businessNumber,
+        openDate: state.owner.openDate,
+        enumStoreCategory: state.owner.category, // Enum 배열 그대로 전송
+        comment: state.owner.comment ?? "",
+        licensePath: state.owner.licensePath ?? "",
+        imagePath: state.owner.imagePath ?? "",
+      };
+      console.log("storepayload 데이터 확인용", storePayload);
       formData.append(
-        "storeReq",
-        new Blob([JSON.stringify(getStoreJoinReq())], { type: "application/json" })
+        "storeJoinReq",
+        new Blob([JSON.stringify(storePayload)], { type: "application/json" })
       );
 
-    res = await axios.post("/user/join", formData);
+      // 사업자 등록증 파일 첨부
+      if (state.owner.businessFile && state.owner.businessFile.size > 0) {
+        formData.append("licenseFile", state.owner.businessFile);
+      }
+    }
 
+    // 5️⃣ 프로필 이미지 첨부
+    if (state.profilePic && state.profilePic.size > 0) {
+      formData.append("pic", state.profilePic);
+    }
+
+    // 6️⃣ Axios POST 요청
+    // const res = await axios.post("/user/join", formData, {
+    //   headers: { "Content-Type": "multipart/form-data" },
+    // });
+
+    // 7️⃣ 결과 처리
     if (res.status === 200) {
       showModal("회원가입 완료!");
       localStorage.setItem("user", JSON.stringify(res.data.resultData));
       router.push("/");
     } else {
-      showModal(res.data?.message || "입력 정보를 다시 확인해 주세요.");
+      showModal(res.data?.message || "회원가입 실패: 입력 정보를 확인해주세요.");
     }
   } catch (err) {
-    console.error(err);
-    showModal("회원가입 중 오류 발생");
+    console.error("❌ 회원가입 중 오류:", err);
+    showModal("회원가입 중 오류가 발생했습니다.");
   }
 };
 

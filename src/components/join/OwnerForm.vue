@@ -8,12 +8,12 @@ const props = defineProps({
   owner: Object,
 });
 // 부모로 이벤트 전달
-const emit = defineEmits(["update:form", "update:errors", "addressSearch"]);
+const emit = defineEmits(["update:form", "update:errors", "addressSearch", "update:owner"]); 
 
 // readonly props를 직접 수정할 수 없으므로 localOwner에 복사
 const localOwner = reactive({
   ownerName: props.owner?.ownerName ?? "",
-  storeName: props.owner?.name ?? "",
+  storeName: props.owner?.storeName ?? "",
   postcode: props.owner?.postcode ?? "",
   address: props.owner?.address ?? "",
   addressDetail: props.owner?.addressDetail ?? "",
@@ -26,12 +26,16 @@ const localOwner = reactive({
   businessNumber: props.owner?.businessNumber ?? "",
   openDate: props.owner?.openDate ?? "",
   category: Array.isArray(props.owner?.category) ? props.owner.category : [],
-  businessFile: props.owner?.licensePath ?? null,
+  businessFile: props.owner?.businessFile ?? props.owner?.licensePath ?? null,
   imagePath: props.owner?.imagePath ?? null,
 });
-function clearError(field) {
-  emit("update:errors", { ...props.errors, [field]: "" });
-}
+
+// 부모 form, state.owner 초기값 반영
+nextTick(() => {
+  updateParent(); // 부모 form 업데이트
+// 기존
+emit("update:owner", { ...localOwner }); 
+});
 
 // input 변경 시 emit
 function updateField(field, value) {
@@ -48,13 +52,15 @@ function updateField(field, value) {
     value = value.replace(/\D/g, "").slice(0, 4);
   }
   localOwner[field] = value;
-  // 입력 시 기존 에러 초기화
   if (value && props.errors[field]) {
     emit("update:errors", { ...props.errors, [field]: "" });
   }
   updateParent(); // 부모 form 업데이트
+  emit("update:owner", { ...localOwner }); // 부모 state.owner 동기화
 }
-
+function clearError(field) {
+  emit("update:errors", { ...props.errors, [field]: "" });
+}
 // 주소 검색
 function handleAddressSearch() {
   emit("addressSearch");
@@ -80,30 +86,29 @@ function updateParent() {
 function getFormFromLocal() {
   return {
     ...props.form,
-    storeJoinReq: { 
+    storeJoinReq: {
       name: localOwner.storeName,
-      comment: "", 
+      comment: "",
       businessNumber: localOwner.businessNumber,
-      licensePath: localOwner.businessFile, 
+      licensePath: localOwner.businessFile,
       imagePath: localOwner.imagePath,
       postcode: localOwner.postcode,
       address: localOwner.address,
       addressDetail: localOwner.addressDetail,
-      tel: `${localOwner.storePhone1}-${localOwner.storePhone2}-${localOwner.storePhone3}`, 
+      tel: `${localOwner.storePhone1}-${localOwner.storePhone2}-${localOwner.storePhone3}`,
       ownerName: localOwner.ownerName,
       openDate: localOwner.openDate,
-      enumStoreCategory: localOwner.category
-    }
+      enumStoreCategory: localOwner.category,
+    },
   };
 }
-
 
 // 주소 검색 결과 세팅
 function setAddress(postcode, roadAddress) {
   localOwner.postcode = postcode;
   localOwner.address = roadAddress;
-  // 기존 form 전체 유지 + 주소만 업데이트
-  emit("update:form", getFormFromLocal());
+  updateParent();
+  emit("update:owner", { ...localOwner });
 }
 
 // 숫자만 입력 처리
@@ -115,11 +120,10 @@ function handlePhoneInput(e, field, nextRef) {
     emit("update:errors", { ...props.errors, [field]: "" });
   }
   updateParent();
+  emit("update:owner", { ...localOwner });
 
   if (value.length === 4 && nextRef) {
-    nextTick(() => {
-      nextRef.focus();
-    });
+    nextTick(() => nextRef.focus());
   }
 }
 // 사업자 등록번호 input 처리
@@ -130,9 +134,10 @@ function handleBusinessNumberInput(e) {
     emit("update:errors", { ...props.errors, businessNumber: "" });
   }
   updateParent();
+  emit("update:owner", { ...localOwner }); // ✅ state.owner 동기화
 }
 
-// 유효성 검사 함수
+// 유효성 검사
 function validateBusinessNumber() {
   if (!/^\d{10}$/.test(localOwner.businessNumber)) {
     emit("update:errors", {
@@ -155,12 +160,12 @@ function validateAddress() {
     emit("update:errors", { ...props.errors, address: "주소를 모두 입력해주세요." });
   }
 }
-// 사업자 등록증 업로드
-const fileInput = ref(null); // 파일 input 참조
-const selectedFile = ref(null); // 선택된 파일
-const previewUrl = ref(null); // 이미지 미리보기
 
-// 파일 선택 시 실행
+// 사업자 등록증 업로드
+const fileInput = ref(null);
+const selectedFile = ref(localOwner.businessFile || null); 
+const previewUrl = ref(localOwner.imagePath || null); 
+
 function onFileChange(event) {
   const file = event.target.files[0];
   if (!file) return;
@@ -176,6 +181,9 @@ function onFileChange(event) {
     previewUrl.value = null;
   }
   updateParent();
+  emit("update:owner", { ...localOwner }); // state.owner 동기화
+  console.log(localOwner.businessFile.name); // 업로드한 파일 이름
+console.log(localOwner.businessFile.size); // 파일 크기
 }
 
 function triggerFileInput() {
@@ -183,18 +191,18 @@ function triggerFileInput() {
 }
 
 // 카테고리 목록 (필요에 따라 추가/수정 가능)
-const categoryOptions = [
-  "한식",
-  "일식",
-  "중식",
-  "양식",
-  "아시안",
-  "분식",
-  "카페",
-  "패스트푸드",
-  "치킨",
-  "피자",
-  "야식",
+const categories = [
+  { value: "KOREAN", label: "한식" },
+  { value: "CHINESE", label: "중식" },
+  { value: "JAPANESE", label: "일식" },
+  { value: "WESTERN", label: "양식" },
+  { value: "DESSERT", label: "디저트" },
+  { value: "SNACK", label: "분식" },
+  { value: "FAST", label: "패스트푸드" },
+  { value: "ASIAN", label: "아시안" },
+  { value: "CHICKEN", label: "치킨" },
+  { value: "PIZZA", label: "피자" },
+  { value: "NIGHT", label: "야식" },
 ];
 // 셀렉트에서 카테고리 선택
 function onCategorySelect(e) {
@@ -242,6 +250,16 @@ const showModal = (message) => {
   const modal = new bootstrap.Modal(document.getElementById("alertModal"));
   modal.show();
 };
+// 카테고리와 날짜 변경 감시
+watch(
+  () => localOwner.openDate,
+  (v) => console.log("개업년월(openDate):", v)
+);
+watch(
+  () => localOwner.category,
+  (v) => console.log("선택된 카테고리:", v),
+  { deep: true }
+);
 </script>
 
 <template>
@@ -490,8 +508,8 @@ const showModal = (message) => {
         <!-- 카테고리 선택 -->
         <select @change="onCategorySelect($event)">
           <option value="" disabled selected>카테고리 선택</option>
-          <option v-for="cat in categoryOptions" :key="cat" :value="cat">
-            {{ cat }}
+          <option v-for="cat in categories" :key="cat.value" :value="cat.value">
+            {{ cat.label }}
           </option>
         </select>
 
@@ -502,7 +520,7 @@ const showModal = (message) => {
             :key="cat"
             class="category-item"
           >
-            {{ cat }}
+            {{ categories.find((c) => c.value === cat)?.label || cat }}
             <button type="button" @click="removeCategory(index)">x</button>
           </span>
         </div>
