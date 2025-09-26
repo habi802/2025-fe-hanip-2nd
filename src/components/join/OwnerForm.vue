@@ -1,83 +1,247 @@
 <script setup>
-import { ref, watch } from "vue";
-
+import { ref, reactive, watch } from "vue";
+import { nextTick } from "vue";
+// 부모에서 내려주는 데이터
 const props = defineProps({
-  form: Object,
+  form: Object, // 공용 입력 값
+  errors: Object, // 유효성 검사 에러 메시지
   owner: Object,
-  errors: Object,
 });
-const emit = defineEmits([
-  "update:form",
-  "update:owner",
-  "update:errors",
-  "validateBusinessNumber",
-]);
+// 부모로 이벤트 전달
+const emit = defineEmits(["update:form", "update:errors", "addressSearch"]);
 
-const { form, owner, errors } = props;
-
-// 가게전화 쪼개기
-const ownerTel1 = ref("02");
-const ownerTel2 = ref("");
-const ownerTel3 = ref("");
-
-// 휴대전화 쪼개기
-const ownerPhone1 = ref("010");
-const ownerPhone2 = ref("");
-const ownerPhone3 = ref("");
-
-//  숫자만 입력 허용
-const onlyNumberInput = (e) => {
-  if (!/[0-9]/.test(e.key) && e.key !== "Backspace") {
-    e.preventDefault();
-  }
-};
-
-// 전화번호 입력 시 자동 이동
-const onOwnerTelInput = (e, current, next) => {
-  if (e.target.value.length === 4 && next) {
-    const nextInput = e.target
-      .closest(".phone-input")
-      .querySelector(`input[v-model='${next}']`);
-    if (nextInput) nextInput.focus();
-  }
-};
-const onOwnerPhoneInput = (e, current, next) => {
-  if (e.target.value.length === 4 && next) {
-    const nextInput = e.target
-      .closest(".phone-input")
-      .querySelector(`input[v-model='${next}']`);
-    if (nextInput) nextInput.focus();
-  }
-};
-
-// 값이 바뀌면 form/owner 갱신
-watch([ownerTel1, ownerTel2, ownerTel3], () => {
-  form.storePhone = `${ownerTel1.value}-${ownerTel2.value}-${ownerTel3.value}`;
-  emit("update:form", form);
+// readonly props를 직접 수정할 수 없으므로 localOwner에 복사
+const localOwner = reactive({
+  ownerName: props.owner?.ownerName ?? "",
+  storeName: props.owner?.name ?? "",
+  postcode: props.owner?.postcode ?? "",
+  address: props.owner?.address ?? "",
+  addressDetail: props.owner?.addressDetail ?? "",
+  ownerPhone1: props.owner?.ownerPhone1 ?? "010",
+  ownerPhone2: props.owner?.ownerPhone2 ?? "",
+  ownerPhone3: props.owner?.ownerPhone3 ?? "",
+  storePhone1: props.owner?.storePhone1 ?? "02",
+  storePhone2: props.owner?.storePhone2 ?? "",
+  storePhone3: props.owner?.storePhone3 ?? "",
+  businessNumber: props.owner?.businessNumber ?? "",
+  openDate: props.owner?.openDate ?? "",
+  category: Array.isArray(props.owner?.category) ? props.owner.category : [],
+  businessFile: props.owner?.licensePath ?? null,
+  imagePath: props.owner?.imagePath ?? null,
 });
-watch([ownerPhone1, ownerPhone2, ownerPhone3], () => {
-  form.phone = `${ownerPhone1.value}-${ownerPhone2.value}-${ownerPhone3.value}`;
-  emit("update:form", form);
-});
+function clearError(field) {
+  emit("update:errors", { ...props.errors, [field]: "" });
+}
 
-// 사업자 등록번호
-const businessNumber = ref(owner.businessNumber);
+// input 변경 시 emit
+function updateField(field, value) {
+  if (
+    [
+      "ownerPhone1",
+      "ownerPhone2",
+      "ownerPhone3",
+      "storePhone1",
+      "storePhone2",
+      "storePhone3",
+    ].includes(field)
+  ) {
+    value = value.replace(/\D/g, "").slice(0, 4);
+  }
+  localOwner[field] = value;
+  // 입력 시 기존 에러 초기화
+  if (value && props.errors[field]) {
+    emit("update:errors", { ...props.errors, [field]: "" });
+  }
+  updateParent(); // 부모 form 업데이트
+}
 
-// 사업자 등록번호 변경 시 부모에게 전달
-const onBusinessNumberChange = (e) => {
-  businessNumber.value = e.target.value;
-  emit("validateBusinessNumber", businessNumber.value); // 부모로 사업자 등록번호 전달
-};
-
-// 부모에서 전달받은 에러 메시지 처리
+// 주소 검색
+function handleAddressSearch() {
+  emit("addressSearch");
+}
+// 부모 owner 변경 시 localOwner 동기화
 watch(
-  () => errors.businessNumber,
-  (newValue) => {
-    if (newValue) {
-      emit("update:errors", { businessNumber: newValue });
+  () => props.owner,
+  (newVal) => {
+    if (newVal.postcode !== undefined) {
+      // 주소만 동기화, 기존 localOwner 값 유지
+      localOwner.postcode = newVal.postcode ?? localOwner.postcode;
+      localOwner.address = newVal.address ?? localOwner.address;
+      localOwner.addressDetail = newVal.addressDetail ?? localOwner.addressDetail;
     }
+  },
+  { deep: true, immediate: true }
+);
+// 부모 form 업데이트 함수
+function updateParent() {
+  emit("update:form", getFormFromLocal());
+}
+//localOwner → 부모 form 변환
+function getFormFromLocal() {
+  return {
+    ...props.form,
+    storeJoinReq: { 
+      name: localOwner.storeName,
+      comment: "", 
+      businessNumber: localOwner.businessNumber,
+      licensePath: localOwner.businessFile, 
+      imagePath: localOwner.imagePath,
+      postcode: localOwner.postcode,
+      address: localOwner.address,
+      addressDetail: localOwner.addressDetail,
+      tel: `${localOwner.storePhone1}-${localOwner.storePhone2}-${localOwner.storePhone3}`, 
+      ownerName: localOwner.ownerName,
+      openDate: localOwner.openDate,
+      enumStoreCategory: localOwner.category
+    }
+  };
+}
+
+
+// 주소 검색 결과 세팅
+function setAddress(postcode, roadAddress) {
+  localOwner.postcode = postcode;
+  localOwner.address = roadAddress;
+  // 기존 form 전체 유지 + 주소만 업데이트
+  emit("update:form", getFormFromLocal());
+}
+
+// 숫자만 입력 처리
+// 전화번호 input 전용 처리
+function handlePhoneInput(e, field, nextRef) {
+  let value = e.target.value.replace(/\D/g, "").slice(0, 4);
+  localOwner[field] = value;
+  if (value && props.errors[field]) {
+    emit("update:errors", { ...props.errors, [field]: "" });
+  }
+  updateParent();
+
+  if (value.length === 4 && nextRef) {
+    nextTick(() => {
+      nextRef.focus();
+    });
+  }
+}
+// 사업자 등록번호 input 처리
+function handleBusinessNumberInput(e) {
+  let value = e.target.value.replace(/\D/g, "").slice(0, 10);
+  localOwner.businessNumber = value;
+  if (value && props.errors.businessNumber) {
+    emit("update:errors", { ...props.errors, businessNumber: "" });
+  }
+  updateParent();
+}
+
+// 유효성 검사 함수
+function validateBusinessNumber() {
+  if (!/^\d{10}$/.test(localOwner.businessNumber)) {
+    emit("update:errors", {
+      ...props.errors,
+      businessNumber: "사업자 등록번호 10자리 숫자로 입력해주세요.",
+    });
+  }
+}
+
+function validateopenDate() {
+  if (!localOwner.openDate) {
+    emit("update:errors", { ...props.errors, openDate: "개업일을 선택해주세요." });
+  } else {
+    emit("update:errors", { ...props.errors, openDate: "" });
+  }
+}
+
+function validateAddress() {
+  if (!localOwner.address || !localOwner.addressDetail) {
+    emit("update:errors", { ...props.errors, address: "주소를 모두 입력해주세요." });
+  }
+}
+// 사업자 등록증 업로드
+const fileInput = ref(null); // 파일 input 참조
+const selectedFile = ref(null); // 선택된 파일
+const previewUrl = ref(null); // 이미지 미리보기
+
+// 파일 선택 시 실행
+function onFileChange(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+
+  selectedFile.value = file;
+  localOwner.businessFile = file;
+
+  if (file.type.startsWith("image/")) {
+    const reader = new FileReader();
+    reader.onload = (e) => (previewUrl.value = e.target.result);
+    reader.readAsDataURL(file);
+  } else {
+    previewUrl.value = null;
+  }
+  updateParent();
+}
+
+function triggerFileInput() {
+  fileInput.value?.click();
+}
+
+// 카테고리 목록 (필요에 따라 추가/수정 가능)
+const categoryOptions = [
+  "한식",
+  "일식",
+  "중식",
+  "양식",
+  "아시안",
+  "분식",
+  "카페",
+  "패스트푸드",
+  "치킨",
+  "피자",
+  "야식",
+];
+// 셀렉트에서 카테고리 선택
+function onCategorySelect(e) {
+  const category = e.target.value;
+  if (!category) return;
+
+  if (localOwner.category.includes(category)) {
+    showModal("이미 선택된 카테고리입니다.");
+    return;
+  }
+  if (localOwner.category.length >= 3) {
+    showModal("카테고리는 최대 3개까지 선택할 수 있습니다.");
+    return;
+  }
+  localOwner.category.push(category);
+  updateParent();
+  e.target.value = "";
+}
+
+function removeCategory(index) {
+  localOwner.category.splice(index, 1);
+  updateParent();
+}
+// 개업년월 감시
+watch(
+  () => localOwner.openDate,
+  (newVal) => {
+    console.log("개업년월(openDate) 변경:", newVal);
   }
 );
+
+// 카테고리 배열 감시
+watch(
+  () => localOwner.category,
+  (newVal) => {
+    console.log("선택된 카테고리(category) 변경:", newVal);
+  },
+  { deep: true } // 배열 내부 변경도 감시
+);
+// 모달창 함수
+const showModal = (message) => {
+  const modalBody = document.getElementById("alertModalBody");
+  if (modalBody) modalBody.textContent = message;
+
+  const modal = new bootstrap.Modal(document.getElementById("alertModal"));
+  modal.show();
+};
 </script>
 
 <template>
@@ -95,8 +259,10 @@ watch(
       <div class="upload-row owner-sigin">
         <input
           type="text"
-          v-model="owner.businessNumber"
-          @input="onBusinessNumberChange"
+          :value="localOwner.businessNumber"
+          maxlength="10"
+          @input="handleBusinessNumberInput"
+          @blur="validateBusinessNumber"
           :class="{ invalid: errors.businessNumber }"
           placeholder="사업자 등록번호 10자리를 입력해 주세요"
         />
@@ -108,6 +274,7 @@ watch(
         </div>
       </div>
     </div>
+
     <div class="sevLine"></div>
 
     <!-- 개업년월일 -->
@@ -117,13 +284,14 @@ watch(
         <p>개업년월일</p>
       </div>
       <input
-        type="text"
-        :value="form.name"
+        type="date"
+        :value="localOwner.openDate"
+        @input="updateField('openDate', $event.target.value)"
+        @blur="validateopenDate"
         placeholder="ex) 2025.09.01"
-        @input="(e) => updateField('name', e.target.value)"
-        @focus="() => clearError('name')"
       />
     </div>
+    <p v-if="errors.openDate" class="error-msg">{{ errors.openDate }}</p>
     <div class="sevLine"></div>
 
     <!-- 대표자 이름 -->
@@ -134,44 +302,51 @@ watch(
       </div>
       <input
         type="text"
-        :value="form.name"
-        @input="(e) => updateField('name', e.target.value)"
-        @focus="() => clearError('name')"
+        :value="localOwner.ownerName"
+        @input="(e) => updateField('ownerName', e.target.value)"
+        @focus="() => clearError('ownerName')"
       />
     </div>
     <div class="sevLine"></div>
 
-    <!-- 가게 주소 부분 -->
+    <!-- 가게 주소 -->
     <div class="form-group address-group">
       <div class="sortation">
         <span>*</span>
         <p>가게 주소</p>
       </div>
       <div class="address-box">
-        <!-- 1줄: 우편번호 + 주소검색 -->
         <div class="address-row">
-          <input type="text" :value="form.postcode" placeholder="우편번호" readonly />
-          <button @click="$emit('addressSearch')" type="button">주소검색</button>
+          <input
+            type="text"
+            :value="localOwner.postcode"
+            placeholder="우편번호"
+            readonly
+          />
+          <button @click="handleAddressSearch" type="button">주소검색</button>
         </div>
-
-        <!-- 2줄: 기본주소 -->
         <input
           type="text"
-          :value="form.address"
+          :value="localOwner.address"
           placeholder="기본주소"
           readonly
           class="full-width"
         />
-
-        <!-- 3줄: 상세주소 -->
         <input
           type="text"
-          :value="form.addressDetail"
-          placeholder="상세주소"
-          @input="(e) => updateField('addressDetail', e.target.value)"
+          :value="localOwner.addressDetail"
+          @blur="validateAddress"
+          @input="
+            (e) => {
+              updateField('addressDetail', e.target.value);
+              if (errors.address) emit('update:errors', { ...errors, address: '' });
+            }
+          "
           class="full-width"
+          placeholder="상세주소"
         />
       </div>
+      <p v-if="errors.address" class="error-msg">{{ errors.address }}</p>
     </div>
     <div class="sevLine"></div>
 
@@ -183,8 +358,8 @@ watch(
       </div>
       <div class="phone-input">
         <select
-          :value="form.ownerTel1"
-          @change="(e) => updateField('ownerTel1', e.target.value)"
+          :value="localOwner.storePhone1"
+          @change="(e) => updateField('storePhone1', e.target.value)"
         >
           <option>02</option>
           <option>031</option>
@@ -205,28 +380,26 @@ watch(
         </select>
         <input
           type="text"
-          v-model="ownerTel2"
           maxlength="4"
-          @input="onOwnerTelInput($event, 'ownerTel2', 'ownerTel3')"
-          :class="{ invalid: errors.ownerTel2 }"
-          @keydown="onlyNumberInput"
+          :value="localOwner.storePhone2"
+          @input="(e) => handlePhoneInput(e, 'storePhone2')"
+          :class="{ invalid: errors.storePhone2 }"
         />
         <input
           type="text"
-          v-model="ownerTel3"
           maxlength="4"
-          @input="onOwnerTelInput($event, 'ownerTel3')"
-          :class="{ invalid: errors.ownerTel3 }"
-          @keydown="onlyNumberInput"
+          :value="localOwner.storePhone3"
+          @input="(e) => handlePhoneInput(e, 'storePhone3')"
+          :class="{ invalid: errors.storePhone3 }"
         />
       </div>
     </div>
-    <p v-if="errors.ownerTel2 || errors.ownerTel3" class="error-msg">
-      {{ errors.ownerTel2 || errors.ownerTel3 }}
+    <p v-if="errors.storePhone2 || errors.storePhone3" class="error-msg">
+      {{ errors.storePhone2 || errors.storePhone3 }}
     </p>
     <div class="sevLine"></div>
 
-    <!-- 전화번호 -->
+    <!-- 대표자 전화번호 -->
     <div class="form-group">
       <div class="sortation">
         <span>*</span>
@@ -234,7 +407,7 @@ watch(
       </div>
       <div class="phone-input">
         <select
-          :value="form.ownerPhone1"
+          :value="localOwner.ownerPhone1"
           @change="(e) => updateField('ownerPhone1', e.target.value)"
         >
           <option>010</option>
@@ -245,24 +418,22 @@ watch(
         </select>
         <input
           type="text"
-          v-model="ownerPhone2"
           maxlength="4"
-          @input="onOwnerPhoneInput($event, 'ownerphone2', 'ownerphone3')"
+          :value="localOwner.ownerPhone2"
+          @input="(e) => handlePhoneInput(e, 'ownerPhone2')"
           :class="{ invalid: errors.ownerPhone2 }"
-          @keydown="onlyNumberInput"
         />
         <input
           type="text"
-          v-model="ownerPhone3"
           maxlength="4"
-          @input="onOwnerPhoneInput($event, 'ownerPhone3')"
+          :value="localOwner.ownerPhone3"
+          @input="(e) => handlePhoneInput(e, 'ownerPhone3')"
           :class="{ invalid: errors.ownerPhone3 }"
-          @keydown="onlyNumberInput"
         />
       </div>
     </div>
-    <p class="error-msg" v-if="errors.ownerPhone2 || errors.ownerPhone3">
-      {{ errors.ownerPhone2 || errors.owerPhone3 }}
+    <p v-if="errors.ownerPhone2 || errors.ownerPhone3" class="error-msg">
+      {{ errors.ownerPhone2 || errors.ownerPhone3 }}
     </p>
     <div class="sevLine"></div>
 
@@ -273,13 +444,34 @@ watch(
         <p>사업자 등록증</p>
       </div>
       <div class="upload-box">
-        <button type="button">업로드</button>
+        <!-- 숨겨진 파일 input -->
+        <input
+          type="file"
+          ref="fileInput"
+          @change="onFileChange"
+          accept="image/*,.pdf"
+          style="display: none"
+        />
+        <!-- 업로드 버튼 -->
+        <button type="button" @click="triggerFileInput">업로드</button>
+
+        <!-- 파일명 표시 -->
+        <span v-if="selectedFile" class="file-name">
+          {{ selectedFile.name }}
+        </span>
+
+        <!-- 이미지 미리보기 -->
+        <div v-if="previewUrl" class="preview">
+          <!-- <img :src="previewUrl" alt="미리보기" /> -->
+        </div>
+
         <li>등록증 전체가 선명하게 촬영된 이미지 또는 PDF 파일을 업로드해야 합니다.</li>
         <li>
           사업자등록상의 대표자명과 가입자 정보가 다를 경우, 추가 인증이 필요합니다.
         </li>
       </div>
     </div>
+
     <div class="sevLine"></div>
 
     <!-- 가게 상호명 및 카테고리 -->
@@ -289,29 +481,35 @@ watch(
         <p>가게 상호명 및 카테고리</p>
       </div>
       <div class="category-name">
-        <div class="phone-input">
-          <input
-            type="text"
-            v-model="owner.name"
-            placeholder="가게 상호명"
-            @input="() => (errors.ownerName = '')"
-          />
-          <select v-model="owner.category">
-            <option>한식</option>
-            <option>일식</option>
-            <option>중식</option>
-            <option>양식</option>
-            <option>아시안</option>
-            <option>분식</option>
-            <option>카페</option>
-            <option>패스트푸드</option>
-            <option>치킨</option>
-            <option>피자</option>
-            <option>야식</option>
-          </select>
+        <input
+          type="text"
+          :value="localOwner.storeName"
+          @input="(e) => updateField('storeName', e.target.value)"
+          placeholder="가게 이름 입력"
+        />
+        <!-- 카테고리 선택 -->
+        <select @change="onCategorySelect($event)">
+          <option value="" disabled selected>카테고리 선택</option>
+          <option v-for="cat in categoryOptions" :key="cat" :value="cat">
+            {{ cat }}
+          </option>
+        </select>
+
+        <!-- 선택된 카테고리 표시 -->
+        <div class="selected-categories">
+          <span
+            v-for="(cat, index) in localOwner.category"
+            :key="cat"
+            class="category-item"
+          >
+            {{ cat }}
+            <button type="button" @click="removeCategory(index)">x</button>
+          </span>
         </div>
+        <p>최대 3개까지 선택 가능합니다.</p>
       </div>
     </div>
+
     <div class="sevLine"></div>
   </div>
 </template>
@@ -400,12 +598,6 @@ select {
   transition: border 0.2s ease;
 }
 
-input:focus,
-select:focus {
-  border-color: #ff6666;
-  outline: none;
-}
-
 input.invalid,
 select.invalid {
   box-shadow: 0 0 3px #ff6666(233, 0, 0, 0.3) !important;
@@ -449,7 +641,21 @@ select.invalid {
     }
   }
 }
-
+// 업로드 파일명
+.file-name {
+  margin-left: 25px;
+  padding: 10px 16px;
+  border: 1px solid #c8c8c8;
+  border-radius: 10px;
+  color: #555;
+}
+// 업로드 주의사항
+li {
+  color: #555;
+  margin-left: 20px;
+  margin-top: 5px;
+  font-size: 14px;
+}
 .form-group {
   display: flex;
   align-items: flex-start; // 기본 input 위쪽 맞춤
@@ -502,6 +708,12 @@ select.invalid {
     input {
       width: 200px; // 각각 고정
     }
+  }
+  // 유효성 검사 스타일
+  input.invalid,
+  select.invalid {
+    box-shadow: 0 0 3px #ff6666(233, 0, 0, 0.3) !important;
+    background-color: #ffe5e5;
   }
 
   // 에러 메시지 정렬
@@ -573,6 +785,67 @@ select.invalid {
   }
 }
 
+// 가게 상호명 카테고리
+.category-name {
+  display: inline;
+  gap: 20px;
+
+  input[type="text"] {
+    width: 300px;
+    height: 50px;
+    padding: 0 12px;
+    font-size: 1rem;
+    border: 1px solid #c8c8c8;
+    border-radius: 8px;
+    box-sizing: border-box;
+  }
+
+  select {
+    width: 250px;
+    height: 50px;
+    padding: 0 12px;
+    margin-left: 20px;
+    border-radius: 8px;
+    border: 1px solid #c8c8c8;
+    font-size: 1rem;
+    cursor: pointer;
+  }
+
+  .selected-categories {
+    display: flex;
+    flex-wrap: wrap; // 여러개 선택 시 줄바꿈
+    gap: 8px;
+    margin-top: 5px;
+
+    .category-item {
+      margin: 10px 0;
+      height: 40px;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      color: #ff6666;
+      padding: 0px 10px;
+      border-radius: 10px;
+      font-size: 0.9rem;
+      border: 1px solid #ff6666;
+
+      button {
+        width: 10px;
+        border: none;
+        background: transparent;
+        color: #ff6666;
+        font-weight: 700;
+        cursor: pointer;
+      }
+    }
+  }
+
+  p {
+    font-size: 0.85rem;
+    color: #555;
+  }
+}
+
 // 비활성화
 input[readonly] {
   background-color: #f5f5f5;
@@ -580,5 +853,11 @@ input[readonly] {
   border: 1px solid #ccc; // 기본 테두리 유지
   color: #7d7d7d;
   pointer-events: none;
+}
+// 모달 버튼 전용 스타일
+#alertModal .btn {
+  margin: 0; /* 불필요한 상하 여백 제거 */
+  width: auto; /* 필요 시 조정 */
+  padding: 0.5rem 1rem; /* 버튼 크기 조정 */
 }
 </style>
