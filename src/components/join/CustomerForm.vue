@@ -4,6 +4,7 @@ import { reactive, watch, nextTick } from "vue";
 const props = defineProps({
   form: Object, // state.form 전달
   errors: Object, // state.errors 전달
+  addresses: Array,
 });
 
 // 부모로 이벤트 전달
@@ -121,7 +122,7 @@ function validatePhone(field) {
         <div class="address-row">
           <input
             type="text"
-            :value="localForm.postcode"
+            v-model="addresses[0].postcode"
             placeholder="우편번호"
             readonly
           />
@@ -131,7 +132,7 @@ function validatePhone(field) {
         <!-- 2줄: 기본주소 -->
         <input
           type="text"
-          :value="localForm.address"
+          v-model="addresses[0].address"
           placeholder="기본주소"
           readonly
           class="full-width"

@@ -80,28 +80,23 @@ function updateParent() {
 function getFormFromLocal() {
   return {
     ...props.form,
-    ownerName: localOwner.ownerName,
-    name: localOwner.storeName,
-    postcode: localOwner.postcode,
-    address: localOwner.address,
-    addressDetail: localOwner.addressDetail,
-    businessNumber: localOwner.businessNumber,
-    openDate: localOwner.openDate,
-    category: localOwner.category,
-    ownerPhone: {
-      phone1: localOwner.ownerPhone1,
-      phone2: localOwner.ownerPhone2,
-      phone3: localOwner.ownerPhone3,
-    },
-    storePhone: {
-      phone1: localOwner.storePhone1,
-      phone2: localOwner.storePhone2,
-      phone3: localOwner.storePhone3,
-    },
-    businessFile: localOwner.businessFile,
-    imagePath: localOwner.imagePath,
+    storeJoinReq: { 
+      name: localOwner.storeName,
+      comment: "", 
+      businessNumber: localOwner.businessNumber,
+      licensePath: localOwner.businessFile, 
+      imagePath: localOwner.imagePath,
+      postcode: localOwner.postcode,
+      address: localOwner.address,
+      addressDetail: localOwner.addressDetail,
+      tel: `${localOwner.storePhone1}-${localOwner.storePhone2}-${localOwner.storePhone3}`, 
+      ownerName: localOwner.ownerName,
+      openDate: localOwner.openDate,
+      enumStoreCategory: localOwner.category
+    }
   };
 }
+
 
 // 주소 검색 결과 세팅
 function setAddress(postcode, roadAddress) {
@@ -223,7 +218,22 @@ function removeCategory(index) {
   localOwner.category.splice(index, 1);
   updateParent();
 }
+// 개업년월 감시
+watch(
+  () => localOwner.openDate,
+  (newVal) => {
+    console.log("개업년월(openDate) 변경:", newVal);
+  }
+);
 
+// 카테고리 배열 감시
+watch(
+  () => localOwner.category,
+  (newVal) => {
+    console.log("선택된 카테고리(category) 변경:", newVal);
+  },
+  { deep: true } // 배열 내부 변경도 감시
+);
 // 모달창 함수
 const showModal = (message) => {
   const modalBody = document.getElementById("alertModalBody");

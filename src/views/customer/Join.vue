@@ -25,6 +25,7 @@ const errors = reactive({
   storePhone3: "",
   ownerPhone2: "",
   ownerPhone3: "",
+  openDate: "",
 });
 
 // form 데이터 상태 관리
@@ -51,7 +52,7 @@ const state = reactive({
     },
   ],
   owner: {
-    // [추가] 업주 가입 시 필요한 데이터
+    // 업주 가입 시 필요한 데이터
     name: "",
     comment: "",
     businessNumber: "",
@@ -109,13 +110,17 @@ const validateName = () => {
 };
 
 // 주소
-function validateAddress() {
+const validateAddress = () => {
+  // 고객/업주 분기
   const rawValue =
     memberType.value === "customer" ? state.addresses[0]?.address : state.owner.address;
+  errors.address = (rawValue ?? "").trim() ? "" : "주소를 입력해주세요.";
+};
 
-  const trimmedValue = (rawValue ?? "").trim();
-  errors.address = trimmedValue ? "" : "가게 상세 주소를 입력해주세요.";
-}
+// 업주 개업일 검사
+const validateOpenDate = () => {
+  errors.openDate = state.owner.openDate ? "" : "개업일을 선택해주세요.";
+};
 
 // 일반 고객 번호
 const validatePhone = () => {
@@ -169,49 +174,67 @@ const validateForm = () => {
   validateEmail();
   validateName();
   validateAddress();
-
   if (memberType.value === "customer") validatePhone();
   else {
     validateOwnerTel();
     validateOwnerPhone();
     validateBusinessNumber();
+    validateOpenDate();
   }
 
   return Object.values(errors).every((msg) => msg === "");
 };
 // 업주 input 시 에러 초기화
 function handleOwnerInput(field) {
-  errors[field] = "";
+  // OwnerForm에서 필드명 전달받아 해당 에러 제거
+  if (errors[field] !== undefined) {
+    errors[field] = "";
+  }
 }
+
 // 전화번호 입력 (숫자만 + 유효성 검사)
-function handlePhoneInput(event, field, type = "customer") {
-  let value = event.target.value.replace(/\D/g, "");
-  if (value.length > 4) value = value.slice(0, 4);
-
-  if (type === "customer") state.form.phone[field] = value;
-  else if (type === "owner") state.owner[field] = value;
-
-  if (type === "customer") validatePhone();
-  else if (type === "owner") {
-    if (field.includes("Tel")) validateOwnerTel();
-    else if (field.includes("Phone")) validateOwnerPhone();
+function handlePhoneInput(e, field, type = "customer") {
+  let v = e.target.value.replace(/\D/g, "");
+  if (v.length > 4) v = v.slice(0, 4);
+  if (type === "customer") {
+    state.form.phone[field] = v;
+    validatePhone();
+  } else {
+    state.owner[field] = v;
+    if (field.includes("store")) validateOwnerTel();
+    else validateOwnerPhone();
   }
 }
 // 사업자 등록번호 입력 처리
-function handleBusinessNumberInput(event) {
-  let value = event.target.value.replace(/\D/g, "");
-  if (value.length > 10) value = value.slice(0, 10);
-
-  state.owner.businessNumber = value;
+function handleBusinessNumberInput(e) {
+  let v = e.target.value.replace(/\D/g, "");
+  if (v.length > 10) v = v.slice(0, 10);
+  state.owner.businessNumber = v;
   validateBusinessNumber();
 }
 // 숫자 외 입력 차단
-function onlyNumberInput(event) {
-  const allowedKeys = ["Backspace", "ArrowLeft", "ArrowRight", "Tab"];
-  const isNumber = /^[0-9]$/.test(event.key);
-  if (!isNumber && !allowedKeys.includes(event.key)) event.preventDefault();
+function onlyNumberInput(e) {
+  const allowed = ["Backspace", "ArrowLeft", "ArrowRight", "Tab"];
+  if (!/^[0-9]$/.test(e.key) && !allowed.includes(e.key)) e.preventDefault();
 }
-
+const addressSearch = () => {
+  new window.daum.Postcode({
+    oncomplete: (data) => {
+      if (memberType.value === "customer") {
+        // 고객 주소만 수정
+        state.addresses[0].postcode = data.zonecode;
+        state.addresses[0].address = data.roadAddress;
+      } else {
+        // 오너 주소만 수정
+        state.owner.postcode = data.zonecode;
+        state.owner.address = data.roadAddress;
+      } // 상세주소는 유지
+      nextTick(() => {
+        document.querySelector("input[placeholder='상세주소 (선택 입력 가능)']")?.focus();
+      });
+    },
+  }).open();
+};
 // // 아이디 중복 검사 함수
 // const checkDuplicateId = async () => {
 //   validateLoginId();
@@ -278,33 +301,6 @@ const clearPasswordError = () => {
   errors.loginPw = "";
 };
 
-const addressSearch = () => {
-  new window.daum.Postcode({
-    oncomplete: (data) => {
-      if (memberType.value === "customer") {
-        // 고객 주소만 수정
-        state.owner.postcode = data.zonecode;
-        state.owner.address = data.roadAddress;
-        // 상세주소는 기존 값 유지
-      } else {
-        // 오너 주소만 수정
-        state.owner = {
-          ...state.owner, // 기존 값 유지
-          postcode: data.zonecode,
-          address: data.roadAddress,
-        };
-        // 상세주소는 유지
-      }
-      nextTick(() => {
-        const detailInput = document.querySelector(
-          "input[placeholder='상세주소 (선택 입력 가능)']"
-        );
-        detailInput?.focus();
-      });
-    },
-  }).open();
-};
-
 // 약관 전체동의 toggle
 function toggleAllAgree() {
   const checked = agreement.allAgree;
@@ -325,130 +321,75 @@ watch(
 );
 
 // 유저 정보 제출
+// 전화번호 합치기
+const getPhoneStr = () =>
+  `${state.form.phone.phone1}-${state.form.phone.phone2}-${state.form.phone.phone3}`;
+
+// 🔵 업주 StoreJoinReq 생성
+const getStoreJoinReq = () => ({
+  id: 0,
+  name: state.owner.name,
+  comment: state.owner.comment,
+  businessNumber: state.owner.businessNumber,
+  licensePath: state.owner.licensePath ?? "",
+  imagePath: state.owner.imagePath ?? "",
+  postcode: state.owner.postcode,
+  address: state.owner.address,
+  addressDetail: state.owner.addressDetail,
+  tel: `${state.owner.storePhone1}-${state.owner.storePhone2}-${state.owner.storePhone3}`,
+  ownerName: state.owner.ownerName,
+  openDate: state.owner.openDate,
+  enumStoreCategory: state.owner.category,
+});
+
+// 주소 리스트 생성
+const getUserAddressPostReq = () => {
+  const addresses = [...state.addresses].map((a) => ({
+    title: a.title ?? "기본 주소",
+    isMain: a.isMain ?? 1,
+    postcode: a.postcode ?? "",
+    address: a.address ?? "",
+    addressDetail: a.addressDetail ?? "",
+  }));
+  return addresses;
+};
+
+// 제출 함수
 const submit = async () => {
-  console.log("submit 클릭됨");
-  // 1. 기본 폼 유효성 검사
   if (!validateForm()) {
     showModal("입력값을 다시 확인해주세요.");
     return;
   }
-  // role 값 세팅
-  state.form.role = memberType.value;
 
-  if (!state.form.loginId || !state.form.loginPw || !state.form.email) {
-    showModal("아이디, 비밀번호, 이메일은 필수입니다.");
-    return;
-  }
-
-  // if (!isIdChecked.value) {
-  //   showModal("아이디 중복 확인을 해주세요.");
-  //   return;
-  // }
-
-  if (memberType.value === "customer" && !state.form.name) {
-    showModal("이름은 필수입니다.");
-    return;
-  }
-
-  if (memberType.value === "owner") {
-    if (!state.owner.name || state.owner.category.length === 0) {
-      showModal("가게명 및 카테고리는 필수입니다.");
-      return;
-    }
-  }
-
-  if (
-    !agreement.terms.useTerms ||
-    !agreement.terms.privacyPolicy ||
-    !agreement.terms.thirdParty
-  ) {
-    showModal("필수 약관에 동의해주세요.");
-    return;
-  }
-
-  if (confirmPw.value !== state.form.loginPw) {
-    showModal("비밀번호 확인이 일치하지 않습니다.");
-    return;
-  }
-  console.log("업주(사장용 폼 확인용)", state.owner);
-  // 2. 전화번호 합치기
-  const phoneStr = `${state.form.phone.phone1}-${state.form.phone.phone2}-${state.form.phone.phone3}`;
-
-  // 3. 업주 StoreJoinReq 생성
-  let storeJoinReq = null;
-  if (memberType.value === "owner") {
-    // 가게 전화 합치기
-    const storePhone = `${state.owner.storePhone1}-${state.owner.storePhone2}-${state.owner.storePhone3}`;
-    // 오너 개인 전화는 필요시 사용 가능 (현재 payload에는 없음)
-    const ownerPhone = `${state.owner.ownerPhone1}-${state.owner.ownerPhone2}-${state.owner.ownerPhone3}`;
-
-    storeJoinReq = {
-      id: 0,
-      name: state.owner.name,
-      comment: state.owner.comment,
-      businessNumber: state.owner.businessNumber,
-      licensePath: state.owner.licensePath ?? "", // 업주 라이센스 이미지
-      imagePath: state.owner.imagePath ?? "", // 업주 이미지
-      postcode: state.owner.postcode,
-      address: state.owner.address,
-      addressDetail: state.owner.addressDetail,
-      tel: storePhone, // 가게 전화
-      ownerName: state.owner.ownerName,
-      openDate: state.owner.openDate,
-      enumStoreCategory: state.owner.category, // 카테고리 배열
-    };
-    console.log("storeJoinReq 확인용", storeJoinReq);
-  }
-
-  // 4. 주소 리스트 UserAddressPostReq
-  const userAddressPostReq = state.addresses.map((addr) => ({
-    title: addr.title,
-    isMain: addr.isMain,
-    address: addr.address,
-    postcode: addr.postcode,
-    addressDetail: addr.addressDetail,
-  }));
-  // 업주 주소도 포함
-  if (memberType.value === "owner") {
-    userAddressPostReq.push({
-      title: "가게 주소",
-      isMain: 1,
-      address: state.owner.address,
-      postcode: state.owner.postcode,
-      addressDetail: state.owner.addressDetail,
-    });
-  }
-  console.log(" userAddressPostReq 확인용", userAddressPostReq);
-
-  // 5. 최종 payload 생성
   const payload = {
     id: 0,
     name: state.form.name,
     loginId: state.form.loginId,
     loginPw: state.form.loginPw,
-    phone: phoneStr,
-    email: state.form.email || "",
-    imagePath: "", // 기본 프로필 이미지
-    role: memberType.value === "owner" ? "OWNER" : "CUSTOMER",
-    storeJoinReq: storeJoinReq || {}, // 업주 데이터 포함
-    userAddressPostReq: userAddressPostReq, // 주소 리스트 포함
+    phone: getPhoneStr(),
+    email: state.form.email,
+    imagePath: "",
+    role: memberType.value === "owner" ? "사장" : "고객",
+    userAddressPostReq: getUserAddressPostReq(),
   };
-  console.log("payload 확인용", payload);
-  try {
-    const formData = new FormData();
 
-    // JSON 객체를 Blob으로 변환
+  try {
+    let res;
+    const formData = new FormData();
     formData.append(
       "req",
       new Blob([JSON.stringify(payload)], { type: "application/json" })
     );
 
-    // 프로필 이미지가 있으면 추가
     if (state.profilePic) formData.append("pic", state.profilePic);
+    if (memberType.value === "owner")
+      formData.append(
+        "storeReq",
+        new Blob([JSON.stringify(getStoreJoinReq())], { type: "application/json" })
+      );
 
-    // Axios POST 요청
-    const res = await axios.post("/user/join", formData);
-    console.log("server response 확인용", res);
+    res = await axios.post("/user/join", formData);
+
     if (res.status === 200) {
       showModal("회원가입 완료!");
       localStorage.setItem("user", JSON.stringify(res.data.resultData));
@@ -457,50 +398,50 @@ const submit = async () => {
       showModal(res.data?.message || "입력 정보를 다시 확인해 주세요.");
     }
   } catch (err) {
-    console.error("submit error 오류 확인용", err);
     console.error(err);
     showModal("회원가입 중 오류 발생");
   }
 };
+
 // 약관 설명 텍스트 (마지막에 내용 다 넣기)
 const termsText = {
   useTerms: "한입 이용약관 내용...",
   privacyPolicy: "개인정보 처리방침 내용...",
   thirdParty: "제3자 제공 안내 내용...",
 };
-async function submitForm() {
-  if (memberType.value === "owner") {
-    validateOwnerFields();
-  }
+// async function submitForm() {
+//   if (memberType.value === "owner") {
+//     validateOwnerFields();
+//   }
 
-  const hasError = Object.values(errors).some((msg) => msg && msg.length > 0);
-  if (hasError) {
-    showModal("필수 항목을 모두 확인해주세요.");
-    return;
-  }
+//   const hasError = Object.values(errors).some((msg) => msg && msg.length > 0);
+//   if (hasError) {
+//     showModal("필수 항목을 모두 확인해주세요.");
+//     return;
+//   }
 
-  try {
-    const formData = new FormData();
-    for (const key in form) {
-      // OwnerForm의 파일과 카테고리는 JSON 변환 또는 FormData append
-      if (key === "ownerPhone" || key === "storePhone" || key === "category") {
-        formData.append(key, JSON.stringify(form[key]));
-      } else if (key === "businessFile" || key === "imagePath") {
-        if (form[key]) formData.append(key, form[key]);
-      } else {
-        formData.append(key, form[key]);
-      }
-    }
+//   try {
+//     const formData = new FormData();
+//     for (const key in form) {
+//       // OwnerForm의 파일과 카테고리는 JSON 변환 또는 FormData append
+//       if (key === "ownerPhone" || key === "storePhone" || key === "category") {
+//         formData.append(key, JSON.stringify(form[key]));
+//       } else if (key === "businessFile" || key === "imagePath") {
+//         if (form[key]) formData.append(key, form[key]);
+//       } else {
+//         formData.append(key, form[key]);
+//       }
+//     }
 
-    const response = await join(formData);
-    console.log("회원가입 성공:", response.data);
-    alert("회원가입이 완료되었습니다.");
-    router.push("/login");
-  } catch (err) {
-    console.error(err);
-    alert("회원가입 중 오류가 발생했습니다.");
-  }
-}
+//     const response = await join(formData);
+//     console.log("회원가입 성공:", response.data);
+//     alert("회원가입이 완료되었습니다.");
+//     router.push("/login");
+//   } catch (err) {
+//     console.error(err);
+//     alert("회원가입 중 오류가 발생했습니다.");
+//   }
+// }
 // 모달창 함수
 const showModal = (message) => {
   const modalBody = document.getElementById("alertModalBody");
@@ -657,6 +598,7 @@ const showModal = (message) => {
           v-if="memberType === 'customer'"
           v-model:form="state.form"
           v-model:errors="errors"
+          :addresses="state.addresses"
           @addressSearch="addressSearch"
         />
 
@@ -666,6 +608,7 @@ const showModal = (message) => {
           v-model:owner="state.owner"
           v-model:errors="errors"
           @addressSearch="addressSearch"
+          @ownerInput="handleOwnerInput"
         />
 
         <!-- 약관 동의 및 제출 -->
