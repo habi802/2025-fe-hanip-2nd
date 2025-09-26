@@ -28,6 +28,17 @@ const onCancel = (order) => {
 const onAssign = (order) => {
   emit("assign", order.orderId);
 };
+
+// 시간
+const formatTime = (dateString) => {
+  if (!dateString) return "";
+  const date = new Date(dateString);
+  return date.toLocaleTimeString("ko-KR", {
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false, // 24시간제
+  });
+};
 </script>
 
 <template>
@@ -52,7 +63,10 @@ const onAssign = (order) => {
 
       <div class="grid-body scrollbar">
         <!-- 주문이 없을 때 -->
-        <div v-if="!props.orders || props.orders.length === 0" class="empty-row">
+        <div
+          v-if="!props.orders || props.orders.length === 0"
+          class="empty-row"
+        >
           주문이 없습니다.
         </div>
 
@@ -67,13 +81,14 @@ const onAssign = (order) => {
           @click="onRowClick(order)"
         >
           <div>{{ order.orderId || "-" }}</div>
-          <div>{{ order.createdTime || "00-00-00" }}</div>
+          <div>{{ formatTime(order.createdAt) || "00-00-00" }}</div>
           <div>{{ order.elapsed || "0분" }}</div>
           <div class="address">
             {{ order.address || "-" }}<br />{{ order.addressDetail || "-" }}
           </div>
           <div>
-            {{ order.menuItems[0]?.name || "-" }} 외 {{ order.menuItems.length }}건
+            {{ order.menuItems[0]?.name || "-" }} 외
+            {{ order.menuItems.length }}건
           </div>
           <div>{{ order.amount ? order.amount.toLocaleString() : "-" }}원</div>
           <div>

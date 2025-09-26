@@ -1,0 +1,262 @@
+[33m638bbe6[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mroot[m[33m, [m[1;31morigin/root[m[33m)[m Merge branch 'main' of https://github.com/habi802/2025-fe-hanip-2nd into root
+[33m50a72dc[m 사장 메뉴 api 숨김처리 작업중
+[33mfb5e0e9[m Merge pull request #57 from habi802/habi
+[33m1346532[m [feat] 가게 상태 관리 > 가게 대표 이미지 나오게 추가
+[33m8a36f9c[m [feat] 가게 상태 관리 수정 api 적용 완료
+[33m3512ba4[m Merge pull request #56 from habi802/habi
+[33mf4576c0[m [fix] 헤더 작은 화면에서 로그아웃 안되는 점 수정
+[33m0fe924a[m Merge pull request #55 from habi802/habi
+[33m7e32d03[m [feat] 페이지 name 추가(없는 페이지 이동 시 홈 화면으로 이동할 수 있게)
+[33md5ecb94[m Merge branch 'main' of https://github.com/habi802/2025-fe-hanip-2nd into root
+[33mb4b2db8[m 사장 메뉴 cru 완료 남은거 d p 남음
+[33m032612d[m Merge pull request #54 from habi802/habi
+[33m89c8f0f[m [feat] 에러 메세지 출력 관련 작업하려다 관둠.  나중에 하려고 흔적만 남겨놓음..
+[33m1d907d4[m Merge pull request #53 from habi802/habi
+[33mde26a43[m [fix] 사장, 관리자 페이지에서 고객 레이아웃이 잠깐 나타났다 사라지는 부분 수정
+[33mefd1e11[m Merge pull request #52 from habi802/yoshi
+[33m91b0a2c[m Merge pull request #51 from habi802/habi
+[33ma1decf4[m [refactor] 가게 상태 관리 화면, 데이터 불러오기까지 완료
+[33m9909a0a[m 검색 카테고리 수정
+[33m01461cb[m [refactor] 가게 사이드바 대시보드 경로 수정, 가게 상태 관리 작업중
+[33m06d671e[m [refactor] 가게 홈 -> 영업 시작 부분 수정
+[33m8a91661[m Merge pull request #50 from habi802/habi
+[33m6e963bb[m Dockerfile node 버전 변경
+[33m87aa048[m Merge pull request #49 from habi802/habi
+[33m2c45dc8[m [feat] 로그인 상태 유지를 위한 pinia-plugin-persistedstate 플러그인 추가
+[33md0a087f[m 사장님 가게 메뉴 등록 api 작업중
+[33mebf9cb4[m Merge pull request #48 from habi802/susanna
+[33m93a12f5[m Merge pull request #47 from habi802/lilly
+[33m24a7898[m Merge branch 'main' of https://github.com/habi802/2025-fe-hanip-2nd into susanna
+[33m01f1172[m [feat] 네이버페이 추가중
+[33mf7a841a[m Merge branch 'main' of https://github.com/habi802/2025-fe-hanip-2nd into lilly
+[33m34002fe[m pull받기전 저장
+[33ma3d9b2e[m Merge pull request #46 from habi802/yoshi
+[33m23c19cd[m 주문내역 수정중
+[33m3943eff[m Merge pull request #45 from habi802/habi
+[33meca10ec[m [feat] 통계 현황 화면 작업 완료
+[33mf3a3b83[m Merge branch 'main' of https://github.com/habi802/2025-fe-hanip-2nd into lilly
+[33m44804af[m Merge pull request #44 from habi802/habi
+[33ma2196a1[m [fix] Check.vue 다시 추가
+[33m4c0ac93[m Merge pull request #43 from habi802/habi
+[33mf0d340c[m [feat] CORS 관련 작업, 통계 현황 작업중
+[33m40fc80f[m Merge branch 'main' of https://github.com/habi802/2025-fe-hanip-2nd into lilly
+[33m73da39d[m Merge pull request #42 from habi802/root
+[33m4caee2a[m 사장 메뉴 작업중
+[33mc2448cb[m Merge branch 'main' of https://github.com/habi802/2025-fe-hanip-2nd into lilly
+[33m1bea982[m pull받기 전 저장
+[33med156a1[m Merge branch 'main' of https://github.com/habi802/2025-fe-hanip-2nd into root
+[33m3e1f403[m Merge pull request #41 from habi802/habi
+[33m3a6d4be[m [fix] 목업 라이브러리 관련 오류 수정
+[33me958876[m Merge branch 'main' of https://github.com/habi802/2025-fe-hanip-2nd into habi
+[33ma3c4286[m [feat] 통계 현황 작업중
+[33ma988c74[m Merge branch 'main' of https://github.com/habi802/2025-fe-hanip-2nd into root
+[33mdb15e31[m Merge branch 'main' of https://github.com/habi802/2025-fe-hanip-2nd into lilly
+[33m2143465[m Merge pull request #39 from habi802/hannah
+[33m0682a6e[m Merge pull request #40 from habi802/yoshi
+[33mc7a119a[m 주문내역 드롭다운 수정
+[33mb7624e9[m Merge branch 'main' of https://github.com/habi802/2025-fe-hanip-2nd into hannah
+[33mb835aa7[m Merge branch 'main' of https://github.com/habi802/2025-fe-hanip-2nd into lilly
+[33mf5626ad[m pull 받기전 저장
+[33m9cd61b5[m Merge pull request #38 from habi802/habi
+[33m45e0aea[m [feat] 통계 현황 작업중, 배달원 화면 추가(jessica)
+[33mf3d0392[m Merge branch 'main' of https://github.com/habi802/2025-fe-hanip-2nd into lilly
+[33m483cc55[m pull 받기전 저장
+[33mceeb0a3[m Merge pull request #37 from habi802/yoshi
+[33m4d547c2[m 주문내역 퍼블리싱 완료
+[33m263f532[m Merge pull request #36 from habi802/habi
+[33m40fe474[m [feat] 주문 관리 작업 완료
+[33m5009a93[m Merge remote-tracking branch 'deploy/habi' into habi
+[33me4a6bed[m Merge branch 'root' of https://github.com/habi802/2025-fe-hanip-2nd into root
+[33m1bfdeb1[m Merge branch 'main' of https://github.com/habi802/2025-fe-hanip-2nd into root
+[33m45fd82b[m Dockerfile 추가
+[33m5ae1ffa[m 사장 메뉴 수정 작업중
+[33m6e2f717[m Merge branch 'main' of https://github.com/habi802/2025-fe-hanip-2nd into root
+[33m9a01ec0[m 대시보드시계수정중
+[33m69cabd4[m Delete Dockerfile
+[33m5dfbdf9[m Merge pull request #35 from habi802/lilly
+[33m38e770b[m Merge branch 'main' of https://github.com/habi802/2025-fe-hanip-2nd into lilly
+[33ma898c9d[m Merge pull request #34 from habi802/yoshi
+[33m336b2e3[m 스와이프 이미지 변경
+[33m72f3b34[m Merge pull request #33 from habi802/habi
+[33m522bc44[m 주문내역 수정
+[33m09a4132[m [feat] 리뷰 관리 작업 완료, 나머지 메뉴 작업중
+[33mdf66b9f[m 사장 가게  메뉴 작업중
+[33m614950d[m [feat] 리뷰 관리 작업 완료
+[33mc2cf87f[m 사장 리뷰관리 퍼블리싱 완료
+[33m9dc534b[m Rename DockerFile to Dockerfile
+[33m9ff2820[m Merge pull request #32 from habi802/habi
+[33mea8191a[m [refactor] 관리자 로그인 부분 수정,  Dockerfile 이름 변경
+[33m218e720[m Merge pull request #31 from habi802/habi
+[33m6229afe[m [fix] 충돌나는 부분 수정
+[33m301a74f[m [refactor] 고객/사장 로그인 부분 수정
+[33m751a57b[m Merge pull request #29 from habi802/susanna
+[33m35fd33a[m 리뷰 모달 완료
+[33me9d89fc[m 테스트용 커밋2
+[33m602f01b[m 테스트용 커밋
+[33m28958a0[m 사장용 리뷰 모달창 리뷰사진 스와이프 기능 추가전 저장
+[33m6f5ffe8[m 프론트 가짜응답 데이터 작업 프론트 작업준비
+[33mba3290f[m  머지 수정
+[33me7b4a34[m  머지 수정
+[33m6ca6c69[m 뭔가 수정했음
+[33mf22bfa6[m Merge pull request #28 from habi802/habi
+[33m0d4a3a6[m [fix] api 호출 주소 로컬용, 배포용 구분
+[33mb37de06[m Merge pull request #27 from habi802/habi
+[33me03c483[m [feat] 배포 작업
+[33m7d4449a[m Merge branch 'root' of https://github.com/habi802/2025-fe-hanip-2nd into root
+[33m833895e[m Merge branch 'main' of https://github.com/habi802/2025-fe-hanip-2nd into root
+[33m28aa4f9[m Merge pull request #26 from habi802/habi
+[33m0123edc[m [feat] 가게 관리 작업 완료
+[33m710de59[m Merge branch 'main' of https://github.com/habi802/2025-fe-hanip-2nd into habi
+[33m93660b9[m Merge pull request #25 from habi802/hannah
+[33maa062aa[m 대시보드 모달퍼블완, owner공통css 수정
+[33m5e24552[m [feat] 가게 관리 작업중
+[33m412010b[m Merge branch 'main' of https://github.com/habi802/2025-fe-hanip-2nd into habi
+[33m8059867[m Merge pull request #24 from habi802/hannah
+[33m0b76698[m [feat] 회원 관리 작업 완료
+[33ma4cf393[m 작업중2
+[33md74f247[m 토글버튼미세조정, 대시보드 행 클릭 시 모달띄우기 작업중
+[33mc01308a[m Merge branch 'main' of https://github.com/habi802/2025-fe-hanip-2nd into hannah
+[33m1cdd61d[m Merge branch 'root' of https://github.com/habi802/2025-fe-hanip-2nd into root
+[33md9f051c[m 사장 input 태그 스타일 수정(옵션모달에서 scope 빠져있었음)
+[33m9ec1a19[m Merge pull request #23 from habi802/yoshi
+[33mafb12c5[m 주문내역 수정중
+[33md6842fa[m Merge pull request #22 from habi802/lilly
+[33m6496780[m owner review 모달창 수정중
+[33m928b949[m Merge pull request #21 from habi802/habi
+[33md1d164d[m Merge branch 'main' of https://github.com/habi802/2025-fe-hanip-2nd into root
+[33m944397e[m 사장 가게 메뉴 작업중
+[33m13b4e85[m [feat] 로딩 모달 추가
+[33m4bf5b2b[m Merge pull request #20 from habi802/habi
+[33m42b897a[m [feat, refactor] 필요한 메뉴 추가, 사이드바 수정
+[33mbf258ed[m Merge pull request #19 from habi802/yoshi
+[33m10cfdde[m 주문내역 수정중
+[33m7b6e91e[m Merge pull request #18 from habi802/hannah
+[33m7675eec[m 주문내역 퍼블리싱완
+[33m772ace3[m 페이지네이션 완료
+[33m897a42f[m 로그인창 input수정
+[33m432d389[m Merge branch 'main' of https://github.com/habi802/2025-fe-hanip-2nd into lilly
+[33m21594e6[m Merge pull request #16 from habi802/hannah
+[33m30a11ce[m Merge pull request #17 from habi802/yoshi
+[33m09c8959[m 로그인 수정
+[33mda19da6[m 사장 오더페이지 필터수정
+[33ma061071[m 페이지네이션 수정중
+[33me429ba6[m 오더레이아웃잡음
+[33ma7e9985[m Merge branch 'main' of https://github.com/habi802/2025-fe-hanip-2nd into hannah
+[33m02d4e43[m Merge pull request #15 from habi802/susanna
+[33m7b9bbd8[m 오너 레이아웃 임포트 수정
+[33m2aa1f44[m 주문 레이아웃잡는중
+[33mfd32786[m Merge branch 'main' of https://github.com/habi802/2025-fe-hanip-2nd into hannah
+[33mced9192[m Merge pull request #14 from habi802/susanna
+[33m4b22bb0[m 가게 상세  페이지 완료
+[33m301311e[m 더보기 처리 페이지네이션 변경하기
+[33mf005b6f[m Merge branch 'main' of https://github.com/habi802/2025-fe-hanip-2nd into hannah
+[33m2d9e3e0[m 사장 오더페이지 수정중
+[33mdea54c3[m 모달 컴포넌트 분리 작업 진행중
+[33m18b6d8b[m Merge pull request #13 from habi802/susanna
+[33md19d61b[m [style] 공용 css 임포트 수정
+[33m494f1fe[m Merge branch 'main' of https://github.com/habi802/2025-fe-hanip-2nd into hannah
+[33mc84820e[m 작업중
+[33ma33aee5[m  버튼 css 수정
+[33m2af3bdb[m Merge branch 'main' of https://github.com/habi802/2025-fe-hanip-2nd into susanna
+[33mb01c3cc[m  메뉴 클릭시 모달창 까지 뜨게 확인
+[33m73ab8c8[m Merge pull request #12 from habi802/lilly
+[33m3f3e9d2[m Merge pull request #11 from habi802/hannah
+[33m33ddb05[m 찜 하기 부분 수정
+[33m4c43b6b[m 하빈님 이걸로..! (버튼위치수정)
+[33mdedca1b[m Merge pull request #10 from habi802/hannah
+[33m51711eb[m 사장 가게상태관리 퍼블리싱중
+[33m4ea36cf[m Merge branch 'main' of https://github.com/habi802/2025-fe-hanip-2nd into lilly
+[33m55cec4c[m 회원가입 부분 수정완료
+[33ma4a8e1d[m Merge pull request #9 from habi802/susanna
+[33m0c806f8[m Merge branch 'main' of https://github.com/habi802/2025-fe-hanip-2nd into susanna
+[33m663f875[m 가게 상세페이지 퍼블리싱/ 모달 하는 중 + 리뷰 퍼블리싱 필요
+[33m5ae0dda[m 주소지, 장바구니 부분 수정
+[33m5bd4514[m 마이페이지 정보수정 페이지 수정완료
+[33mdbdd12f[m Merge pull request #8 from habi802/lilly
+[33me9db946[m 장바구니 모달창 수정중
+[33m4130331[m Merge branch 'main' of https://github.com/habi802/2025-fe-hanip-2nd into lilly
+[33m0fdb5d8[m pull 받기전 저장
+[33md43d866[m[33m ([m[1;32mmain[m[33m)[m Merge pull request #7 from habi802/yoshi
+[33m3269f34[m[33m ([m[1;31morigin/yoshi[m[33m)[m 모달 작업
+[33mf2fe194[m 모달작업
+[33m7c6e6c9[m Merge pull request #6 from habi802/yoshi
+[33m8f36ee2[m 작업중
+[33mdf64957[m[33m ([m[1;31morigin/hannah[m[33m)[m 사장작업중
+[33m676151b[m 장바구니 모달창 수정 중
+[33mf452b45[m[33m ([m[1;31morigin/lilly[m[33m)[m 찜하기 수정 완료
+[33mc2f343e[m 사장 가게상태관리 퍼블리싱중
+[33m033b80e[m FAQ 웹 퍼블리싱 완료
+[33m6bfc378[m my-page 퍼블리싱 수정 완료
+[33m5b8b627[m C:/Program Files/Git/address api 통신 제외 및 완료
+[33m40264a7[m 사장대시보드 큰틀완료
+[33m0cebc3b[m 사장 퍼블리싱중
+[33mec49296[m 비밀번호 확인 페이지 생성
+[33m033d08f[m 주소 설정 메인페이지 웹퍼블리싱 완료
+[33m9d2b9bb[m 주소 수정 모달창 수정중
+[33m94e29f4[m login & join 퍼블리싱 completed
+[33m42e7dad[m  address main page completed
+[33m8ecec7e[m Merge branch 'main' of https://github.com/habi802/2025-fe-hanip-2nd into lilly
+[33m958b9c6[m Merge pull request #5 from habi802/susanna
+[33m7a1fa27[m[33m ([m[1;31morigin/susanna[m[33m)[m 모달 컴포넌트 추가 , 공용 버튼 css 추가
+[33m80701eb[m Delete src/assets/customer/fonts/Pretendard-Regular.woff
+[33m8fb045f[m Delete src/assets/customer/customer.css
+[33mc41c13c[m Delete src/assets/customer/fonts/asdf
+[33m822330c[m Add files via upload
+[33mdaa3cef[m Create asdf
+[33m5cf57c7[m Update customer.css
+[33m53f645d[m Create customer.css
+[33m695d220[m Update Home.vue
+[33m28c3dbe[m Merge pull request #4 from habi802/habi
+[33m790838c[m[33m ([m[1;31morigin/habi[m[33m)[m [feat] 페이지 이동 시 햄버거 버튼 메뉴 감추기'
+[33m402e34a[m [feat] 작은 화면 헤더 작업
+[33m4fb7584[m [refactor] 헤더(큰 화면) 작업 완료
+[33m3bc721e[m [feat, style] 파일 정리 및 고객 화면 헤더 작업중
+[33m1fa5db0[m Merge pull request #3 from habi802/habi
+[33ma1c2570[m [style] 고객 페이지 파일 분류, 헤더 모달 작업
+[33m127c6b8[m 주소지 변경 components 작업중
+[33m4301fcd[m Merge branch 'main' of https://github.com/habi802/2025-fe-hanip-2nd into lilly
+[33m45e3fb9[m pull받기전 저장
+[33m21cf26e[m [style] 고객 레이아웃 이름, 페이지 라우터 코드 순서 변경
+[33me04ab38[m costomer service 화면 작업완료
+[33m3d2593b[m Merge pull request #2 from habi802/habi
+[33m542a383[m [refactor] 부트스트랩 관련 수정
+[33mdaca723[m Merge pull request #1 from habi802/habi
+[33md9c1fc6[m [feat] 관리자 페이지 추가
+[33m3319534[m[33m ([m[1;31morigin/jessica[m[33m)[m Merge pull request #167 from habi802/sussana2
+[33m090e5a3[m Merge branch 'main' into sussana2
+[33m189f834[m  [docs] 리드미 이미지 넣기 완료
+[33m88d66d2[m  [docs] 리드미 이미지 넣기 전 글 수정 완료
+[33m72cb466[m  [docs] 리드미 이미지 넣기 전6
+[33m448a2ec[m  [docs] 리드미 이미지 넣기 전5
+[33m95f3135[m  [docs] 리드미 이미지 넣기 전4
+[33m0feadac[m  [docs] 리드미 이미지 넣기 전4
+[33m5385c17[m  [docs] 리드미 이미지 넣기 전3
+[33mb00d2d3[m  [docs] 리드미 이미지 넣기 전2
+[33m330c3e4[m  [docs] 리드미 이미지 넣기 전2
+[33ma681845[m  [docs] 리드미 이미지 넣기 전
+[33m3efecbb[m  리드미 확인용3
+[33mcbf3114[m  리드미 확인용2
+[33mbe23f63[m  리드미 확인용
+[33m179c83f[m Merge pull request #166 from habi802/lilly
+[33m29b4bba[m Merge branch 'main' into lilly
+[33m3435a71[m Merge pull request #165 from habi802/susanna
+[33m87dba8a[m join commponents 분활 작업
+[33mef17d57[m  스토어  모달 수정
+[33m463ed2b[m  로그인 모달 수정
+[33m2c1b515[m Merge pull request #164 from habi802/habi
+[33m2daa38d[m [fix] 재주문 하기 부분 removeCart 추가
+[33mf59a37f[m Merge pull request #163 from habi802/habi
+[33m2ad31ee[m [fix] 재주문 하기 부분 수정
+[33m5c9be0e[m Merge pull request #162 from habi802/habi
+[33m657e97f[m [fix] 주문 내역에서 재주문으로 안 넘어가는 점 수정
+[33md1a26d8[m [fix] 장바구니 비우기 화면 반영 안 되는 점 수정
+[33m7e38160[m Merge pull request #161 from habi802/susanna
+[33m215c12f[m Merge branch 'main' of https://github.com/habi802/2025-fe-hanip into susanna
+[33ma88c223[m [fix] 카테고리 별점 비동기 오류
+[33m69cc47c[m Merge pull request #160 from habi802/habi
+[33m1123304[m 가게 조회에서 찜 조회 관련 수정
+[33me37d5f6[m Merge pull request #159 from habi802/habi2
+[33mb17e330[m 마이페이지 수정
+[33m37677af[m Merge pull request #158 from habi802/lilly
+[33m05e769e[m 수정 실패
+[33md014a19[m Merge pull request #157 from habi802/lilly
