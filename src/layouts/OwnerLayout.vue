@@ -270,6 +270,7 @@ onUnmounted(() => {
 .section {
     //  padding-top: 20px;
     display: flex;
+    flex-direction: column;
     justify-content: center; // 가로 가운데
     align-items: center; // 세로 가운데
     width: 100%;

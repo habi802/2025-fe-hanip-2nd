@@ -157,7 +157,7 @@ const router = createRouter({
     {
       path: "/owner/donations",
       name: "owner-donations",
-      component: () => import("@/views/owner/Donations.vue"),
+      component: () => import("@/views/owner/Stats.vue"),
       meta: { layout: OwnerLayout },
     },
     {

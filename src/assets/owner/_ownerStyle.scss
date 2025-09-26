@@ -62,7 +62,7 @@
 }
 
 * {
-    font-family: 'Pretendard', sans-serif;
+    font-family: 'Pretendard', sans-rif;
 }
 
 button{
@@ -317,38 +317,38 @@ input:checked+.slider::before {
 //삭제된 css (혹시모르니 보관용)
 
 //up & down 표시 : ↑ 4% 
-// .change-rate {
-//   display: flex;
-//   align-items: center;
-//   gap: 5px;
-//   .icon-up {
-//     width: 16px;
-//     height: 16px;
-//     background-color: #e0f9f1;
-//     border-radius: 100%;
-//     display: flex;
-//     align-items: center;
-//     justify-content: center;
-//     text-align: center;
-//     font-size: 10px !important;
-//     font-weight: 800;
-//     color: #00a389;
-//   }
-//   .icon-down {
-//     width: 16px;
-//     height: 16px;
-//     background-color: #ffe7e7;
-//     border-radius: 100%;
-//     display: flex;
-//     align-items: center;
-//     justify-content: center;
-//     text-align: center;
-//     font-size: 10px !important;
-//     font-weight: 800;
-//     color: #ff5b5b;
-//   }
-//   span {
-//     color: #c6c6c6;
-//     font-size: 12px;
-//   }
-// }
+.change-rate {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  .icon-up {
+    width: 16px;
+    height: 16px;
+    background-color: #e0f9f1;
+    border-radius: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    font-size: 10px !important;
+    font-weight: 800;
+    color: #00a389;
+  }
+  .icon-down {
+    width: 16px;
+    height: 16px;
+    background-color: #ffe7e7;
+    border-radius: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    font-size: 10px !important;
+    font-weight: 800;
+    color: #ff5b5b;
+  }
+  span {
+    color: #c6c6c6;
+    font-size: 12px;
+  }
+}
