@@ -39,7 +39,7 @@
           <div>504-30-13756</div>
         </div>
         <div class="footer-column customer-service">
-          <h4>고객센터</h4>
+          <h4><router-link to="/contact" class="footer-link">고객센터</router-link></h4>
           <p>고객센터 번호</p>
           <p>이메일주소</p>
         </div>
@@ -167,4 +167,16 @@
     margin-left: 2rem;
   }
 }
+// 고객센터 라우터 스타일 처리
+.footer-link {
+    text-decoration: none;
+    color: white;
+    cursor: pointer;
+    transition: color 0.3s ease;
+
+    &:hover {
+      color: #ff6666; /* hover 시 색상 변경 */
+    }
+
+  }
 </style>

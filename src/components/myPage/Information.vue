@@ -3,6 +3,7 @@ import { onMounted, reactive, ref, watch } from "vue";
 import { useRouter } from "vue-router";
 import { getUser, checkPassword, update } from "@/services/userService";
 import { nextTick } from "vue";
+import defaultUserProfile from "@/imgs/owner/user_profile.jpg";
 
 const router = useRouter();
 const fileInput = ref(null);
@@ -307,7 +308,7 @@ const isPasswordChecked = ref(false); // 비밀번호 확인 여부
             <!-- 프로필 사진 수정 버튼 -->
             <div class="user">
               <!-- 이미지 미리보기 -->
-              <img class="userImg" :src="previewUrl || '/src/imgs/userImg.png'" />
+              <img class="userImg" :src="previewUrl || defaultUserProfile" />
 
               <!-- 실제 파일 업로드 input (숨김 처리) -->
               <input
