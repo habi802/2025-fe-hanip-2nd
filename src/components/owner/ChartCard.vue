@@ -8,7 +8,6 @@ Chart.register(BarController, BarElement, CategoryScale, LinearScale, Legend);
 const chartCanvas = ref(null);
 
 const props = defineProps({
-    title: String,
     chartData: Array
 });
 
@@ -53,4 +52,6 @@ canvas {
   max-width: 600px;
   max-height: 400px;
 }
+
+
 </style>
