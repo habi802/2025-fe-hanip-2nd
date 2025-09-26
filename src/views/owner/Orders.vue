@@ -4,12 +4,10 @@ import { computed, ref, reactive, inject } from "vue";
 import { useOrderStore } from "@/stores/orderStore";
 import { deleteOrder, getOrderByDate } from "@/services/orderService";
 import { useAccountStore, useOwnerStore } from "@/stores/account";
-import OrderDetails from '@/components/owner/orderInfo/OrderDetails.vue'
-import OrderStatus from '@/components/owner/orderInfo/OrderStatus.vue'
-import OrderedMenu from '@/components/owner/orderInfo/OrderedMenu.vue'
-import PaymentDetails from '@/components/owner/orderInfo/PaymentDetails.vue'
-
-
+import OrderDetails from "@/components/owner/orderInfo/OrderDetails.vue";
+import OrderStatus from "@/components/owner/orderInfo/OrderStatus.vue";
+import OrderedMenu from "@/components/owner/orderInfo/OrderedMenu.vue";
+import PaymentDetails from "@/components/owner/orderInfo/PaymentDetails.vue";
 
 const orderStore = useOrderStore();
 const user = useAccountStore();
@@ -145,7 +143,7 @@ const ownerName = inject("ownerName", "");
 const storeId = inject("storeId", "");
 
 // 날짜 조회
-const selectedLabel = ref('');
+const selectedLabel = ref("");
 
 // 날짜 식
 const today = new Date();
@@ -167,7 +165,7 @@ const selectRange = async (range) => {
     // Todo : 하루조회기간도 만들어서 이걸 디폴트로..!
     case "1d":
       selectedLabel.value = "오늘";
-      console.log("추후작업")
+      console.log("추후작업");
       break;
     case "7d":
       selectedLabel.value = "최근 1주일";
@@ -210,11 +208,28 @@ const selectRange = async (range) => {
 
 <template>
   <!-- alert -->
-  <div style=" position: fixed; top: 20px; left: 50%; transform: translateX(-50%); z-index: 1055; " >
-    <div  v-for="(alert, index) in alerts" :key="alert.id" :class="['alert', alert.type, 'alert-dismissible', 'fade', 'show']"
-      role="alert" style="margin-bottom: 10px; min-width: 300px; max-width: 600px" >
+  <div
+    style="
+      position: fixed;
+      top: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 1055;
+    "
+  >
+    <div
+      v-for="(alert, index) in alerts"
+      :key="alert.id"
+      :class="['alert', alert.type, 'alert-dismissible', 'fade', 'show']"
+      role="alert"
+      style="margin-bottom: 10px; min-width: 300px; max-width: 600px"
+    >
       {{ alert.message }}
-      <button  type="button" class="btn-close" @click="removeAlert(alert.id)" ></button>
+      <button
+        type="button"
+        class="btn-close"
+        @click="removeAlert(alert.id)"
+      ></button>
     </div>
   </div>
   <!-- alert 끝 -->
@@ -223,13 +238,24 @@ const selectRange = async (range) => {
     <div class="section-left">
       <div class="orders-header">
         <!-- 조회기간설정 카드 -->
-        <div class="date-option dropdown " ref="orderDetail">
-          <button class="date-filter" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" >
-            <img src="/src/imgs/owner/Icon_조회기간설정2.svg" alt="캘린더아이콘" />
-            <span>{{selectedLabel ? selectedLabel : '조회 기간 선택'}}</span>
+        <div class="date-option dropdown" ref="orderDetail">
+          <button
+            class="date-filter"
+            type="button"
+            id="dropdownMenuButton"
+            data-bs-toggle="dropdown"
+          >
+            <img
+              src="/src/imgs/owner/Icon_조회기간설정2.svg"
+              alt="캘린더아이콘"
+            />
+            <span>{{ selectedLabel ? selectedLabel : "조회 기간 선택" }}</span>
             <img src="/src/imgs/owner/Icon_목록단추.svg" alt="목록단추" />
           </button>
-          <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdownMenuButton" >
+          <ul
+            class="dropdown-menu dropdown-menu-end"
+            aria-labelledby="dropdownMenuButton"
+          >
             <li>
               <button class="dropdown-item" @click="selectRange('1d')">
                 오늘
@@ -251,33 +277,40 @@ const selectRange = async (range) => {
               </button>
             </li>
           </ul>
-        </div><!-- 조회기간설정카드 끝-->
+        </div>
+        <!-- 조회기간설정카드 끝-->
         <!-- 검색바 -->
         <div class="search white-card">
-          <input type="text" placeholder="검색">
-          <button><img src="/src/imgs/search_icon.png" alt="검색아이콘"></button>
+          <input type="text" placeholder="검색" />
+          <button>
+            <img src="/src/imgs/search_icon.png" alt="검색아이콘" />
+          </button>
         </div>
-      </div><!-- orders-header 끝  -->
-      
+      </div>
+      <!-- orders-header 끝  -->
+
       <div class="order-list-wrap scrollbar">
         <!-- 주문 리스트 -->
         <div v-if="orderStore.orders?.length === 0" class="loading"></div>
         <!-- 주문 없음 -->
-        <div v-else-if="orderStore.nonOrderedList.length === 0">  주문이 없습니다. </div>
-          <order-list-card v-else></order-list-card>
-          <order-list-card :cancel="true"></order-list-card>
-          <order-list-card></order-list-card>
-          <!-- <order-list-card  v-for="order in visibleOrders" :key="order.id" :order="order" style="cursor: pointer" @selectOrder="handleSelectOrder(order)"/> -->
-        </div><!--order-list 끝-->
+        <div v-else-if="0">주문이 없습니다.</div>
+        <order-list-card v-else></order-list-card>
+        <order-list-card :cancel="true"></order-list-card>
+        <order-list-card></order-list-card>
+        <!-- <order-list-card  v-for="order in visibleOrders" :key="order.id" :order="order" style="cursor: pointer" @selectOrder="handleSelectOrder(order)"/> -->
+      </div>
+      <!--order-list 끝-->
 
-        <div class="pagenation">
-          <span>< 1, 2, 3, 4, 5 ></span>
-          <!-- <button class="btn btn-secondary d-block" v-if="visibleCount < nonOrderedOrders.length" @click="loadMore"
+      <div class="pagenation">
+        <span>< 1, 2, 3, 4, 5 ></span>
+        <!-- <button class="btn btn-secondary d-block" v-if="visibleCount < nonOrderedOrders.length" @click="loadMore"
           style=" font-size: 1.5rem; padding: 1rem 2rem; width: 100%; max-width: 755px; " >
           더보기
           </button> -->
-      </div><!--pagenation 끝-->
-    </div><!-- section-left 끝-->
+      </div>
+      <!--pagenation 끝-->
+    </div>
+    <!-- section-left 끝-->
 
     <div class="section-right">
       <div class="orders-wrap white-card">
@@ -285,14 +318,15 @@ const selectRange = async (range) => {
           <!-- 주문정보 -->
           <OrderDetails></OrderDetails>
           <!-- 주문상세 -->
-          <OrderedMenu style="height: 300px;"></OrderedMenu>
+          <OrderedMenu style="height: 300px"></OrderedMenu>
           <!-- 주문현황 -->
-            <section style="height: 300px;">
-              <OrderStatus></OrderStatus>
-            </section>
+          <section style="height: 300px">
+            <OrderStatus></OrderStatus>
+          </section>
           <!-- 결제내역 -->
           <PaymentDetails></PaymentDetails>
-        </div><!-- orders-detail 끝-->
+        </div>
+        <!-- orders-detail 끝-->
         <!-- <button class="btn" @click="deleteOrderOne">
           <img
             class="trash-icon"
@@ -300,9 +334,12 @@ const selectRange = async (range) => {
             alt="휴지통"
           />
         </button> -->
-      </div><!-- orders-wrap 끝-->
-    </div><!-- section-left 끝-->
-  </div><!-- wrap 끝 -->
+      </div>
+      <!-- orders-wrap 끝-->
+    </div>
+    <!-- section-left 끝-->
+  </div>
+  <!-- wrap 끝 -->
 </template>
 
 <style scoped lang="scss">
@@ -331,7 +368,7 @@ const selectRange = async (range) => {
   gap: 40px;
 
   // 섹션왼쪽 : 조회기간필터, 검색, 주문리스트
-  .section-left{
+  .section-left {
     width: 50%;
     height: 100%;
     max-width: 800px;
@@ -358,32 +395,32 @@ const selectRange = async (range) => {
           font-size: 1.2rem;
           text-align: left;
           padding-left: 10%;
-            }
+        }
         img:last-child {
           transform: translateY(-1px);
         }
       }
     }
-    .search{
+    .search {
       width: 100%;
       height: 50px;
-      display: flex;  
-      align-items: center; 
+      display: flex;
+      align-items: center;
       padding: 0 20px;
-      button{
+      button {
         height: 100%;
         background-color: #fff;
-        img{
+        img {
           height: 50%;
         }
       }
-      input{
+      input {
         width: 100%;
         border: none;
         border-radius: 0;
       }
     }
-    .order-list-wrap{
+    .order-list-wrap {
       width: 100%;
       height: 90vh;
       display: flex;
@@ -392,29 +429,28 @@ const selectRange = async (range) => {
       overflow: auto;
       overflow-x: hidden;
     }
-    .pagenation{
+    .pagenation {
       width: 100%;
       display: flex;
       justify-content: center;
       font-size: 18px;
     }
-    
   }
 
   //섹션오른쪽 : 주문상세내역
-  .section-right{
+  .section-right {
     width: 50%;
     height: 100%;
     max-width: 800px;
     overflow: auto;
-      // 주문상세내역    
-      .orders-wrap {
-        height: 100%;
-        display: flex;
-        flex-direction: column;
-        justify-content: space-around;
-        gap: 20px;
-        
+    // 주문상세내역
+    .orders-wrap {
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-around;
+      gap: 20px;
+
       .orders-detail {
         width: 100%;
         height: 100%;
@@ -423,7 +459,7 @@ const selectRange = async (range) => {
         display: flex;
         flex-direction: column;
         align-items: center;
-        justify-content:left;
+        justify-content: left;
 
         section {
           width: 95%;
@@ -478,10 +514,8 @@ const selectRange = async (range) => {
         margin-bottom: 1%;
         transition: 0.2s;
       }
-    }//orders-wrap 끝
-  }//section-right 끝
-
-
+    } //orders-wrap 끝
+  } //section-right 끝
 } //wrap 끝
 
 /* alert 에니메이션 */
@@ -499,5 +533,4 @@ const selectRange = async (range) => {
     opacity: 1;
   }
 }
-
 </style>
