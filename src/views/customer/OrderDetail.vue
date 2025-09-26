@@ -65,57 +65,55 @@ const getPayment = computed(() => {
         </div>
 
         <div class="container">
-            <div class="box border rounded p-3 mb-4">
-                <div>
-                    <div class="text">
-                        <span>주문내역</span>
-                        <div class="store-name">{{ state.order.storeName }}</div>
-                    </div>
-                </div>
-                <div class="order-box">
-                    <div class="store-info col-4">
-                        <div class="store-image">
-                            <img class="storeImg" :src="storeImage" @error="(e) => (e.target.src = defaultImage)" />
-                        </div>
-                    </div>
-                    <div class="order-info">
-                        <div v-for="(menu, idx) in state.order.menuItems" :key="menu.menuId">
-                            <div class="pt-2" :class="{ 'border-top': idx !== 0 }">
-                                <div class="d-flex justify-content-between mb-2">
-                                    <div class="row">
-                                        <span class="item-name">{{ menu.name }}</span>
-                                    </div>
-                                    <span>{{ menu.quantity }}개</span>
-                                    <span class="item-price">{{ (menu.price * menu.quantity).toLocaleString() }}원</span>
-                                </div>
+            <div class="mb-4">
+                <h4 class="mb-3">주문 내역</h4>
+                <div class="border rounded p-5">
+                    <div class="store-name">{{ state.order.storeName }}</div>
+                    <div class="order-box">
+                        <div class="store-info col-4">
+                            <div class="store-image">
+                                <img class="storeImg" :src="storeImage" @error="(e) => (e.target.src = defaultImage)" />
                             </div>
-                            <template v-if="menu.options">
-                                <div v-for="option in menu.options" :key="option.optionId">
-                                    <template v-if="option.children">
-                                        <div class="item-option" v-if="option.children" v-for="(child, idx) in option.children" :key="child.optionId">
-                                            <div class="item-option-comment">
-                                                <span v-if="idx === 0">{{ option.comment }}</span>
-                                            </div>
-                                            <div class="item-option-child">
-                                                <div class="d-flex justify-content-between">
-                                                    <span>{{ child.comment }}</span>
-                                                    <span>{{ child.price?.toLocaleString() }}원</span>
+                        </div>
+                        <div class="order-info">
+                            <div v-for="(menu, idx) in state.order.menuItems" :key="menu.menuId">
+                                <div class="pt-3">
+                                    <div class="d-flex justify-content-between mb-2">
+                                        <div class="row">
+                                            <span class="item-name">{{ menu.name }}</span>
+                                        </div>
+                                        <span>{{ menu.quantity }}개</span>
+                                        <span class="item-price">{{ (menu.price * menu.quantity).toLocaleString() }}원</span>
+                                    </div>
+                                </div>
+                                <template v-if="menu.options">
+                                    <div v-for="option in menu.options" :key="option.optionId">
+                                        <template v-if="option.children">
+                                            <div class="item-option" v-if="option.children" v-for="(child, idx) in option.children" :key="child.optionId">
+                                                <div class="item-option-comment">
+                                                    <span v-if="idx === 0">{{ option.comment }}</span>
+                                                </div>
+                                                <div class="item-option-child">
+                                                    <div class="d-flex justify-content-between">
+                                                        <span>{{ child.comment }}</span>
+                                                        <span>{{ child.price?.toLocaleString() }}원</span>
+                                                    </div>
                                                 </div>
                                             </div>
-                                        </div>
-                                    </template>
-                                </div>
-                            </template>
-                        </div>
-                        
-                        <!-- <div class="text-delivery">
-                            <span>배달료</span>
-                            <span>2,000원</span>
-                        </div> -->
+                                        </template>
+                                    </div>
+                                </template>
+                            </div>
+                            
+                            <!-- <div class="text-delivery">
+                                <span>배달료</span>
+                                <span>2,000원</span>
+                            </div> -->
 
-                        <div class="text-end">
-                            <span>총 결제 금액 </span>
-                            <span>{{ state.order.amount?.toLocaleString() }}원</span>
+                            <div class="text-end pt-3">
+                                <span>총 결제 금액 </span>
+                                <span>{{ state.order.amount?.toLocaleString() }}원</span>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -223,9 +221,9 @@ const getPayment = computed(() => {
     max-width: 1060px;
 }
 
-.box {
-    padding: 40px !important;
-    border-radius: 25px;
+.store-name {
+    font-family: "BMJUA";
+    font-size: 26px;
 }
 
 .order-box {
@@ -276,23 +274,6 @@ const getPayment = computed(() => {
     width: 47%;
 }
 
-// 주문처리현황
-.text {
-    display: flex;
-    font-size: 25px;
-    text-align: center;
-
-    .store-name {
-        font-family: "BMJUA";
-        width: 170px;
-        text-align: end;
-    }
-
-    span {
-        font-family: "BMJUA";
-    }
-}
-
 .order-info {
     width: 80% !important;
     font-size: 18px;
@@ -310,7 +291,7 @@ const getPayment = computed(() => {
     display: flex;
     justify-content: space-between;
     border: none !important;
-    font-size: 20px;
+    font-size: 22px;
     padding: 7px 0;
 }
 

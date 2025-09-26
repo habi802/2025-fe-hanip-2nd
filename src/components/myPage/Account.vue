@@ -1,7 +1,7 @@
 <script setup>
 import { ref, onMounted, nextTick } from 'vue';
 // myPage 컴포넌트 임포트
-import OrderDetails from './OrderDetails.vue';
+import OrderDetails from '../../views/customer/Orders.vue';
 import Information from './Information.vue';
 import Payment from './Payment.vue';
 import Favorites from './Favorites.vue';
