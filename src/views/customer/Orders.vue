@@ -2,10 +2,10 @@
 import { reactive, ref, onMounted, computed } from 'vue';
 import { useRouter } from 'vue-router';
 import { getOrder, deleteOrder } from '@/services/orderService';
-import { getReviewsByStoreId } from '@/services/reviewServices';
 import { addItem, getItem, removeCart } from '@/services/cartService';
 import OrderAndReview from '@/components/myPage/OrderAndReview.vue';
 import AlertModal from '@/components/modal/AlertModal.vue';
+import ConfirmModal from '@/components/modal/ConfirmModal.vue';
 
 const router = useRouter();
 
@@ -14,9 +14,10 @@ const state = reactive({
 });
 
 onMounted(async () => {
-    const res = await getOrder({});
+    const res = await getOrder({ page: 1, rowPerPage: 10 });
     if (res !== undefined && res.status === 200) {
         state.orders = res.data.resultData;
+        console.log(state.orders);
     }
 });
 
@@ -29,85 +30,45 @@ const selectStar = (index) => {
 };
 
 const alertModalRef = ref(null);
+const confirmModalRef = ref(null);
 
 // 주문 삭제
 const deleteOrderOne = async (order) => {
-    if (
-        order.status === 'ORDERED' ||
-        order.status === 'DELIVERING' ||
-        order.status === 'PREPARING'
-    ) {
-        showModal('진행 중인 주문은 취소할 수 없습니다.');
+    if (order.status === 'ORDERED' || order.status === 'DELIVERING' || order.status === 'PREPARING') {
+        alertModalRef.value.open('진행 중인 주문은 취소할 수 없습니다.');
         return;
     }
 
-    try {
-        await deleteOrder(order.id);
-
+    const res = await deleteOrder(order.id);
+    if (res !== undefined && res.status === 200) {
         const deleteIdx = state.orders.findIndex((item) => item.id === order.id);
         if (deleteIdx > -1) {
             state.orders.splice(deleteIdx, 1);
         }
-    } catch (e) {
-        console.error('삭제 실패', e);
     }
 };
 
-// 주문 목록
-const filteredOrders = computed(() =>
-    state.orders.filter((order) => order.isdeleted !== 0)
-);
-
-// 재주문을 하기 위한 함수
-//const cartStore = useCartStore();
+// 재주문하기
 const reorder = async (menus) => {
-    //const cartItems = cartStore.state.items;
-    // if (cartItems.length > 0 && cartItems[0].id !== addMenus[0].id) {
-    //   showModal('이미 다른 가게의 메뉴가 장바구니에 담겨 있습니다.')
-    //   return;
-    // }
     const res = await getItem();
-    if (res === undefined) {
-        showModal('장바구니 조회 실패');
-        return;
-    } else if (res.data.resultStatus === 401) {
-        showModal(res.data.resultMessage);
-        return;
+    if (res !== undefined && res.status === 200) {
+        const carts = res.data.resultData;
+        if (carts !== null && carts.length > 0) {
+            const isConfirmed = await confirmModalRef.value.showModal('이미 장바구니에 메뉴가 담겨져 있습니다. 장바구니를 비우고 선택한 메뉴를 장바구니에 담으시겠습니까?');
+            if (isConfirmed) {
+                await removeCart();
+            }
+        }
     }
 
-    const carts = res.data.resultData;
-    if (carts !== null && menus.storeId !== carts[0].storeId) {
-        showModal('이미 다른 가게의 메뉴가 장바구니에 담겨 있습니다.');
-        return;
-    }
-
-    // 같은 가게의 메뉴가 이미 장바구니에 담겨져 있을 경우,
-    // 장바구니의 데이터를 다 지우고 새로 등록할지,
-    // 기존의 장바구니에 더 추가를 할지는 생각 해봐야 됨.
-    // 일단은 장바구니에 있는 데이터를 다 지우고 새로 등록하게 했음.
-    await removeCart();
-
-    for (let i = 0; i < menus.orderGetList.length; i++) {
+    menus.forEach(async menu => {
         const params = {
-            menuId: menus.orderGetList[i].menuId,
-            quantity: menus.orderGetList[i].quantity,
+            menuId: menu.menuId,
+            quantity: menu.quantity,
         };
 
-        const res = await addItem(params);
-
-        //menus.orderGetList[i].cartId = res.data.resultData;
-    }
-
-    // const addMenus = menus.orderGetList.map((menu) => ({
-    //   id: menu.cartId,
-    //   menuId: menu.menuId,
-    //   name: menu.name,
-    //   price: menu.price,
-    //   quantity: menu.quantity,
-    //   storeId: menu.storeId,
-    // }));
-
-    //cartStore.addMenus(addMenus);
+        await addItem(params);
+    });
 
     router.push('/cart');
 };
@@ -128,20 +89,12 @@ const visibleCards = computed(() => {
     return state.orders.slice(0, visibleCount.value);
 });
 
-//화면 상단 이동
+// 화면 상단 이동
 const arrow = () => {
     window.scrollTo({
         top: 0,
         behavior: 'smooth',
     });
-};
-
-const showModal = (message) => {
-    const modalBody = document.getElementById('alertModalBody');
-    if (modalBody) modalBody.textContent = message;
-    const modal = new bootstrap.Modal(document.getElementById('alertModal'));
-
-    modal.show();
 };
 </script>
 
@@ -218,7 +171,7 @@ const showModal = (message) => {
                 <span class="divider">|</span>
                 <span>기간 선택</span>
             </div>
-            <div v-for="order in visibleCards" :key="order.id" style="margin-bottom: 10px">
+            <div v-for="order in state.orders" :key="order.orderId" style="margin-bottom: 10px">
                 <order-and-review :order="order" @delete-order="deleteOrderOne" @reorder="reorder" />
             </div>
         </div>
@@ -296,10 +249,11 @@ const showModal = (message) => {
     </div>
 
     <AlertModal ref="alertModalRef" />
+    <ConfirmModal ref="confirmModalRef" />
 
-    <div v-if="state.orders.length > 0" class="btnBox">
+    <!-- <div v-if="state.orders.length > 0" class="btnBox">
         <div id="btnB" v-if="visibleCount < state.orders.length" class="btn" @click="showMore">더보기</div>
-    </div>
+    </div> -->
 
     <img @click="arrow" class="arrow" src="/src/imgs/arrow.png" />`
 </template>
@@ -467,7 +421,6 @@ const showModal = (message) => {
 
 .bigBoard {
     width: 1080px;
-    height: 315px;
     border: #6c6c6c 3px solid;
     border-radius: 25px;
     margin-bottom: 40px;
@@ -476,7 +429,6 @@ const showModal = (message) => {
     .board {
         display: flex;
         width: 100%;
-        height: 300px;
         justify-content: space-between;
         overflow: clip;
 
