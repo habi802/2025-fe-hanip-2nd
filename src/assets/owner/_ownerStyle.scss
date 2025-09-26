@@ -322,8 +322,8 @@ input:checked+.slider::before {
   align-items: center;
   gap: 5px;
   .icon-up {
-    width: 16px;
-    height: 16px;
+    width: 24px;
+    height: 24px;
     background-color: #e0f9f1;
     border-radius: 100%;
     display: flex;
@@ -335,8 +335,8 @@ input:checked+.slider::before {
     color: #00a389;
   }
   .icon-down {
-    width: 16px;
-    height: 16px;
+    width: 24px;
+    height: 24px;
     background-color: #ffe7e7;
     border-radius: 100%;
     display: flex;
