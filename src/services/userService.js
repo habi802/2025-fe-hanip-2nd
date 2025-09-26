@@ -44,4 +44,3 @@ export const checkPassword = password => {
 export const update = args => {
     return axios.put(`${path}`, args).catch(e => e.response);
 }
-
