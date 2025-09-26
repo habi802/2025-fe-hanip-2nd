@@ -41,6 +41,25 @@ const load = async () => {
     return;
 
   state.items = res.data.resultData || [];
+  console.log("아이템 정보들", state.items)
+
+  await Promise.all(
+    state.items.map(async (item) => {
+      try {
+        const optionRes = await getOption(item.menuId); // 메뉴 아이디로 옵션 조회 API 호출
+        console.log("옵션정보가 있는가?", optionRes.data.resultData)
+        // 옵션이 있으면 true, 없으면 false
+        item.hasOptions = optionRes.data.resultData.options.length > 0;
+      } catch (err) {
+        console.error(`메뉴 옵션 조회 실패: ${item.menuId}`, err);
+        item.hasOptions = false;
+      }
+    })
+  );
+
+  console.log("옵션 포함 아이템 정보", state.items);
+
+
 
   fetchStoreDetails();
 };
@@ -200,17 +219,20 @@ const menu = reactive({
     price: Number,
     comment: String,
     imagePath: String,
-    options: []
+    options: [],
+    quantity: 0
   }
 });
 
 const openOptionModal = async (item) => {
+  console.log("item에 뭐가 있나", item)
 
   const res = await getOption(item.menuId);
 
   menu.item.options = res.data.resultData.options;
 
-  console.log("메뉴 확인", menu.item.options)
+  console.log("메뉴 확인", item.quantity
+  )
 
   optionModal.value.setMenuData(menu.item.options)
   const modalElement = optionModal.value.$el;
@@ -220,14 +242,16 @@ const openOptionModal = async (item) => {
   console.log("선택한 옵션 보이는지 확인", item.options)
 
   const optionRes = await getOptions(item.id)
+  console.log("옵션정보?", optionRes)
 
   const info = optionRes.data.resultData;
 
-  selectOption.info.menuId = info.menuId;
+  selectOption.info.menuId = item.menuId;
   selectOption.info.optionId = info.optionId;
-  selectOption.info.quantity = info.quantity;
+  selectOption.info.quantity = item.quantity;
   selectOption.info.cartId = item.id;
 
+  console.log("데이터 넣기 전에 뭐가 담겼나?", info)
   console.log("내가 넣은 데이터 조회", selectOption.info)
 
   optionModal.value.setSelectData(selectOption.info);
@@ -377,7 +401,8 @@ const selectOption = reactive({
                   </div>
                 </div>
                 <div class="option-box">
-                  <div class="option-modify" @click="openOptionModal(item)">옵션 변경</div>
+                  <div v-if="item.hasOptions" class="option-modify" @click="openOptionModal(item)">옵션 변경
+                  </div>
                 </div>
               </div>
             </div>
@@ -417,7 +442,7 @@ const selectOption = reactive({
       </div>
     </div>
   </div>
-  <option-modal-modify ref="optionModal"></option-modal-modify>
+  <option-modal-modify ref="optionModal" @cart-updated="load"></option-modal-modify>
 </template>
 
 <style lang="scss" scoped>

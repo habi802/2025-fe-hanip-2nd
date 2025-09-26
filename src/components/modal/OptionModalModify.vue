@@ -40,11 +40,10 @@ const setSelectData = (data) => {
     selectData.quantity = data.quantity;
     selectData.optionId = data.optionId;
     console.log("내가 선택한 옵션", selectData.optionId)
-    quantityNum = data.quantity;
-
     menuOption.optionId = data.optionId;
     menuOption.quantity = data.quantity;
     selectData.cartId = data.cartId;
+    console.log("내가 선택한 갯수", setSelectData.quantity)
 }
 
 
@@ -107,8 +106,11 @@ const goCart = async (cartId) => {
     const res = await modifyMenu(cartId, menuOption);
     if (res.data.resultStatus === 200) {
         console.log("카트 메뉴 담기 성공 !")
+        emit('cart-updated');
     }
 }
+
+const emit = defineEmits(['cart-updated']);
 
 </script>
 
