@@ -30,7 +30,7 @@ export const patchPreparingOrder = (orderId) => {
 
 // 주문 상태 변경 : 배달중
 export const patchDeliveredOrder = (orderId) => {
-  return axios.patch(`/order/status/completed/${orderId}`).catch((e) => e.response)
+  return axios.patch(`/order/status/delivered/${orderId}`).catch((e) => e.response)
 }
 
 // 주문 상태 변경 : 취소됨
