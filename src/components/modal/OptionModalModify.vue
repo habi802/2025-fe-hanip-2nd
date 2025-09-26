@@ -107,7 +107,6 @@ const goCart = async (cartId) => {
     const res = await modifyMenu(cartId, menuOption);
     if (res.data.resultStatus === 200) {
         console.log("카트 메뉴 담기 성공 !")
-
     }
 }
 

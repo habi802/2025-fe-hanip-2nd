@@ -46,40 +46,7 @@ const menuSrc = computed(() => {
         : defaultImage;
 })
 
-const addCart = async () => {
-    if (!account.state.loggedIn) {
-        showModal('로그인 후 주문 가능합니다')
-        return;
-    }
-    const params = {
-        menuId: props.item.menuId,
-        quantity: 1
-    }
-    const res = await addItem(params);
 
-    if (res === undefined) {
-        showModal('등록 실패')
-        return;
-    } else if (res.status === 500) {
-        emit('addCart', props.item);
-    } else {
-        props.item.id = res.data.resultData;
-        emit('addCart', props.item);
-    }
-};
-// 모달창 함수
-const showModal = (message, onCloseCallback) => {
-    const modalBody = document.getElementById("alertModalBody");
-    if (modalBody) modalBody.textContent = message;
-    const modal = new bootstrap.Modal(document.getElementById("alertModal"));
-    modal._element.addEventListener('hidden.bs.modal', () => {
-        if (typeof onCloseCallback === 'function') {
-            onCloseCallback();
-        }
-    });
-    modal.show();
-
-};
 
 </script>
 

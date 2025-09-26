@@ -1,7 +1,7 @@
 import axios from "./httpRequester";
 
-export const getOrder = () => {
-  return axios.get(`/order`).catch((e) => e.response);
+export const getOrder = (params) => {
+  return axios.get(`/order`, { params }).catch((e) => e.response);
 };
 
 export const modifyStatus = (params) => {

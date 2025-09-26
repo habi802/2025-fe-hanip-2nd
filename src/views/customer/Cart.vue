@@ -17,6 +17,10 @@ import { getOptions } from "@/services/cartService";
 
 //const cartStore = useCartStore();
 
+
+
+
+
 const router = useRouter();
 const account = useAccountStore();
 
@@ -105,13 +109,14 @@ const totalPrice = ref(0);
 
 // 장바구니 총 금액 계산하는 함수
 const calculateTotal = () => {
-  totalPrice.value = 0;
+  let _totalPrice = 0;
 
   state.items.forEach((item) => {
-    const price = item.price * item.quantity;
-    totalPrice.value += price;
+    _totalPrice += item.price;
     console.log("이거 왜이렇게 비싸", item.price)
   });
+
+  totalPrice.value = _totalPrice;
 
 };
 
@@ -142,24 +147,31 @@ const menuIgmSrc = (item) => {
 
 
 
-
-
 // 신규 함수
 
 // 수량 증가/감소
 const increaseQty = async (item) => {
+  // 메뉴 표시 가격
 
   if (item.quantity < 100) {
-    item.quantity += 1;
     await plusQuantity(item.id);
+
+    item.quantity += 1;
+    //item    
+    item.price = item.oneMenuPrice
+      * item.quantity;
     calculateTotal();
   }
   emit("update-items", item.value);
 
 };
+
 const decreaseQty = async (item) => {
   if (item.quantity > 1) {
     item.quantity -= 1;
+    //item.amount = item.price * item.quantity;
+    item.price = item.oneMenuPrice
+      * item.quantity;
     await minusQuantity(item.id);
     calculateTotal();
   } else {
@@ -223,6 +235,8 @@ const openOptionModal = async (item) => {
 
 };
 
+
+
 // 내가 선택한거 담기용
 
 const selectOption = reactive({
@@ -233,6 +247,7 @@ const selectOption = reactive({
     cartId: 0,
   }
 })
+
 
 
 </script>
@@ -332,16 +347,14 @@ const selectOption = reactive({
                     <div class="item-name">{{ item.name }}</div>
                     <div class="item-price">{{ (item.price ?? 0).toLocaleString() }}원</div>
                   </div>
-                  <div v-for="value in item.options" :key="value.id" class="options-box">
+
+
+                  <div v-for="value in item.options" :key="value.optionId" class="options-box">
                     <div class="menu-option-row">
-
-
 
                       <!-- 부모 옵션 이름 -->
                       <div class="option-name">{{ value.comment }}</div>
-
                       <!-- 자식 옵션명과 가격을 한 쌍으로 묶기 -->
-
                       <div v-for="child in value.children" :key="child.optionId"
                         style="display: flex; gap: 4px; align-items: center;" class="child-box">
 
@@ -885,6 +898,4 @@ const selectOption = reactive({
   justify-content: space-between;
   width: 80%;
 }
-
-.child-option {}
 </style>
