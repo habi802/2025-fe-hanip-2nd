@@ -70,8 +70,8 @@ const fetchStoreDetails = async () => {
   const storeId = state.items[0].storeId;
 
   const review = await getReviewsByStoreId(storeId);
-
-  state.store.reviewLeng = review.data.resultData;
+  state.reviewLeng = review.data.resultData;
+  console.log("리뷰 정보", state.reviewLeng)
   if (!storeMap[storeId]) {
     const res = await getStore(storeId);
 
@@ -94,6 +94,7 @@ const fetchStoreDetails = async () => {
 
   calculateTotal();
   console.log("가게 정보", state.store)
+
 };
 
 
@@ -327,11 +328,14 @@ const selectOption = reactive({
               <img id="icon" src="/src/imgs/star.png" alt="별점" />
               <div v-if="state.reviewNum !== 'NaN'">
                 <span class="score">{{ state.store.rating }}</span>
-                <span class="count">({{ (state.store.reviewLeng || []).length }})</span>
+                <span class="count">({{ (state.reviewLeng?.length || 0) }})</span>
               </div>
               <div v-else>
-                <span class="score"> 0</span>
-                <span class="count">(0)</span>
+                <div class="score-box">
+                  <div class="score"> 0</div>
+                  <div class="count">(0)</div>
+
+                </div>
               </div>
             </div>
             <div class="likes">
@@ -689,7 +693,7 @@ const selectOption = reactive({
 
     .store-name {
       font-size: 25px;
-      font-weight: bold;
+      font-weight: 200;
       margin-bottom: 12px;
       color: #000;
       text-align: center;
@@ -697,16 +701,19 @@ const selectOption = reactive({
 
     .store-meta {
       display: flex;
+      justify-content: center;
       align-items: center;
-      gap: 12px;
+      gap: 40px;
       margin-bottom: 12px;
       margin: 20px 25%;
 
       .rating,
       .likes {
+        width: 50px;
         display: flex;
         align-items: center;
-        gap: 4px;
+        gap: 10px;
+        color: #797979;
       }
 
       img {
@@ -714,6 +721,9 @@ const selectOption = reactive({
         width: 20px;
         height: 20px;
       }
+
+
+
 
       .score {
         font-weight: bold; // 별점 숫자 굵게
@@ -724,6 +734,7 @@ const selectOption = reactive({
         color: #797979;
         font-size: 18px;
         text-align: center;
+        letter-spacing: 2px;
       }
     }
 
@@ -840,6 +851,12 @@ const selectOption = reactive({
   margin-bottom: 100px;
   padding: 10px 200px 10px 200px;
   font-size: 1.8em;
+  border: 2px solid;
+
+  &:hover {
+    background-color: inherit;
+    color: #ff6666;
+  }
 }
 
 

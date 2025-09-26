@@ -35,7 +35,8 @@
           <h4>한입 Hanip</h4>
           <p>대표 박도흠</p>
           <p>대구 중구 중앙대로 394<br />(남일동 5층)</p>
-          <p>사업자 등록번호</p>
+          <div>사업자 등록번호</div>
+          <div>504-30-13756</div>
         </div>
         <div class="footer-column customer-service">
           <h4>고객센터</h4>

@@ -83,6 +83,12 @@ const onOptionSelect = (optionId, childId) => {
     console.log('선택된 자식 아이디:', chId);
 
     console.log("전체 옵션", menuOption.optionId)
+
+    if (!isRequired) {
+        // 1개만 선택: 기존 배열 비우고 새로 추가
+        menuOption.optionId = [optId, chId];
+    }
+
 };
 
 
@@ -142,7 +148,7 @@ const emit = defineEmits(['cart-updated']);
                             <!-- 옵션 선택지 -->
                             <div class="option-select">
                                 <div class="options" v-for="child in optionItem.children" :key="child.optionId">
-                                    <input class="option-btn" type="radio" :name="'option-' + optionItem.optionId"
+                                    <input class="option-btn" type="checkbox" :name="'option-' + optionItem.optionId"
                                         :checked="selectData.optionId.map(Number).includes(Number(child.optionId))"
                                         @change="onOptionSelect(optionItem.optionId, child.optionId)" />
                                     <span class="option-detail">{{ child.comment }}</span>
@@ -328,7 +334,7 @@ input:checked::before {
 
 .top-title {
     text-align: center;
-    padding-bottom: 10px;
+    padding-bottom: 25px;
     font-size: 0.8em;
     color: #ccc;
 }
