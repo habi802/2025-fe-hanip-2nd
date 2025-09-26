@@ -230,60 +230,60 @@ const removeAlert = (id) => {
 </script>
 
 <template>
-   <!-- alert -->
-  <div style=" position: fixed; top: 20px; left: 50%; transform: translateX(-50%); z-index: 1055; " >
-    <div  v-for="(alert, index) in alerts" :key="alert.id" :class="['alert', alert.type, 'alert-dismissible', 'fade', 'show']"
-      role="alert" style="margin-bottom: 10px; min-width: 300px; max-width: 600px" >
-      {{ alert.message }}
-      <button  type="button" class="btn-close" @click="removeAlert(alert.id)" ></button>
+  <div class="wrap">
+
+    <!-- alert -->
+    <div style=" position: fixed; top: 20px; left: 50%; transform: translateX(-50%); z-index: 1055; " >
+      <div  v-for="(alert, index) in alerts" :key="alert.id" :class="['alert', alert.type, 'alert-dismissible', 'fade', 'show']"
+        role="alert" style="margin-bottom: 10px; min-width: 300px; max-width: 600px" >
+        {{ alert.message }}
+        <button  type="button" class="btn-close" @click="removeAlert(alert.id)" ></button>
+      </div>
     </div>
-  </div>
-  <!-- alert 끝 -->
-   
-  <div class="d-flex">
-    <!-- 왼쪽: 메뉴 리스트 -->
-    <div class="section-left">
-      <MenuList
-        :menus="state.menus"
-        @selectMenu="handleSelectMenu"
-        @add="handleAddMenu"
-      />
+    <!-- alert 끝 -->
+    
+    <div class="d-flex gap-5">
+      <!-- 왼쪽: 메뉴 리스트 -->
+      <div class="section-left">
+        <MenuList
+          :menus="state.menus"
+          @selectMenu="handleSelectMenu"
+          @add="handleAddMenu"
+        />
+      </div>
+
+      <!-- 오른쪽: 상세 -->
+      <div class="section-right white-card ">
+        <MenuDetail
+          :key="state.selectedMenu?.menuId ?? 'create'"
+          :menu="state.selectedMenu"
+          :mode="state.mode"
+          @saved="handleSaved"
+          @deleted="handleDeleted"
+          @hide="handleHide"
+          @soldOut="handleSoldOut"
+        />
+      </div>
     </div>
 
-    <!-- 오른쪽: 상세 -->
-    <div class="section-right">
-      <MenuDetail
-        :key="state.selectedMenu?.menuId ?? 'create'"
-        :menu="state.selectedMenu"
-        :mode="state.mode"
-        @saved="handleSaved"
-        @deleted="handleDeleted"
-        @hide="handleHide"
-        @soldOut="handleSoldOut"
-      />
-    </div>
-  </div>
+  </div><!--wrap 끝-->
 </template>
 
 <style scoped lang="scss">
-.d-flex {
-  height: 100vh;
-  position: relative;
-  top: -40px;
-  gap: 20px;
+.wrap{
+  width: 90%;
 }
-
 /* 왼쪽 영역 */
 .section-left {
-  position: relative;
-  left: -3px;
+  //position: relative;
+  //left: -3px;
   width: 50%;
   min-width: 740px;
   max-width: 800px;
   height: 100%;
   display: flex;
   flex-direction: column;
-  padding-right: 20px;
+  //padding-right: 20px;
 }
 
 /* 오른쪽 영역 */
@@ -292,10 +292,9 @@ const removeAlert = (id) => {
   min-width: 720px;
   max-width: 800px;
   height: 100%;
+  min-height: 1000px;
   padding: 20px;
   overflow-y: auto;
-  background: #fff;
-  border-radius: 12px;
 }
 
 .menu-item:hover {
