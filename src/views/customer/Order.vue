@@ -82,7 +82,7 @@ onMounted(async () => {
       if (check.data || check.data.resultStatus === 200) {
         console.log("라우터 확인용", "잘 이동합니다")
         console.log("쿼리 넘어오는 거 머있니", routeOrderId, finalPaymentId)
-        router.push({ path: '/', query: { routeOrderId, paymentId: finalPaymentId } })
+        router.push({ path: `/stores/${state.form.storeId}/order/success`, query: { routeOrderId, paymentId: finalPaymentId } })
           .then(() => console.log("라우터 이동 성공!"))
           .catch(error => console.error("라우터 이동 실패:", error));
 

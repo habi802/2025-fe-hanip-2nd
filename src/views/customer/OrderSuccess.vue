@@ -1,7 +1,10 @@
 <script setup>
-import { onMounted, reactive, computed } from "vue";
+import { onMounted, reactive, computed, watch } from "vue";
 import { getStoreList } from "@/services/storeService";
 import { getOwnerOrder2 } from "@/services/orderService";
+import { useRoute } from "vue-router";
+
+const route = useRoute();
 
 import Randomstore from "@/components/customer/RandomStore.vue";
 import defaultImage from "@/imgs/owner/haniplogo_sample2.png";
@@ -21,18 +24,66 @@ const storeImage = computed(() => {
 });
 
 onMounted(async () => {
-    const orderId = 5;
-    const res = await getOwnerOrder2(orderId);
-    if (res !== undefined && res.status === 200) {
-        state.order = res.data.resultData;
 
-        // 가게 목록을 가져온 뒤, 가게 목록을 무작위로 섞는다.
-        const storeRes = await getStoreList({ page: 0, size: 10 });
-        if (storeRes !== undefined && storeRes.status === 200) {
-            state.stores = storeRes.data.resultData;
+    // 라우터가 처음 로드됐을 때
+    naverPay();
+
+    // 쿼리가 나중에 들어오는 경우 대비
+    watch(
+        () => route.query,
+        (newQuery) => {
+            if (newQuery.routeOrderId && newQuery.paymentId) {
+                console.log("쿼리 감지용", newQuery);
+                naverPay();
+            }
+        },
+        { immediate: true } // 처음에도 바로 실행
+    );
+
+    if (route.query.routeOrderId) {
+        const orderId = parseInt(route.query.routeOrderId);
+        const res = await getOwnerOrder2(orderId);
+        if (res !== undefined && res.status === 200) {
+            state.order = res.data.resultData;
+
+            // 가게 목록을 가져온 뒤, 가게 목록을 무작위로 섞는다.
+            const storeRes = await getStoreList({ page: 0, size: 10 });
+            if (storeRes !== undefined && storeRes.status === 200) {
+                state.stores = storeRes.data.resultData;
+            }
         }
     }
 });
+
+const naverPay = async () => {
+    if (route.query.routeOrderId && route.query.paymentId) {
+        console.log("쿼리 들어옴", route.query);
+
+        const orderId = parseInt(route.query.routeOrderId);
+        const paymentId = route.query.paymentId;
+
+
+        if (orderId || paymentId) {
+
+            const payreq = {
+                paymentId: route.query.paymentId
+            }
+
+            console.log("orderId", orderId);
+            console.log("paymentId", paymentId);
+
+            const tid = await naverGetCid(orderId, payreq);
+            console.log("cid 주입 완료", tid);
+            window.location.href = window.location.pathname;
+        }
+
+
+    } else {
+        console.log("쿼리 안 옴");
+    }
+
+}
+
 
 // 주문 상태 확인
 const status = computed(() => {
@@ -100,7 +151,8 @@ const shuffle = (array) => {
                             <template v-if="menu.options">
                                 <div v-for="option in menu.options" :key="option.optionId">
                                     <template v-if="option.children">
-                                        <div class="item-option" v-if="option.children" v-for="(child, idx) in option.children" :key="child.optionId">
+                                        <div class="item-option" v-if="option.children"
+                                            v-for="(child, idx) in option.children" :key="child.optionId">
                                             <div class="item-option-comment">
                                                 <span v-if="idx === 0">{{ option.comment }}</span>
                                             </div>
@@ -115,7 +167,7 @@ const shuffle = (array) => {
                                 </div>
                             </template>
                         </div>
-                        
+
                         <!-- <div class="text-delivery">
                             <span>배달료</span>
                             <span>2,000원</span>
@@ -141,7 +193,8 @@ const shuffle = (array) => {
                     </div>
                     <div class="progress" style="height: 8px">
                         <div class="progress-bar" role="progressbar" :style="status"></div>
-                        <div class="progress-bar" role="progressbar" style="width: 100%; background-color: #FFEADD"></div>
+                        <div class="progress-bar" role="progressbar" style="width: 100%; background-color: #FFEADD">
+                        </div>
                     </div>
                 </div>
             </div>
