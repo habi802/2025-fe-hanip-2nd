@@ -205,6 +205,17 @@ const imgSrc = computed(() => {
 
 })
 
+const banerImgSrc = computed(() => {
+  return store.storeInfo && store.storeInfo?.bannerPath
+    && store.storeInfo?.bannerPath
+    !== 'null'
+    ? `/pic/store-profile/${store.storeInfo.id}/${store.storeInfo?.bannerPath
+    }`
+    : defaultImage;
+
+})
+
+
 // 더보기
 const visibleCount = ref(3);
 const visibleReview = computed(() => {
@@ -325,7 +336,7 @@ const sortedMenus = computed(() => {
 
 <template>
   <div class="storeImg">
-    <img class="big-img" :src="imgSrc" @error="e => e.target.src = defaultImage" />
+    <img class="big-img" :src="banerImgSrc" @error="e => e.target.src = defaultImage" />
   </div>
   <div class="container">
 

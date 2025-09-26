@@ -36,15 +36,17 @@ const props = defineProps({
     }
 });
 
-
+const baseUrl = ref(import.meta.env.VITE_BASE_URL);
 
 
 
 const menuSrc = computed(() => {
-    return props.item && props.item?.imagePath && props.item?.imagePath !== 'null'
-        ? `/pic/menu-profile/${props.item.menuId}/${props.item?.imagePath}`
+    return props.item.storeId && props.item.imagePath && props.item.imagePath !== 'null'
+        ? `${baseUrl.value}/images/store/${props.item.storeId}/menu/${props.item.menuId}/${props.item?.imagePath}`
         : defaultImage;
 })
+
+
 
 
 
