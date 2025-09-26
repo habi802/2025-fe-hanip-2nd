@@ -1,9 +1,10 @@
 <script setup>
 import { reactive, ref, watch, nextTick } from "vue";
 import { useRouter } from "vue-router";
-import { join, findId } from "@/services/userService.js";
+import { join } from "@/services/userService.js";
 import CustomerForm from "@/components/join/CustomerForm.vue";
 import OwnerForm from "@/components/join/OwnerForm.vue";
+import axios from "axios";
 
 const router = useRouter();
 const memberType = ref("customer"); // 회원 구분 상태
@@ -20,10 +21,11 @@ const errors = reactive({
   phone2: "",
   phone3: "",
   businessNumber: "",
-  ownerTel2: "",
-  ownerTel3: "",
+  storePhone2: "",
+  storePhone3: "",
   ownerPhone2: "",
   ownerPhone3: "",
+  openDate: "",
 });
 
 // form 데이터 상태 관리
@@ -32,30 +34,44 @@ const state = reactive({
     name: "",
     loginId: "",
     loginPw: "",
-    postcode: "",
-    address: "",
-    addressDetail: "",
     phone: {
       phone1: "010",
       phone2: "",
       phone3: "",
     },
     email: "",
-    role: "",
+    role: "", // USER / OWNER
   },
+  addresses: [
+    {
+      title: "기본 주소",
+      isMain: 1,
+      postcode: "",
+      address: "",
+      addressDetail: "",
+    },
+  ],
   owner: {
+    // 업주 가입 시 필요한 데이터
     name: "",
-    category: "",
-    ownerTel1: "02",
-    ownerTel2: "",
-    ownerTel3: "",
+    comment: "",
+    businessNumber: "",
+    licensePath: "",
+    imagePath: "",
+    postcode: "",
+    address: "",
+    addressDetail: "",
+    storePhone1: "02",
+    storePhone2: "",
+    storePhone3: "",
     ownerPhone1: "010",
     ownerPhone2: "",
     ownerPhone3: "",
-    businessNumber: "",
-    licenesPath: "",
-    imagePath: "",
+    ownerName: "",
+    openDate: "",
+    category: [],
   },
+  profilePic: null, // 프로필 이미지
 });
 
 // 아이디 중복 검사 유효성 코드
@@ -88,17 +104,25 @@ const validateEmail = () => {
   const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   errors.email = regex.test(state.form.email) ? "" : "유효한 이메일 주소를 입력하세요.";
 };
-// 이름 유효성 검사 (2글자 이상)
+// 이름
 const validateName = () => {
   errors.name = state.form.name.trim().length >= 2 ? "" : "이름은 2자 이상이어야 합니다.";
 };
 
-// 주소 유효성 검사
+// 주소
 const validateAddress = () => {
-  errors.address = state.form.address.trim().length > 0 ? "" : "주소 입력은 필수입니다.";
+  // 고객/업주 분기
+  const rawValue =
+    memberType.value === "customer" ? state.addresses[0]?.address : state.owner.address;
+  errors.address = (rawValue ?? "").trim() ? "" : "주소를 입력해주세요.";
 };
 
-// 일반 고객 번호 확인
+// 업주 개업일 검사
+const validateOpenDate = () => {
+  errors.openDate = state.owner.openDate ? "" : "개업일을 선택해주세요.";
+};
+
+// 일반 고객 번호
 const validatePhone = () => {
   const middleRegex = /^\d{3,4}$/;
   const lastRegex = /^\d{4}$/;
@@ -114,13 +138,14 @@ const validatePhone = () => {
 const validateOwnerTel = () => {
   const middleRegex = /^\d{3,4}$/;
   const lastRegex = /^\d{4}$/;
-  errors.ownerTel2 = middleRegex.test(state.owner.ownerTel2)
+  errors.storePhone2 = middleRegex.test(state.owner.storePhone2)
     ? ""
     : "전화번호 다시 한번 확인해주세요.";
-  errors.ownerTel3 = lastRegex.test(state.owner.ownerTel3)
+  errors.storePhone3 = lastRegex.test(state.owner.storePhone3)
     ? ""
     : "전화번호 다시 한번 확인해주세요.";
 };
+
 // 오너 개인 전화
 const validateOwnerPhone = () => {
   const middleRegex = /^\d{3,4}$/;
@@ -132,81 +157,108 @@ const validateOwnerPhone = () => {
     ? ""
     : "전화번호 다시 한번 확인해주세요.";
 };
-// 오너 사업자 등록번호
+
+// 사업자 등록번호
 const validateBusinessNumber = () => {
   const regex = /^[0-9]{10}$/;
   errors.businessNumber = regex.test(state.owner.businessNumber)
-    ? ""
+    ? "" // 조건 만족 → 메시지 제거
     : "사업자 등록번호는 10자리 숫자여야 합니다.";
 };
 
-const updateErrors = (newErrors) => {
-  errors.value = newErrors;
-};
 // 제출 전 모든 필드 유효성 검사
 const validateForm = () => {
   validateLoginId();
   validatePassword();
   validateConfirmPw();
   validateEmail();
-  validateName(); // 이름 검사 추가
-  validateAddress(); // 가게 주소 검사 추가
-
-  if (memberType.value === "customer") {
-    validatePhone();
-  } else {
+  validateName();
+  validateAddress();
+  if (memberType.value === "customer") validatePhone();
+  else {
     validateOwnerTel();
     validateOwnerPhone();
     validateBusinessNumber();
+    validateOpenDate();
   }
 
   return Object.values(errors).every((msg) => msg === "");
 };
-
-// 전화번호 입력 시 즉시 유효성 검사 + 숫자만 허용
-function handlePhoneInput(event, field) {
-  let value = event.target.value.replace(/\D/g, "");
-  if (value.length > 4) value = value.slice(0, 4);
-  state.form.phone[field] = value;
-
-  // 입력 중 즉시 유효성 검사
-  validatePhone();
-}
-
-// 숫자 이외 키 입력 차단 함수
-function onlyNumberInput(event) {
-  const allowedKeys = ["Backspace", "ArrowLeft", "ArrowRight", "Tab"];
-  const isNumber = /^[0-9]$/.test(event.key);
-
-  if (!isNumber && !allowedKeys.includes(event.key)) {
-    event.preventDefault();
+// 업주 input 시 에러 초기화
+function handleOwnerInput(field) {
+  // OwnerForm에서 필드명 전달받아 해당 에러 제거
+  if (errors[field] !== undefined) {
+    errors[field] = "";
   }
 }
 
-// 아이디 중복 검사 함수
-const checkDuplicateId = async () => {
-  validateLoginId();
-  if (errors.loginId) {
-    showModal("아이디 형식을 확인해주세요.");
-    return;
+// 전화번호 입력 (숫자만 + 유효성 검사)
+function handlePhoneInput(e, field, type = "customer") {
+  let v = e.target.value.replace(/\D/g, "");
+  if (v.length > 4) v = v.slice(0, 4);
+  if (type === "customer") {
+    state.form.phone[field] = v;
+    validatePhone();
+  } else {
+    state.owner[field] = v;
+    if (field.includes("store")) validateOwnerTel();
+    else validateOwnerPhone();
   }
-
-  try {
-    const res = await findId(state.form.loginId);
-    if (res.data.exists) {
-      checkResult.value = "";
-      errors.loginId = "이미 사용 중인 아이디입니다.";
-      isIdChecked.value = false;
-    } else {
-      checkResult.value = "사용 가능한 아이디입니다.";
-      errors.loginId = "";
-      isIdChecked.value = true;
-    }
-  } catch (err) {
-    console.error(err);
-    showModal("아이디 중복 확인 중 오류가 발생했습니다.");
-  }
+}
+// 사업자 등록번호 입력 처리
+function handleBusinessNumberInput(e) {
+  let v = e.target.value.replace(/\D/g, "");
+  if (v.length > 10) v = v.slice(0, 10);
+  state.owner.businessNumber = v;
+  validateBusinessNumber();
+}
+// 숫자 외 입력 차단
+function onlyNumberInput(e) {
+  const allowed = ["Backspace", "ArrowLeft", "ArrowRight", "Tab"];
+  if (!/^[0-9]$/.test(e.key) && !allowed.includes(e.key)) e.preventDefault();
+}
+const addressSearch = () => {
+  new window.daum.Postcode({
+    oncomplete: (data) => {
+      if (memberType.value === "customer") {
+        // 고객 주소만 수정
+        state.addresses[0].postcode = data.zonecode;
+        state.addresses[0].address = data.roadAddress;
+      } else {
+        // 오너 주소만 수정
+        state.owner.postcode = data.zonecode;
+        state.owner.address = data.roadAddress;
+      } // 상세주소는 유지
+      nextTick(() => {
+        document.querySelector("input[placeholder='상세주소 (선택 입력 가능)']")?.focus();
+      });
+    },
+  }).open();
 };
+// // 아이디 중복 검사 함수
+// const checkDuplicateId = async () => {
+//   validateLoginId();
+//   if (errors.loginId) {
+//     showModal("아이디 형식을 확인해주세요.");
+//     return;
+//   }
+
+//   try {
+//     const res = await join(state.form.loginId);
+//     if (res.data.exists) {
+//       checkResult.value = "";
+//       errors.loginId = "이미 사용 중인 아이디입니다.";
+//       isIdChecked.value = false;
+//     } else {
+//       checkResult.value = "사용 가능한 아이디입니다.";
+//       errors.loginId = "";
+//       isIdChecked.value = true;
+//     }
+//   } catch (err) {
+//     console.error(err);
+//     showModal("아이디 중복 확인 중 오류가 발생했습니다.");
+//   }
+// };
 
 // 아이디 입력 수정 시 중복 체크 초기화
 watch(
@@ -232,7 +284,7 @@ const agreement = reactive({
 
 // 회원구분
 watch(memberType, (val) => {
-  state.form.role = val;
+  state.form.role = val === "owner" ? "OWNER" : "CUSTOMER";
 });
 
 // input 이벤트 핸들러
@@ -249,24 +301,6 @@ const clearPasswordError = () => {
   errors.loginPw = "";
 };
 
-// 주소 검색
-const addressSearch = () => {
-  new window.daum.Postcode({
-    oncomplete: (data) => {
-      state.form.postcode = data.zonecode;
-      state.form.address = data.roadAddress;
-
-      // 상세주소 input에 포커스
-      nextTick(() => {
-        const detailInput = document.querySelector(
-          "input[placeholder='상세주소 (선택 입력 가능)']"
-        );
-        detailInput?.focus();
-      });
-    },
-  }).open();
-};
-
 // 약관 전체동의 toggle
 function toggleAllAgree() {
   const checked = agreement.allAgree;
@@ -277,87 +311,93 @@ function toggleAllAgree() {
   agreement.sms = checked;
   agreement.email = checked;
 }
+// 쇼핑정보 수신 동의
+watch(
+  () => agreement.marketing,
+  (newVal) => {
+    agreement.sms = newVal;
+    agreement.email = newVal;
+  }
+);
 
 // 유저 정보 제출
+// 전화번호 합치기
+const getPhoneStr = () =>
+  `${state.form.phone.phone1}-${state.form.phone.phone2}-${state.form.phone.phone3}`;
+
+// 🔵 업주 StoreJoinReq 생성
+const getStoreJoinReq = () => ({
+  id: 0,
+  name: state.owner.name,
+  comment: state.owner.comment,
+  businessNumber: state.owner.businessNumber,
+  licensePath: state.owner.licensePath ?? "",
+  imagePath: state.owner.imagePath ?? "",
+  postcode: state.owner.postcode,
+  address: state.owner.address,
+  addressDetail: state.owner.addressDetail,
+  tel: `${state.owner.storePhone1}-${state.owner.storePhone2}-${state.owner.storePhone3}`,
+  ownerName: state.owner.ownerName,
+  openDate: state.owner.openDate,
+  enumStoreCategory: state.owner.category,
+});
+
+// 주소 리스트 생성
+const getUserAddressPostReq = () => {
+  const addresses = [...state.addresses].map((a) => ({
+    title: a.title ?? "기본 주소",
+    isMain: a.isMain ?? 1,
+    postcode: a.postcode ?? "",
+    address: a.address ?? "",
+    addressDetail: a.addressDetail ?? "",
+  }));
+  return addresses;
+};
+
+// 제출 함수
 const submit = async () => {
-  // 1. 기본 폼 유효성 검사
   if (!validateForm()) {
     showModal("입력값을 다시 확인해주세요.");
     return;
   }
 
-  // 2. 필수 항목 체크
-  if (!state.form.loginId || !state.form.loginPw || !state.form.email) {
-    showModal("아이디, 비밀번호, 이메일은 필수입니다.");
-    return;
-  }
-
-  if (!isIdChecked.value) {
-    showModal("아이디 중복 확인을 해주세요.");
-    return;
-  }
-
-  if (memberType.value === "customer" && !state.form.name) {
-    showModal("이름은 필수입니다.");
-    return;
-  }
-
-  if (memberType.value === "owner" && (!state.owner.name || !state.owner.category)) {
-    showModal("가게명 및 카테고리는 필수입니다.");
-    return;
-  }
-
-  if (
-    !agreement.terms.useTerms ||
-    !agreement.terms.privacyPolicy ||
-    !agreement.terms.thirdParty
-  ) {
-    showModal("필수 약관에 동의해주세요.");
-    return;
-  }
-
-  if (confirmPw.value !== state.form.loginPw) {
-    showModal("비밀번호 확인이 일치하지 않습니다.");
-    return;
-  }
-
-  // 3. 전화번호 합치기 (customer)
-  const phoneStr = `${state.form.phone.phone1}-${state.form.phone.phone2}-${state.form.phone.phone3}`;
-  // 4. 업주일 경우 tel 합치기
-  let ownerPayload = null;
-  if (memberType.value === "owner") {
-    const telStr = `${state.owner.tel1}-${state.owner.tel2}-${state.owner.tel3}`;
-    ownerPayload = { ...state.owner, tel: telStr };
-  }
-
-  // 5. 최종 payload 구성
   const payload = {
-    id: 0, // 서버에서 auto-increment면 보내도 되고, 안 보내도 무방
+    id: 0,
     name: state.form.name,
     loginId: state.form.loginId,
     loginPw: state.form.loginPw,
-    postcode: state.form.postcode,
-    address: state.form.address,
-    addressDetail: state.form.addressDetail,
-    phone: phoneStr,
-    email: state.form.email ?? "", // null 방지
-    imagePath: "", // 아직 업로드 없다면 빈 문자열
-    role: memberType.value === "owner" ? "OWNER" : "CUSTOMER",
-    ...(memberType.value === "owner" ? { owner: ownerPayload } : {}),
+    phone: getPhoneStr(),
+    email: state.form.email,
+    imagePath: "",
+    role: memberType.value === "owner" ? "사장" : "고객",
+    userAddressPostReq: getUserAddressPostReq(),
   };
 
   try {
-    // 6. 서버 요청
-    const res = await join(payload);
+    let res;
+    const formData = new FormData();
+    formData.append(
+      "req",
+      new Blob([JSON.stringify(payload)], { type: "application/json" })
+    );
+
+    if (state.profilePic) formData.append("pic", state.profilePic);
+    if (memberType.value === "owner")
+      formData.append(
+        "storeReq",
+        new Blob([JSON.stringify(getStoreJoinReq())], { type: "application/json" })
+      );
+
+    res = await axios.post("/user/join", formData);
+
     if (res.status === 200) {
       showModal("회원가입 완료!");
       localStorage.setItem("user", JSON.stringify(res.data.resultData));
-      router.push("/"); // 메인 페이지로 이동
+      router.push("/");
     } else {
-      showModal("입력 정보를 다시 확인해 주세요.");
+      showModal(res.data?.message || "입력 정보를 다시 확인해 주세요.");
     }
   } catch (err) {
-    // 7. 오류 처리
     console.error(err);
     showModal("회원가입 중 오류 발생");
   }
@@ -369,7 +409,39 @@ const termsText = {
   privacyPolicy: "개인정보 처리방침 내용...",
   thirdParty: "제3자 제공 안내 내용...",
 };
+// async function submitForm() {
+//   if (memberType.value === "owner") {
+//     validateOwnerFields();
+//   }
 
+//   const hasError = Object.values(errors).some((msg) => msg && msg.length > 0);
+//   if (hasError) {
+//     showModal("필수 항목을 모두 확인해주세요.");
+//     return;
+//   }
+
+//   try {
+//     const formData = new FormData();
+//     for (const key in form) {
+//       // OwnerForm의 파일과 카테고리는 JSON 변환 또는 FormData append
+//       if (key === "ownerPhone" || key === "storePhone" || key === "category") {
+//         formData.append(key, JSON.stringify(form[key]));
+//       } else if (key === "businessFile" || key === "imagePath") {
+//         if (form[key]) formData.append(key, form[key]);
+//       } else {
+//         formData.append(key, form[key]);
+//       }
+//     }
+
+//     const response = await join(formData);
+//     console.log("회원가입 성공:", response.data);
+//     alert("회원가입이 완료되었습니다.");
+//     router.push("/login");
+//   } catch (err) {
+//     console.error(err);
+//     alert("회원가입 중 오류가 발생했습니다.");
+//   }
+// }
 // 모달창 함수
 const showModal = (message) => {
   const modalBody = document.getElementById("alertModalBody");
@@ -438,13 +510,12 @@ const showModal = (message) => {
                     @input="handleLoginIdInput"
                     placeholder="영문 소문자/숫자, 4~16자"
                   />
-                  <button class="idbox" type="button" @click="checkDuplicateId">
-                    아이디 중복
-                  </button>
+                  <button class="idbox" type="button">아이디 중복</button>
+                  <!-- @click="checkDuplicateId" -->
                 </div>
                 <div class="id-message">
                   <p v-if="errors.loginId" class="error-msg">{{ errors.loginId }}</p>
-                  <p v-else-if="checkResult" class="success-msg">{{ checkResult }}</p>
+                  <!-- <p v-else-if="checkResult" class="success-msg">{{ checkResult }}</p> -->
                 </div>
               </div>
             </div>
@@ -465,6 +536,7 @@ const showModal = (message) => {
                 :class="{ invalid: errors.loginPw }"
                 @input="() => (errors.loginPw = '')"
                 @blur="validatePassword"
+                autocomplete="new-password"
                 placeholder="비밀번호는 영문, 숫자, 특수문자 포함 8~16자"
               />
               <p v-if="errors.loginPw" class="error-msg">
@@ -488,6 +560,7 @@ const showModal = (message) => {
                 @input="() => (errors.confirmPw = '')"
                 @blur="validateConfirmPw"
                 :class="{ invalid: errors.confirmPw }"
+                autocomplete="new-password"
                 placeholder="비밀번호 재입력"
               />
               <p v-if="errors.confirmPw" class="error-msg">
@@ -525,6 +598,7 @@ const showModal = (message) => {
           v-if="memberType === 'customer'"
           v-model:form="state.form"
           v-model:errors="errors"
+          :addresses="state.addresses"
           @addressSearch="addressSearch"
         />
 
@@ -533,6 +607,8 @@ const showModal = (message) => {
           v-model:form="state.form"
           v-model:owner="state.owner"
           v-model:errors="errors"
+          @addressSearch="addressSearch"
+          @ownerInput="handleOwnerInput"
         />
 
         <!-- 약관 동의 및 제출 -->
@@ -1001,5 +1077,11 @@ button {
   &:hover {
     background-color: #ffe5e5;
   }
+}
+// 모달 버튼 전용 스타일
+#alertModal .btn {
+  margin: 0;
+  width: auto;
+  padding: 0.5rem 1rem;
 }
 </style>

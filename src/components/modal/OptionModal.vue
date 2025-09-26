@@ -91,6 +91,8 @@ const goCart = async () => {
     const res = await addItem(menuOption);
     if (res.data.resultStatus === 200) {
         console.log("카트 메뉴 담기 성공 !")
+
+        console.log("담긴 카트 ", res.data.resultData)
         menuOption.optionId = [];
         menuData.options.children = [];
     }

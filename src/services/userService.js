@@ -38,10 +38,10 @@ export const checkPassword = password => {
     return axios.post(`${path}/check-password`, password, {
         headers: {
             'Content-Type': 'text/plain'
-        }}).catch(e => e.response);
+        }
+    }).catch(e => e.response);
 }
 
 export const update = args => {
     return axios.put(`${path}`, args).catch(e => e.response);
 }
-

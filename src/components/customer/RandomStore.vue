@@ -28,6 +28,7 @@ const sotreRouter = () => {
 
 onMounted(async () => {
     reviews();
+    console.log("가게 정보", props.store)
 });
 
 // 별점 조회
@@ -55,23 +56,16 @@ const reviews = async () => {
     <div class="all">
         <div id="imgBigBox" class="card h-100 shadow-sm">
             <div id="imgBox" class="card-img-top">
-                <img
-                    class="sImg"
-                    :src="imgSrc"
-                    @error="(e) => (e.target.src = defaultImage)"
-                />
+                <img class="sImg" :src="imgSrc" @error="(e) => (e.target.src = defaultImage)" />
             </div>
             <!-- <img src="" class="card-img-top" alt="음식 이미지"> -->
             <div class="card-body">
                 <h6 class="card-title">{{ props.store.name }}</h6>
-                <div v-if="total !== 'NaN'">
+                <div v-if="props.store.rating !== 'NaN'">
                     <img class="star" src="/src/imgs/star.png" />&nbsp;
                     <span class="small">
-                        {{ total }} ({{ leng }})&nbsp;&nbsp;
-                        <img
-                            class="love"
-                            src="/src/imgs/love.png"
-                        />
+                        {{ props.store.rating }} ({{ leng }})&nbsp;&nbsp;
+                        <img class="love" src="/src/imgs/love.png" />
                         &nbsp;{{ props.store.favorites }}
                     </span>
                 </div>
@@ -123,7 +117,7 @@ const reviews = async () => {
     width: 20px;
 }
 
-.love{
+.love {
     width: 20px;
 }
 </style>

@@ -1,6 +1,6 @@
 <script setup>
 import { reactive, ref, computed, onMounted, watch } from "vue";
-import { useRouter } from "vue-router";
+import { useRouter, useRoute } from "vue-router";
 import { storeToRefs } from "pinia";
 import { useUserInfo, useAccountStore } from "@/stores/account";
 import { logout } from "@/services/userService";
@@ -11,6 +11,7 @@ import CartModal from "../modal/CartModal.vue";
 import { useCartStore } from "@/stores/cartStore";
 
 const router = useRouter();
+const route = useRoute();
 
 // 유저 정보
 const account = useAccountStore();
@@ -44,6 +45,11 @@ const showModal = (message) => {
 };
 // 모달 표시하는 함수
 const showCart = async () => {
+  if (isCartPage.value)
+    return;
+  if (route.name === "order") return;
+
+
   try {
     await cartStore.getCart(); // 최신 카트 가져오기
     console.log("Header에서 cartStore.items:", cartStore.items); // ← 여기서 확인
@@ -86,6 +92,8 @@ const goToAddress = () => {
 //새로 만든 함수 [ 희진 ]
 
 const cartStore = useCartStore();
+
+const isCartPage = computed(() => route.path.startsWith('/cart'));
 
 </script>
 

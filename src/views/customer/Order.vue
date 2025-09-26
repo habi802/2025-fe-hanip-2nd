@@ -7,25 +7,27 @@ import { useAccountStore } from '@/stores/account';
 import { useCartStore } from '@/stores/cartStore';
 import { getUser } from '@/services/userService';
 import { getStore } from '@/services/storeService';
+import { useUserInfo } from '@/stores/account';
+import { naverGetCid, naverPayApply, naverPayReserve } from '@/services/payment';
+
+const baseUrl = import.meta.env.VITE_BASE_URL;
 
 const route = useRoute();
 const router = useRouter();
 
 const account = useAccountStore();
 const cart = useCartStore();
+const userInfo = useUserInfo();
+
 
 const state = reactive({
   carts: [],
   form: {
-    storeId: route.params.id,
+    postcode: '',
     address: '',
     addressDetail: '',
-    phone: '',
     storeRequest: '',
     riderRequest: '',
-    payment: 'CARD',
-    orders: [],
-    agree: false
   },
   storeInfo: Object
 });
@@ -40,8 +42,11 @@ const totalPrice = ref(0);
 onMounted(async () => {
   const res = await getUser();
 
-
+  state.form.postcode = res.data.resultData.postcode;
   state.form.address = res.data.resultData.address;
+  state.form.addressDetail = res.data.resultData.addressDetail;
+
+  console.log("유저 정보", res.data.resultData)
   const phone = res.data.resultData.phone.split('-');
   phone1.value = phone[0];
   phone2.value = phone[1];
@@ -58,6 +63,39 @@ onMounted(async () => {
 
   calculateTotal();
   storeInfo();
+
+  //네이버페이 payId 받았을때만 
+  const routeOrderId = route.query.orderId;
+  const paymentId = route.query.paymentId;
+
+  const paymentReq = {
+    paymentId: route.query.paymentId
+  }
+
+  if (paymentId != null) {
+    console.log("payId:", paymentId);
+    const apply = async () => {
+      const check = await naverPayApply(paymentId, routeOrderId);
+      console.log("체크 확인", check);
+      const finalPaymentId = check.data.resultData.body.paymentId;
+
+      if (check.data || check.data.resultStatus === 200) {
+        console.log("라우터 확인용", "잘 이동합니다")
+        console.log("쿼리 넘어오는 거 머있니", routeOrderId, finalPaymentId)
+        router.push({ path: `/stores/${state.form.storeId}/order/success`, query: { routeOrderId, paymentId: finalPaymentId } })
+          .then(() => console.log("라우터 이동 성공!"))
+          .catch(error => console.error("라우터 이동 실패:", error));
+
+      }
+
+    }
+
+
+    apply();
+  }
+
+
+
 });
 
 
@@ -74,73 +112,17 @@ watch([phone1, phone2, phone3], () => {
   state.form.phone = `${phone1.value}-${phone2.value}-${phone3.value}`;
 });
 
-const decreaseQuantity = async idx => {
-  if (state.carts[idx].quantity > 1) {
-    const params = {
-      cartId: state.carts[idx].id,
-      quantity: state.carts[idx].quantity - 1
-    }
 
-    const res = await updateQuantity(params);
 
-    if (res === undefined || res.data.resultStatus !== 200) {
-      showModal(res.data.resultMessage);
-      return;
-    }
-
-    state.carts[idx].quantity--;
-    calculateTotal();
-  } else if (state.carts[idx].quantity == 1) {
-    deleteItem(state.carts[idx].id);
-  }
-}
-
-const increaseQuantity = async idx => {
-  const params = {
-    cartId: state.carts[idx].id,
-    quantity: state.carts[idx].quantity + 1
-  }
-
-  const res = await updateQuantity(params);
-
-  if (res === undefined || res.data.resultStatus !== 200) {
-    showModal(res.data.resultMessage);
-    return;
-  }
-
-  state.carts[idx].quantity++;
-  calculateTotal();
-}
-
-const deleteItem = async cartId => {
-  const res = await removeItem(cartId);
-
-  if (res === undefined || res.data.resultStatus !== 200) {
-    showModal("삭제 실패");
-    return;
-  }
-
-  if (res.data.resultData === 1) {
-    const deleteIdx = state.carts.findIndex(item => item.id === cartId);
-    if (deleteIdx > -1) {
-      state.carts.splice(deleteIdx, 1);
-      calculateTotal();
-    }
-
-    if (state.carts < 1) {
-      showModal("메뉴가 전부 삭제되었습니다");
-      router.back();
-    }
-  }
-}
 
 const calculateTotal = () => {
-  totalPrice.value = 0;
+  let _totalPrice = 0;
 
   state.carts.forEach(item => {
-    const price = item.price * item.quantity;
-    totalPrice.value += price;
+    _totalPrice += item.price;
+    console.log("이거 왜이렇게 비싸", item.price)
   });
+  totalPrice.value = _totalPrice;
 };
 
 const submit = async () => {
@@ -191,7 +173,86 @@ const showModal = (message) => {
   const modal = new bootstrap.Modal(document.getElementById("alertModal"));
   modal.show();
 };
-// 모달 버튼 색상 변경
+
+//신규 주문하기 버튼 
+const ordering = async () => {
+  if (state.form.address.trim().length === 0) {
+    showModal("주소를 입력해주세요");
+    return;
+  } else if (state.form.addressDetail.trim().length === 0) {
+    showModal("상세 주소를 입력해주세요");
+
+    return;
+  } else if (phone2.value.trim().length === 0 || phone3.value.trim().length === 0) {
+    showModal("전화번호를 입력해주세요");
+    return;
+  } else if (!state.form.agree) {
+    showModal("결제 약관에 동의해주세요");
+    return;
+  }
+
+  const res = await addOrder(state.form);
+  if (res === undefined || res.status !== 200) {
+    showModal("등록 실패");
+    return;
+  }
+
+  console.log("데이터 넘어갓나요?", res)
+
+  const orderId = res.data.resultData.id;
+
+  // SDK 로드 후 바로 결제 화면 열기
+  const script = document.createElement('script');
+  script.src = 'https://nsp.pay.naver.com/sdk/js/naverpay.min.js';
+  script.async = true;
+  document.head.appendChild(script);
+
+  script.onload = async () => {
+    const oPay = window.Naver.Pay.create({
+      mode: 'development',
+      clientId: 'HN3GGCMDdTgGUfl0kFCo',
+      chainId: 'NFlxNnUza3lTNzV'
+    });
+
+    const res = await naverPayReserve(orderId);
+    const item = res.data.resultData;
+
+    oPay.open({
+      merchantPayKey: item.merchantPayKey,
+      productName: item.productName,
+      productCount: item.productCount,
+      totalPayAmount: item.totalPayAmount,
+      taxScopeAmount: item.taxScopeAmount,
+      taxExScopeAmount: item.taxExScopeAmount,
+      returnUrl: `${item.returnUrl}?orderId=${orderId}`,
+      productItems: item.productItems
+    });
+  };
+
+
+
+
+
+
+}
+
+
+
+
+
+
+// 신규 네이버페이
+
+const naverPayBtn = ref(null);
+
+const pay = reactive({
+  product: []
+}
+)
+
+
+
+
 
 </script>
 
@@ -217,8 +278,8 @@ const showModal = (message) => {
           <input id="address" type="text" class="field" placeholder="주소 입력" v-model="state.form.address" />
 
           <label class="sr-only">상세주소</label>
-          <input id="address-detail" type="text" class="field" placeholder="(필수) 상세주소 입력"
-            v-model="state.form.addressDetail" />
+          <input id="address-detail" type="text" class="field" placeholder="(필수) 상세주소 입력" v-model="state.form.
+            addressDetail" />
 
           <label class="field-label">휴대전화번호</label>
           <input id="phone" type="text" class="field" placeholder="(필수) 휴대전화번호 입력" v-model="state.form.phone" />
@@ -277,11 +338,7 @@ const showModal = (message) => {
                   <div class="item-qty">{{ item.quantity || 0 }}개</div>
                   <div class="item-price">
                     {{
-                      (
-                        (item.price || 0) +
-                        item.options.reduce((sum, option) => sum + (option.price || 0), 0)
-                      ) * (item.quantity || 0)
-                      | toLocaleString
+                      (item.price ?? 0).toLocaleString()
                     }}원
                   </div>
                 </div>
@@ -301,7 +358,7 @@ const showModal = (message) => {
           <div class="total-box">
             <div class="total-row">
               <strong>총 결제 금액</strong>
-              <strong>{{ (totalPrice + 2000).toLocaleString() }}원</strong>
+              <strong>{{ (totalPrice ?? 0).toLocaleString() }}원</strong>
             </div>
           </div>
 
@@ -313,7 +370,7 @@ const showModal = (message) => {
           </div>
           <div class="pay-box">
 
-            <div class="naver-pay-box">
+            <div class="naver-pay-box" ref="naverPayBtn" @click="ordering">
               <div class="slide-img">
                 <img src="/src/imgs/pay/btn_ext_buying.svg" alt="네이버페이" class="naver-pay"></img>
               </div>

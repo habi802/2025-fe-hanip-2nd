@@ -40,11 +40,10 @@ const setSelectData = (data) => {
     selectData.quantity = data.quantity;
     selectData.optionId = data.optionId;
     console.log("내가 선택한 옵션", selectData.optionId)
-    quantityNum = data.quantity;
-
     menuOption.optionId = data.optionId;
     menuOption.quantity = data.quantity;
     selectData.cartId = data.cartId;
+    console.log("내가 선택한 갯수", setSelectData.quantity)
 }
 
 
@@ -84,6 +83,12 @@ const onOptionSelect = (optionId, childId) => {
     console.log('선택된 자식 아이디:', chId);
 
     console.log("전체 옵션", menuOption.optionId)
+
+    if (!isRequired) {
+        // 1개만 선택: 기존 배열 비우고 새로 추가
+        menuOption.optionId = [optId, chId];
+    }
+
 };
 
 
@@ -107,9 +112,11 @@ const goCart = async (cartId) => {
     const res = await modifyMenu(cartId, menuOption);
     if (res.data.resultStatus === 200) {
         console.log("카트 메뉴 담기 성공 !")
-
+        emit('cart-updated');
     }
 }
+
+const emit = defineEmits(['cart-updated']);
 
 </script>
 
@@ -141,7 +148,7 @@ const goCart = async (cartId) => {
                             <!-- 옵션 선택지 -->
                             <div class="option-select">
                                 <div class="options" v-for="child in optionItem.children" :key="child.optionId">
-                                    <input class="option-btn" type="radio" :name="'option-' + optionItem.optionId"
+                                    <input class="option-btn" type="checkbox" :name="'option-' + optionItem.optionId"
                                         :checked="selectData.optionId.map(Number).includes(Number(child.optionId))"
                                         @change="onOptionSelect(optionItem.optionId, child.optionId)" />
                                     <span class="option-detail">{{ child.comment }}</span>
@@ -327,7 +334,7 @@ input:checked::before {
 
 .top-title {
     text-align: center;
-    padding-bottom: 10px;
+    padding-bottom: 25px;
     font-size: 0.8em;
     color: #ccc;
 }

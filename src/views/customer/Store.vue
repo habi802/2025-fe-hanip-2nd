@@ -24,12 +24,9 @@ import lovef from '@/imgs/loveBoard.png'
 const alertModal = ref(null);
 
 
-const favoriteStore = useFavoriteStore();
-
 const route = useRoute();
 const router = useRouter();
 const account = useAccountStore();
-const carts = useCartStore();
 
 const state = reactive({
   // 가게 정보
@@ -90,23 +87,23 @@ const showMap = address => {
 };
 
 // 고객 유저가 가게를 찜 목록에 추가했는지 조회하는 함수
-const loadFavorite = async (id) => {
-  if (!account.state.loggedIn) {
-    state.store.favorite = true;
-    loadMenus(id);
-    return;
-  }
-  const res = await getFavorite(id);
+// const loadFavorite = async (id) => {
+//   if (!account.state.loggedIn) {
+//     state.store.favorite = true;
+//     loadMenus(id);
+//     return;
+//   }
+//   const res = await getFavorite(id);
 
-  if (res === undefined || res.data.resultStatus !== 200) {
-    alertModal.value.showModal('조회에 실패하였습니다.');
-    return;
-  }
+//   if (res === undefined || res.data.resultStatus !== 200) {
+//     alertModal.value.showModal('조회에 실패하였습니다.');
+//     return;
+//   }
 
-  state.store.favorite = res.data.resultData !== null ? true : false;
-  // 조회 성공 시 가게 메뉴 조회 함수 호출
-  loadMenus(id);
-};
+//   state.store.favorite = res.data.resultData !== null ? true : false;
+//   // 조회 성공 시 가게 메뉴 조회 함수 호출
+//   loadMenus(id);
+// };
 
 // 가게 메뉴 조회하는 함수
 const loadMenus = async (id) => {
@@ -178,117 +175,6 @@ const loadCarts = async (id) => {
   }
 };
 
-
-// 장바구니 메뉴 개수 감소시키는 함수
-const decreaseQuantity = async (idx) => {
-  if (state.carts[idx].quantity > 1) {
-    const params = {
-      cartId: state.carts[idx].id,
-      quantity: state.carts[idx].quantity - 1,
-    };
-
-    // 메뉴 개수 수정하는 API 함수 호출
-    const res = await updateQuantity(params);
-
-    if (res === undefined) {
-      alertModal.value.showModal('수정에 실패하였습니다.');
-      return;
-    } else if (res.data.resultStatus !== 200) {
-      // alert(res.data.resultMessage);
-      alertModal.value.showModal('수정에 실패하였습니다.');
-      return;
-    }
-
-    state.carts[idx].quantity--;
-    calculateTotal();
-  } else if (state.carts[idx].quantity == 1) {
-    deleteItem(state.carts[idx].id);
-  }
-};
-
-// 장바구니 메뉴 개수 증가시키는 함수
-const increaseQuantity = async (idx) => {
-  const params = {
-    cartId: state.carts[idx].id,
-    quantity: state.carts[idx].quantity + 1,
-  };
-
-  // 메뉴 개수 수정하는 API 함수 호출
-  const res = await updateQuantity(params);
-
-  if (res === undefined) {
-    alertModal.value.showModal('수정에 실패하였습니다.');
-    return;
-  } else if (res.data.resultStatus !== 200) {
-    // alert(res.data.resultMessage);
-    alertModal.value.showModal('수정에 실패하였습니다.');
-    return;
-  }
-
-  state.carts[idx].quantity++;
-  calculateTotal();
-};
-
-// 장바구니 삭제 함수
-const deleteItem = async (cartId) => {
-  const res = await removeItem(cartId);
-
-  if (res === undefined || res.data.resultStatus !== 200) {
-    alertModal.value.showModal('삭제에 실패하였습니다.');
-    return;
-  }
-
-  if (res.data.resultData === 1) {
-    const deleteIdx = state.carts.findIndex((item) => item.id === cartId);
-    if (deleteIdx > -1) {
-      state.carts.splice(deleteIdx, 1);
-      calculateTotal();
-    }
-  }
-};
-
-// 장바구니 전체 삭제 함수
-const deleteCart = async () => {
-  if (state.carts.length > 0) {
-    const res = await removeCart();
-
-    if (res === undefined) {
-      alertModal.value.showModal('삭제에 실패하였습니다.');
-      return;
-    } else if (res.data.resultStatus === 401) {
-      // alert(res.data.resultMessage);
-      alertModal.value.showModal('삭제에 실패하였습니다.');
-      return;
-    }
-
-    state.carts = [];
-    calculateTotal();
-  }
-};
-
-// 장바구니 총 금액 계산하는 함수
-const calculateTotal = () => {
-  totalPrice.value = 0;
-
-  state.carts.forEach((item) => {
-    const price = item.price * item.quantity;
-    totalPrice.value += price;
-  });
-};
-
-// 주문 확인 화면으로 넘어가는 함수
-const toOrder = () => {
-  if (!account.state.loggedIn) {
-    alertModal.value.showModal('로그인이 필요합니다');
-    return;
-  } else if (state.carts.length < 1) {
-    alertModal.value.showModal('메뉴를 추가해주세요.');
-    return;
-  }
-
-  carts.state.items = state.carts;
-  router.push({ path: `/stores/${route.params.id}/order` });
-};
 
 
 // 메뉴랑 리뷰보기 v-if 설정 함수

@@ -17,6 +17,10 @@ import { getOptions } from "@/services/cartService";
 
 //const cartStore = useCartStore();
 
+
+
+
+
 const router = useRouter();
 const account = useAccountStore();
 
@@ -37,6 +41,25 @@ const load = async () => {
     return;
 
   state.items = res.data.resultData || [];
+  console.log("아이템 정보들", state.items)
+
+  await Promise.all(
+    state.items.map(async (item) => {
+      try {
+        const optionRes = await getOption(item.menuId); // 메뉴 아이디로 옵션 조회 API 호출
+        console.log("옵션정보가 있는가?", optionRes.data.resultData)
+        // 옵션이 있으면 true, 없으면 false
+        item.hasOptions = optionRes.data.resultData.options.length > 0;
+      } catch (err) {
+        console.error(`메뉴 옵션 조회 실패: ${item.menuId}`, err);
+        item.hasOptions = false;
+      }
+    })
+  );
+
+  console.log("옵션 포함 아이템 정보", state.items);
+
+
 
   fetchStoreDetails();
 };
@@ -47,8 +70,8 @@ const fetchStoreDetails = async () => {
   const storeId = state.items[0].storeId;
 
   const review = await getReviewsByStoreId(storeId);
-
-  state.store.reviewLeng = review.data.resultData;
+  state.reviewLeng = review.data.resultData;
+  console.log("리뷰 정보", state.reviewLeng)
   if (!storeMap[storeId]) {
     const res = await getStore(storeId);
 
@@ -71,6 +94,7 @@ const fetchStoreDetails = async () => {
 
   calculateTotal();
   console.log("가게 정보", state.store)
+
 };
 
 
@@ -105,13 +129,14 @@ const totalPrice = ref(0);
 
 // 장바구니 총 금액 계산하는 함수
 const calculateTotal = () => {
-  totalPrice.value = 0;
+  let _totalPrice = 0;
 
   state.items.forEach((item) => {
-    const price = item.price * item.quantity;
-    totalPrice.value += price;
+    _totalPrice += item.price;
     console.log("이거 왜이렇게 비싸", item.price)
   });
+
+  totalPrice.value = _totalPrice;
 
 };
 
@@ -142,24 +167,31 @@ const menuIgmSrc = (item) => {
 
 
 
-
-
 // 신규 함수
 
 // 수량 증가/감소
 const increaseQty = async (item) => {
+  // 메뉴 표시 가격
 
   if (item.quantity < 100) {
-    item.quantity += 1;
     await plusQuantity(item.id);
+
+    item.quantity += 1;
+    //item    
+    item.price = item.oneMenuPrice
+      * item.quantity;
     calculateTotal();
   }
   emit("update-items", item.value);
 
 };
+
 const decreaseQty = async (item) => {
   if (item.quantity > 1) {
     item.quantity -= 1;
+    //item.amount = item.price * item.quantity;
+    item.price = item.oneMenuPrice
+      * item.quantity;
     await minusQuantity(item.id);
     calculateTotal();
   } else {
@@ -188,17 +220,20 @@ const menu = reactive({
     price: Number,
     comment: String,
     imagePath: String,
-    options: []
+    options: [],
+    quantity: 0
   }
 });
 
 const openOptionModal = async (item) => {
+  console.log("item에 뭐가 있나", item)
 
   const res = await getOption(item.menuId);
 
   menu.item.options = res.data.resultData.options;
 
-  console.log("메뉴 확인", menu.item.options)
+  console.log("메뉴 확인", item.quantity
+  )
 
   optionModal.value.setMenuData(menu.item.options)
   const modalElement = optionModal.value.$el;
@@ -208,20 +243,24 @@ const openOptionModal = async (item) => {
   console.log("선택한 옵션 보이는지 확인", item.options)
 
   const optionRes = await getOptions(item.id)
+  console.log("옵션정보?", optionRes)
 
   const info = optionRes.data.resultData;
 
-  selectOption.info.menuId = info.menuId;
+  selectOption.info.menuId = item.menuId;
   selectOption.info.optionId = info.optionId;
-  selectOption.info.quantity = info.quantity;
+  selectOption.info.quantity = item.quantity;
   selectOption.info.cartId = item.id;
 
+  console.log("데이터 넣기 전에 뭐가 담겼나?", info)
   console.log("내가 넣은 데이터 조회", selectOption.info)
 
   optionModal.value.setSelectData(selectOption.info);
   modal.show();
 
 };
+
+
 
 // 내가 선택한거 담기용
 
@@ -233,6 +272,7 @@ const selectOption = reactive({
     cartId: 0,
   }
 })
+
 
 
 </script>
@@ -288,11 +328,14 @@ const selectOption = reactive({
               <img id="icon" src="/src/imgs/star.png" alt="별점" />
               <div v-if="state.reviewNum !== 'NaN'">
                 <span class="score">{{ state.store.rating }}</span>
-                <span class="count">({{ (state.store.reviewLeng || []).length }})</span>
+                <span class="count">({{ (state.reviewLeng?.length || 0) }})</span>
               </div>
               <div v-else>
-                <span class="score"> 0</span>
-                <span class="count">(0)</span>
+                <div class="score-box">
+                  <div class="score"> 0</div>
+                  <div class="count">(0)</div>
+
+                </div>
               </div>
             </div>
             <div class="likes">
@@ -332,16 +375,14 @@ const selectOption = reactive({
                     <div class="item-name">{{ item.name }}</div>
                     <div class="item-price">{{ (item.price ?? 0).toLocaleString() }}원</div>
                   </div>
-                  <div v-for="value in item.options" :key="value.id" class="options-box">
+
+
+                  <div v-for="value in item.options" :key="value.optionId" class="options-box">
                     <div class="menu-option-row">
-
-
 
                       <!-- 부모 옵션 이름 -->
                       <div class="option-name">{{ value.comment }}</div>
-
                       <!-- 자식 옵션명과 가격을 한 쌍으로 묶기 -->
-
                       <div v-for="child in value.children" :key="child.optionId"
                         style="display: flex; gap: 4px; align-items: center;" class="child-box">
 
@@ -364,7 +405,8 @@ const selectOption = reactive({
                   </div>
                 </div>
                 <div class="option-box">
-                  <div class="option-modify" @click="openOptionModal(item)">옵션 변경</div>
+                  <div v-if="item.hasOptions" class="option-modify" @click="openOptionModal(item)">옵션 변경
+                  </div>
                 </div>
               </div>
             </div>
@@ -404,7 +446,7 @@ const selectOption = reactive({
       </div>
     </div>
   </div>
-  <option-modal-modify ref="optionModal"></option-modal-modify>
+  <option-modal-modify ref="optionModal" @cart-updated="load"></option-modal-modify>
 </template>
 
 <style lang="scss" scoped>
@@ -651,7 +693,7 @@ const selectOption = reactive({
 
     .store-name {
       font-size: 25px;
-      font-weight: bold;
+      font-weight: 200;
       margin-bottom: 12px;
       color: #000;
       text-align: center;
@@ -659,16 +701,19 @@ const selectOption = reactive({
 
     .store-meta {
       display: flex;
+      justify-content: center;
       align-items: center;
-      gap: 12px;
+      gap: 40px;
       margin-bottom: 12px;
       margin: 20px 25%;
 
       .rating,
       .likes {
+        width: 50px;
         display: flex;
         align-items: center;
-        gap: 4px;
+        gap: 10px;
+        color: #797979;
       }
 
       img {
@@ -676,6 +721,9 @@ const selectOption = reactive({
         width: 20px;
         height: 20px;
       }
+
+
+
 
       .score {
         font-weight: bold; // 별점 숫자 굵게
@@ -686,6 +734,7 @@ const selectOption = reactive({
         color: #797979;
         font-size: 18px;
         text-align: center;
+        letter-spacing: 2px;
       }
     }
 
@@ -802,6 +851,12 @@ const selectOption = reactive({
   margin-bottom: 100px;
   padding: 10px 200px 10px 200px;
   font-size: 1.8em;
+  border: 2px solid;
+
+  &:hover {
+    background-color: inherit;
+    color: #ff6666;
+  }
 }
 
 
@@ -885,6 +940,4 @@ const selectOption = reactive({
   justify-content: space-between;
   width: 80%;
 }
-
-.child-option {}
 </style>
