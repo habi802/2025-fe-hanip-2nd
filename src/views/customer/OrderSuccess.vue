@@ -142,7 +142,8 @@ const shuffle = (array) => {
                                             <span class="item-name">{{ menu.name }}</span>
                                         </div>
                                         <span>{{ menu.quantity }}개</span>
-                                        <span class="item-price">{{ (menu.price * menu.quantity).toLocaleString() }}원</span>
+                                        <span class="item-price">{{ (menu.price * menu.quantity).toLocaleString()
+                                            }}원</span>
                                     </div>
                                 </div>
                                 <template v-if="menu.options">
