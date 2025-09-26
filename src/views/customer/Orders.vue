@@ -161,15 +161,20 @@ const arrow = () => {
                 </div>
             </div>
             <div class="sort-options">
-                <span>최근순</span>
+                <input type="radio" id="recent" name="date" checked>
+                <label for="recent">최근순</label>
                 <span class="divider">|</span>
-                <span>일주일</span>
+                <input type="radio" id="week" name="date">
+                <label for="week">일주일</label>
                 <span class="divider">|</span>
-                <span>1개월</span>
+                <input type="radio" id="month1" name="date">
+                <label for="month1">1개월</label>
                 <span class="divider">|</span>
-                <span>3개월</span>
+                <input type="radio" id="month3" name="date">
+                <label for="month3">3개월</label>
                 <span class="divider">|</span>
-                <span>기간 선택</span>
+                <input type="radio" id="custom" name="date">
+                <label for="custom">기간 선택</label>
             </div>
             <div v-for="order in state.orders" :key="order.orderId" style="margin-bottom: 10px">
                 <order-and-review :order="order" @delete-order="deleteOrderOne" @reorder="reorder" />
@@ -721,6 +726,15 @@ const arrow = () => {
 
     .sort-options span {
         cursor: pointer;
+    }
+
+    .sort-options input[type="radio"] {
+    display: none;
+    }
+
+    .sort-options input[type="radio"]:checked + label {
+    color: #ff4c4c;
+    font-weight: bold;
     }
 
     .sort-options .divider {
