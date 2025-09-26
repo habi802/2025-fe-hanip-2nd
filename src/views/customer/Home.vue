@@ -48,7 +48,7 @@ const naverPay = async () => {
 
             const tid = await naverGetCid(orderId, payreq);
             console.log("cid 주입 완료", tid);
-
+            window.location.href = window.location.pathname;
         }
 
 

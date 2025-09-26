@@ -2,7 +2,6 @@
 import { ref, computed, watch, reactive, onMounted } from "vue";
 import { useRouter, useRoute } from "vue-router";
 import { minusQuantity, plusQuantity, removeItem, getItem } from "@/services/cartService";
-import { it } from "date-fns/locale";
 
 // 모달 표시 상태
 const isVisible = ref(false);
@@ -24,8 +23,6 @@ watch(
     isVisible.value = false;
   }
 );
-
-
 
 // 장바구니 총 금액 표시하기 위한 변수
 const totalPrice = ref(0);
@@ -100,9 +97,6 @@ const goToCategoryList = () => {
 
 }
 
-
-
-
 const optionTotal = (item) => {
   if (!item.options) return 0;
   return item.options.reduce(
@@ -112,10 +106,6 @@ const optionTotal = (item) => {
     0
   );
 };
-
-
-
-
 
 </script>
 
@@ -132,9 +122,7 @@ const optionTotal = (item) => {
 
 
           <div class="big-box">
-
             <div v-for="(item, idx) in items" :key="item.id" class="cart-item">
-
               <div class="item-info">
                 <div class="item-name">{{ item.name }}</div>
                 <div class="item-controls">
@@ -162,19 +150,10 @@ const optionTotal = (item) => {
                     </div>
                   </div>
                 </div>
-
               </div>
-
-
-
-
-
-
               <hr v-if="idx !== items.length - 1" />
             </div>
-
           </div>
-
           <!-- 총 합계 -->
           <div class="cart-total">
             <span>총 합계</span>
@@ -414,6 +393,7 @@ span.total {
   padding: 20px;
   border: #888 1px solid;
   border-radius: 10px;
+
 }
 
 .options-wrapper {
@@ -428,5 +408,12 @@ span.total {
   display: flex;
   color: #ccc;
   justify-content: space-between;
+}
+
+.big-box {
+  max-width: 495px;
+  max-height: 300px;
+  overflow-y: auto;
+
 }
 </style>

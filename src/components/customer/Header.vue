@@ -45,6 +45,11 @@ const showModal = (message) => {
 };
 // 모달 표시하는 함수
 const showCart = async () => {
+  if (isCartPage.value)
+    return;
+  if (route.name === "order") return;
+
+
   try {
     await cartStore.getCart(); // 최신 카트 가져오기
     console.log("Header에서 cartStore.items:", cartStore.items); // ← 여기서 확인
@@ -52,10 +57,6 @@ const showCart = async () => {
   } catch (err) {
     console.error("카트 가져오기 실패", err);
     alert("장바구니를 불러오는데 실패했습니다.");
-  }
-  if (route.name === "order") {
-    e.preventDefault();
-    return;
   }
 };
 
@@ -91,6 +92,8 @@ const goToAddress = () => {
 //새로 만든 함수 [ 희진 ]
 
 const cartStore = useCartStore();
+
+const isCartPage = computed(() => route.path.startsWith('/cart'));
 
 </script>
 
