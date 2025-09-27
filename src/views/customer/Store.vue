@@ -266,6 +266,7 @@ const getStoreInfo = async (id) => {
   store.storeInfo = res.data.resultData;
 
   console.log("새로 가져온 스토어 정보", store.storeInfo)
+  console.log("가게 이미지", store.storeInfo.bannerPath)
 
   const addressTest = `${store.storeInfo.address} ${store.storeInfo.addressDetail}`;
 
