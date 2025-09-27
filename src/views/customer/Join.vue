@@ -714,7 +714,7 @@ const submit = async () => {
     }
   } catch (err) {
     console.error("❌ 회원가입 중 오류:", err);
-    showModal("사업자 등록증을 첨부해주세요");
+    showModal("사업자 등록증과 가게 상호명 및 카테고리는 필수입니다.");
   }
 };
 
