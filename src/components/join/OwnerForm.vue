@@ -8,7 +8,7 @@ const props = defineProps({
   owner: Object,
 });
 // 부모로 이벤트 전달
-const emit = defineEmits(["update:form", "update:errors", "addressSearch", "update:owner"]); 
+const emit = defineEmits(["update:form", "update:errors", "addressSearch", "update:owner"]);
 
 // readonly props를 직접 수정할 수 없으므로 localOwner에 복사
 const localOwner = reactive({
@@ -29,12 +29,12 @@ const localOwner = reactive({
   businessFile: props.owner?.businessFile ?? props.owner?.licensePath ?? null,
   imagePath: props.owner?.imagePath ?? null,
 });
-
+console.log("localOwner 초기값:", localOwner.storeName, localOwner.addressDetail);
 // 부모 form, state.owner 초기값 반영
 nextTick(() => {
   updateParent(); // 부모 form 업데이트
-// 기존
-emit("update:owner", { ...localOwner }); 
+  // 기존
+  emit("update:owner", { ...localOwner });
 });
 
 // input 변경 시 emit
@@ -163,8 +163,8 @@ function validateAddress() {
 
 // 사업자 등록증 업로드
 const fileInput = ref(null);
-const selectedFile = ref(localOwner.businessFile || null); 
-const previewUrl = ref(localOwner.imagePath || null); 
+const selectedFile = ref(localOwner.businessFile || null);
+const previewUrl = ref(localOwner.imagePath || null);
 
 function onFileChange(event) {
   const file = event.target.files[0];
@@ -183,7 +183,7 @@ function onFileChange(event) {
   updateParent();
   emit("update:owner", { ...localOwner }); // state.owner 동기화
   console.log(localOwner.businessFile.name); // 업로드한 파일 이름
-console.log(localOwner.businessFile.size); // 파일 크기
+  console.log(localOwner.businessFile.size); // 파일 크기
 }
 
 function triggerFileInput() {
@@ -204,6 +204,9 @@ const categories = [
   { value: "PIZZA", label: "피자" },
   { value: "NIGHT", label: "야식" },
 ];
+
+
+
 // 셀렉트에서 카테고리 선택
 function onCategorySelect(e) {
   const category = e.target.value;
@@ -275,15 +278,9 @@ watch(
         <p>사업자 등록번호</p>
       </div>
       <div class="upload-row owner-sigin">
-        <input
-          type="text"
-          :value="localOwner.businessNumber"
-          maxlength="10"
-          @input="handleBusinessNumberInput"
-          @blur="validateBusinessNumber"
-          :class="{ invalid: errors.businessNumber }"
-          placeholder="사업자 등록번호 10자리를 입력해 주세요"
-        />
+        <input type="text" :value="localOwner.businessNumber" maxlength="10" @input="handleBusinessNumberInput"
+          @blur="validateBusinessNumber" :class="{ invalid: errors.businessNumber }"
+          placeholder="사업자 등록번호 10자리를 입력해 주세요" />
         <button type="button">등록</button>
         <div class="owner-upload-num">
           <p v-if="errors.businessNumber" class="error-msg owner-up">
@@ -301,13 +298,8 @@ watch(
         <span>*</span>
         <p>개업년월일</p>
       </div>
-      <input
-        type="date"
-        :value="localOwner.openDate"
-        @input="updateField('openDate', $event.target.value)"
-        @blur="validateopenDate"
-        placeholder="ex) 2025.09.01"
-      />
+      <input type="date" :value="localOwner.openDate" @input="updateField('openDate', $event.target.value)"
+        @blur="validateopenDate" placeholder="ex) 2025.09.01" />
     </div>
     <p v-if="errors.openDate" class="error-msg">{{ errors.openDate }}</p>
     <div class="sevLine"></div>
@@ -318,12 +310,8 @@ watch(
         <span>*</span>
         <p>대표자 이름</p>
       </div>
-      <input
-        type="text"
-        :value="localOwner.ownerName"
-        @input="(e) => updateField('ownerName', e.target.value)"
-        @focus="() => clearError('ownerName')"
-      />
+      <input type="text" :value="localOwner.ownerName" @input="(e) => updateField('ownerName', e.target.value)"
+        @focus="() => clearError('ownerName')" />
     </div>
     <div class="sevLine"></div>
 
@@ -335,34 +323,16 @@ watch(
       </div>
       <div class="address-box">
         <div class="address-row">
-          <input
-            type="text"
-            :value="localOwner.postcode"
-            placeholder="우편번호"
-            readonly
-          />
+          <input type="text" :value="localOwner.postcode" placeholder="우편번호" readonly />
           <button @click="handleAddressSearch" type="button">주소검색</button>
         </div>
-        <input
-          type="text"
-          :value="localOwner.address"
-          placeholder="기본주소"
-          readonly
-          class="full-width"
-        />
-        <input
-          type="text"
-          :value="localOwner.addressDetail"
-          @blur="validateAddress"
-          @input="
-            (e) => {
-              updateField('addressDetail', e.target.value);
-              if (errors.address) emit('update:errors', { ...errors, address: '' });
-            }
-          "
-          class="full-width"
-          placeholder="상세주소"
-        />
+        <input type="text" :value="localOwner.address" placeholder="기본주소" readonly class="full-width" />
+        <input type="text" v-model="localOwner.addressDetail" @blur="validateAddress" @input="
+          (e) => {
+            updateField('addressDetail', e.target.value);
+            if (errors.address) emit('update:errors', { ...errors, address: '' });
+          }
+        " class="full-width" placeholder="상세주소" />
       </div>
       <p v-if="errors.address" class="error-msg">{{ errors.address }}</p>
     </div>
@@ -375,10 +345,7 @@ watch(
         <p>가게번호</p>
       </div>
       <div class="phone-input">
-        <select
-          :value="localOwner.storePhone1"
-          @change="(e) => updateField('storePhone1', e.target.value)"
-        >
+        <select :value="localOwner.storePhone1" @change="(e) => updateField('storePhone1', e.target.value)">
           <option>02</option>
           <option>031</option>
           <option>032</option>
@@ -396,20 +363,10 @@ watch(
           <option>064</option>
           <option>070</option>
         </select>
-        <input
-          type="text"
-          maxlength="4"
-          :value="localOwner.storePhone2"
-          @input="(e) => handlePhoneInput(e, 'storePhone2')"
-          :class="{ invalid: errors.storePhone2 }"
-        />
-        <input
-          type="text"
-          maxlength="4"
-          :value="localOwner.storePhone3"
-          @input="(e) => handlePhoneInput(e, 'storePhone3')"
-          :class="{ invalid: errors.storePhone3 }"
-        />
+        <input type="text" maxlength="4" :value="localOwner.storePhone2"
+          @input="(e) => handlePhoneInput(e, 'storePhone2')" :class="{ invalid: errors.storePhone2 }" />
+        <input type="text" maxlength="4" :value="localOwner.storePhone3"
+          @input="(e) => handlePhoneInput(e, 'storePhone3')" :class="{ invalid: errors.storePhone3 }" />
       </div>
     </div>
     <p v-if="errors.storePhone2 || errors.storePhone3" class="error-msg">
@@ -424,30 +381,17 @@ watch(
         <p>전화번호</p>
       </div>
       <div class="phone-input">
-        <select
-          :value="localOwner.ownerPhone1"
-          @change="(e) => updateField('ownerPhone1', e.target.value)"
-        >
+        <select :value="localOwner.ownerPhone1" @change="(e) => updateField('ownerPhone1', e.target.value)">
           <option>010</option>
           <option>016</option>
           <option>017</option>
           <option>018</option>
           <option>019</option>
         </select>
-        <input
-          type="text"
-          maxlength="4"
-          :value="localOwner.ownerPhone2"
-          @input="(e) => handlePhoneInput(e, 'ownerPhone2')"
-          :class="{ invalid: errors.ownerPhone2 }"
-        />
-        <input
-          type="text"
-          maxlength="4"
-          :value="localOwner.ownerPhone3"
-          @input="(e) => handlePhoneInput(e, 'ownerPhone3')"
-          :class="{ invalid: errors.ownerPhone3 }"
-        />
+        <input type="text" maxlength="4" :value="localOwner.ownerPhone2"
+          @input="(e) => handlePhoneInput(e, 'ownerPhone2')" :class="{ invalid: errors.ownerPhone2 }" />
+        <input type="text" maxlength="4" :value="localOwner.ownerPhone3"
+          @input="(e) => handlePhoneInput(e, 'ownerPhone3')" :class="{ invalid: errors.ownerPhone3 }" />
       </div>
     </div>
     <p v-if="errors.ownerPhone2 || errors.ownerPhone3" class="error-msg">
@@ -463,13 +407,7 @@ watch(
       </div>
       <div class="upload-box">
         <!-- 숨겨진 파일 input -->
-        <input
-          type="file"
-          ref="fileInput"
-          @change="onFileChange"
-          accept="image/*,.pdf"
-          style="display: none"
-        />
+        <input type="file" ref="fileInput" @change="onFileChange" accept="image/*,.pdf" style="display: none" />
         <!-- 업로드 버튼 -->
         <button type="button" @click="triggerFileInput">업로드</button>
 
@@ -499,12 +437,8 @@ watch(
         <p>가게 상호명 및 카테고리</p>
       </div>
       <div class="category-name">
-        <input
-          type="text"
-          :value="localOwner.storeName"
-          @input="(e) => updateField('storeName', e.target.value)"
-          placeholder="가게 이름 입력"
-        />
+        <input type="text" v-model="localOwner.storeName" @input="(e) => updateField('storeName', e.target.value)"
+          placeholder="가게 이름 입력" />
         <!-- 카테고리 선택 -->
         <select @change="onCategorySelect($event)">
           <option value="" disabled selected>카테고리 선택</option>
@@ -515,16 +449,13 @@ watch(
 
         <!-- 선택된 카테고리 표시 -->
         <div class="selected-categories">
-          <span
-            v-for="(cat, index) in localOwner.category"
-            :key="cat"
-            class="category-item"
-          >
-            {{ categories.find((c) => c.value === cat)?.label || cat }}
+          <span v-for="(cat, index) in localOwner.category" :key="cat" class="category-item">
+            {{categories.find((c) => c.value === cat)?.label || cat}}
             <button type="button" @click="removeCategory(index)">x</button>
           </span>
         </div>
-        <p>최대 3개까지 선택 가능합니다.</p>
+        <p>최대 3개까지 선택 가능합니다. </p>
+        <p> 가게 상호명과 카테고리는 나중에 수정할 수 있습니다.</p>
       </div>
     </div>
 
@@ -659,6 +590,7 @@ select.invalid {
     }
   }
 }
+
 // 업로드 파일명
 .file-name {
   margin-left: 25px;
@@ -667,6 +599,7 @@ select.invalid {
   border-radius: 10px;
   color: #555;
 }
+
 // 업로드 주의사항
 li {
   color: #555;
@@ -674,6 +607,7 @@ li {
   margin-top: 5px;
   font-size: 14px;
 }
+
 .form-group {
   display: flex;
   align-items: flex-start; // 기본 input 위쪽 맞춤
@@ -727,6 +661,7 @@ li {
       width: 200px; // 각각 고정
     }
   }
+
   // 유효성 검사 스타일
   input.invalid,
   select.invalid {
@@ -740,6 +675,7 @@ li {
     margin-top: 5px;
   }
 }
+
 // 에러 메시지(가게 전호, 전화 번호)
 .error-msg {
   color: #ff6666;
@@ -872,10 +808,14 @@ input[readonly] {
   color: #7d7d7d;
   pointer-events: none;
 }
+
 // 모달 버튼 전용 스타일
 #alertModal .btn {
-  margin: 0; /* 불필요한 상하 여백 제거 */
-  width: auto; /* 필요 시 조정 */
-  padding: 0.5rem 1rem; /* 버튼 크기 조정 */
+  margin: 0;
+  /* 불필요한 상하 여백 제거 */
+  width: auto;
+  /* 필요 시 조정 */
+  padding: 0.5rem 1rem;
+  /* 버튼 크기 조정 */
 }
 </style>

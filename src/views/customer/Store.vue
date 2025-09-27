@@ -205,6 +205,17 @@ const imgSrc = computed(() => {
 
 })
 
+const banerImgSrc = computed(() => {
+  return store.storeInfo && store.storeInfo?.bannerPath
+    && store.storeInfo?.bannerPath
+    !== 'null'
+    ? `/pic/store-profile/${store.storeInfo.id}/${store.storeInfo?.bannerPath
+    }`
+    : defaultImage;
+
+})
+
+
 // 더보기
 const visibleCount = ref(3);
 const visibleReview = computed(() => {
@@ -255,6 +266,7 @@ const getStoreInfo = async (id) => {
   store.storeInfo = res.data.resultData;
 
   console.log("새로 가져온 스토어 정보", store.storeInfo)
+  console.log("가게 이미지", store.storeInfo.bannerPath)
 
   const addressTest = `${store.storeInfo.address} ${store.storeInfo.addressDetail}`;
 
@@ -325,7 +337,7 @@ const sortedMenus = computed(() => {
 
 <template>
   <div class="storeImg">
-    <img class="big-img" :src="imgSrc" @error="e => e.target.src = defaultImage" />
+    <img class="big-img" :src="banerImgSrc" @error="e => e.target.src = defaultImage" />
   </div>
   <div class="container">
 

@@ -353,6 +353,11 @@ const getUserAddressPostReq = () => {
   return addresses;
 };
 
+const categoryLabels = state.owner.category.map(c => {
+  const cat = categories.find(cat => cat.value === c);
+  return cat ? cat.label : null;
+}).filter(Boolean);
+
 // 제출 함수
 // const submit = async () => {
 //   console.log("state.owner:", state.owner);
@@ -598,7 +603,6 @@ const getUserAddressPostReq = () => {
 // };
 const submit = async () => {
   console.log("▶️ 제출 직전 state.owner:", JSON.stringify(state.owner));
-
   // 1️⃣ 유효성 검사
   if (!validateForm()) {
     showModal("입력값을 다시 확인해주세요.");
@@ -613,15 +617,20 @@ const submit = async () => {
   }
 
   try {
+
     const formData = new FormData();
 
     // 3️⃣ 공통 유저 정보 JSON Blob
     const userPayload = {
       id: 0,
-      name: state.form.name,
+      name: memberType.value === "owner"
+        ? state.owner.ownerName
+        : state.form.name,
       loginId: state.form.loginId,
       loginPw: state.form.loginPw,
-      phone: `${state.form.phone.phone1}-${state.form.phone.phone2}-${state.form.phone.phone3}`,
+      phone: memberType.value === "owner"
+        ? `${state.owner.ownerPhone1}-${state.owner.ownerPhone2}-${state.owner.ownerPhone3}`
+        : `${state.form.phone.phone1}-${state.form.phone.phone2}-${state.form.phone.phone3}`,
       email: state.form.email,
       role: memberType.value === "owner" ? "사장" : "고객",
       userAddressPostReq: state.addresses.map((a) => ({
@@ -630,17 +639,7 @@ const submit = async () => {
         postcode: a.postcode ?? "",
         address: a.address ?? "",
         addressDetail: a.addressDetail ?? "",
-      })),
-    };
-
-    formData.append(
-      "req",
-      new Blob([JSON.stringify(userPayload)], { type: "application/json" })
-    );
-
-    // 4️⃣ 업주 회원이면 storeJoinReq 추가
-    if (memberType.value === "owner") {
-      const storePayload = {
+      })), storeJoinReq: memberType.value === "owner" ? {
         id: 0,
         ownerName: state.owner.ownerName,
         name: state.owner.storeName,
@@ -648,25 +647,52 @@ const submit = async () => {
         address: state.owner.address,
         addressDetail: state.owner.addressDetail,
         tel: `${state.owner.storePhone1}-${state.owner.storePhone2}-${state.owner.storePhone3}`,
-        ownerPhone: `${state.owner.ownerPhone1}-${state.owner.ownerPhone2}-${state.owner.ownerPhone3}`,
         businessNumber: state.owner.businessNumber,
         openDate: state.owner.openDate,
-        enumStoreCategory: state.owner.category, // Enum 배열 그대로 전송
+        enumStoreCategory: categoryLabels, // Enum 배열 그대로 전송
         comment: state.owner.comment ?? "",
-        licensePath: state.owner.licensePath ?? "",
+        licensePath: state.owner.licensePath?.trim() ? state.owner.licensePath : "default-license.png",
         imagePath: state.owner.imagePath ?? "",
-      };
-      console.log("storepayload 데이터 확인용", storePayload);
-      formData.append(
-        "storeJoinReq",
-        new Blob([JSON.stringify(storePayload)], { type: "application/json" })
-      );
 
-      // 사업자 등록증 파일 첨부
-      if (state.owner.businessFile && state.owner.businessFile.size > 0) {
-        formData.append("licenseFile", state.owner.businessFile);
-      }
+      } : null
+    };
+    if (state.owner.businessFile && state.owner.businessFile.size > 0) {
+      formData.append("pic", state.owner.businessFile);
     }
+    formData.append(
+      "req",
+      new Blob([JSON.stringify(userPayload)], { type: "application/json" })
+    );
+
+    // 4️⃣ 업주 회원이면 storeJoinReq 추가
+    // if (memberType.value === "owner") {
+    //   const storePayload = {
+    //     id: 0,
+    //     ownerName: state.owner.ownerName,
+    //     name: state.owner.storeName,
+    //     postcode: state.owner.postcode,
+    //     address: state.owner.address,
+    //     addressDetail: state.owner.addressDetail,
+    //     tel: `${state.owner.storePhone1}-${state.owner.storePhone2}-${state.owner.storePhone3}`,
+    //     businessNumber: state.owner.businessNumber,
+    //     openDate: state.owner.openDate,
+    //     enumStoreCategory: state.owner.category, // Enum 배열 그대로 전송
+    //     comment: state.owner.comment ?? "",
+    //     licensePath: state.owner.licensePath ?? "",
+    //     imagePath: state.owner.imagePath ?? "",
+    //   };
+    //   userPayload.phone = `${state.owner.ownerPhone1}-${state.owner.ownerPhone2}-${state.owner.ownerPhone3}`
+    //   console.log("storepayload 데이터 확인용", storePayload);
+    //   formData.append(
+    //     "storeJoinReq",
+    //     new Blob([JSON.stringify(storePayload)], { type: "application/json" })
+    //   );
+
+    //   // 사업자 등록증 파일 첨부
+    //   if (state.owner.businessFile && state.owner.businessFile.size > 0) {
+    //     formData.append("licenseFile", state.owner.businessFile);
+    //   }
+    // }
 
     // 5️⃣ 프로필 이미지 첨부
     if (state.profilePic && state.profilePic.size > 0) {
@@ -674,9 +700,9 @@ const submit = async () => {
     }
 
     // 6️⃣ Axios POST 요청
-    // const res = await axios.post("/user/join", formData, {
-    //   headers: { "Content-Type": "multipart/form-data" },
-    // });
+    const res = await axios.post("/user/join", formData, {
+      headers: { "Content-Type": "multipart/form-data" },
+    });
 
     // 7️⃣ 결과 처리
     if (res.status === 200) {
@@ -688,7 +714,7 @@ const submit = async () => {
     }
   } catch (err) {
     console.error("❌ 회원가입 중 오류:", err);
-    showModal("회원가입 중 오류가 발생했습니다.");
+    showModal("사업자 등록증을 첨부해주세요");
   }
 };
 
@@ -756,26 +782,11 @@ const showModal = (message) => {
               <p>회원 구분</p>
             </div>
             <div class="radio-group">
-              <label id="radio"
-                ><input
-                  type="radio"
-                  class="circle"
-                  name="memberType"
-                  value="customer"
-                  v-model="memberType"
-                />
-                일반</label
-              >
-              <label
-                ><input
-                  type="radio"
-                  class="circle"
-                  name="memberType"
-                  value="owner"
-                  v-model="memberType"
-                />
-                업주</label
-              >
+              <label id="radio"><input type="radio" class="circle" name="memberType" value="customer"
+                  v-model="memberType" />
+                일반</label>
+              <label><input type="radio" class="circle" name="memberType" value="owner" v-model="memberType" />
+                업주</label>
             </div>
           </div>
         </div>
@@ -793,12 +804,8 @@ const showModal = (message) => {
               </div>
               <div class="id">
                 <div class="id-input-group">
-                  <input
-                    v-model="state.form.loginId"
-                    :class="{ invalid: errors.loginId }"
-                    @input="handleLoginIdInput"
-                    placeholder="영문 소문자/숫자, 4~16자"
-                  />
+                  <input v-model="state.form.loginId" :class="{ invalid: errors.loginId }" @input="handleLoginIdInput"
+                    placeholder="영문 소문자/숫자, 4~16자" />
                   <button class="idbox" type="button">아이디 중복</button>
                   <!-- @click="checkDuplicateId" -->
                 </div>
@@ -819,15 +826,9 @@ const showModal = (message) => {
               <p>비밀 번호</p>
             </div>
             <div class="password">
-              <input
-                type="password"
-                v-model="state.form.loginPw"
-                :class="{ invalid: errors.loginPw }"
-                @input="() => (errors.loginPw = '')"
-                @blur="validatePassword"
-                autocomplete="new-password"
-                placeholder="비밀번호는 영문, 숫자, 특수문자 포함 8~16자"
-              />
+              <input type="password" v-model="state.form.loginPw" :class="{ invalid: errors.loginPw }"
+                @input="() => (errors.loginPw = '')" @blur="validatePassword" autocomplete="new-password"
+                placeholder="비밀번호는 영문, 숫자, 특수문자 포함 8~16자" />
               <p v-if="errors.loginPw" class="error-msg">
                 {{ errors.loginPw }}
               </p>
@@ -843,15 +844,9 @@ const showModal = (message) => {
               <p>비밀번호 확인</p>
             </div>
             <div class="password2">
-              <input
-                type="password"
-                v-model="confirmPw"
-                @input="() => (errors.confirmPw = '')"
-                @blur="validateConfirmPw"
-                :class="{ invalid: errors.confirmPw }"
-                autocomplete="new-password"
-                placeholder="비밀번호 재입력"
-              />
+              <input type="password" v-model="confirmPw" @input="() => (errors.confirmPw = '')"
+                @blur="validateConfirmPw" :class="{ invalid: errors.confirmPw }" autocomplete="new-password"
+                placeholder="비밀번호 재입력" />
               <p v-if="errors.confirmPw" class="error-msg">
                 {{ errors.confirmPw }}
               </p>
@@ -867,13 +862,8 @@ const showModal = (message) => {
               <p>이메일</p>
             </div>
             <div class="password2">
-              <input
-                v-model="state.form.email"
-                @input="() => (errors.email = '')"
-                @blur="validateEmail"
-                :class="{ invalid: errors.email }"
-                placeholder="올바른 이메일 형식으로 입력해주세요."
-              />
+              <input v-model="state.form.email" @input="() => (errors.email = '')" @blur="validateEmail"
+                :class="{ invalid: errors.email }" placeholder="올바른 이메일 형식으로 입력해주세요." />
               <p v-if="errors.email" class="error-msg">
                 {{ errors.email }}
               </p>
@@ -883,22 +873,11 @@ const showModal = (message) => {
         <div class="sevLine"></div>
 
         <!-- 회원 구분에 따른 폼 분기 -->
-        <CustomerForm
-          v-if="memberType === 'customer'"
-          v-model:form="state.form"
-          v-model:errors="errors"
-          :addresses="state.addresses"
-          @addressSearch="addressSearch"
-        />
+        <CustomerForm v-if="memberType === 'customer'" v-model:form="state.form" v-model:errors="errors"
+          :addresses="state.addresses" @addressSearch="addressSearch" />
 
-        <OwnerForm
-          v-if="memberType === 'owner'"
-          v-model:form="state.form"
-          v-model:owner="state.owner"
-          v-model:errors="errors"
-          @addressSearch="addressSearch"
-          @ownerInput="handleOwnerInput"
-        />
+        <OwnerForm v-if="memberType === 'owner'" v-model:form="state.form" v-model:owner="state.owner"
+          v-model:errors="errors" @addressSearch="addressSearch" @ownerInput="handleOwnerInput" />
 
         <!-- 약관 동의 및 제출 -->
         <!-- 약관동의 -->
@@ -908,77 +887,44 @@ const showModal = (message) => {
           <!-- 전체 동의 -->
           <p class="all-agree">
             <label class="custom-checkbox">
-              <input
-                type="checkbox"
-                class="circle"
-                v-model="agreement.allAgree"
-                @change="toggleAllAgree"
-              />
+              <input type="checkbox" class="circle" v-model="agreement.allAgree" @change="toggleAllAgree" />
               <strong class="all"><span class="highlight">전체동의</span></strong>
             </label>
           </p>
           <ul class="terms-list">
             <!-- 필수 이용약관 동의 -->
             <li>
-              <label class="custom-checkbox"
-                ><input
-                  type="checkbox"
-                  class="circle"
-                  v-model="agreement.terms.useTerms"
-                /><span class="highlight"> [필수]</span> 이용약관 동의</label
-              >
+              <label class="custom-checkbox"><input type="checkbox" class="circle"
+                  v-model="agreement.terms.useTerms" /><span class="highlight"> [필수]</span> 이용약관 동의</label>
             </li>
             <div class="terms-box">{{ termsText.useTerms }}</div>
             <!-- 필수 개인정보 수집 이용 동의 -->
             <li>
-              <label class="custom-checkbox"
-                ><input
-                  type="checkbox"
-                  class="circle"
-                  v-model="agreement.terms.privacyPolicy"
-                />
-                <span class="highlight"> [필수]</span> 개인정보 수집 이용 동의</label
-              >
+              <label class="custom-checkbox"><input type="checkbox" class="circle"
+                  v-model="agreement.terms.privacyPolicy" />
+                <span class="highlight"> [필수]</span> 개인정보 수집 이용 동의</label>
             </li>
             <div class="terms-box">{{ termsText.privacyPolicy }}</div>
             <!-- 필수 개인정보 제3자 제공 동의 -->
             <li>
-              <label class="custom-checkbox"
-                ><input
-                  type="checkbox"
-                  class="circle"
-                  v-model="agreement.terms.thirdParty"
-                />
-                <span class="highlight"> [필수]</span> 개인정보 제3자 제공 동의</label
-              >
+              <label class="custom-checkbox"><input type="checkbox" class="circle"
+                  v-model="agreement.terms.thirdParty" />
+                <span class="highlight"> [필수]</span> 개인정보 제3자 제공 동의</label>
             </li>
             <div class="terms-box">{{ termsText.thirdParty }}</div>
           </ul>
           <!-- 선택 쇼핑정보 수신 동의 -->
           <div class="marketing">
             <p>
-              <label class="custom-checkbox"
-                ><input
-                  type="checkbox"
-                  class="circle"
-                  v-model="agreement.marketing"
-                /><span class="highlight"> [선택]</span> 쇼핑정보 수신 동의</label
-              >
+              <label class="custom-checkbox"><input type="checkbox" class="circle" v-model="agreement.marketing" /><span
+                  class="highlight"> [선택]</span> 쇼핑정보 수신 동의</label>
             </p>
           </div>
           <div class="sev-marketing">
-            <span
-              ><label class="custom-checkbox"
-                ><input type="checkbox" class="circle" v-model="agreement.sms" /> SMS
-                수신을 동의하십니까?</label
-              ></span
-            >
-            <span
-              ><label class="custom-checkbox"
-                ><input type="checkbox" class="circle" v-model="agreement.email" /> 이메일
-                수신을 동의하십니까?</label
-              ></span
-            >
+            <span><label class="custom-checkbox"><input type="checkbox" class="circle" v-model="agreement.sms" /> SMS
+                수신을 동의하십니까?</label></span>
+            <span><label class="custom-checkbox"><input type="checkbox" class="circle" v-model="agreement.email" /> 이메일
+                수신을 동의하십니까?</label></span>
           </div>
         </div>
         <button type="submit">회원가입</button>
@@ -1153,6 +1099,7 @@ select.invalid {
 
   .id-message {
     width: 100%;
+
     p {
       margin: 5px 0 0 0; // 위쪽 간격만 조금
       font-size: 14px;
@@ -1367,6 +1314,7 @@ button {
     background-color: #ffe5e5;
   }
 }
+
 // 모달 버튼 전용 스타일
 #alertModal .btn {
   margin: 0;
