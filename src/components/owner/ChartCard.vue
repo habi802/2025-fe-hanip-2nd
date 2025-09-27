@@ -1,27 +1,28 @@
 <script setup>
 import { onMounted, ref, watch } from 'vue';
-import { Chart, BarController, BarElement, CategoryScale, LinearScale, Legend } from 'chart.js';
-
-// Chart.js 3.x 이상에서는 사용할 차트 요소를 등록해야 함
-Chart.register(BarController, BarElement, CategoryScale, LinearScale, Legend);
-
-const chartCanvas = ref(null);
+import Chart from 'chart.js/auto';
 
 const props = defineProps({
+    title: String,
+    labelY: null,
+    type: String,
     chartData: Array
 });
 
-let chartInstance = null;
+// Chart.js 3.x 이상에서는 사용할 차트 요소를 등록해야 함
+// Chart.register(BarController, BarElement, CategoryScale, LinearScale, Legend);
+const chartCanvas = ref(null);
 
+let chartInstance = null;
 onMounted(() => {
     chartInstance = new Chart(chartCanvas.value, {
-        type: 'bar',
+        type: props.type,
         data: {
-            labels: ['임시x축제목'],
+            labels: props.chartData.label, //x축제목,
             datasets: [{
-                label: '임시 y축 제목',
-                data: [111],
-                backgroundColor: '#ff8686'
+                label: props.labelY, //y축 값 종류(범례)
+                data: props.chartData.data,
+                backgroundColor: '#ffcc66'
             }]
         },
         options: {
@@ -39,18 +40,28 @@ onMounted(() => {
         }
     });
 });
-
-
 </script>
 
 <template>
-  <canvas ref="chartCanvas"></canvas>
+    <div class="wrap">
+        <div class="title">
+            <span>{{ props.title || "-" }}</span>
+        </div>
+        <canvas ref="chartCanvas"></canvas>
+    </div>
 </template>
 
-<style scoped>
+<style scoped lang="scss">
+.wrap{
+    padding: 20px 40px;
+}
 canvas {
   max-width: 600px;
   max-height: 400px;
+}
+.title{
+    font-size: 1.5rem;
+    font-weight: 700;
 }
 
 

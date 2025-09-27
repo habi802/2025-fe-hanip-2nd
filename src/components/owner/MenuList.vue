@@ -107,7 +107,7 @@ const filteredGroups = computed(() => {
       <button class="btn-add" @click="emit('add')">+ 메뉴 추가하기</button>
     </div>
 
-    <div class="menu-scroll">
+    <div class="menu-scroll scroll-bar">
       <template v-if="filteredGroups.length">
         <div
           v-for="(group, gi) in filteredGroups"

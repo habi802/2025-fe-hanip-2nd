@@ -15,11 +15,13 @@ const totalCardData = [
 // 차트 임시데이터
 const chartData = [
   {
+    title: '주문 추이',
     label: ['1월', '2월', '3월'],
     data: [47, 98, 250]
   }
   ,
   {
+    title: '매출 추이',
     label: ['4월', '5월', '6월'],
     data: [1, 50, 200]
   }
@@ -130,9 +132,11 @@ onMounted(() => {
       <TotalCard v-for="(data, idx) in totalCardData" :key="idx" :selected-chart-option=selectedChartOption :title=data.title :count=data.count :to-local-string=data.toLocalString></TotalCard>
     </div><!--total-wrap 끝 -->
 
-    <div class="d-flex gap-3">
-      <ChartCard class="white-card" :chart-data="currentChartData" />
-      <ChartCard class="white-card" :chart-data="currentChartData" />
+    <div class="chart-wrap">
+      <ChartCard class="white-card" title="주문 추이" labelY="y축범례" type="bar" :chart-data="currentChartData" />
+      <ChartCard class="white-card" title="매출 추이" labelY="y축범례" type="line" :chart-data="currentChartData" />
+      <!-- <ChartCard class="white-card" title="주문 추이" labelY="y축범례" type="bar" :chart-data="currentChartData" />
+      <ChartCard class="white-card" title="매출 추이" labelY="y축범례" type="line" :chart-data="currentChartData" /> -->
     </div>
   </div><!-- wrap 끝-->
 
@@ -143,6 +147,7 @@ onMounted(() => {
 width: 90%;
 display: flex;
 flex-direction: column;
+justify-content: left;
 gap: 20px;
 
 .date-filter {
@@ -177,6 +182,11 @@ gap: 20px;
   justify-content: center;
 }
 
+.chart-wrap{
+  display: grid;
+  grid-template-columns: repeat(2, 1.5fr);
+  gap: 20px;
+}
   
 }//wrap
 </style>
