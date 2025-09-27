@@ -603,7 +603,6 @@ const categoryLabels = state.owner.category.map(c => {
 // };
 const submit = async () => {
   console.log("▶️ 제출 직전 state.owner:", JSON.stringify(state.owner));
-
   // 1️⃣ 유효성 검사
   if (!validateForm()) {
     showModal("입력값을 다시 확인해주세요.");
@@ -618,6 +617,7 @@ const submit = async () => {
   }
 
   try {
+
     const formData = new FormData();
 
     // 3️⃣ 공통 유저 정보 JSON Blob
@@ -714,7 +714,7 @@ const submit = async () => {
     }
   } catch (err) {
     console.error("❌ 회원가입 중 오류:", err);
-    showModal("회원가입 중 오류가 발생했습니다.");
+    showModal("사업자 등록증을 첨부해주세요");
   }
 };
 
