@@ -15,3 +15,12 @@ export const naverPayApply = (paymentId,orderId) => {
 export const naverGetCid = (orderId,req)=> {
   return axios.post(`/naver/naverPay/cid/${orderId}`,req).catch((e)=>e.response);
 }
+
+
+export const kakaoPayReady = (orderId) =>{
+  return axios.post(`/kakao/kakaoPay/ready/${orderId}`).catch((e) => e.response);
+}
+
+export const kakaoGetPayApprove = (orderId,params) =>{
+  return axios.post(`/kakao/kakaoPay/approve/${orderId}`,undefined,{params}).catch((e) => e.response);
+}
