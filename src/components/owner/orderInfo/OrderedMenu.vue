@@ -27,7 +27,7 @@
           <td>{{ menu.quantity }}</td>
           <td>{{ menu.price.toLocaleString() }}원</td> -->
         </tr>
-        <tr v-for="n in 20" :key="n">
+        <tr v-for="n in 2" :key="n">
         <!-- <tr v-if="!selectedOrder?.menus || selectedOrder.menus.length === 0" > -->
           <td>--</td>
           <td>--</td>

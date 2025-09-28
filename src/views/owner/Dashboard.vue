@@ -196,6 +196,16 @@ const handleAssign = async (orderId) => {
   //  orderStore.fetchDeliveredOrders(storeId),
   //]);
 };
+
+// 선택된 주문 저장
+const selectedOrder = ref(null);
+
+const openOrder = (order) => {
+  selectedOrder.value = order;
+};
+const closeOrder = () => {
+  selectedOrder.value = null;
+};
 </script>
 
 <template>
@@ -240,9 +250,6 @@ const handleAssign = async (orderId) => {
       <RouterLink to="/owner/status" class="total-box whitepink-btn">
         <span class="font-xxlg">가게상태</span>
       </RouterLink>
-    </div>
-    <div v-if="!isOpen" class="text-center text-danger fw-bold">
-      🚫 영업 중단! 주문 받기를 중단했습니다.
     </div>
     <div
       v-if="hasOrders"

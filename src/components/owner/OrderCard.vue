@@ -29,14 +29,14 @@ const onAssign = (order) => {
   emit("assign", order.orderId);
 };
 
-// 시간
+// 시간 포맷터
 const formatTime = (dateString) => {
   if (!dateString) return "";
   const date = new Date(dateString);
   return date.toLocaleTimeString("ko-KR", {
     hour: "2-digit",
     minute: "2-digit",
-    hour12: false, // 24시간제
+    hour12: false,
   });
 };
 </script>
@@ -50,7 +50,7 @@ const formatTime = (dateString) => {
 
     <!-- 주문 리스트 -->
     <div class="order-list white-card">
-      <!-- 리스트 컬럼 -->
+      <!-- 리스트 헤더 -->
       <div class="grid-table t-header">
         <div>주문번호</div>
         <div>주문시간</div>
@@ -81,7 +81,7 @@ const formatTime = (dateString) => {
           @click="onRowClick(order)"
         >
           <div>{{ order.orderId || "-" }}</div>
-          <div>{{ formatTime(order.createdAt) || "00-00-00" }}</div>
+          <div>{{ formatTime(order.createdAt) || "00:00" }}</div>
           <div>{{ order.elapsed || "0분" }}</div>
           <div class="address">
             {{ order.address || "-" }}<br />{{ order.addressDetail || "-" }}
@@ -92,7 +92,7 @@ const formatTime = (dateString) => {
           </div>
           <div>{{ order.amount ? order.amount.toLocaleString() : "-" }}원</div>
           <div>
-            <!-- 상태별 버튼 분기 -->
+            <!-- 상태별 버튼 -->
             <template v-if="order.status === '02'">
               <button class="owner-btn-white" @click.stop="onAccept(order)">
                 주문 수락
@@ -110,8 +110,7 @@ const formatTime = (dateString) => {
 
             <template v-else-if="order.status === '04'">
               <div class="rider-info">
-                <div>{{ order.riderName || "라이더 미지정" }}</div>
-                <div>{{ order.riderPhone || "-" }}</div>
+                <div>{{ order.riderName || "배달 중" }}</div>
               </div>
             </template>
 
@@ -124,10 +123,10 @@ const formatTime = (dateString) => {
     </div>
   </div>
 
-  <!-- 상세 모달 -->
-  <dashboard-order-detail
+  <!-- 주문 상세 모달 -->
+  <DashboardOrderDetail
     v-if="isModalOpen"
-    :data="selectedRow"
+    :order="selectedRow"
     @close="isModalOpen = false"
   />
 </template>
