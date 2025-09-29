@@ -30,7 +30,9 @@ const emit = defineEmits(['row-selected', 'row-selected']);
 
 // 체크된 항목을 부모 컴포넌트로 전달
 const emitSelectedItems = () => {
-    const checkedItems = props.items.filter(item => item._checked).map(item => item[props.idKey]);
+    const checkedItems = props.items.filter(item => item._checked).map(item => {
+        return { id: item[props.idKey], isActive: item.isActive };
+    });
     emit('row-checked', checkedItems)
 }
 

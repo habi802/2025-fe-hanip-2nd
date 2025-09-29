@@ -70,23 +70,26 @@ const getStores = async () => {
 
 const alertModalRef = ref(null);
 const confirmModalRef = ref(null);
-let ids = [];
+let items = [];
 
-// 테이블에서 체크된 항목을 ids에 추가(선택한 가게의 id가 담긴 배열)
-const addCheckItemIds = checkedItems => {
-    ids = checkedItems;
+// 테이블에서 체크된 항목을 items에 추가(선택한 가게의 id와 isActive가 담긴 배열)
+const addCheckItems = checkedItems => {
+    items = checkedItems;
 };
 
-// 상세 조회 중인 가게의 id를 바로 ids에 추가하여 영업 승인 상태 변경
-const addSelectedItemId = item => {
-    ids = [item.id];
-    setIsActive(item.status);
+// 상세 조회 중인 가게의 id와 isActive를 items에 추가한 뒤 영업 승인 상태 변경 함수 실행
+const addSelectedItem = item => {
+    items = [{
+        id: item.id,
+        isActive: item.isActive
+    }];
+    setIsActive(item.newIsActive);
 }
 
 // 영업 승인 상태 변경
 const setIsActive = async isActive => {
     // 선택한 가게가 없을 경우(체크박스 중 체크된 항목이 없을 경우)
-    if (ids.length === 0) {
+    if (items.length === 0) {
         alertModalRef.value.open('선택한 가게가 없습니다.');
         return;
     }
@@ -95,6 +98,8 @@ const setIsActive = async isActive => {
     if (isConfirmed) {
         loadingModalRef.value.open();
 
+        const ids = items.map(item => item.id);
+
         const params = { id: ids, isActive };
         const res = await patchIsActive(params);
         
@@ -102,8 +107,8 @@ const setIsActive = async isActive => {
             alertModalRef.value.open('상태가 변경되었습니다.');
 
             // 상태가 변경된 항목은 state.stores 에서 제거
-            ids.forEach(id => {
-                const idx = state.stores.findIndex(item => item.storeId === id);
+            items.forEach(item => {
+                const idx = state.stores.findIndex(store => store.storeId === item.id && store.isActive !== isActive);
                 if (idx >= 0) {
                     state.stores.splice(idx, 1);
                     pagination.state.totalRow = pagination.state.totalRow - 1;
@@ -113,6 +118,11 @@ const setIsActive = async isActive => {
 
         loadingModalRef.value.hide();
     }
+};
+
+// 상세 조회 모달 창 닫기
+const closeModal = () => {
+    boardModalRef.value.hide();
 };
 
 // 테이블 필드
@@ -260,7 +270,7 @@ onMounted(() => {
                     </b-col>
 
                     <b-col cols="12">
-                        <DateTable title="store" :items="state.stores" :field="fields" id-key="storeId" @row-selected="openBoardModal" @row-checked="addCheckItemIds" />
+                        <DateTable title="store" :items="state.stores" :field="fields" id-key="storeId" @row-selected="openBoardModal" @row-checked="addCheckItems" />
                     </b-col>
 
                     <b-col cols="12">
@@ -272,10 +282,10 @@ onMounted(() => {
         </b-row>
     </b-container>
 
-    <BoardModal title="store" :item="store" id-key="storeId" @set-item-status="addSelectedItemId" ref="boardModalRef" />
+    <BoardModal title="store" :item="store" id-key="storeId" @set-item-status="addSelectedItem" ref="boardModalRef" />
 
     <LoadingModal ref="loadingModalRef" />
-    <AlertModal ref="alertModalRef" />
+    <AlertModal ref="alertModalRef" @hidden="closeModal" />
     <ConfirmModal ref="confirmModalRef" />
 </template>
 

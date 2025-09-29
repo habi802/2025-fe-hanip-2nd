@@ -14,13 +14,16 @@ const isExistItem = computed(() => Object.keys(props.item).length > 0);
 defineExpose({
     open() {
         show.value = true;
+    },
+    hide() {
+        show.value = false;
     }
 });
 
 const emit = defineEmits(['set-item-status']);
 
-const setItemStatus = (id, status) => {
-    emit('set-item-status', { id, status });
+const setItemStatus = (id, isActive, newIsActive) => {
+    emit('set-item-status', { id, isActive, newIsActive });
 };
 </script>
 
@@ -104,8 +107,8 @@ const setItemStatus = (id, status) => {
 
                 <b-row>
                     <b-col cols="12" class="d-flex justify-content-center">
-                        <button class="btn btn-success me-2" @click="setItemStatus(props.item[props.idKey], 1)" :disabled="!isExistItem">영업 승인</button>
-                        <button class="btn btn-secondary" @click="setItemStatus(props.item[props.idKey], 0)" :disabled="!isExistItem">영업 대기</button>
+                        <button class="btn btn-success me-2" @click="setItemStatus(props.item[props.idKey], props.item.isActive, 1)" :disabled="!isExistItem">영업 승인</button>
+                        <button class="btn btn-secondary" @click="setItemStatus(props.item[props.idKey], props.item.isActive, 0)" :disabled="!isExistItem">영업 대기</button>
                     </b-col>
                 </b-row>
             </template>
