@@ -53,18 +53,59 @@ const quantityNumP = () => {
         quantityNum.value += 1;
 }
 
-const onOptionSelect = (optionId, childId) => {
+const onOptionSelect = (event, optionId, childId) => {
+
+    const optionGroup = menuData.options.find(opt => opt.optionId === optionId);
+    if (!optionGroup) return;
+
+    // 이미 체크된 상태이고, 그룹이 필수이면 체크 해제 방지
+    if (optionGroup.isRequired === 1 && menuOption.optionId.includes(childId)) {
+        event.preventDefault();
+        return;
+    }
 
 
     const groupChildren = menuData.options.find(opt => opt.optionId === optionId)?.children.map(c => c.optionId) || [];
 
     let idx = menuOption.optionId.indexOf(optionId);
+    // 문자열로 변환하여 비교
+    const currentOptionIds = [...menuOption.optionId];
+
+    // 겹치는지
+    const hasOption = currentOptionIds.some(id => id === String(optionId));
+    const hasChild = currentOptionIds.some(id => id === String(childId));
+    // 필수 체크
+    const isRequired = optionGroup.isRequired === 1;
+
+    console.log('현재 옵션 목록:', currentOptionIds);
+    console.log('확인 중인 옵션:', optionId, childId);
+    console.log('포함 여부:', hasOption, hasChild);
+    
+    if (hasOption && hasChild && isRequired != 1) {
+        if (idx !== -1) menuOption.optionId.splice(idx, 1);
+        menuOption.optionId = menuOption.optionId.filter(id => !groupChildren.includes(id));
+        console.log('이미 선택된 옵션이므로 삭제합니다.');
+        console.log('선택된 옵션 아이디:', optionId);
+        console.log('선택된 자식 아이디:', childId);
+
+        console.log("전체 옵션", menuOption.optionId)
+
+        return;
+    }
+
+
+
+
     if (idx !== -1) menuOption.optionId.splice(idx, 1);
 
     menuOption.optionId = menuOption.optionId.filter(id => !groupChildren.includes(id));
 
     menuOption.optionId.push(optionId);
     menuOption.optionId.push(childId);
+
+
+
+
     console.log('선택된 옵션 아이디:', optionId);
     console.log('선택된 자식 아이디:', childId);
 
@@ -127,9 +168,9 @@ const goCart = async () => {
                             <!-- 옵션 선택지 -->
                             <div class="option-select">
                                 <div class="options" v-for="child in optionItem.children" :key="child.optionId">
-                                    <input class="option-btn" type="radio" :name="'option-' + optionItem.optionId"
+                                    <input class="option-btn" type="checkbox" :name="'option-' + optionItem.optionId"
                                         :checked="menuOption.optionId.includes(child.optionId)"
-                                        @change="onOptionSelect(optionItem.optionId, child.optionId)" />
+                                        @click="onOptionSelect($event, optionItem.optionId, child.optionId)" />
                                     <span class="option-detail">{{ child.comment }}</span>
                                     <div class="menu-price">{{ child.price }}원</div>
                                 </div>

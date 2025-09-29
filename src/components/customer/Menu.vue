@@ -53,7 +53,7 @@ const menuSrc = computed(() => {
 </script>
 
 <template>
-    <div v-if="props.item.isHide !== 1" class="menu border rounded-4" :class="{ soldOut: props.item.isSoldOut === 1 }"
+    <div v-if="props.item.isHide !== 0" class="menu border rounded-4" :class="{ soldOut: props.item.isSoldOut === 0 }"
         @click="openModal">
         <div class="row-box">
             <div class="container">

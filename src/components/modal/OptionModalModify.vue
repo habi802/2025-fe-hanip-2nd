@@ -64,7 +64,10 @@ const quantityNumP = () => {
         selectData.quantity += 1;
 }
 
-const onOptionSelect = (optionId, childId) => {
+const onOptionSelect = (event, optionId, childId) => {
+
+    const optionGroup = menuData.options.find(opt => opt.optionId === optionId);
+    if (!optionGroup) return;
 
     const optId = Number(optionId);
     const chId = Number(childId);
@@ -72,22 +75,45 @@ const onOptionSelect = (optionId, childId) => {
     // 선택한 부모의 기존 인덱스 찾기
     const existingParentIndex = menuOption.optionId.findIndex(id => id === optId);
 
+    //원래 있던 부모
+    const existingParentIndexs = menuOption.optionId.findIndex((id, idx) =>
+        id === optId && menuOption.optionId[idx + 1] === chId
+    );
+
+    // 필수 옵션이면 체크 해제 방지 (부모-자식 쌍 기준)
+    const existingIndex = menuOption.optionId.findIndex((id, idx) =>
+        id === optId && menuOption.optionId[idx + 1] === chId
+    );
+
+
+    if (optionGroup.isRequired === 1 && existingIndex !== -1) {
+        event.preventDefault();
+        console.log('필수 옵션은 해제할 수 없습니다:', optId, chId);
+        return;
+    }
+    if (existingParentIndexs !== -1) {
+        // 이미 선택되어 있으면 제거 (체크 해제)
+        menuOption.optionId.splice(existingParentIndex, 2);
+        console.log('체크 해제:', optId, chId);
+
+        console.log("전체 옵션", menuOption.optionId);
+        return;
+    }
+
     if (existingParentIndex !== -1) {
         // 기존 부모 + 그 다음 인덱스(자식) 제거
         menuOption.optionId.splice(existingParentIndex, 2);
     }
+
 
     // 새 부모 + 자식 추가
     menuOption.optionId.push(optId, chId);
     console.log('선택된 옵션 아이디:', optId);
     console.log('선택된 자식 아이디:', chId);
 
-    console.log("전체 옵션", menuOption.optionId)
+    console.log("전체 옵션", menuOption.optionId);
 
-    if (!isRequired) {
-        // 1개만 선택: 기존 배열 비우고 새로 추가
-        menuOption.optionId = [optId, chId];
-    }
+
 
 };
 
@@ -150,7 +176,7 @@ const emit = defineEmits(['cart-updated']);
                                 <div class="options" v-for="child in optionItem.children" :key="child.optionId">
                                     <input class="option-btn" type="checkbox" :name="'option-' + optionItem.optionId"
                                         :checked="selectData.optionId.map(Number).includes(Number(child.optionId))"
-                                        @change="onOptionSelect(optionItem.optionId, child.optionId)" />
+                                        @click="onOptionSelect($event, optionItem.optionId, child.optionId)" />
                                     <span class="option-detail">{{ child.comment }}</span>
                                     <div class="menu-price">{{ child.price }}원</div>
                                 </div>
