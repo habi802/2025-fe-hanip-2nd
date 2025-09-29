@@ -2,7 +2,11 @@
 import OrderListCard from "@/components/owner/OrderListCard.vue";
 import { computed, ref, reactive, inject, onMounted, watch } from "vue";
 import { useOrderStore } from "@/stores/orderStore";
-import { deleteOrder, getOrderByDate, getOwnerOrder2 } from "@/services/orderService";
+import {
+  deleteOrder,
+  getOrderByDate,
+  getOwnerOrder2,
+} from "@/services/orderService";
 import { useAccountStore, useOwnerStore } from "@/stores/account";
 import OrderDetails from "@/components/owner/orderInfo/OrderDetails.vue";
 import OrderStatus from "@/components/owner/orderInfo/OrderStatus.vue";
@@ -10,8 +14,6 @@ import OrderedMenu from "@/components/owner/orderInfo/OrderedMenu.vue";
 import PaymentDetails from "@/components/owner/orderInfo/PaymentDetails.vue";
 
 const orderStore = useOrderStore();
-const user = useAccountStore();
-const ownerStore = useOwnerStore();
 const selectedOrder = ref(null);
 
 // 부트스트랩 alert
@@ -35,12 +37,10 @@ const removeAlert = (id) => {
   if (index !== -1) alerts.splice(index, 1);
 };
 
-const historyOrders = computed(() => orderStore.historyOrders);
-
 onMounted(async () => {
   data.store_id = storeId?.value;
-  fetchOrders(storeId)
-})
+  fetchOrders(storeId);
+});
 
 const fetchOrders = async () => {
   const res = await getOrderByDate(data);
@@ -49,6 +49,7 @@ const fetchOrders = async () => {
     return;
   }
   orderStore.orders = res.data.resultData;
+  console.log("데이타: ", res.data.resultData)
 };
 
 // 페이징
@@ -61,8 +62,8 @@ const changePage = async (pageNum) => {
 const orderDetail = ref(null);
 
 const state = reactive({
-  selectOrder: null
-})
+  selectOrder: null,
+});
 
 const handleSelectOrder = async (orderId) => {
   console.log("선택된 주문:", orderId);
@@ -75,30 +76,6 @@ const handleSelectOrder = async (orderId) => {
   if (orderDetail.value) {
     orderDetail.value.scrollIntoView({ behavior: "smooth" });
   }
-};
-
-// 삭제
-const deleteOrderOne = async () => {
-  if (!["COMPLETED", "CANCELED"].includes(selectedOrder.value?.status)) {
-    showAlert("진행 중인 주문은 삭제하실 수 없습니다.");
-    return;
-  }
-
-  // 삭제 로직
-  const res = await deleteOrder(selectedOrder.value?.id);
-  console.log("res: ", res.data.resultData);
-  if (res.status !== 200) {
-    showAlert("에러");
-    return;
-  }
-  showAlert("정상적으로 삭제됐습니다.", "alert-success");
-  const owner = useOwnerStore();
-  if (!owner.storeId) {
-    await owner.fetchStoreInfo();
-  }
-  await orderStore.fetchOrders(owner.storeId);
-
-  selectedOrder.value = null;
 };
 
 // 배달 상태 치환
@@ -118,29 +95,6 @@ const statusText = computed(() => {
   }
 });
 
-// 더보기
-const visibleCount = ref(5);
-const visibleOrders = computed(() => {
-  return nonOrderedOrders.value
-    .filter((order) => order.isDeleted !== 1)
-    .slice(0, visibleCount.value);
-});
-const loadMore = () => {
-  visibleCount.value += 5;
-};
-
-// 날짜
-const formatDateTime = (isoStr) => {
-  return new Date(isoStr).toLocaleString("ko-KR", {
-    timeZone: "Asia/Seoul",
-    year: "numeric",
-    month: "2-digit",
-    day: "2-digit",
-    hour: "2-digit",
-    minute: "2-digit",
-  });
-};
-
 // 가게 아이디
 const storeId = inject("storeId", "");
 
@@ -157,10 +111,10 @@ const data = reactive({
   store_id: "",
   start_date: null,
   end_date: null,
-  page: 1,           
-  row_per_page: 5,  
+  page: 1,
+  row_per_page: 5,
   search_type: "all",
-  keyword: ""      
+  keyword: "",
 });
 
 // 검색
@@ -176,14 +130,14 @@ const selectRange = async (range) => {
   switch (range) {
     // Todo : 하루조회기간도 만들어서 이걸 디폴트로..!
     case "1d":
-    selectedLabel.value = "오늘";
-    start = new Date();
-    // 오늘 0시로 맞추기
-    start.setHours(0, 0, 0, 0);
-    data.storeId = storeId?.value;
-    data.startDate = formatDate(start);
-    data.endDate = formatDate(end);
-    break;
+      selectedLabel.value = "오늘";
+      start = new Date();
+      // 오늘 0시로 맞추기
+      start.setHours(0, 0, 0, 0);
+      data.storeId = storeId?.value;
+      data.startDate = formatDate(start);
+      data.endDate = formatDate(end);
+      break;
     case "7d":
       selectedLabel.value = "최근 1주일";
       start = new Date();
@@ -297,16 +251,20 @@ const selectRange = async (range) => {
         </div>
         <!-- 조회기간설정카드 끝-->
         <!-- 검색바 -->
-         
-        <select class="select_bar" v-model="data.search_type">
+
+        <div class="search white-card">
+          <select class="select_bar" v-model="data.search_type">
             <option value="all">전체</option>
             <option value="userName">고객명</option>
             <option value="phone">전화번호</option>
             <option value="address">주소</option>
           </select>
-
-        <div class="search white-card">
-          <input v-model="data.keyword" type="text" placeholder="검색어 입력" />
+          <input
+            v-model="data.keyword"
+            type="text"
+            placeholder="검색어 입력"
+            @keyup.enter="handleSearch"
+          />
           <button @click="handleSearch">
             <img src="/src/imgs/search_icon.png" alt="검색아이콘" />
           </button>
@@ -322,23 +280,25 @@ const selectRange = async (range) => {
         <!-- 주문 없음 -->
         <div v-else-if="0">주문이 없습니다.</div>
         <order-list-card
-        v-for="order in orderStore.orders"
-        :key="order.orderId"
-        :order="order"
-        :cancel="order.status === '06'"   
-        @selectOrder="handleSelectOrder"
-        style="cursor: pointer"
+          v-for="order in orderStore.orders"
+          :key="order.orderId"
+          :order="order"
+          :cancel="order.status === '06'"
+          @selectOrder="handleSelectOrder"
+          style="cursor: pointer"
         />
         <!-- <order-list-card  v-for="order in visibleOrders" :key="order.id" :order="order" style="cursor: pointer" @selectOrder="handleSelectOrder(order)"/> -->
       </div>
       <!--order-list 끝-->
 
       <!-- 페이지네이션 -->
-<div class="pagenation">
-  <button @click="changePage(data.page - 1)" :disabled="data.page <= 1">이전</button>
-  <span> {{ data.page }} </span>
-  <button @click="changePage(data.page + 1)">다음</button>
-</div>
+      <div class="pagenation">
+        <button @click="changePage(data.page - 1)" :disabled="data.page <= 1">
+          이전
+        </button>
+        <span> {{ data.page }} </span>
+        <button @click="changePage(data.page + 1)">다음</button>
+      </div>
       <!--pagenation 끝-->
     </div>
     <!-- section-left 끝-->
@@ -348,12 +308,12 @@ const selectRange = async (range) => {
         <div class="orders-detail">
           <!-- 주문정보 -->
           <OrderDetails :order="state.selectOrder" />
-          <!-- 주문상세 --> 
+          <!-- 주문상세 -->
           <OrderedMenu :order="state.selectOrder" />
           <!-- 주문현황 -->
-          <OrderStatus :order="state.selectOrder"/>
+          <OrderStatus :order="state.selectOrder" />
           <!-- 결제내역 -->
-          <PaymentDetails :order="state.selectOrder"/>
+          <PaymentDetails :order="state.selectOrder" />
         </div>
         <!-- orders-detail 끝-->
         <!-- <button class="btn" @click="deleteOrderOne">
@@ -384,10 +344,15 @@ const selectRange = async (range) => {
 }
 
 .select_bar {
-        padding: 5px;
-        border-radius: 5px;
-        border: 1px solid #ddd;
-      }
+  border: none; /* 테두리 제거 */
+  outline: none; /* 포커스 테두리 제거 */
+  background: transparent;
+  font-size: 14px;
+  color: #333;
+  padding: 0 5px;
+  height: 100%;
+  cursor: pointer;
+}
 
 @keyframes spin {
   to {
@@ -395,6 +360,10 @@ const selectRange = async (range) => {
   }
 }
 
+.search input:focus {
+  outline: none;
+  border-color: #ddd; // 그대로 유지
+}
 
 .wrap {
   width: 95%;
@@ -449,15 +418,17 @@ const selectRange = async (range) => {
       button {
         height: 100%;
         background-color: #fff;
-        
+
         img {
           height: 50%;
         }
       }
       input {
-        width: 100%;
+        flex: 1; /* 남는 공간 다 차지 */
         border: none;
-        border-radius: 0;
+        outline: none;
+        font-size: 14px;
+        padding: 0 8px;
       }
     }
     .order-list-wrap {
@@ -466,7 +437,6 @@ const selectRange = async (range) => {
       display: flex;
       flex-direction: column;
       justify-content: start;
-    
     }
     .pagenation {
       width: 100%;

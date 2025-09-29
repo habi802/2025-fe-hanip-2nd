@@ -34,7 +34,7 @@ export const useOrderStore = defineStore(
         this.isLoading = true;
         try {
           const res = await getOrderByDate(params);
-          this.orders = res.data?.resultData ?? []; // ✅ 단일 orders 업데이트
+          this.orders = res.data?.resultData ?? [];
         } catch (err) {
           console.error("fetchOrdersByDate 실패:", err);
           this.orders = [];
@@ -106,7 +106,7 @@ export const useOrderStore = defineStore(
     },
   },
   { persist: false }
-); // 주문은 실시간이므로 persist는 false
+);
 
 /* todo
     ORDERED("01", "결제 확인"),
