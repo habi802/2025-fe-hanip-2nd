@@ -1,7 +1,7 @@
 
-if (import.meta.env.VITE_USE_MOCK === 'true') {
-    import('@/services/test/mock.js'); // mock.js가 실행되면서 axios에 목업(임시데이터)이 붙음!
-  }
+// if (import.meta.env.VITE_USE_MOCK === 'true') {
+//     import('@/services/test/mock.js'); // mock.js가 실행되면서 axios에 목업(임시데이터)이 붙음!
+//   }
 import BootstrapVue3 from 'bootstrap-vue-3'
 import 'bootstrap-vue-3/dist/bootstrap-vue-3.css'
 import 'bootstrap/dist/css/bootstrap.min.css'
