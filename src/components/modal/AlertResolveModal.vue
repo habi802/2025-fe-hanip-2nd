@@ -30,17 +30,12 @@ const cancel = () => {
 };
 
 const hide = () => {
-    if (resolvePromise) {
-        resolvePromise(false);
-    }
-    resolvePromise = null;
-
     show.value = false;
 };
 </script>
 
 <template>
-    <b-modal v-model="show" @hide="hide" title="알림" centered>
+    <b-modal v-model="show" @hide="hide" title="알림" centered :no-close-on-backdrop="true" :no-close-on-esc="true">
         {{ body }}
 
         <!-- footer 커스텀 -->

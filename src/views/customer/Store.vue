@@ -339,6 +339,25 @@ const getStoreMenu = async (storeId) => {
   store.menus = res.data.resultData;
   console.log("메뉴 정보", store.menus);
 
+  if (store.menus.length <= 0) {
+    let timeoutId;
+    const redirectHome = () => {
+      clearTimeout(timeoutId); 
+      router.push("/");
+    };
+    timeoutId = setTimeout(() => {
+      redirectHome();
+    }, 2000);
+    setTimeout(async () => {
+      const alret = await alertResolveModal.value.showModal("가게의 메뉴가 없습니다.");
+
+      if (alret) {
+        router.push("/")
+      }
+    }, 150);
+
+  }
+
 }
 
 
