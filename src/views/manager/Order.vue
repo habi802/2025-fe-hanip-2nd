@@ -4,7 +4,6 @@ import '@/assets/manager/manager.css'
 import { onMounted, reactive, ref } from 'vue';
 import { getOrderList, getOrder, patchOrderStatus } from '@/services/managerService';
 import { usePaginationStore } from '@/stores/pagination';
-import VueDatePicker from '@vuepic/vue-datepicker';
 import PageSizeSelect from '@/components/manager/PageSizeSelect.vue';
 import DateTable from '@/components/manager/DataTable.vue';
 import BoardModal from '@/components/manager/BoardModal.vue';
