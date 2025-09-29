@@ -1,46 +1,50 @@
 <script setup>
 import { ref } from 'vue';
 const props = defineProps({
-  cancel: false,
-  order: {
-    status: "CANCELED",
-    id : 1,
-    userName:"홍길동",
-    address:"ㅇㅇㅇㅇ",
-    updated:"2025-09-15",
-    amount:"1000000",
-  }
+  cancel: { type: Boolean, default: false },
+  order: { type: Object, required: true }
   //Object,
 });
 const emit = defineEmits(["selectOrder"]);
 
+// 포맷
 const formatDate = (dateStr) => {
   const date = new Date(dateStr);
   return `${date.getMonth() + 1}월 ${date.getDate()}일 (${
     ["일", "월", "화", "수", "목", "금", "토"][date.getDay()]
   })`;
 };
+
+const formatTime = (dateString) => {
+  if (!dateString) return "";
+  const date = new Date(dateString);
+  return date.toLocaleTimeString("ko-KR", {
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false,
+  });
+};
 </script>
 
 <template>
-  <div class="order-card pb-4">
+  <div class="order-card pb-4" @click="emit('selectOrder', order.orderId)">
     <div class="order-content" :class="{'cancel' : cancel}"  >
       <div>
         <span>주문번호</span>
-        <span class="order-num">01-00-0</span>
+        <span class="order-num">{{order.orderId}}</span>
         <span v-if="cancel">( 취소된 주문 )</span>
       </div>
       <div>
-        <span>1월 19일(화)</span>
-        <span class="order-time">14:05</span>
+        <span>{{formatDate(order.createdAt)}}</span>
+        <span class="order-time">{{formatTime(order.createdAt)}}</span>
       </div>
       <div>
-        <span>집주소님</span>
-        <span class="order-address">대구 중구 가나다라마바사동 </span>
+        <span>{{ order.userName }}</span>
+        <span class="order-address">{{ order.address }} </span>
       </div>
       <div>
         <span>총합계</span>
-        <span class="order-account">12000원</span>
+        <span class="order-account">{{Number(order.amount ?? 0).toLocaleString()}} 원</span>
       </div>
     </div><!--order-content 끝-->
   </div><!-- order-card 끝-->

@@ -1,8 +1,8 @@
 <script setup>
 import OrderListCard from "@/components/owner/OrderListCard.vue";
-import { computed, ref, reactive, inject } from "vue";
+import { computed, ref, reactive, inject, onMounted, watch } from "vue";
 import { useOrderStore } from "@/stores/orderStore";
-import { deleteOrder, getOrderByDate } from "@/services/orderService";
+import { deleteOrder, getOrderByDate, getOwnerOrder2 } from "@/services/orderService";
 import { useAccountStore, useOwnerStore } from "@/stores/account";
 import OrderDetails from "@/components/owner/orderInfo/OrderDetails.vue";
 import OrderStatus from "@/components/owner/orderInfo/OrderStatus.vue";
@@ -11,7 +11,7 @@ import PaymentDetails from "@/components/owner/orderInfo/PaymentDetails.vue";
 
 const orderStore = useOrderStore();
 const user = useAccountStore();
-const nonOrderedOrders = computed(() => orderStore.nonOrderedList);
+const ownerStore = useOwnerStore();
 const selectedOrder = ref(null);
 
 // 부트스트랩 alert
@@ -35,36 +35,41 @@ const removeAlert = (id) => {
   if (index !== -1) alerts.splice(index, 1);
 };
 
-// 전체 주문 수
-const totalOrderCount = computed(() => nonOrderedOrders.value.length);
+const historyOrders = computed(() => orderStore.historyOrders);
 
-// 전체 배달 수
-const totalCompelteOrderCount = computed(
-  () =>
-    nonOrderedOrders.value.filter(
-      (order) => order.status?.trim().toUpperCase() === "COMPLETED"
-    ).length
-);
+onMounted(async () => {
+  data.store_id = storeId?.value;
+  fetchOrders(storeId)
+})
 
-// 취소된 주문
-const totalCanceledOrderCount = computed(
-  () =>
-    nonOrderedOrders.value.filter((order) => order.status === "CANCELED").length
-);
+const fetchOrders = async () => {
+  const res = await getOrderByDate(data);
+  if (res.status !== 200) {
+    showAlert("데이터 조회에 실패하였습니다.");
+    return;
+  }
+  orderStore.orders = res.data.resultData;
+};
 
-// 전체 매출
-const totalSales = computed(() =>
-  nonOrderedOrders.value
-    .filter((order) => order.status?.trim().toUpperCase() === "COMPLETED")
-    .reduce((sum, order) => sum + Math.round((order.amount || 0) / 10000), 0)
-);
+// 페이징
+const changePage = async (pageNum) => {
+  data.page = pageNum;
+  await fetchOrders();
+};
 
 // 주문 내역으로 스크롤
 const orderDetail = ref(null);
 
-const handleSelectOrder = (order) => {
-  console.log("선택된 주문:", order);
-  selectedOrder.value = order;
+const state = reactive({
+  selectOrder: null
+})
+
+const handleSelectOrder = async (orderId) => {
+  console.log("선택된 주문:", orderId);
+  const res = await getOwnerOrder2(orderId);
+  state.selectOrder = res.data.resultData;
+  selectedOrder.value = orderId;
+  selectedOrder.value = res.data.resultData;
 
   // 스크롤
   if (orderDetail.value) {
@@ -136,9 +141,6 @@ const formatDateTime = (isoStr) => {
   });
 };
 
-// 사장 대표자 이름
-const ownerName = inject("ownerName", "");
-
 // 가게 아이디
 const storeId = inject("storeId", "");
 
@@ -152,10 +154,20 @@ const formatDate = (date) => {
 };
 
 const data = reactive({
-  storeId: "",
-  startDate: "",
-  endDate: "",
+  store_id: "",
+  start_date: null,
+  end_date: null,
+  page: 1,           
+  row_per_page: 5,  
+  search_type: "all",
+  keyword: ""      
 });
+
+// 검색
+const handleSearch = async () => {
+  data.page = 1;
+  await fetchOrders();
+};
 
 const selectRange = async (range) => {
   const end = new Date();
@@ -164,9 +176,14 @@ const selectRange = async (range) => {
   switch (range) {
     // Todo : 하루조회기간도 만들어서 이걸 디폴트로..!
     case "1d":
-      selectedLabel.value = "오늘";
-      console.log("추후작업");
-      break;
+    selectedLabel.value = "오늘";
+    start = new Date();
+    // 오늘 0시로 맞추기
+    start.setHours(0, 0, 0, 0);
+    data.storeId = storeId?.value;
+    data.startDate = formatDate(start);
+    data.endDate = formatDate(end);
+    break;
     case "7d":
       selectedLabel.value = "최근 1주일";
       start = new Date();
@@ -280,9 +297,17 @@ const selectRange = async (range) => {
         </div>
         <!-- 조회기간설정카드 끝-->
         <!-- 검색바 -->
+         
+        <select class="select_bar" v-model="data.search_type">
+            <option value="all">전체</option>
+            <option value="userName">고객명</option>
+            <option value="phone">전화번호</option>
+            <option value="address">주소</option>
+          </select>
+
         <div class="search white-card">
-          <input type="text" placeholder="검색" />
-          <button>
+          <input v-model="data.keyword" type="text" placeholder="검색어 입력" />
+          <button @click="handleSearch">
             <img src="/src/imgs/search_icon.png" alt="검색아이콘" />
           </button>
         </div>
@@ -291,23 +316,29 @@ const selectRange = async (range) => {
 
       <div class="order-list-wrap scrollbar">
         <!-- 주문 리스트 -->
-        <div v-if="orderStore.orders?.length === 0" class="loading"></div>
+        <div v-if="orderStore.isLoading" class="loading"></div>
+        <div v-else-if="orderStore.orders.length === 0">주문이 없습니다.</div>
+
         <!-- 주문 없음 -->
         <div v-else-if="0">주문이 없습니다.</div>
-        <order-list-card v-else></order-list-card>
-        <order-list-card :cancel="true"></order-list-card>
-        <order-list-card></order-list-card>
+        <order-list-card
+        v-for="order in orderStore.orders"
+        :key="order.orderId"
+        :order="order"
+        :cancel="order.status === '06'"   
+        @selectOrder="handleSelectOrder"
+        style="cursor: pointer"
+        />
         <!-- <order-list-card  v-for="order in visibleOrders" :key="order.id" :order="order" style="cursor: pointer" @selectOrder="handleSelectOrder(order)"/> -->
       </div>
       <!--order-list 끝-->
 
-      <div class="pagenation">
-        <span>< 1, 2, 3, 4, 5 ></span>
-        <!-- <button class="btn btn-secondary d-block" v-if="visibleCount < nonOrderedOrders.length" @click="loadMore"
-          style=" font-size: 1.5rem; padding: 1rem 2rem; width: 100%; max-width: 755px; " >
-          더보기
-          </button> -->
-      </div>
+      <!-- 페이지네이션 -->
+<div class="pagenation">
+  <button @click="changePage(data.page - 1)" :disabled="data.page <= 1">이전</button>
+  <span> {{ data.page }} </span>
+  <button @click="changePage(data.page + 1)">다음</button>
+</div>
       <!--pagenation 끝-->
     </div>
     <!-- section-left 끝-->
@@ -316,15 +347,13 @@ const selectRange = async (range) => {
       <div class="orders-wrap white-card">
         <div class="orders-detail">
           <!-- 주문정보 -->
-          <OrderDetails></OrderDetails>
-          <!-- 주문상세 -->
-          <OrderedMenu style="height: 300px"></OrderedMenu>
+          <OrderDetails :order="state.selectOrder" />
+          <!-- 주문상세 --> 
+          <OrderedMenu :order="state.selectOrder" />
           <!-- 주문현황 -->
-          <section style="height: 300px">
-            <OrderStatus></OrderStatus>
-          </section>
+          <OrderStatus :order="state.selectOrder"/>
           <!-- 결제내역 -->
-          <PaymentDetails></PaymentDetails>
+          <PaymentDetails :order="state.selectOrder"/>
         </div>
         <!-- orders-detail 끝-->
         <!-- <button class="btn" @click="deleteOrderOne">
@@ -353,11 +382,19 @@ const selectRange = async (range) => {
   animation: spin 0.8s linear infinite;
   margin: 30px auto;
 }
+
+.select_bar {
+        padding: 5px;
+        border-radius: 5px;
+        border: 1px solid #ddd;
+      }
+
 @keyframes spin {
   to {
     transform: rotate(360deg);
   }
 }
+
 
 .wrap {
   width: 95%;
@@ -407,9 +444,12 @@ const selectRange = async (range) => {
       display: flex;
       align-items: center;
       padding: 0 20px;
+      gap: 8px;
+
       button {
         height: 100%;
         background-color: #fff;
+        
         img {
           height: 50%;
         }
@@ -422,12 +462,11 @@ const selectRange = async (range) => {
     }
     .order-list-wrap {
       width: 100%;
-      height: 90vh;
+      height: 80vh;
       display: flex;
       flex-direction: column;
       justify-content: start;
-      overflow: auto;
-      overflow-x: hidden;
+    
     }
     .pagenation {
       width: 100%;
@@ -442,10 +481,9 @@ const selectRange = async (range) => {
     width: 50%;
     height: 100%;
     max-width: 800px;
-    overflow: auto;
     // 주문상세내역
     .orders-wrap {
-      height: 100%;
+      height: 90%;
       display: flex;
       flex-direction: column;
       justify-content: space-around;
