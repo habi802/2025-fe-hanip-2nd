@@ -7,7 +7,7 @@ import { usePaginationStore } from '@/stores/pagination';
 import VueDatePicker from '@vuepic/vue-datepicker';
 import PageSizeSelect from '@/components/manager/PageSizeSelect.vue';
 import DateTable from '@/components/manager/DataTable.vue';
-import BoardCard from '@/components/manager/BoardCard.vue';
+import BoardCard from '@/components/manager/BoardModal.vue';
 import LoadingModal from '@/components/modal/LoadingModal.vue';
 import AlertModal from '@/components/modal/AlertModal.vue';
 import ConfirmModal from '@/components/modal/ConfirmModal.vue';

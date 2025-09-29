@@ -7,7 +7,7 @@ import { usePaginationStore } from '@/stores/pagination';
 import VueDatePicker from '@vuepic/vue-datepicker';
 import PageSizeSelect from '@/components/manager/PageSizeSelect.vue';
 import DateTable from '@/components/manager/DataTable.vue';
-import BoardCard from '@/components/manager/BoardCard.vue';
+import BoardModal from '@/components/manager/BoardModal.vue';
 import LoadingModal from '@/components/modal/LoadingModal.vue';
 import AlertModal from '@/components/modal/AlertModal.vue';
 import ConfirmModal from '@/components/modal/ConfirmModal.vue';
@@ -145,12 +145,11 @@ const changePage = page => {
     getStores();
 };
 
-const boardSection = ref(null);
-
+const boardModalRef = ref(null);
 const store = ref({});
 
 // 상세 조회
-const goToBoardSection = async item => {
+const openBoardModal = async item => {
     loadingModalRef.value.open();
 
     const res = await getStore(item.storeId);
@@ -159,7 +158,7 @@ const goToBoardSection = async item => {
         store.value = res.data.resultData;
 
         // 상세 정보 보여주는 요소로 스크롤 이동
-        boardSection.value?.$el.scrollIntoView({ behavior: "smooth" });
+        boardModalRef.value.open();
     }
 
     loadingModalRef.value.hide();
@@ -243,43 +242,37 @@ onMounted(() => {
 
             <b-col cols="12">
                 <b-row>
-                    <b-col cols="12" lg="6">
+                    <b-col cols="12">
                         <b-row>
-                            <b-col cols="12">
-                                <b-row>
-                                    <b-col cols="6" class="text-start mb-2">
-                                        총 {{ pagination.state.totalRow }} 건
-                                    </b-col>
-
-                                    <b-col cols="6" class="text-end mb-2">
-                                        <PageSizeSelect @change-page-size="changePageSize" />
-                                    </b-col>
-                                </b-row>
+                            <b-col cols="6" class="text-start mb-2">
+                                총 {{ pagination.state.totalRow }} 건
                             </b-col>
 
-                            <b-col cols="12">
-                                <button class="btn btn-success mb-2 me-2" @click="setIsActive(1)">영업 승인</button>
-                                <button class="btn btn-secondary mb-2" @click="setIsActive(0)">영업 대기</button>
-                            </b-col>
-
-                            <b-col cols="12">
-                                <DateTable title="store" :items="state.stores" :field="fields" id-key="storeId" @row-selected="goToBoardSection" @row-checked="addCheckItemIds" />
-                            </b-col>
-
-                            <b-col cols="12">
-                                <b-pagination align="center"
-                                v-model="pagination.state.pageNumber" :per-page="pagination.state.pageSize" :total-rows="pagination.state.totalRow" @update:model-value="changePage"></b-pagination>
+                            <b-col cols="6" class="text-end mb-2">
+                                <PageSizeSelect @change-page-size="changePageSize" />
                             </b-col>
                         </b-row>
                     </b-col>
 
-                    <b-col ref="boardSection" cols="12" lg="6">
-                        <BoardCard title="store" :item="store" id-key="storeId" @set-item-status="addSelectedItemId" />
+                    <b-col cols="12">
+                        <button class="btn btn-success mb-2 me-2" @click="setIsActive(1)">영업 승인</button>
+                        <button class="btn btn-secondary mb-2" @click="setIsActive(0)">영업 대기</button>
+                    </b-col>
+
+                    <b-col cols="12">
+                        <DateTable title="store" :items="state.stores" :field="fields" id-key="storeId" @row-selected="openBoardModal" @row-checked="addCheckItemIds" />
+                    </b-col>
+
+                    <b-col cols="12">
+                        <b-pagination align="center"
+                        v-model="pagination.state.pageNumber" :per-page="pagination.state.pageSize" :total-rows="pagination.state.totalRow" @update:model-value="changePage"></b-pagination>
                     </b-col>
                 </b-row>
             </b-col>
         </b-row>
     </b-container>
+
+    <BoardModal title="store" :item="store" id-key="storeId" @set-item-status="addSelectedItemId" ref="boardModalRef" />
 
     <LoadingModal ref="loadingModalRef" />
     <AlertModal ref="alertModalRef" />
@@ -287,5 +280,4 @@ onMounted(() => {
 </template>
 
 <style lang="scss" scoped>
-
 </style>
