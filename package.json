@@ -10,7 +10,6 @@
   },
   "dependencies": {
     "@faker-js/faker": "^10.0.0",
-    "@vuepic/vue-datepicker": "^11.0.2",
     "axios": "^1.12.2",
     "bootstrap": "^5.3.8",
     "bootstrap-vue": "^2.23.1",
@@ -18,12 +17,13 @@
     "chart.js": "^4.5.0",
     "dayjs": "^1.11.18",
     "faker": "^6.6.6",
+    "flatpickr": "^4.6.13",
     "pinia": "^3.0.3",
     "pinia-plugin-persistedstate": "^4.5.0",
     "pretendard": "^1.3.9",
     "swiper": "^11.2.10",
-    "v-calendar": "^3.1.2",
     "vue": "^3.5.17",
+    "vue-flatpickr-component": "^12.0.0",
     "vue-router": "^4.5.1"
   },
   "devDependencies": {
