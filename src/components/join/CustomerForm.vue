@@ -102,12 +102,8 @@ function validatePhone(field) {
         <span>*</span>
         <p>이름</p>
       </div>
-      <input
-        type="text"
-        :value="localForm.name"
-        @input="(e) => updateField('name', e.target.value)"
-        @focus="() => clearError('name')"
-      />
+      <input type="text" :value="localForm.name" @input="(e) => updateField('name', e.target.value)"
+        @focus="() => clearError('name')" />
     </div>
     <div class="sevLine"></div>
 
@@ -120,32 +116,16 @@ function validatePhone(field) {
       <div class="address-box">
         <!-- 1줄: 우편번호 + 주소검색 -->
         <div class="address-row">
-          <input
-            type="text"
-            v-model="addresses[0].postcode"
-            placeholder="우편번호"
-            readonly
-          />
+          <input type="text" v-model="addresses[0].postcode" placeholder="우편번호" readonly />
           <button @click="handleAddressSearch" type="button">주소검색</button>
         </div>
 
         <!-- 2줄: 기본주소 -->
-        <input
-          type="text"
-          v-model="addresses[0].address"
-          placeholder="기본주소"
-          readonly
-          class="full-width"
-        />
+        <input type="text" v-model="addresses[0].address" placeholder="기본주소" readonly class="full-width" />
 
         <!-- 3줄: 상세주소 -->
-        <input
-          type="text"
-          :value="localForm.addressDetail"
-          placeholder="상세주소"
-          @input="(e) => updateField('addressDetail', e.target.value)"
-          class="full-width"
-        />
+        <input type="text" v-model="addresses[0].addressDetail" placeholder="상세주소"
+          @input="(e) => updateField('addressDetail', e.target.value)" class="full-width" />
       </div>
     </div>
     <div class="sevLine"></div>
@@ -157,30 +137,17 @@ function validatePhone(field) {
         <p>전화번호</p>
       </div>
       <div class="phone-input">
-        <select
-          :value="localForm.phone1"
-          @change="(e) => updateField('phone1', e.target.value)"
-        >
+        <select :value="localForm.phone1" @change="(e) => updateField('phone1', e.target.value)">
           <option>010</option>
           <option>016</option>
           <option>017</option>
           <option>018</option>
           <option>019</option>
         </select>
-        <input
-          type="text"
-          maxlength="4"
-          :value="localForm.phone2"
-          @input="(e) => handlePhoneInput(e, 'phone2')"
-          :class="{ invalid: errors.phone2 }"
-        />
-        <input
-          type="text"
-          maxlength="4"
-          :value="localForm.phone3"
-          @input="(e) => handlePhoneInput(e, 'phone3')"
-          :class="{ invalid: errors.phone3 }"
-        />
+        <input type="text" maxlength="4" :value="localForm.phone2" @input="(e) => handlePhoneInput(e, 'phone2')"
+          :class="{ invalid: errors.phone2 }" />
+        <input type="text" maxlength="4" :value="localForm.phone3" @input="(e) => handlePhoneInput(e, 'phone3')"
+          :class="{ invalid: errors.phone3 }" />
       </div>
     </div>
     <p class="error-msg" v-if="errors.phone2 || errors.phone3">
