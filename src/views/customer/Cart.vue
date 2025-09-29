@@ -278,21 +278,24 @@ const selectOption = reactive({
 </script>
 
 <template>
-  <div class="section-header">
-    <div class="section-title">
-      <div class="text-top">장바구니</div>
-      <div class="step-horizontal">
-        <span class="step-text">01 음식선택</span>
-        <span class="arrow"><img src="/src/imgs/cartimgs/arrow-back.png" /></span>
-        <span class="step-text current">02 장바구니</span>
-        <span class="arrow"><img src="/src/imgs/cartimgs/arrow-back.png" /></span>
-        <span class="step-text">03 주문/결제</span>
-        <span class="arrow"><img src="/src/imgs/cartimgs/arrow-back.png" /></span>
-        <span class="step-text">04 주문완료</span>
+  <div class="big-box"></div>
+  <div class="order-header">
+    <h2 class="header-text">장바구니</h2>
+    <div class="steps-box">
+
+      <div class="order-steps">
+        <span>01 음식 선택</span> ›
+        <span class="current">02 장바구니</span> ›
+        <span>03 주문/결제</span> ›
+        <span>04 주문완료</span>
       </div>
     </div>
-    <div class="solid"></div>
+    <div class="header-box">
+
+      <div class="header-divider"></div>
+    </div>
   </div>
+
 
   <!-- 1. 로그인 안 했고 장바구니 비었을 때 -->
   <div v-if="!account.state.loggedIn && state.items.length === 0">
@@ -946,5 +949,49 @@ const selectOption = reactive({
   color: #888;
   opacity: 0.4;
   pointer-events: none;
+}
+
+.header-text {
+  margin-top: 45px;
+  font-size: 1.89em;
+}
+
+.order-header {
+  position: relative;
+  margin-bottom: 36px;
+  text-align: center;
+}
+
+.steps-box {
+  display: flex;
+  width: 80%;
+  justify-content: end;
+}
+
+
+
+.order-steps {
+  right: 0;
+  margin-top: 20px;
+  font-size: 16px;
+  color: #6b6b6b;
+}
+
+.order-steps .current {
+  color: #ff6666;
+  font-weight: 700;
+}
+
+.header-box {
+  display: flex;
+  justify-content: center;
+}
+
+.header-divider {
+
+  margin-top: 18px;
+  height: 2px;
+  background: #000000;
+  width: 60%;
 }
 </style>
