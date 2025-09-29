@@ -8,7 +8,7 @@ import { useCartStore } from '@/stores/cartStore';
 import { getUser } from '@/services/userService';
 import { getStore } from '@/services/storeService';
 import { useUserInfo } from '@/stores/account';
-import { naverGetCid, naverPayApply, naverPayReserve } from '@/services/payment';
+import { kakaoPayReady, naverGetCid, naverPayApply, naverPayReserve, kakaoGetPayApprove } from '@/services/payment';
 
 const baseUrl = import.meta.env.VITE_BASE_URL;
 
@@ -40,6 +40,7 @@ const phone3 = ref('');
 const totalPrice = ref(0);
 
 onMounted(async () => {
+  storeInfo();
   const res = await getUser();
 
   state.form.postcode = res.data.resultData.postcode;
@@ -62,7 +63,6 @@ onMounted(async () => {
   console.log("state.carts", state.carts)
 
   calculateTotal();
-  storeInfo();
 
   //네이버페이 payId 받았을때만 
   const routeOrderId = route.query.orderId;
@@ -93,15 +93,39 @@ onMounted(async () => {
 
     apply();
   }
+  // 백엔드에서 주소 입력해서 넘겨받음 ^^ 최고의 생각이였다 
+  const queryString = window.location.search;
+  const urlParams = new URLSearchParams(queryString);
 
+  const orderId = urlParams.get('orderId');
+  const pg_token = urlParams.get('pg_token');
+
+  if (orderId) {
+    console.log("orderId", orderId)
+    console.log("pg_token", pg_token)
+
+    const params = { pg_token }
+
+    const kakaoRes = await kakaoGetPayApprove(orderId, params);
+
+    console.log("카카오 정보", kakaoRes);
+    if (kakaoRes.data.resultStatus === 200) {
+      const data = kakaoRes.data.resultData;
+      console.log("데이타 정보", data);
+
+      if (data.aid) {
+        await router.push({ path: `/stores/${state.form.storeId}/order/success`, query: { routeOrderId } });
+      }
+    }
+  }
 
 
 });
 
 
 const storeInfo = async () => {
-
-  const storeInfo = await getStore(state.form.storeId);
+  const storeId = route.params.id;
+  const storeInfo = await getStore(storeId);
 
   state.storeInfo = storeInfo.data.resultData;
   console.log("스토어 정보", state.storeInfo)
@@ -198,8 +222,8 @@ const ordering = async () => {
   }
 
   console.log("데이터 넘어갓나요?", res)
-
   const orderId = res.data.resultData.id;
+  console.log("오더아이디 확인", orderId)
 
   // SDK 로드 후 바로 결제 화면 열기
   const script = document.createElement('script');
@@ -230,12 +254,46 @@ const ordering = async () => {
   };
 
 
-
-
-
-
 }
+//카카오페이용
+const buy = async () => {
+  if (state.form.address.trim().length === 0) {
+    showModal("주소를 입력해주세요");
+    return;
+  } else if (state.form.addressDetail.trim().length === 0) {
+    showModal("상세 주소를 입력해주세요");
 
+    return;
+  } else if (phone2.value.trim().length === 0 || phone3.value.trim().length === 0) {
+    showModal("전화번호를 입력해주세요");
+    return;
+  } else if (!state.form.agree) {
+    showModal("결제 약관에 동의해주세요");
+    return;
+  }
+
+
+  const res = await addOrder(state.form);
+
+  if (res === undefined || res.status !== 200) {
+    showModal("등록 실패");
+    return;
+  } else {
+    console.log("데이터 넘어갓나요?", res)
+    const orderId = res.data.resultData.id;
+    console.log("오더아이디 확인", orderId)
+
+    const res2 = await kakaoPayReady(orderId);
+    if (res2.data.resultStatus === 200) {
+      const data = res2.data.resultData;
+
+      console.log("데이터?", data)
+      const redirectUrl = `${data.next_redirect_pc_url}`;
+      window.location.href = redirectUrl;
+    }
+
+  }
+}
 
 
 
@@ -369,15 +427,15 @@ const pay = reactive({
             </label>
           </div>
           <div class="pay-box">
+            <div class="kakao-pay-box" @click="buy">
+              <div class="kokao-slide-img">
+                <img src="/src/imgs/pay/kakaopay.JPG" alt="카카오페이" class="kakao-pay"></img>
+              </div>
+            </div>
 
             <div class="naver-pay-box" ref="naverPayBtn" @click="ordering">
               <div class="slide-img">
                 <img src="/src/imgs/pay/btn_ext_buying.svg" alt="네이버페이" class="naver-pay"></img>
-              </div>
-            </div>
-            <div class="kakao-pay-box">
-              <div class="kokao-slide-img">
-                <img src="/src/imgs/pay/kakaopay.JPG" alt="카카오페이" class="kakao-pay"></img>
               </div>
             </div>
 
@@ -706,6 +764,7 @@ const pay = reactive({
   border-radius: 10px;
   overflow: hidden;
   cursor: pointer;
+  margin-bottom: 200px;
 }
 
 .kakao-pay-box {
@@ -717,8 +776,6 @@ const pay = reactive({
   border-radius: 10px;
   overflow: hidden;
   cursor: pointer;
-
-  margin-bottom: 200px;
 }
 
 

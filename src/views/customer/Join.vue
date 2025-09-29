@@ -104,10 +104,10 @@ const validateEmail = () => {
   const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   errors.email = regex.test(state.form.email) ? "" : "유효한 이메일 주소를 입력하세요.";
 };
-// 이름
-const validateName = () => {
-  errors.name = state.form.name.trim().length >= 2 ? "" : "이름은 2자 이상이어야 합니다.";
-};
+// // 이름
+// const validateName = () => {
+//   errors.name = state.form.name.trim().length >= 2 ? "" : "이름은 2자 이상이어야 합니다.";
+// };
 
 // 주소
 const validateAddress = () => {
@@ -172,7 +172,6 @@ const validateForm = () => {
   validatePassword();
   validateConfirmPw();
   validateEmail();
-  validateName();
   validateAddress();
   if (memberType.value === "customer") validatePhone();
   else {
@@ -181,7 +180,7 @@ const validateForm = () => {
     validateBusinessNumber();
     validateOpenDate();
   }
-
+  console.log("errors:", JSON.stringify(errors));
   return Object.values(errors).every((msg) => msg === "");
 };
 // 업주 input 시 에러 초기화
@@ -354,52 +353,368 @@ const getUserAddressPostReq = () => {
   return addresses;
 };
 
+const categoryLabels = state.owner.category.map(c => {
+  const cat = categories.find(cat => cat.value === c);
+  return cat ? cat.label : null;
+}).filter(Boolean);
+
 // 제출 함수
+// const submit = async () => {
+//   console.log("state.owner:", state.owner);
+
+//   if (!validateForm()) {
+//     console.log("state.owner", JSON.stringify(state.owner));
+//     showModal("입력값을 다시 확인해주세요.");
+//     return;
+//   }
+
+//   try {
+//     // FormData 생성
+//     const formData = new FormData();
+
+//     // 공통 payload
+//     const payload = {
+//       id: 0,
+//       name: state.form.name,
+//       loginId: state.form.loginId,
+//       loginPw: state.form.loginPw,
+//       phone: getPhoneStr(),
+//       email: state.form.email,
+//       imagePath: "", // 공통 이미지 (프로필)
+//       role: memberType.value === "customer" ? "고객" : "사장", // Enum 매핑
+//       userAddressPostReq: getUserAddressPostReq(),
+//     };
+
+//     // 업주 회원인 경우 storeJoinReq 포함
+//     if (memberType.value === "owner") {
+//       payload.storeJoinReq = getStoreJoinReq();
+//     }
+
+//     // FormData에 JSON Blob으로 추가
+//     formData.append(
+//       "req",
+//       new Blob([JSON.stringify(payload)], { type: "application/json" })
+//     );
+
+//     // 업주 라이선스 파일 첨부
+//     if (memberType.value === "owner" && state.owner.businessFile) {
+//       formData.append("licenseFile", state.owner.businessFile);
+//     }
+
+//     // 프로필 이미지 첨부
+//     if (state.profilePic) {
+//       formData.append("pic", state.profilePic);
+//     }
+
+//     // axios 요청
+//     const res = await axios.post("/user/join", formData, {
+//       headers: { "Content-Type": "multipart/form-data" },
+//     });
+
+//     // 가입 성공 처리
+//     if (res.status === 200) {
+//       showModal("회원가입 완료!");
+//       localStorage.setItem("user", JSON.stringify(res.data.resultData));
+//       router.push("/");
+//     } else {
+//       showModal(res.data?.message || "입력 정보를 다시 확인해 주세요.");
+//     }
+//   } catch (err) {
+//     console.error(err);
+//     showModal("회원가입 중 오류 발생");
+//   }
+// };
+// const submit = async () => {
+//   console.log("▶️ 제출 직전 state.owner:", JSON.stringify(state.owner));
+//   console.log("openDate 값:", state.owner.openDate);
+//   // 유효성 검사
+//   if (!validateForm()) {
+//     showModal("입력값을 다시 확인해주세요.");
+//     return;
+//   }
+
+//   try {
+//     const formData = new FormData();
+
+//     // 공통 유저 정보
+//     const payload = {
+//       id: 0,
+//       name: state.form.name,
+//       loginId: state.form.loginId,
+//       loginPw: state.form.loginPw,
+//       phone: getPhoneStr(), // "010-1234-5678"
+//       email: state.form.email,
+//       role: memberType.value === "owner" ? "OWNER" : "CUSTOMER", // ✅ 서버 Enum 매핑
+//       userAddressPostReq: getUserAddressPostReq(), // [{title,isMain,postcode,address,addressDetail}]
+//     };
+
+//     // 업주 전용 데이터
+//     if (memberType.value === "owner") {
+//       const storeReq = {
+//         id: 0,
+//         name: state.owner.name,
+//         comment: state.owner.comment,
+//         businessNumber: state.owner.businessNumber,
+//         licensePath: state.owner.licensePath ?? "",
+//         imagePath: state.owner.imagePath ?? "",
+//         postcode: state.owner.postcode,
+//         address: state.owner.address,
+//         addressDetail: state.owner.addressDetail,
+//         tel: `${state.owner.storePhone1}-${state.owner.storePhone2}-${state.owner.storePhone3}`,
+//         ownerName: state.owner.ownerName,
+//         openDate: state.owner.openDate,
+//         enumStoreCategory: state.owner.category, // ✅ 배열 그대로 전송
+//       };
+
+//       // 업주 JSON append
+//       formData.append(
+//         "storeJoinReq",
+//         new Blob([JSON.stringify(storeReq)], { type: "application/json" })
+//       );
+
+//       // 사업자 등록증 파일 첨부
+//       if (state.owner.businessFile) {
+//         formData.append("licenseFile", state.owner.businessFile);
+//       }
+//     }
+
+//     // 공통 JSON append
+//     formData.append(
+//       "req",
+//       new Blob([JSON.stringify(payload)], { type: "application/json" })
+//     );
+
+//     // 프로필 이미지 (선택)
+//     if (state.profilePic) {
+//       formData.append("pic", state.profilePic);
+//     }
+
+//     // axios POST
+//     const res = await axios.post("/user/join", formData, {
+//       headers: { "Content-Type": "multipart/form-data" },
+//     });
+
+//     // 결과 처리
+//     if (res.status === 200) {
+//       showModal("회원가입이 완료되었습니다!");
+//       localStorage.setItem("user", JSON.stringify(res.data.resultData));
+//       router.push("/"); // 메인 페이지로 이동
+//     } else {
+//       showModal(res.data?.message || "회원가입 실패: 입력 정보를 확인해주세요.");
+//     }
+//   } catch (err) {
+//     console.error("❌ 회원가입 중 오류:", err);
+//     showModal("회원가입 중 오류가 발생했습니다.");
+//   }
+// };
+// const submit = async () => {
+//   console.log("▶️ 제출 직전 state.owner:", JSON.stringify(state.owner));
+
+//   // 1️⃣ 유효성 검사
+//   if (!validateForm()) {
+//     showModal("입력값을 다시 확인해주세요.");
+//     return;
+//   }
+
+//   // 2️⃣ openDate 형식 확인
+//   const openDateRegex = /^\d{4}-\d{2}-\d{2}$/;
+//   if (memberType.value === "owner" && !openDateRegex.test(state.owner.openDate)) {
+//     showModal("개업일을 YYYY-MM-DD 형식으로 입력해주세요.");
+//     return;
+//   }
+
+//   try {
+//     const formData = new FormData();
+
+//     // 3️⃣ 공통 유저 정보 payload
+//     const userPayload = {
+//       id: 0,
+//       name: state.form.name,
+//       loginId: state.form.loginId,
+//       loginPw: state.form.loginPw,
+//       phone: `${state.form.phone.phone1}-${state.form.phone.phone2}-${state.form.phone.phone3}`,
+//       email: state.form.email,
+//       role: memberType.value === "owner" ? "사장" : "고객",
+//       userAddressPostReq: state.addresses.map((a) => ({
+//         title: a.title ?? "기본 주소",
+//         isMain: a.isMain ?? 1,
+//         postcode: a.postcode ?? "",
+//         address: a.address ?? "",
+//         addressDetail: a.addressDetail ?? "",
+//       })),
+//     };
+
+//     formData.append(
+//       "req",
+//       new Blob([JSON.stringify(userPayload)], { type: "application/json" })
+//     );
+
+//     // 4️⃣ 업주 회원이면 storeJoinReq 추가
+//     if (memberType.value === "owner") {
+//       const storePayload = {
+//         id: 0,
+//         name: state.owner.storeName,
+//         comment: state.owner.comment,
+//         businessNumber: state.owner.businessNumber,
+//         licensePath: state.owner.licensePath ?? "",
+//         imagePath: state.owner.imagePath ?? "",
+//         postcode: state.owner.postcode,
+//         address: state.owner.address,
+//         addressDetail: state.owner.addressDetail,
+//         tel: `${state.owner.storePhone1}-${state.owner.storePhone2}-${state.owner.storePhone3}`,
+//         ownerName: state.owner.ownerName,
+//         openDate: state.owner.openDate,
+//         enumStoreCategory: state.owner.category, // 배열 그대로 전송
+//       };
+
+//       formData.append(
+//         "storeJoinReq",
+//         new Blob([JSON.stringify(storePayload)], { type: "application/json" })
+//       );
+
+//       // 사업자 등록증 파일 첨부
+//       if (state.owner.businessFile) {
+//         formData.append("licenseFile", state.owner.businessFile);
+//       }
+//     }
+
+//     // 5️⃣ 프로필 이미지 첨부
+//     if (state.profilePic) {
+//       formData.append("pic", state.profilePic);
+//     }
+
+//     // 6️⃣ Axios POST
+//     const res = await axios.post("/user/join", formData, {
+//       headers: { "Content-Type": "multipart/form-data" },
+//     });
+
+//     // 7️⃣ 결과 처리
+//     if (res.status === 200) {
+//       showModal("회원가입 완료!");
+//       localStorage.setItem("user", JSON.stringify(res.data.resultData));
+//       router.push("/");
+//     } else {
+//       showModal(res.data?.message || "회원가입 실패: 입력 정보를 확인해주세요.");
+//     }
+//   } catch (err) {
+//     console.error("❌ 회원가입 중 오류:", err);
+//     showModal("회원가입 중 오류가 발생했습니다.");
+//   }
+// };
 const submit = async () => {
+  console.log("▶️ 제출 직전 state.owner:", JSON.stringify(state.owner));
+  // 1️⃣ 유효성 검사
   if (!validateForm()) {
     showModal("입력값을 다시 확인해주세요.");
     return;
   }
 
-  const payload = {
-    id: 0,
-    name: state.form.name,
-    loginId: state.form.loginId,
-    loginPw: state.form.loginPw,
-    phone: getPhoneStr(),
-    email: state.form.email,
-    imagePath: "",
-    role: memberType.value === "owner" ? "사장" : "고객",
-    userAddressPostReq: getUserAddressPostReq(),
-  };
+  // 2️⃣ openDate 형식 체크
+  const openDateRegex = /^\d{4}-\d{2}-\d{2}$/;
+  if (memberType.value === "owner" && !openDateRegex.test(state.owner.openDate)) {
+    showModal("개업일을 YYYY-MM-DD 형식으로 입력해주세요.");
+    return;
+  }
 
   try {
-    let res;
+
     const formData = new FormData();
+
+    // 3️⃣ 공통 유저 정보 JSON Blob
+    const userPayload = {
+      id: 0,
+      name: memberType.value === "owner"
+        ? state.owner.ownerName
+        : state.form.name,
+      loginId: state.form.loginId,
+      loginPw: state.form.loginPw,
+      phone: memberType.value === "owner"
+        ? `${state.owner.ownerPhone1}-${state.owner.ownerPhone2}-${state.owner.ownerPhone3}`
+        : `${state.form.phone.phone1}-${state.form.phone.phone2}-${state.form.phone.phone3}`,
+      email: state.form.email,
+      role: memberType.value === "owner" ? "사장" : "고객",
+      userAddressPostReq: state.addresses.map((a) => ({
+        title: a.title ?? "기본 주소",
+        isMain: a.isMain ?? 1,
+        postcode: a.postcode ?? "",
+        address: a.address ?? "",
+        addressDetail: a.addressDetail ?? "",
+      })), storeJoinReq: memberType.value === "owner" ? {
+        id: 0,
+        ownerName: state.owner.ownerName,
+        name: state.owner.storeName,
+        postcode: state.owner.postcode,
+        address: state.owner.address,
+        addressDetail: state.owner.addressDetail,
+        tel: `${state.owner.storePhone1}-${state.owner.storePhone2}-${state.owner.storePhone3}`,
+        businessNumber: state.owner.businessNumber,
+        openDate: state.owner.openDate,
+        enumStoreCategory: categoryLabels, // Enum 배열 그대로 전송
+        comment: state.owner.comment ?? "",
+        licensePath: state.owner.licensePath?.trim() ? state.owner.licensePath : "default-license.png",
+        imagePath: state.owner.imagePath ?? "",
+
+      } : null
+    };
+    if (state.owner.businessFile && state.owner.businessFile.size > 0) {
+      formData.append("pic", state.owner.businessFile);
+    }
     formData.append(
       "req",
-      new Blob([JSON.stringify(payload)], { type: "application/json" })
+      new Blob([JSON.stringify(userPayload)], { type: "application/json" })
     );
 
-    if (state.profilePic) formData.append("pic", state.profilePic);
-    if (memberType.value === "owner")
-      formData.append(
-        "storeReq",
-        new Blob([JSON.stringify(getStoreJoinReq())], { type: "application/json" })
-      );
+    // 4️⃣ 업주 회원이면 storeJoinReq 추가
+    // if (memberType.value === "owner") {
+    //   const storePayload = {
+    //     id: 0,
+    //     ownerName: state.owner.ownerName,
+    //     name: state.owner.storeName,
+    //     postcode: state.owner.postcode,
+    //     address: state.owner.address,
+    //     addressDetail: state.owner.addressDetail,
+    //     tel: `${state.owner.storePhone1}-${state.owner.storePhone2}-${state.owner.storePhone3}`,
+    //     businessNumber: state.owner.businessNumber,
+    //     openDate: state.owner.openDate,
+    //     enumStoreCategory: state.owner.category, // Enum 배열 그대로 전송
+    //     comment: state.owner.comment ?? "",
+    //     licensePath: state.owner.licensePath ?? "",
+    //     imagePath: state.owner.imagePath ?? "",
+    //   };
+    //   userPayload.phone = `${state.owner.ownerPhone1}-${state.owner.ownerPhone2}-${state.owner.ownerPhone3}`
+    //   console.log("storepayload 데이터 확인용", storePayload);
+    //   formData.append(
+    //     "storeJoinReq",
+    //     new Blob([JSON.stringify(storePayload)], { type: "application/json" })
+    //   );
 
-    res = await axios.post("/user/join", formData);
+    //   // 사업자 등록증 파일 첨부
+    //   if (state.owner.businessFile && state.owner.businessFile.size > 0) {
+    //     formData.append("licenseFile", state.owner.businessFile);
+    //   }
+    // }
 
+    // 5️⃣ 프로필 이미지 첨부
+    if (state.profilePic && state.profilePic.size > 0) {
+      formData.append("pic", state.profilePic);
+    }
+
+    // 6️⃣ Axios POST 요청
+    const res = await axios.post("/user/join", formData, {
+      headers: { "Content-Type": "multipart/form-data" },
+    });
+
+    // 7️⃣ 결과 처리
     if (res.status === 200) {
       showModal("회원가입 완료!");
       localStorage.setItem("user", JSON.stringify(res.data.resultData));
       router.push("/");
     } else {
-      showModal(res.data?.message || "입력 정보를 다시 확인해 주세요.");
+      showModal(res.data?.message || "회원가입 실패: 입력 정보를 확인해주세요.");
     }
   } catch (err) {
-    console.error(err);
-    showModal("회원가입 중 오류 발생");
+    console.error("❌ 회원가입 중 오류:", err);
+    showModal("사업자 등록증과 가게 상호명 및 카테고리는 필수입니다.");
   }
 };
 
@@ -467,26 +782,11 @@ const showModal = (message) => {
               <p>회원 구분</p>
             </div>
             <div class="radio-group">
-              <label id="radio"
-                ><input
-                  type="radio"
-                  class="circle"
-                  name="memberType"
-                  value="customer"
-                  v-model="memberType"
-                />
-                일반</label
-              >
-              <label
-                ><input
-                  type="radio"
-                  class="circle"
-                  name="memberType"
-                  value="owner"
-                  v-model="memberType"
-                />
-                업주</label
-              >
+              <label id="radio"><input type="radio" class="circle" name="memberType" value="customer"
+                  v-model="memberType" />
+                일반</label>
+              <label><input type="radio" class="circle" name="memberType" value="owner" v-model="memberType" />
+                업주</label>
             </div>
           </div>
         </div>
@@ -504,12 +804,8 @@ const showModal = (message) => {
               </div>
               <div class="id">
                 <div class="id-input-group">
-                  <input
-                    v-model="state.form.loginId"
-                    :class="{ invalid: errors.loginId }"
-                    @input="handleLoginIdInput"
-                    placeholder="영문 소문자/숫자, 4~16자"
-                  />
+                  <input v-model="state.form.loginId" :class="{ invalid: errors.loginId }" @input="handleLoginIdInput"
+                    placeholder="영문 소문자/숫자, 4~16자" />
                   <button class="idbox" type="button">아이디 중복</button>
                   <!-- @click="checkDuplicateId" -->
                 </div>
@@ -530,15 +826,9 @@ const showModal = (message) => {
               <p>비밀 번호</p>
             </div>
             <div class="password">
-              <input
-                type="password"
-                v-model="state.form.loginPw"
-                :class="{ invalid: errors.loginPw }"
-                @input="() => (errors.loginPw = '')"
-                @blur="validatePassword"
-                autocomplete="new-password"
-                placeholder="비밀번호는 영문, 숫자, 특수문자 포함 8~16자"
-              />
+              <input type="password" v-model="state.form.loginPw" :class="{ invalid: errors.loginPw }"
+                @input="() => (errors.loginPw = '')" @blur="validatePassword" autocomplete="new-password"
+                placeholder="비밀번호는 영문, 숫자, 특수문자 포함 8~16자" />
               <p v-if="errors.loginPw" class="error-msg">
                 {{ errors.loginPw }}
               </p>
@@ -554,15 +844,9 @@ const showModal = (message) => {
               <p>비밀번호 확인</p>
             </div>
             <div class="password2">
-              <input
-                type="password"
-                v-model="confirmPw"
-                @input="() => (errors.confirmPw = '')"
-                @blur="validateConfirmPw"
-                :class="{ invalid: errors.confirmPw }"
-                autocomplete="new-password"
-                placeholder="비밀번호 재입력"
-              />
+              <input type="password" v-model="confirmPw" @input="() => (errors.confirmPw = '')"
+                @blur="validateConfirmPw" :class="{ invalid: errors.confirmPw }" autocomplete="new-password"
+                placeholder="비밀번호 재입력" />
               <p v-if="errors.confirmPw" class="error-msg">
                 {{ errors.confirmPw }}
               </p>
@@ -578,13 +862,8 @@ const showModal = (message) => {
               <p>이메일</p>
             </div>
             <div class="password2">
-              <input
-                v-model="state.form.email"
-                @input="() => (errors.email = '')"
-                @blur="validateEmail"
-                :class="{ invalid: errors.email }"
-                placeholder="올바른 이메일 형식으로 입력해주세요."
-              />
+              <input v-model="state.form.email" @input="() => (errors.email = '')" @blur="validateEmail"
+                :class="{ invalid: errors.email }" placeholder="올바른 이메일 형식으로 입력해주세요." />
               <p v-if="errors.email" class="error-msg">
                 {{ errors.email }}
               </p>
@@ -594,22 +873,11 @@ const showModal = (message) => {
         <div class="sevLine"></div>
 
         <!-- 회원 구분에 따른 폼 분기 -->
-        <CustomerForm
-          v-if="memberType === 'customer'"
-          v-model:form="state.form"
-          v-model:errors="errors"
-          :addresses="state.addresses"
-          @addressSearch="addressSearch"
-        />
+        <CustomerForm v-if="memberType === 'customer'" v-model:form="state.form" v-model:errors="errors"
+          :addresses="state.addresses" @addressSearch="addressSearch" />
 
-        <OwnerForm
-          v-if="memberType === 'owner'"
-          v-model:form="state.form"
-          v-model:owner="state.owner"
-          v-model:errors="errors"
-          @addressSearch="addressSearch"
-          @ownerInput="handleOwnerInput"
-        />
+        <OwnerForm v-if="memberType === 'owner'" v-model:form="state.form" v-model:owner="state.owner"
+          v-model:errors="errors" @addressSearch="addressSearch" @ownerInput="handleOwnerInput" />
 
         <!-- 약관 동의 및 제출 -->
         <!-- 약관동의 -->
@@ -619,77 +887,44 @@ const showModal = (message) => {
           <!-- 전체 동의 -->
           <p class="all-agree">
             <label class="custom-checkbox">
-              <input
-                type="checkbox"
-                class="circle"
-                v-model="agreement.allAgree"
-                @change="toggleAllAgree"
-              />
+              <input type="checkbox" class="circle" v-model="agreement.allAgree" @change="toggleAllAgree" />
               <strong class="all"><span class="highlight">전체동의</span></strong>
             </label>
           </p>
           <ul class="terms-list">
             <!-- 필수 이용약관 동의 -->
             <li>
-              <label class="custom-checkbox"
-                ><input
-                  type="checkbox"
-                  class="circle"
-                  v-model="agreement.terms.useTerms"
-                /><span class="highlight"> [필수]</span> 이용약관 동의</label
-              >
+              <label class="custom-checkbox"><input type="checkbox" class="circle"
+                  v-model="agreement.terms.useTerms" /><span class="highlight"> [필수]</span> 이용약관 동의</label>
             </li>
             <div class="terms-box">{{ termsText.useTerms }}</div>
             <!-- 필수 개인정보 수집 이용 동의 -->
             <li>
-              <label class="custom-checkbox"
-                ><input
-                  type="checkbox"
-                  class="circle"
-                  v-model="agreement.terms.privacyPolicy"
-                />
-                <span class="highlight"> [필수]</span> 개인정보 수집 이용 동의</label
-              >
+              <label class="custom-checkbox"><input type="checkbox" class="circle"
+                  v-model="agreement.terms.privacyPolicy" />
+                <span class="highlight"> [필수]</span> 개인정보 수집 이용 동의</label>
             </li>
             <div class="terms-box">{{ termsText.privacyPolicy }}</div>
             <!-- 필수 개인정보 제3자 제공 동의 -->
             <li>
-              <label class="custom-checkbox"
-                ><input
-                  type="checkbox"
-                  class="circle"
-                  v-model="agreement.terms.thirdParty"
-                />
-                <span class="highlight"> [필수]</span> 개인정보 제3자 제공 동의</label
-              >
+              <label class="custom-checkbox"><input type="checkbox" class="circle"
+                  v-model="agreement.terms.thirdParty" />
+                <span class="highlight"> [필수]</span> 개인정보 제3자 제공 동의</label>
             </li>
             <div class="terms-box">{{ termsText.thirdParty }}</div>
           </ul>
           <!-- 선택 쇼핑정보 수신 동의 -->
           <div class="marketing">
             <p>
-              <label class="custom-checkbox"
-                ><input
-                  type="checkbox"
-                  class="circle"
-                  v-model="agreement.marketing"
-                /><span class="highlight"> [선택]</span> 쇼핑정보 수신 동의</label
-              >
+              <label class="custom-checkbox"><input type="checkbox" class="circle" v-model="agreement.marketing" /><span
+                  class="highlight"> [선택]</span> 쇼핑정보 수신 동의</label>
             </p>
           </div>
           <div class="sev-marketing">
-            <span
-              ><label class="custom-checkbox"
-                ><input type="checkbox" class="circle" v-model="agreement.sms" /> SMS
-                수신을 동의하십니까?</label
-              ></span
-            >
-            <span
-              ><label class="custom-checkbox"
-                ><input type="checkbox" class="circle" v-model="agreement.email" /> 이메일
-                수신을 동의하십니까?</label
-              ></span
-            >
+            <span><label class="custom-checkbox"><input type="checkbox" class="circle" v-model="agreement.sms" /> SMS
+                수신을 동의하십니까?</label></span>
+            <span><label class="custom-checkbox"><input type="checkbox" class="circle" v-model="agreement.email" /> 이메일
+                수신을 동의하십니까?</label></span>
           </div>
         </div>
         <button type="submit">회원가입</button>
@@ -864,6 +1099,7 @@ select.invalid {
 
   .id-message {
     width: 100%;
+
     p {
       margin: 5px 0 0 0; // 위쪽 간격만 조금
       font-size: 14px;
@@ -1078,6 +1314,7 @@ button {
     background-color: #ffe5e5;
   }
 }
+
 // 모달 버튼 전용 스타일
 #alertModal .btn {
   margin: 0;
