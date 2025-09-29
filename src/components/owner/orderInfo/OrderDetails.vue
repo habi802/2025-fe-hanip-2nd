@@ -1,6 +1,7 @@
 <script setup>
-//주문정보 :  고객명, 전화, 주소, 특이사항
-
+const props = defineProps({
+  order: {}
+});
 </script>
 
 <template>
@@ -11,23 +12,22 @@
         <tbody>
           <tr>
             <th>고객명</th>
-            <td>selectedO </td>
-            <!-- <td>{{ selectedOrder?.userName || "--" }}</td> -->
+            <td>{{ order?.userName ?? "--" }}</td>
           </tr>
           <tr>
             <th>전화</th>
-            <td> selectedOr</td>
-            <!-- <td>{{ selectedOrder?.phone || "--" }}</td> -->
+            <td>{{ order?.userPhone ?? "--" }}</td>
           </tr>
           <tr>
             <th>주소</th>
-            <td> select </td>
-            <!-- <td>{{ selectedOrder?.address || "--" }}</td> -->
+            <td>
+              {{ order?.postcode ? `(${order.postcode}) ` : "" }}
+              {{ [order?.address, order?.addressDetail].filter(Boolean).join(" ") || "--" }}
+            </td>
           </tr>
           <tr>
             <th>특이사항</th>
-            <td> selectedOr </td>
-            <!-- <td>{{ selectedOrder?.storeRequest || "--" }}</td> -->
+            <td>{{ order?.storeRequest ?? "--" }}</td>
           </tr>
         </tbody>
       </table>
@@ -37,5 +37,4 @@
 
 <style scoped lang="scss">
 @import '@/components/owner/orderInfo/orderInfoCommon.scss';
-
 </style>

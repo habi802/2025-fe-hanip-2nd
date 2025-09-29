@@ -1,5 +1,27 @@
 <script setup>
+import { computed } from 'vue';
+
 //주문상태
+const props = defineProps({
+  order: { type: Object, default: () => ({}) }
+});
+
+const statusText = computed(() => {
+  switch (props.order?.status) {
+    case "ORDERED":
+      return "주문완료";
+    case "PREPARING":
+      return "음식준비중";
+    case "DELIVERING":
+      return "배달중";
+    case "COMPLETED":
+      return "완료됨";
+    case "CANCELED":
+      return "취소됨";
+    default:
+      return "--";
+  }
+});
 
 </script>
 
@@ -14,7 +36,7 @@
       </thead>
       <tbody>
         <tr>
-          <td>statustext</td>
+          <td>{{ statusText }}</td>
           <!-- <td>{{ statusText }}</td> -->
         </tr>
       </tbody>
@@ -24,4 +46,6 @@
 
 <style scoped lang="scss">
 @import '@/components/owner/orderInfo/orderInfoCommon.scss';
+
+
 </style>
