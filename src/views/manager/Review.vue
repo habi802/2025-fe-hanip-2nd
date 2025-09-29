@@ -7,7 +7,7 @@ import { usePaginationStore } from '@/stores/pagination';
 import VueDatePicker from '@vuepic/vue-datepicker';
 import PageSizeSelect from '@/components/manager/PageSizeSelect.vue';
 import DateTable from '@/components/manager/DataTable.vue';
-import BoardCard from '@/components/manager/BoardModal.vue';
+import BoardModal from '@/components/manager/BoardModal.vue';
 import LoadingModal from '@/components/modal/LoadingModal.vue';
 import AlertModal from '@/components/modal/AlertModal.vue';
 import ConfirmModal from '@/components/modal/ConfirmModal.vue';
@@ -25,7 +25,7 @@ const defaultForm = {
     startDate: lastWeek.toISOString().slice(0, 10),
     endDate: today.toISOString().slice(0, 10),
     storeName: '',
-    customerName: '',
+    userName: '',
     comment: '',
     ownerComment: 0,
     isHide: 0,
@@ -67,23 +67,26 @@ const getReviews = async () => {
 
 const alertModalRef = ref(null);
 const confirmModalRef = ref(null);
-let ids = [];
+let items = [];
 
-// 테이블에서 체크된 항목을 ids에 추가(선택한 리뷰의 id가 담긴 배열)
-const addCheckItemIds = checkedItems => {
-    ids = checkedItems;
+// 테이블에서 체크된 항목을 items에 추가(선택한 리뷰의 id와 isHide가 담긴 배열)
+const addCheckItems = checkedItems => {
+    items = checkedItems;
 };
 
-// 상세 조회 중인 리뷰의 id를 바로 ids에 추가하여 숨기기 상태 변경
-const addSelectedItemId = item => {
-    ids = [item.id];
-    setIsHide(item.status);
+// 상세 조회 중인 리뷰의 id와 isHide를 바로 items에 추가하여 숨기기 상태 변경
+const addSelectedItem = item => {
+    items = [{
+        id: item.id,
+        isHide: item.isHide
+    }];
+    setIsHide(item.newIsHide);
 }
 
 // 리뷰 숨기기 상태 변경
 const setIsHide = async isHide => {
     // 선택한 리뷰가 없을 경우(체크박스 중 체크된 항목이 없을 경우)
-    if (ids.length === 0) {
+    if (items.length === 0) {
         alertModalRef.value.open('선택한 리뷰가 없습니다.');
         return;
     }
@@ -92,6 +95,8 @@ const setIsHide = async isHide => {
     if (isConfirmed) {
         loadingModalRef.value.open();
 
+        const ids = items.map(item => item.id);
+
         const params = { id: ids, isHide };
         const res = await patchIsHide(params);
         
@@ -99,8 +104,8 @@ const setIsHide = async isHide => {
             alertModalRef.value.open('상태가 변경되었습니다.');
 
             // 상태가 변경된 항목은 state.reviews 에서 제거
-            ids.forEach(id => {
-                const idx = state.reviews.findIndex(item => item.reviewId === id);
+            items.forEach(item => {
+                const idx = state.reviews.findIndex(review => review.reviewId === item.id && review.isHide !== isHide);
                 if (idx >= 0) {
                     state.reviews.splice(idx, 1);
                     pagination.state.totalRow = pagination.state.totalRow - 1;
@@ -112,10 +117,15 @@ const setIsHide = async isHide => {
     }
 };
 
+// 상세 조회 모달 창 닫기
+const closeModal = () => {
+    boardModalRef.value.hide();
+};
+
 // 테이블 필드
 const fields = [
     { key: 'storeName', label: '상호명' },
-    { key: 'customerName', label: '작성자' },
+    { key: 'userName', label: '작성자' },
     { key: 'comment', label: '내용' },
     { key: 'ownerComment', label: '사장 답변' },
     { key: 'createdAt', label: '작성일' },
@@ -140,12 +150,11 @@ const changePage = page => {
     getReviews();
 };
 
-const boardSection = ref(null);
-
+const boardModalRef = ref(null);
 const review = ref({});
 
 // 상세 조회
-const goToBoardSection = async item => {
+const openBoardModal = async item => {
     loadingModalRef.value.open();
 
     const res = await getReview(item.reviewId);
@@ -153,8 +162,7 @@ const goToBoardSection = async item => {
     if (res !== undefined && res.status === 200) {
         review.value = res.data.resultData;
 
-        // 상세 정보 보여주는 요소로 스크롤 이동
-        boardSection.value?.$el.scrollIntoView({ behavior: "smooth" });
+        boardModalRef.value.open();
     }
 
     loadingModalRef.value.hide();
@@ -189,7 +197,7 @@ onMounted(() => {
                     </b-col>
                     <b-col cols="6" xl="4" xxl="3" class="mb-2">
                         <label for="loginId" class="form-label">작성자</label>
-                        <b-form-input type="text" id="loginId" v-model="state.form.customerName"></b-form-input>
+                        <b-form-input type="text" id="loginId" v-model="state.form.userName"></b-form-input>
                     </b-col>
                     <b-col cols="6" xl="4" xxl="3" class="mb-2">
                         <label for="loginId" class="form-label">내용</label>
@@ -225,46 +233,40 @@ onMounted(() => {
             
             <b-col cols="12">
                 <b-row>
-                    <b-col cols="12" lg="6">
+                    <b-col cols="12">
                         <b-row>
-                            <b-col cols="12">
-                                <b-row>
-                                    <b-col cols="6" class="text-start mb-2">
-                                        총 {{ pagination.state.totalRow }} 건
-                                    </b-col>
-
-                                    <b-col cols="6" class="text-end mb-2">
-                                        <PageSizeSelect @change-page-size="changePageSize" />
-                                    </b-col>
-                                </b-row>
+                            <b-col cols="6" class="text-start mb-2">
+                                총 {{ pagination.state.totalRow }} 건
                             </b-col>
 
-                            <b-col cols="12">
-                                <button class="btn btn-danger mb-2 me-2" @click="setIsHide(1)">리뷰 숨기기</button>
-                                <button class="btn btn-secondary mb-2" @click="setIsHide(0)">숨김 해제</button>
-                            </b-col>
-
-                            <b-col cols="12">
-                                <DateTable title="review" :items="state.reviews" :field="fields" id-key="reviewId" @row-selected="goToBoardSection" @row-checked="addCheckItemIds" />
-                            </b-col>
-
-                            <b-col cols="12">
-                                <b-pagination align="center"
-                                v-model="pagination.state.pageNumber" :per-page="pagination.state.pageSize" :total-rows="pagination.state.totalRow" @update:model-value="changePage"></b-pagination>
+                            <b-col cols="6" class="text-end mb-2">
+                                <PageSizeSelect @change-page-size="changePageSize" />
                             </b-col>
                         </b-row>
                     </b-col>
 
-                    <b-col ref="boardSection" cols="12" lg="6">
-                        <BoardCard title="review" :item="review" id-key="reviewId" @set-item-status="addSelectedItemId" />
+                    <b-col cols="12">
+                        <button class="btn btn-danger mb-2 me-2" @click="setIsHide(1)">리뷰 숨기기</button>
+                        <button class="btn btn-secondary mb-2" @click="setIsHide(0)">숨김 해제</button>
+                    </b-col>
+
+                    <b-col cols="12">
+                        <DateTable title="review" :items="state.reviews" :field="fields" id-key="reviewId" @row-selected="openBoardModal" @row-checked="addCheckItems" />
+                    </b-col>
+
+                    <b-col cols="12">
+                        <b-pagination align="center"
+                        v-model="pagination.state.pageNumber" :per-page="pagination.state.pageSize" :total-rows="pagination.state.totalRow" @update:model-value="changePage"></b-pagination>
                     </b-col>
                 </b-row>
             </b-col>
         </b-row>
     </b-container>
 
+    <BoardModal title="review" :item="review" id-key="reviewId" @set-item-status="addSelectedItem" ref="boardModalRef" />
+
     <LoadingModal ref="loadingModalRef" />
-    <AlertModal ref="alertModalRef" />
+    <AlertModal ref="alertModalRef" @hidden="closeModal" />
     <ConfirmModal ref="confirmModalRef" />
 </template>
 

@@ -31,7 +31,13 @@ const emit = defineEmits(['row-selected', 'row-selected']);
 // 체크된 항목을 부모 컴포넌트로 전달
 const emitSelectedItems = () => {
     const checkedItems = props.items.filter(item => item._checked).map(item => {
-        return { id: item[props.idKey], isActive: item.isActive };
+        if (props.title === 'store') {
+            return { id: item[props.idKey], isActive: item.isActive };
+        } else if (props.title === 'order') {
+            return { id: item[props.idKey], status: item.status };
+        } else {
+            return { id: item[props.idKey], isHide: item.isHide };
+        }
     });
     emit('row-checked', checkedItems)
 }
@@ -97,12 +103,6 @@ const rowClicked = item => {
         <template #cell(isHide)="row">
             <span v-if="row.item.isHide === 0" class="badge bg-success fs-6">공개</span>
             <span v-else-if="row.item.isHide === 1" class="badge bg-dark fs-6">숨김</span>
-        </template>
-
-        <!-- 관리자 답변 등록 여부 컬럼 커스텀 -->
-        <template #cell(managerComment)="row">
-            <span v-if="row.item.managerComment === 0" class="badge bg-danger fs-6">미등록</span>
-            <span v-else-if="row.item.managerComment === 1" class="badge bg-primary fs-6">등록</span>
         </template>
     </b-table>
 </template>

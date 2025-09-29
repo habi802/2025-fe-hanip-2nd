@@ -22,8 +22,14 @@ defineExpose({
 
 const emit = defineEmits(['set-item-status']);
 
-const setItemStatus = (id, isActive, newIsActive) => {
-    emit('set-item-status', { id, isActive, newIsActive });
+const setItemStatus = (id, status, newStatus) => {
+    if (props.title === 'store') {
+        emit('set-item-status', { id, isActive: status, newIsActive: newStatus });
+    } else if (props.title === 'order') {
+        emit('set-item-status', { id, status, newStatus });
+    } else {
+        emit('set-item-status', { id, isHide: status, newIsHide: newStatus });
+    }
 };
 </script>
 
@@ -179,8 +185,8 @@ const setItemStatus = (id, isActive, newIsActive) => {
 
                 <b-row>
                     <b-col cols="12" class="d-flex justify-content-center">
-                        <button class="btn btn-danger me-2" @click="setItemStatus(props.item[props.idKey], 1)" :disabled="!isExistItem">리뷰 숨기기</button>
-                        <button class="btn btn-secondary" @click="setItemStatus(props.item[props.idKey], 0)" :disabled="!isExistItem">숨김 해제</button>
+                        <button class="btn btn-danger me-2" @click="setItemStatus(props.item[props.idKey], props.item.isHide, 1)" :disabled="!isExistItem">리뷰 숨기기</button>
+                        <button class="btn btn-secondary" @click="setItemStatus(props.item[props.idKey], props.item.isHide, 0)" :disabled="!isExistItem">숨김 해제</button>
                     </b-col>
                 </b-row>
             </template>

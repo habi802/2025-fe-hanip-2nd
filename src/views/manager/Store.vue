@@ -167,7 +167,6 @@ const openBoardModal = async item => {
     if (res !== undefined && res.status === 200) {
         store.value = res.data.resultData;
 
-        // 상세 정보 보여주는 요소로 스크롤 이동
         boardModalRef.value.open();
     }
 
