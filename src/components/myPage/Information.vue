@@ -7,6 +7,7 @@ import defaultUserProfile from "@/imgs/owner/user_profile.jpg";
 
 const router = useRouter();
 const fileInput = ref(null);
+//const previewUrl = ref(defaultUserProfile); // 기본값을 defaultUserProfile로 세팅
 const previewUrl = ref(""); // 미리보기 이미지 URL
 const selectedFile = ref(null); // 실제 선택된 파일
 
@@ -21,10 +22,9 @@ function onFileChange(event) {
   if (file) {
     selectedFile.value = file;
 
-    // 미리보기 URL 생성
     const reader = new FileReader();
     reader.onload = (e) => {
-      previewUrl.value = e.target.result;
+      previewUrl.value = e.target.result; // 여기서 바로 previewUrl 갱신
     };
     reader.readAsDataURL(file);
   }
@@ -182,36 +182,47 @@ function onPhoneKeydown(event) {
 }
 // 컴포넌트 마운트 시 사용자 정보 조회
 onMounted(async () => {
-  // modal..
   const modalEl = document.getElementById("alertModal");
-  if (modalEl) {
-    alertModal = new bootstrap.Modal(modalEl);
-  }
-  try {
-    // 로그인 시 localStorage에 저장된 사용자 ID 가져오기
-    const id = localStorage.getItem("id"); // or 로그인 시 저장된 값
-    console.log("localStorage loginId:", id); // user 로그인 정보를 저장하고 있는지 확인용
+  if (modalEl) alertModal = new bootstrap.Modal(modalEl);
 
+  try {
+    const id = localStorage.getItem("id");
     if (!id) {
       showModal("로그인 정보가 없습니다. 로그인 후 이용해주세요.");
       router.push("/login");
       return;
     }
 
-    // API 호출: 사용자 정보 조회
-    const res = await getUser(id); // userService에서 끌고와야함
+    const res = await getUser(id);
 
-    if (res && res.data) {
-      // 조회된 사용자 정보로 폼 초기화
-      Object.assign(state.form, res.data.resultData); // 정보 채우기
-      state.form.id = res.data.resultData.id; // 이 부분 추가
-    }
-    if (res.data.resultData.phone) {
-      // 전화번호 분해해서 phone1/phone2/phone3에 넣어주는 부분
-      const phoneParts = res.data.resultData.phone.split("-");
-      phone1.value = phoneParts[0] || "";
-      phone2.value = phoneParts[1] || "";
-      phone3.value = phoneParts[2] || "";
+    if (res && res.data?.resultData) {
+      Object.assign(state.form, res.data.resultData);
+      // state.form.id = res.data.resultData.id;
+
+      // // 서버에 기존 프로필 이미지가 있을 경우 previewUrl 적용
+      // if (res.data.resultData.imagePath) {
+      //   previewUrl.value = res.data.resultData.imagePath;
+      // } else {
+      //   previewUrl.value = defaultUserProfile; // 없으면 기본 이미지
+      // }
+      const baseURL = import.meta.env.VITE_API_BASE_URL || "http://localhost:8080";
+      const imgPath = res.data.resultData.imagePath;
+
+      // 절대 URL로 변환 + null 체크
+      previewUrl.value =
+        imgPath && imgPath !== "null"
+          ? imgPath.startsWith("http")
+            ? imgPath
+            : `${baseURL.replace(/\/$/, "")}/${imgPath.replace(/^\/?/, "")}`
+          : defaultUserProfile;
+
+      if (res.data.resultData.phone) {
+        const phoneParts = res.data.resultData.phone.split("-");
+        phone1.value = phoneParts[0] || "";
+        phone2.value = phoneParts[1] || "";
+        phone3.value = phoneParts[2] || "";
+      }
+      console.log(previewUrl.value);
     } else {
       showModal("사용자 정보를 불러오는데 실패했습니다.");
     }
@@ -238,24 +249,20 @@ const submitForm = async (e) => {
 
   try {
     const formData = new FormData();
-
-    // ✅ DTO(UserPutReq)에 해당하는 JSON 문자열을 append
     const userPutReq = {
       name: state.form.name,
-      loginPw: state.form.loginPw, // 현재 비밀번호
-      newLoginPw: confirmPw.value, // 새 비밀번호
-      phone: `${phone1.value}${phone2.value}${phone3.value}`,
+      loginPw: state.form.loginPw,
+      newLoginPw: confirmPw.value,
+      phone: `${phone1.value}-${phone2.value}-${phone3.value}`, // ✅ 하이픈 포함
       email: state.form.email,
-      imagePath: state.form.imagePath, // 선택적
     };
 
-    // @RequestPart UserPutReq req → **JSON** 문자열을 하나의 Part 로 전달
     formData.append(
       "req",
       new Blob([JSON.stringify(userPutReq)], { type: "application/json" })
     );
 
-    // 파일이 있을 경우만 추가
+    // 이미지 파일이 선택된 경우만 업로드
     if (selectedFile.value) {
       formData.append("pic", selectedFile.value);
     }
@@ -326,8 +333,11 @@ const isPasswordChecked = ref(false); // 비밀번호 확인 여부
             <!-- 프로필 사진 수정 버튼 -->
             <div class="user">
               <!-- 이미지 미리보기 -->
-              <img class="userImg" :src="previewUrl || defaultUserProfile" />
-
+              <img
+                class="userImg"
+                :src="previewUrl"
+                @error="(e) => (e.target.src = defaultUserProfile)"
+              />
               <!-- 실제 파일 업로드 input (숨김 처리) -->
               <input
                 type="file"
