@@ -454,8 +454,7 @@ watch(
             <button type="button" @click="removeCategory(index)">x</button>
           </span>
         </div>
-        <p>최대 3개까지 선택 가능합니다. </p>
-        <p> 가게 상호명과 카테고리는 나중에 수정할 수 있습니다.</p>
+        <li> 카테고리는 최대 3개까지 선택 가능합니다. </li>
       </div>
     </div>
 
