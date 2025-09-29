@@ -22,15 +22,18 @@ let resolvePromise;
 const confirm = () => {
     resolvePromise(true);
     show.value = false;
+    document.body.style.overflow = "";
 };
 
 const cancel = () => {
     resolvePromise(false);
     show.value = false;
+    document.body.style.overflow = "";
 };
 
 const hide = () => {
     show.value = false;
+    document.body.style.overflow = "";
 };
 </script>
 
