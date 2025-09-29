@@ -413,6 +413,7 @@ span.total {
 .big-box {
   max-width: 495px;
   min-height: 40px;
+  max-height: 300px;
   overflow-y: auto;
 
 }

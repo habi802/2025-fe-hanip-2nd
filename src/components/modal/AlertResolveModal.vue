@@ -1,45 +1,7 @@
 <script setup>
 import { defineExpose, ref } from 'vue';
 
-// const isVisible = ref(false); 
-// const message = ref('');     
-// const callback = ref(null);   
 
-// Confirm 모달을 보여주는 함수
-// const showModal = (msg) => {
-//   message.value = msg;  
-//   isVisible.value = true;
-
-//   return new Promise((resolve) => {
-//     callback.value = resolve; 
-//   });
-// };
-
-// // 확인 버튼 클릭 시
-// const onConfirm = () => {
-//     isVisible.value = false; 
-//     if (callback.value) callback.value(true); 
-// };
-
-// // 취소 버튼 클릭 시
-// const onCancel = () => {
-//     isVisible.value = false; 
-//     if (callback.value) callback.value(false); 
-// };
-
-// 모달 창 떳을 때 화면 어둡게 하는 함수
-// watch(isVisible, (newVal) => {
-//   const backdrop = document.querySelector('.modal-backdrop');
-//   if (newVal) {
-//     // 배경 추가
-//     const backdropElement = document.createElement('div');
-//     backdropElement.classList.add('modal-backdrop', 'fade', 'show');
-//     document.body.appendChild(backdropElement);
-//   } else {
-//     // 배경 제거
-//     if (backdrop) document.body.removeChild(backdrop);
-//   }
-// });
 
 const show = ref(false);
 const body = ref('');
@@ -48,7 +10,7 @@ defineExpose({
     showModal(message) {
         body.value = message;
         show.value = true;
-
+        document.body.style.overflow = "hidden";
         return new Promise(resolve => {
             resolvePromise = resolve
         });

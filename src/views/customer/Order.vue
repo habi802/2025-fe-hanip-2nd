@@ -80,7 +80,6 @@ onMounted(async () => {
     }, 1500);
   }
 
-
   calculateTotal();
 
   //네이버페이 payId 받았을때만 
