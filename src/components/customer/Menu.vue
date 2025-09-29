@@ -53,7 +53,8 @@ const menuSrc = computed(() => {
 </script>
 
 <template>
-    <div class="menu border rounded-4" @click="openModal">
+    <div v-if="props.item.isHide !== 1" class="menu border rounded-4" :class="{ soldOut: props.item.isSoldOut === 1 }"
+        @click="openModal">
         <div class="row-box">
             <div class="container">
                 <div class="menu-box">
@@ -175,5 +176,10 @@ const menuSrc = computed(() => {
     white-space: pre-wrap;
     line-height: 1.6;
     text-align: left;
+}
+
+.soldOut {
+    opacity: 0.4;
+    pointer-events: none;
 }
 </style>

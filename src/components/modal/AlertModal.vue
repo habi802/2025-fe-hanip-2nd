@@ -4,6 +4,8 @@ import { useRouter } from 'vue-router';
 
 const router = useRouter();
 
+const emit = defineEmits(['hidden']);
+
 const show = ref(false);
 const body = ref('');
 
@@ -18,6 +20,9 @@ defineExpose({
 // 모달 창을 닫는 함수
 const hide = () => {
     show.value = false;
+    
+    // (관리자 전용) 상세 조회 모달 창을 닫기 위한 함수를 실행하기 위한 전달
+    emit('hidden');
 
     // 메세지에 '로그인' 이 포함되어 있으면 로그인 화면으로 이동
     if (body.value.includes('로그인')) {
