@@ -9,8 +9,13 @@ import { getUser } from '@/services/userService';
 import { getStore } from '@/services/storeService';
 import { useUserInfo } from '@/stores/account';
 import { kakaoPayReady, naverGetCid, naverPayApply, naverPayReserve, kakaoGetPayApprove } from '@/services/payment';
+import LoadingModal from '@/components/modal/LoadingModal.vue';
+import AlertResolveModal from '@/components/modal/AlertResolveModal.vue';
 
+const alretModal = ref(null);
 const baseUrl = import.meta.env.VITE_BASE_URL;
+
+const loadingModal = ref(null);
 
 const route = useRoute();
 const router = useRouter();
@@ -62,6 +67,20 @@ onMounted(async () => {
 
   console.log("state.carts", state.carts)
 
+
+  if (state.carts.length <= 0) {
+    loadingModal.value.open()
+    setTimeout(async () => {
+      loadingModal.value.hide();
+      const alret = await alretModal.value.showModal("잘못된 접근입니다. 다시 주문해주세요");
+
+      if (alret) {
+        router.push("/")
+      }
+    }, 1500);
+  }
+
+
   calculateTotal();
 
   //네이버페이 payId 받았을때만 
@@ -92,6 +111,7 @@ onMounted(async () => {
 
 
     apply();
+
   }
   // 백엔드에서 주소 입력해서 넘겨받음 ^^ 최고의 생각이였다 
   const queryString = window.location.search;
@@ -456,6 +476,8 @@ const pay = reactive({
       </div>
     </div>
   </div>
+  <loading-modal ref="loadingModal"></loading-modal>
+  <alert-resolve-modal ref="alretModal"></alert-resolve-modal>
 </template>
 
 

@@ -7,18 +7,12 @@ import { getReviewsByStoreId, getOwnerCommentList } from "@/services/reviewServi
 import { getFavorite, addFavorite, deleteFavorite } from "@/services/favoriteService";
 import { updateQuantity, removeItem, removeCart } from "@/services/cartService";
 import { useAccountStore } from "@/stores/account";
-import { useCartStore } from "@/stores/cartStore";
 import Menu from "@/components/customer/Menu.vue";
 import Review from "@/components/customer/Review.vue";
-import { useFavoriteStore } from "@/stores/favoriteStore";
 import defaultImage from '@/imgs/owner/owner-service3.png';
 import AlertModal from "@/components/modal/AlertModal.vue";
 
 
-
-// 하트 이미지
-import lovet from '@/imgs/loveFull.png';
-import lovef from '@/imgs/loveBoard.png'
 
 // 모달 창 함수
 const alertModal = ref(null);
@@ -112,7 +106,7 @@ const loadFavorite = async (id) => {
 
 // 가게 메뉴 조회하는 함수
 const loadMenus = async (id) => {
-  const res = await getOneMenu(id);
+
 
   if (res === undefined) {
     alertModal.value.showModal('조회에 실패하였습니다.');
@@ -136,7 +130,8 @@ const loadReviews = async (id) => {
     return;
   }
 
-  state.reviews = res.data.resultData;
+  // state.reviews = res.data.resultData;
+  console.log("가게리뷰 전체 조회", res)
   // 리뷰 총점 구하기
   let ratingNumCal = 0;
   // console.log("state.reviews: ", state.reviews);
@@ -250,6 +245,7 @@ onMounted(() => {
   getStoreInfo(storeId);
   getStoreMenu(storeId);
   loadFavorite(storeId)
+  loadReviews(storeId);
 });
 
 
