@@ -260,10 +260,10 @@ onUnmounted(() => {
 }
 
 .section {
-    //  padding-top: 20px;
+    padding-top: 40px;
     display: flex;
     flex-direction: column;
-    justify-content: center; // 가로 가운데
+    justify-content: left; // 가로 가운데
     align-items: center; // 세로 가운데
     width: 100%;
     height: 100%; // 부모 높이 꽉 차게
