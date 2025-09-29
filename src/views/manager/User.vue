@@ -1,5 +1,5 @@
 <script setup>
-import '@/assets/manager/manager.css'
+import '@/assets/manager/manager.css';
 import "flatpickr/dist/flatpickr.css";
 import { Korean } from "flatpickr/dist/l10n/ko.js";
 
@@ -55,7 +55,7 @@ const endDateConfig = {
     onChange: (date) => {
         // 선택한 종료일이 시작일보다 작으면 자동으로 시작일을 종료일로 입력
         if (date[0] && state.form.startDate) {
-            if (date[0] > new Date(state.form.startDate)) {
+            if (date[0] < new Date(state.form.startDate)) {
                 state.form.startDate = date[0];
             }
         }

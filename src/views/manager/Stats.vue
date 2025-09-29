@@ -1,16 +1,22 @@
 <script setup>
 import '@/assets/manager/manager.css'
+import "flatpickr/dist/flatpickr.css";
+import { Korean } from "flatpickr/dist/l10n/ko.js";
 
 import { reactive, ref, computed } from 'vue';
 import { getUserStats, getStoreStats, getOrderStats, getAmountStats } from '@/services/managerService';
+import FlatPickr from "vue-flatpickr-component";
+import monthSelectPlugin from "flatpickr/dist/plugins/monthSelect";
 import StatsChartCard from '@/components/manager/StatsChartCard.vue';
 import LoadingModal from '@/components/modal/LoadingModal.vue';
 import AlertModal from '@/components/modal/AlertModal.vue';
 
+const today = new Date();
+
 const state = reactive({
     form: {
-        type: 'year',
-        date: null,
+        type: 'YEAR',
+        date: today.toISOString().slice(0, 10),
     },
     stats: {
         user: [],
@@ -21,61 +27,41 @@ const state = reactive({
 });
 
 // 기간 선택 시 날짜 선택 시 그 기간에 맞춰 입력됨(연간이면 2025, 월간이면 2025-09 이런 식으로)
-const datePickerMode = computed(() => {
-    switch (state.form.type) {
-        case 'year':
-            return 'year';
-        case 'month':
-            return 'month';
-        case 'week':
-            return 'single';
+const datePickerConfig = computed(() => {
+    switch (state.form.type.toUpperCase()) {
+        case 'YEAR':
+            return {
+                locale: Korean,
+                plugins: [new monthSelectPlugin({ shorthand: true, dateFormat: 'Y', altFormat: 'Y년' })]
+            };
+        case 'MONTH':
+            return {
+                locale: Korean,
+                plugins: [new monthSelectPlugin({ shorthand: true, dateFormat: 'Y-m', altFormat: 'Y년 m월' })]
+            };
+        case 'WEEK':
+            return {
+                locale: Korean,
+                dateFormat: 'Y-m-d',
+                onChange: selectDate => {
+                    if (selectDate.length) {
+                        const date = selectDate[0];
+                        const day = date.getDay();
+                        const diff = day === 0 ? 6 : day - 1;
+
+                        const monday = new Date(date);
+                        monday.setDate(date.getDate() - diff);
+                        const sunday = new Date(monday);
+                        sunday.setDate(monday.getDate() + 6);
+                    }
+                }
+            };
         default:
-            return 'day';
+            return {
+                locale: Korean,
+                dateFormat: 'Y-m-d'
+            };
     }
-});
-
-// 날짜 input에 표시할 포맷
-const formattedDate = computed(() => {
-    if (!state.form.date) {
-        return '';
-    }
-
-    const d = new Date(state.form.date);
-    switch (state.form.type) {
-        case 'year':
-            return d.getFullYear();
-        case 'month':
-            return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;
-        case 'week':
-            const onejan = new Date(d.getFullYear(), 0, 1);
-            const week = Math.ceil((((d - onejan) / 86400000 + onejan.getDay() + 1) / 7));
-            return `${d.getFullYear()}-W${week}`;
-        case 'day':
-            return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
-    }
-});
-
-// 주간 선택에서 선택한 주를 강조하는 함수
-const calendarAttributes = computed(() => {
-    if (state.form.type !== 'week' || !state.form.date) {
-        return [];
-    }
-
-    const d = new Date(state.form.date);
-    const dayOfWeek = (d.getDay() + 6) % 7;
-
-    const startOfWeek = new Date(d);
-    startOfWeek.setDate(d.getDate() - dayOfWeek);
-    const endOfWeek = new Date(startOfWeek);
-    endOfWeek.setDate(startOfWeek.getDate() + 6);
-
-    return [{
-        key: 'selected-week',
-        highlight: true,
-        dates: { start: startOfWeek, end: endOfWeek },
-        dot: false,
-        style: { backgroundColor: '#CCE5ff' }
-    }];
 });
 
 const loadingModalRef = ref(null);
@@ -136,25 +122,17 @@ const chartData4 = {
             <b-col cols="12" class="mb-2">
                 <b-row class="align-items-center">
                     <b-col cols="6" xl="4" xxl="3" class="mb-2">
-                        <label for="isActive" class="form-label">기간</label>
-                        <b-form-select id="isActive" v-model="state.form.type">
-                            <option value="year">연간</option>
-                            <option value="month">월간</option>
-                            <option value="week">주간</option>
-                            <option value="day">일간</option>
+                        <label for="type" class="form-label">기간</label>
+                        <b-form-select id="type" v-model="state.form.type">
+                            <option value="YEAR">연도별</option>
+                            <option value="MONTH">월별</option>
+                            <option value="WEEK">주별</option>
+                            <option value="DAY">일별</option>
                         </b-form-select>
                     </b-col>
                     <b-col cols="6" xl="4" xxl="3" class="mb-2">
-                        <label for="" class="form-label">날짜</label>
-                        <b-row class="align-items-center">
-                            <b-col>
-                                <VDatePicker v-model="state.form.date" :mode="datePickerMode" :attributes="calendarAttributes">
-                                    <template #default="{ togglePopover }">
-                                        <input type="text" readonly :value="formattedDate" @click="togglePopover" class="px-3 py-2 border rounded-md w-40" />
-                                    </template>
-                                </VDatePicker>
-                            </b-col>
-                        </b-row>
+                        <label for="date" class="form-label">날짜</label>
+                        <FlatPickr id="date" class="form-control" v-model="state.form.date" :config="datePickerConfig" />
                     </b-col>
                     <b-col cols="6" xl="4" xxl="3" class="mb-2">
                         <label class="form-label d-block invisible">버튼</label>
