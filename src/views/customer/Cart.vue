@@ -340,7 +340,7 @@ const selectOption = reactive({
             </div>
             <div class="likes">
               <img id="icon" src="/src/imgs/love.png" alt="찜" />
-              <span class="like-count">{{ state.favorites.length }}</span>
+              <span class="like-count">{{ state.store.favorites }}</span>
             </div>
           </div>
 
@@ -426,7 +426,8 @@ const selectOption = reactive({
     </div>
 
     <div class="groupContainer">
-      <div class="hn-btn-white" @click="goToOrder(state.store.id)">주문하기</div>
+      <div class="hn-btn-white" :class="{ minAmount: state.store.minAmount > totalPrice }"
+        @click="goToOrder(state.store.id)">주문하기</div>
     </div>
   </div>
 
@@ -678,7 +679,6 @@ const selectOption = reactive({
   border: 2px solid #ccc;
   border-radius: 25px;
   overflow: hidden; // 내부 요소 넘칠 경우 숨김
-  cursor: pointer;
 
   .thumbnail {
     // 사진
@@ -939,5 +939,12 @@ const selectOption = reactive({
   display: flex;
   justify-content: space-between;
   width: 80%;
+}
+
+.minAmount {
+  border: 1px #888 solid;
+  color: #888;
+  opacity: 0.4;
+  pointer-events: none;
 }
 </style>
