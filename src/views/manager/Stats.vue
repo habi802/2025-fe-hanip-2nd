@@ -3,7 +3,7 @@ import '@/assets/manager/manager.css'
 import "flatpickr/dist/flatpickr.css";
 import { Korean } from "flatpickr/dist/l10n/ko.js";
 
-import { reactive, ref, computed } from 'vue';
+import { reactive, ref, computed, onMounted } from 'vue';
 import { getUserStats, getStoreStats, getOrderStats, getAmountStats } from '@/services/managerService';
 import FlatPickr from "vue-flatpickr-component";
 import monthSelectPlugin from "flatpickr/dist/plugins/monthSelect";
@@ -66,6 +66,24 @@ const datePickerConfig = computed(() => {
 
 const loadingModalRef = ref(null);
 
+// 차트에 들어갈 값
+const userChartData = reactive({
+    label: [],
+    data: [],
+});
+const storeChartData = reactive({
+    label: [],
+    data: [],
+});
+const orderChartData = reactive({
+    label: [],
+    data: [],
+});
+const amountChartData = reactive({
+    label: [],
+    data: [],
+});
+
 // 통계 조회
 const getStats = async () => {
     console.log(state.form);
@@ -74,21 +92,33 @@ const getStats = async () => {
     const userStatsRes = await getUserStats(state.form);
     if (userStatsRes !== undefined || userStatsRes.status === 200) {
         state.stats.user = userStatsRes.data.resultData;
+
+        userChartData.label = state.stats.user.map(data => data.period);
+        userChartData.data = state.stats.user.map(data => data.total);
     }
 
     const storeStatsRes = await getStoreStats(state.form);
     if (storeStatsRes !== undefined || storeStatsRes.status === 200) {
         state.stats.store = storeStatsRes.data.resultData;
+
+        storeChartData.label = state.stats.user.map(data => data.period);
+        storeChartData.data = state.stats.user.map(data => data.total);
     }
 
     const orderStatsRes = await getOrderStats(state.form);
     if (orderStatsRes !== undefined || orderStatsRes.status === 200) {
         state.stats.order = orderStatsRes.data.resultData;
+
+        orderChartData.label = state.stats.user.map(data => data.period);
+        orderChartData.data = state.stats.user.map(data => data.total);
     }
 
     const amountStatsRes = await getAmountStats(state.form);
     if (amountStatsRes !== undefined || amountStatsRes.status === 200) {
         state.stats.amount = amountStatsRes.data.resultData;
+
+        amountChartData.label = state.stats.user.map(data => data.period);
+        amountChartData.data = state.stats.user.map(data => data.totalAmount);
     }
 
     console.log(state.stats);
@@ -96,23 +126,9 @@ const getStats = async () => {
     loadingModalRef.value.hide();
 };
 
-// 차트에 들어갈 값 전달을 위해 임의로 만든 객체
-const chartData1 = {
-    label: ['2025년 6월', '2025년 7월', '2025년 8월'],
-    data: [132, 176, 200],
-};
-const chartData2 = {
-    label: ['2025년 6월', '2025년 7월', '2025년 8월'],
-    data: [178, 302, 264],
-};
-const chartData3 = {
-    label: ['2025년 6월', '2025년 7월', '2025년 8월'],
-    data: [274, 355, 361],
-};
-const chartData4 = {
-    label: ['2025년 6월', '2025년 7월', '2025년 8월'],
-    data: [412, 543, 645],
-};
+onMounted(() => {
+    getStats();
+});
 </script>
 
 <template>
@@ -132,7 +148,7 @@ const chartData4 = {
                     </b-col>
                     <b-col cols="6" xl="4" xxl="3" class="mb-2">
                         <label for="date" class="form-label">날짜</label>
-                        <FlatPickr id="date" class="form-control" v-model="state.form.date" :config="datePickerConfig" />
+                        <FlatPickr id="date" class="form-control" v-model="state.form.date" :config="datePickerConfig" :key="state.form.type" />
                     </b-col>
                     <b-col cols="6" xl="4" xxl="3" class="mb-2">
                         <label class="form-label d-block invisible">버튼</label>
@@ -150,25 +166,25 @@ const chartData4 = {
                     <b-col cols="12" xl="6" class="mb-2">
                         <div class="card p-2">
                             <h5>가입자 수</h5>
-                            <StatsChartCard title="가입자 수" :chart-data="chartData1" />
+                            <StatsChartCard title="가입자 수" :chart-data="userChartData" />
                         </div>
                     </b-col>
                     <b-col cols="12" xl="6" class="mb-2">
                         <div class="card p-2">
                             <h5>가게 등록 수</h5>
-                            <StatsChartCard title="가게 등록 수" :chart-data="chartData2" />
+                            <StatsChartCard title="가게 등록 수" :chart-data="storeChartData" />
                         </div>
                     </b-col>
                     <b-col cols="12" xl="6" class="mb-2">
                         <div class="card p-2">
                             <h5>주문 건 수</h5>
-                            <StatsChartCard title="주문 건 수" :chart-data="chartData3" />
+                            <StatsChartCard title="주문 건 수" :chart-data="orderChartData" />
                         </div>
                     </b-col>
                     <b-col cols="12" xl="6" class="mb-2">
                         <div class="card p-2">
                             <h5>매출액</h5>
-                            <StatsChartCard title="매출액" :chart-data="chartData4" />
+                            <StatsChartCard title="매출액" :chart-data="amountChartData" />
                         </div>
                     </b-col>
                 </b-row>
