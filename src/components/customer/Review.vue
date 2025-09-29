@@ -1,6 +1,6 @@
 <script setup>
 import defaultImage from '@/imgs/owner/owner-service3.png'
-import { computed } from 'vue';
+import { computed, ref } from 'vue';
 
 // 스와이퍼 사용
 import { Swiper, SwiperSlide } from 'swiper/vue';
@@ -23,7 +23,7 @@ dayjs.extend(relativeTime);
 dayjs.locale('ko');
 
 const timeAgo = computed(() => {
-  return dayjs(props.item.created).fromNow();
+  return dayjs(props.item.createdAt).fromNow();
 });
 
 
@@ -45,11 +45,25 @@ const props = defineProps({
 //리뷰 이미지 저장
 // const reviewImg = `/pic/menu-profile/${props.item.id}/${props.item?.imagePath}`
 
-const reviewSrc = computed(() => {
-  return props.item && props.item?.imagePath && props.item?.imagePath !== 'null'
-    ? `/pic/review-profile/${props.item.id}/${props.item?.imagePath}`
+const previewImage = ref(defaultImage);
+const baseUrl = ref(import.meta.env.VITE_BASE_URL);
+
+
+const reviewSrcList = computed(() => {
+  if (!props.item?.pic || props.item.pic.length === 0) return [defaultImage];
+
+  return props.item.pic.map(fileName => `${baseUrl.value}/images/Review/${props.item.id}/${fileName}`);
+});
+
+const imgSrc = computed(() => {
+
+  return state.store && state.store?.imagePath && state.store?.imagePath !== 'null'
+    ? `/pic/store-profile/${store.storeInfo.id}/${store.storeInfo?.imagePath}`
     : defaultImage;
+
 })
+
+
 </script>
 
 <template>
@@ -58,30 +72,18 @@ const reviewSrc = computed(() => {
     <div class="box-top">
       <div class="user-img-box">
         <img class="user-img" src="/src/imgs/userImg.png"></img>
+        <div class="user-img"> </div>
       </div>
       <div class="review-info">
         <div class="info-top">
-
-          <div class="user-name"> 이희진 </div>
-          <div class="date"> 2달전 </div>
-
-          <!-- <div class="user-name"> {{ props.item.userName }}</div>
-          <div class="date"> {{ timeAgo }}</div> -->
+          <div class="user-name"> {{ props.item.userName }}</div>
+          <div class="date"> {{ timeAgo }}</div>
         </div>
 
         <div class="info-bottom">
 
-
-          <span class="star"><img class="restar" src="/src/imgs/starBoard.png" alt="별점" /></span>
-          <span class="star"><img class="restar" src="/src/imgs/starBoard.png" alt="별점" /></span>
-          <span class="star"><img class="restar" src="/src/imgs/starBoard.png" alt="별점" /></span>
-          <span class="star"><img class="restar" src="/src/imgs/starBoard.png" alt="별점" /></span>
-          <span class="star"><img class="restar" src="/src/imgs/starBoard.png" alt="별점" /></span>
-          <span class="star-num">5</span>
-
-          <!-- <span class="star" v-for="n in Math.floor(props.item.rating || 0)" :key="n"><img class="restar"
-              src="/src/imgs/starBoard.png" alt="별점" /></span>
-          <span class="star-num">{{ props.item.rating || 0 }}</span> -->
+          <span class="star" v-for="n in Math.floor(props.item.rating || 0)" :key="n">★</span>
+          <span class="star-num">{{ props.item.rating || 0 }}</span>
         </div>
       </div>
     </div>
@@ -90,7 +92,7 @@ const reviewSrc = computed(() => {
     <!-- 이미지  -->
     <div class="box-body-img-box">
 
-      <swiper :slides-per-view="4" :modules="[Navigation, Pagination, Scrollbar, A11y, Autoplay]" :speed="1000"
+      <!-- <swiper :slides-per-view="4" :modules="[Navigation, Pagination, Scrollbar, A11y, Autoplay]" :speed="1000"
         :space-between="230" :resistance="false" :resistance-ratio="0" :allowSlidePrev="false">
         <swiper-slide>
           <div class="review-image border">
@@ -117,9 +119,16 @@ const reviewSrc = computed(() => {
             <img class="reviewImg" :src="reviewSrc" @error="e => e.target.src = defaultImage" />
           </div>
         </swiper-slide>
+      </swiper> -->
+
+      <swiper :slides-per-view="4" :modules="[Navigation, Pagination, Scrollbar, A11y, Autoplay]" :speed="1000"
+        :space-between="230" :resistance="false" :resistance-ratio="0" :allowSlidePrev="false">
+        <swiper-slide v-for="(src, index) in reviewSrcList" :key="index">
+          <div class="review-image border">
+            <img class="reviewImg" :src="src" @error="e => e.target.src = defaultImage" alt="리뷰 이미지" />
+          </div>
+        </swiper-slide>
       </swiper>
-
-
 
     </div>
 
@@ -127,44 +136,26 @@ const reviewSrc = computed(() => {
     <!-- 메뉴 이름들 -->
     <div class="box-body-menu-box">
       <div class="menu-border">
-        <span class="menu-name"> 햄부기 세트 </span>
-        <span class="menu-name"> 햄부기 세트 </span>
-        <span class="menu-name"> 햄부기 세트 </span>
-        <span class="menu-name"> 햄부기 세트 </span>
-
-        <!-- <span>{{
-          props.item.menuName +
-          (props.item.menuCount > 1
-            ? " 외 " + (props.item.menuCount - 1) + "개"
-            : "")
-        }}</span> -->
-
+        <span class="menu-name" v-for="value in props.item.menuName" :key="value.id"> {{ value }} </span>
       </div>
     </div>
 
     <div class="customer-comment-box">
       <div class="customer-comment">
-        이건 두 번째 주문😎
-        친구가 패션후르츠 에이드가 맛있다고 하길래 디저트와 같이 주문을 해봤습니다. 또 주문할게요 !
-
-        <!-- <div class="u-box">{{ props.item.comment }}</div> -->
+        <div class="u-box">{{ props.item.comment }}</div>
       </div>
 
     </div>
 
-    <div class="owner">
+    <div v-if="props.item.ownerComment" class="owner">
       <hr class="owner-solid">
       </hr>
       <div class="owner-title">사장님 댓글</div>
       <div class="owner-comment-box">
         <div class="owner-comment">
           <div>
-            리뷰 감사합니다. 조용한 공간에서 여유로운 시간을 보내셨다니 정말 기쁩니다. 다음 방문도 기다릴게요!
-          </div>
-
-          <!-- <div >
             {{ props.item.ownerComment }}
-          </div> -->
+          </div>
         </div>
 
 
@@ -234,9 +225,10 @@ const reviewSrc = computed(() => {
 }
 
 .star {
-  font-size: 20px;
+  font-family: "BMJUA";
+  font-size: 30px;
   color: #FAC729;
-  padding: 3px;
+  margin-top: -10px;
 }
 
 .restar {
@@ -339,12 +331,13 @@ const reviewSrc = computed(() => {
   width: 100%;
   height: 20%;
   padding: 15px;
-  border: 1px #888 solid;
+  border: 1px #797979 solid;
   border-radius: 10px;
 }
 
 .menu-name {
   margin: 10px;
+  color: #888;
 }
 
 .customer-comment-box {

@@ -12,6 +12,8 @@ import Review from "@/components/customer/Review.vue";
 import defaultImage from '@/imgs/owner/owner-service3.png';
 import AlertModal from "@/components/modal/AlertModal.vue";
 import AlertResolveModal from "@/components/modal/AlertResolveModal.vue";
+import NoneStore from '@/imgs/NoneStoreImg.png';
+
 
 const alertResolveModal = ref(null);
 
@@ -207,7 +209,7 @@ const banerImgSrc = computed(() => {
     !== 'null'
     ? `/pic/store-profile/${store.storeInfo.id}/${store.storeInfo?.bannerPath
     }`
-    : defaultImage;
+    : NoneStore;
 
 })
 
@@ -353,7 +355,7 @@ const sortedMenus = computed(() => {
 
 <template>
   <div class="storeImg">
-    <img class="big-img" :src="banerImgSrc" @error="e => e.target.src = defaultImage" />
+    <img class="big-img" :src="banerImgSrc" @error="e => e.target.src = NoneStore" />
   </div>
   <div class="container">
 
@@ -769,6 +771,9 @@ const sortedMenus = computed(() => {
 }
 
 .review-box {
+  display: flex;
+  justify-content: center;
+  align-items: center;
   border: 1px #797979 solid;
   border-radius: 10px;
   width: 860px;
