@@ -43,6 +43,7 @@ const state = reactive({
   reviewNum: 0,
   // 사장 코멘트 갯수
   ownerCommentNum: 0,
+  myFavorite: 0
 });
 
 
@@ -87,23 +88,27 @@ const showMap = address => {
 };
 
 // 고객 유저가 가게를 찜 목록에 추가했는지 조회하는 함수
-// const loadFavorite = async (id) => {
-//   if (!account.state.loggedIn) {
-//     state.store.favorite = true;
-//     loadMenus(id);
-//     return;
-//   }
-//   const res = await getFavorite(id);
+const loadFavorite = async (id) => {
+  if (!account.state.loggedIn) {
+    state.store.favorite = true;
+    // loadMenus(id);
+    return;
+  }
+  const res = await getFavorite(id);
+  if (res.data.resultStatus == 200) {
+    console.log("찜 조회 성공", res.data.resultData)
+    state.myFavorite = res.data.resultData.on;
+  }
 
-//   if (res === undefined || res.data.resultStatus !== 200) {
-//     alertModal.value.showModal('조회에 실패하였습니다.');
-//     return;
-//   }
+  if (res === undefined || res.data.resultStatus !== 200) {
+    alertModal.value.showModal('조회에 실패하였습니다.');
+    return;
+  }
 
-//   state.store.favorite = res.data.resultData !== null ? true : false;
-//   // 조회 성공 시 가게 메뉴 조회 함수 호출
-//   loadMenus(id);
-// };
+  state.store.favorite = res.data.resultData !== null ? true : false;
+  // 조회 성공 시 가게 메뉴 조회 함수 호출
+  loadMenus(id);
+};
 
 // 가게 메뉴 조회하는 함수
 const loadMenus = async (id) => {
@@ -244,6 +249,7 @@ onMounted(() => {
   const storeId = route.params.id;
   getStoreInfo(storeId);
   getStoreMenu(storeId);
+  loadFavorite(storeId)
 });
 
 
@@ -256,7 +262,8 @@ const store = reactive({
   openTime: null,
   closeTime: null,
   ownerComment: [],
-  todayReviewCount: 0
+  todayReviewCount: 0,
+  myFavorite: 0
 })
 
 // 가게 정보 조회
@@ -307,12 +314,20 @@ const getStoreInfo = async (id) => {
 // 찜 추가, 삭제 토글
 const toggleFavorite = async (id) => {
 
+  if (state.myFavorite === 0) {
+    await addFavorite({ storeId: id });
+    state.myFavorite === 1;
+    loadFavorite(id);
+    store.storeInfo.favorites += 1
+  }
 
-  const res = store.storeInfo.favorites
-    ? await deleteFavorite(id)
-    : await addFavorite({ storeId: id });
+  if (state.myFavorite === 1) {
+    await deleteFavorite(id)
+    state.myFavorite === 0;
+    loadFavorite(id);
+    store.storeInfo.favorites -= 1
+  }
 
-  store.storeInfo.favorites = !store.storeInfo.favorites;
 }
 
 // 가게 메뉴 조회
@@ -356,7 +371,7 @@ const sortedMenus = computed(() => {
           <!-- 이거 수정 -->
           <span class="text-color review-length star-num">( {{ store.reveiw.length }} )</span>
           <span>
-            <div class="favorite" @click="toggleFavorite(store.storeInfo.id)">{{ store.storeInfo.favorites ? "♥" : "♡"
+            <div class="favorite" @click="toggleFavorite(store.storeInfo.id)">{{ state.myFavorite === 1 ? "♥" : "♡"
             }}</div>
           </span>
           <span class="favorite-num">
@@ -434,7 +449,7 @@ const sortedMenus = computed(() => {
               <div class="statistics-info">
 
                 <div> 전체 리뷰 수 {{ store.reveiw.length }}</div>
-                <div>찜 {{ store.storeInfo.favorites ? store.storeInfo.favorites + 0 : store.storeInfo.favorites + 0 }}
+                <div>찜 {{ store.storeInfo.favorites }}
                 </div>
               </div>
               <div class="event">

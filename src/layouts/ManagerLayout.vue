@@ -37,6 +37,13 @@ import Header from '@/components/manager/Header.vue';
     </div>
 </template>
 
+<!-- 스타일 태그 이렇게 넣어도 되더라.. -->
+<style>
+.container {
+    max-width: 1600px;
+}
+</style>
+
 <style lang="scss" scoped>
 .hamburger {
     border-color: #FF6666;

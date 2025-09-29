@@ -2,7 +2,6 @@
 import '@/assets/manager/manager.css'
 
 import { reactive, ref } from 'vue';
-import VueDatePicker from '@vuepic/vue-datepicker';
 
 const state = reactive({
     form: {
