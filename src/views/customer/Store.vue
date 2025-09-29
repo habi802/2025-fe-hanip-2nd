@@ -684,7 +684,8 @@ const sortedMenus = computed(() => {
 }
 
 .mb-1 {
-  font-family: "BMJUA";
+  font-family: 'Pretendard-Regular';
+  font-weight: 600;
   letter-spacing: 1px;
   cursor: pointer;
 

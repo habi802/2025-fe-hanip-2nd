@@ -348,7 +348,7 @@ const selectOption = reactive({
           </div>
 
           <div class="store-info">
-            <p>
+            <p class="store-minAmount">
               최소 주문 금액
               {{ state.store.minAmount.toLocaleString() || '10,000' }}원
             </p>
@@ -748,6 +748,10 @@ const selectOption = reactive({
       text-align: center;
     }
   }
+}
+
+.store-minAmount {
+  color: #ff6666;
 }
 
 .store-box {

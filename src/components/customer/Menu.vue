@@ -2,14 +2,27 @@
 import { addItem } from '@/services/cartService';
 import { useAccountStore } from '@/stores/account';
 import defaultImage from '@/imgs/owner/owner-service3.png';
-import { computed, ref } from 'vue';
+import { computed, reactive, ref } from 'vue';
 import { getOption } from '@/services/menuService';
+import { useCartStore } from '@/stores/cartStore';
 
 import OptionModal from '../modal/OptionModal.vue';
 
 const optionModal = ref(null);
+const cartStore = useCartStore();
 
 const openModal = async () => {
+    await cartStore.getCart();
+
+
+    firstItem.itemInfo = cartStore.items[0] ? cartStore.items[0] : 0;
+
+    if (firstItem.itemInfo != 0) {
+        props.item.cartStoreId = firstItem.itemInfo.storeId;
+    } else {
+        props.item.cartStoreId = 0;
+    }
+    console.log("첫 번째 카트 아이템의 스토어 아이디:", firstItem.itemInfo.storeId);
 
 
     const res = await getOption(props.item.menuId);
@@ -28,10 +41,13 @@ const emit = defineEmits(['addCart'])
 const props = defineProps({
     item: {
         menuId: Number,
+        cartStoreId: Number,
+        storeId: Number,
         name: String,
         price: Number,
         comment: String,
         imagePath: String,
+        storeId: Number,
         options: []
     }
 });
@@ -46,6 +62,18 @@ const menuSrc = computed(() => {
         : defaultImage;
 })
 
+const firstItem = reactive({
+    itemInfo: Object
+})
+
+
+// onMounted(async () => {
+// await cartStore.getCart();
+// firstItem.itemInfo = cartStore.items[0]; // items 배열 이름에 따라 달라질 수 있음
+// console.log("첫 번째 카트 아이템:", firstItem.itemInfo[0]);
+// console.log("스토어 아이디:", firstItem.itemInfo.storeId);
+
+// })
 
 
 
@@ -73,21 +101,7 @@ const menuSrc = computed(() => {
         </div>
     </div>
     <!-- 공통 알림 모달 -->
-    <div class="modal fade" id="alertModal" tabindex="-1" role="dialog" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">알림</h5>
-                </div>
-                <div class="modal-body" id="alertModalBody">내용</div>
-                <div class="modal-footer">
-                    <button type="button" class="btn " data-bs-dismiss="modal">
-                        확인
-                    </button>
-                </div>
-            </div>
-        </div>
-    </div>
+
     <div class="modal fade" id="alertModal" tabindex="-1" role="dialog" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered" role="document">
             <div class="modal-content">

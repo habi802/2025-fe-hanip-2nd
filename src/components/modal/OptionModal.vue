@@ -1,9 +1,26 @@
 <script setup>
-import { reactive, computed, ref } from 'vue';
+import { reactive, computed, ref, onMounted } from 'vue';
 import { addItem } from '@/services/cartService';
+import { useCartStore } from '@/stores/cartStore';
+import ConfirmModal from '@/components/modal/ConfirmModal.vue'; // 컴포넌트 추가
+import { removeCart } from '@/services/cartService';
+import AlertModal from '@/components/modal/AlertModal.vue'; // 컴포넌트 가져오기
+
+const alertModal = ref(null);
+
+
+const confirmModal = ref(null);
+
+const firstItem = reactive({
+    itemInfo: Object
+})
+
+const cartStore = useCartStore()
 
 const menuData = reactive({
     menuId: 0,
+    cartStoreId: 0,
+    storeId: 0,
     name: '',
     comment: '',
     price: 0,
@@ -11,13 +28,18 @@ const menuData = reactive({
 });
 const setMenuData = (data) => {
     menuData.menuId = data.menuId;
+    menuData.storeId = data.storeId;
     menuData.name = data.name;
     menuData.comment = data.comment;
     menuData.price = data.price;
     menuData.options = data.options;
+    menuData.cartStoreId = data.cartStoreId;
+
     console.log("필수 선택 배열", sortedOptions)
     console.log("메뉴옵션 데이터", menuData.options)
     quantityNum.value = 1;
+
+
 
     // 필수 옵션 자동 추가용
 
@@ -80,7 +102,7 @@ const onOptionSelect = (event, optionId, childId) => {
     console.log('현재 옵션 목록:', currentOptionIds);
     console.log('확인 중인 옵션:', optionId, childId);
     console.log('포함 여부:', hasOption, hasChild);
-    
+
     if (hasOption && hasChild && isRequired != 1) {
         if (idx !== -1) menuOption.optionId.splice(idx, 1);
         menuOption.optionId = menuOption.optionId.filter(id => !groupChildren.includes(id));
@@ -124,11 +146,38 @@ const readyCart = () => {
     menuOption.menuId = menuData.menuId;
     menuOption.quantity = quantityNum.value;
     console.log("카트에 담길 것 확인", menuOption)
-
     goCart();
 }
 
+
+
+
 const goCart = async () => {
+
+
+    console.log("내가 담을려고 하는 메뉴의 스토어 아이디", menuData.storeId);
+    console.log("메뉴에 지금 담긴 스토어 아이디", menuData.cartStoreId);
+
+
+
+    if (menuData.cartStoreId != 0 && menuData.storeId != menuData.cartStoreId) {
+        const isConfirmed = await confirmModal.value.showModal('이미 장바구니가 담겨있습니다. 장바구니를 비우시겠습니까?');
+
+        if (isConfirmed) {
+            const remove = await removeCart();
+
+            if (remove.data.resultStatus === 200) {
+                alertModal.value.open('장바구니를 비웠습니다. 메뉴를 다시 담아주세요');
+            }
+        } else {
+
+            return;
+        }
+        return;
+    }
+
+
+
     const res = await addItem(menuOption);
     if (res.data.resultStatus === 200) {
         console.log("카트 메뉴 담기 성공 !")
@@ -138,6 +187,13 @@ const goCart = async () => {
         menuData.options.children = [];
     }
 }
+// onMounted(async () => {
+//     await cartStore.getCart();
+//     firstItem.itemInfo = cartStore.items[0]; // items 배열 이름에 따라 달라질 수 있음
+//     console.log("첫 번째 카트 아이템:", firstItem.itemInfo);
+//     console.log("스토어 아이디:", firstItem.itemInfo.storeId);
+
+// })
 
 </script>
 
@@ -198,14 +254,14 @@ const goCart = async () => {
                     </div>
                 </div>
 
-
-
                 <div class="footer-btn">
                     <button type="button" class="hn-btn-gray" data-bs-dismiss="modal">주문취소</button>
                     <button type="button" class="hn-btn-gray" @click="readyCart" data-bs-dismiss="modal">메뉴담기</button>
                 </div>
             </div>
         </div>
+        <alert-modal ref="alertModal"></alert-modal>
+        <ConfirmModal ref="confirmModal"></ConfirmModal>
     </div>
 </template>
 
