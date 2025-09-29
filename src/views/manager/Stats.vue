@@ -1,11 +1,9 @@
 <script setup>
-import 'v-calendar/style.css'
 import '@/assets/manager/manager.css'
 
 import { reactive, ref, computed } from 'vue';
 import { getUserStats, getStoreStats, getOrderStats, getAmountStats } from '@/services/managerService';
 import StatsChartCard from '@/components/manager/StatsChartCard.vue';
-import { DatePicker as VDatePicker } from 'v-calendar'
 import LoadingModal from '@/components/modal/LoadingModal.vue';
 import AlertModal from '@/components/modal/AlertModal.vue';
 
