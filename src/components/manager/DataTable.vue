@@ -93,6 +93,29 @@ const rowClicked = item => {
             <span v-else-if="row.item.isActive === 1" class="badge bg-success fs-6">완료</span>
         </template>
 
+        <!-- 주문 상태 컬럼 커스텀 -->
+        <template #cell(status)="row">
+            <span v-if="row.item.status === '01'" class="badge bg-secondary fs-6">미결제</span>
+            <span v-else-if="row.item.status === '02'" class="badge bg-success fs-6">결제 완료</span>
+            <span v-else-if="row.item.status === '03'" class="badge bg-warning fs-6">음식 준비중</span>
+            <span v-else-if="row.item.status === '04'" class="badge bg-info fs-6">배달중</span>
+            <span v-else-if="row.item.status === '05'" class="badge bg-primary fs-6">배달 완료</span>
+            <span v-else-if="row.item.status === '06'" class="badge bg-danger fs-6">주문 취소</span>
+        </template>
+
+        <!-- 결제 수단 컬럼 커스텀 -->
+        <template #cell(payment)="row">
+            <span v-if="row.item.payment === '01'" class="badge bg-secondary fs-6">미결제</span>
+            <span v-else-if="row.item.payment === '02'" class="badge bg-kakao fs-6">카카오페이</span>
+            <span v-else-if="row.item.payment === '03'" class="badge bg-naver fs-6">네이버페이</span>
+        </template>
+
+        <!-- 고객 주문 내역 삭제 상태 컬럼 커스텀 -->
+        <template #cell(isDeleted)="row">
+            <span v-if="row.item.isDeleted === 0" class="badge bg-success fs-6">정상</span>
+            <span v-else-if="row.item.isDeleted === 1" class="badge bg-danger fs-6">삭제됨</span>
+        </template>
+
         <!-- 사장 답변 등록 여부 컬럼 커스텀 -->
         <template #cell(ownerComment)="row">
             <span v-if="row.item.ownerComment === 0" class="badge bg-danger fs-6">미등록</span>

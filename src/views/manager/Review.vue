@@ -27,8 +27,8 @@ const defaultForm = {
     storeName: '',
     userName: '',
     comment: '',
-    ownerComment: 0,
-    isHide: 0,
+    ownerComment: '',
+    isHide: '',
     pageNumber: pagination.state.pageNumber,
     pageSize: pagination.state.pageSize
 }
@@ -206,6 +206,7 @@ onMounted(() => {
                     <b-col cols="6" xl="4" xxl="3" class="mb-2">
                         <label for="provider" class="form-label">사장 답변</label>
                         <b-form-select id="provider" v-model="state.form.ownerComment">
+                            <option value="">전체</option>
                             <option value="0">미등록</option>
                             <option value="1">등록</option>
                         </b-form-select>
@@ -213,6 +214,7 @@ onMounted(() => {
                     <b-col cols="6" xl="4" xxl="3" class="mb-2">
                         <label for="provider" class="form-label">상태</label>
                         <b-form-select id="provider" v-model="state.form.isHide">
+                            <option value="">전체</option>
                             <option value="0">공개</option>
                             <option value="1">숨김</option>
                         </b-form-select>

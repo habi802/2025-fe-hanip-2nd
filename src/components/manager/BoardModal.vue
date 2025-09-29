@@ -113,8 +113,8 @@ const setItemStatus = (id, status, newStatus) => {
 
                 <b-row>
                     <b-col cols="12" class="d-flex justify-content-center">
-                        <button class="btn btn-success me-2" @click="setItemStatus(props.item[props.idKey], props.item.isActive, 1)" :disabled="!isExistItem">영업 승인</button>
-                        <button class="btn btn-secondary" @click="setItemStatus(props.item[props.idKey], props.item.isActive, 0)" :disabled="!isExistItem">영업 대기</button>
+                        <button class="btn btn-success me-2" @click="setItemStatus(props.item[props.idKey], props.item.isActive, 1)" :disabled="!isExistItem || props.item.isActive === 1">영업 승인</button>
+                        <button class="btn btn-secondary" @click="setItemStatus(props.item[props.idKey], props.item.isActive, 0)" :disabled="!isExistItem || props.item.isActive === 0">영업 대기</button>
                     </b-col>
                 </b-row>
             </template>
@@ -141,14 +141,29 @@ const setItemStatus = (id, status, newStatus) => {
 
                 <b-row>
                     <b-col cols="3"><strong>주문 상태</strong></b-col>
-                    <b-col cols="3">{{ isExistItem ? props.item.status : '' }}</b-col>
+                    <b-col cols="3">
+                        <template v-if="isExistItem">
+                            <span v-if="props.item.status === '01'" class="badge bg-secondary fs-6">미결제</span>
+                            <span v-else-if="props.item.status === '02'" class="badge bg-success fs-6">결제 완료</span>
+                            <span v-else-if="props.item.status === '03'" class="badge bg-warning fs-6">음식 준비중</span>
+                            <span v-else-if="props.item.status === '04'" class="badge bg-info fs-6">배달중</span>
+                            <span v-else-if="props.item.status === '05'" class="badge bg-primary fs-6">배달 완료</span>
+                            <span v-else-if="props.item.status === '06'" class="badge bg-danger fs-6">주문 취소</span>
+                        </template>
+                    </b-col>
                     <b-col cols="3"><strong>결제 수단</strong></b-col>
-                    <b-col cols="3">{{ isExistItem ? props.item.payment : '' }}</b-col>
+                    <b-col cols="3">
+                        <template v-if="isExistItem">
+                            <span v-if="props.item.payment === '01'" class="badge bg-secondary fs-6">미결제</span>
+                            <span v-else-if="props.item.payment === '02'" class="badge bg-kakao fs-6">카카오페이</span>
+                            <span v-else-if="props.item.payment === '03'" class="badge bg-naver fs-6">네이버페이</span>
+                        </template>
+                    </b-col>
                 </b-row>
 
                 <b-row>
                     <b-col cols="12" class="d-flex justify-content-center">
-                        <button class="btn btn-danger me-2" @click="setItemStatus(props.item[props.idKey], 1)" :disabled="!isExistItem">주문 취소</button>
+                        <button class="btn btn-danger me-2" @click="setItemStatus(props.item[props.idKey], 1)" :disabled="!isExistItem || props.item.status === '06'">주문 취소</button>
                     </b-col>
                 </b-row>
             </template>
@@ -185,8 +200,8 @@ const setItemStatus = (id, status, newStatus) => {
 
                 <b-row>
                     <b-col cols="12" class="d-flex justify-content-center">
-                        <button class="btn btn-danger me-2" @click="setItemStatus(props.item[props.idKey], props.item.isHide, 1)" :disabled="!isExistItem">리뷰 숨기기</button>
-                        <button class="btn btn-secondary" @click="setItemStatus(props.item[props.idKey], props.item.isHide, 0)" :disabled="!isExistItem">숨김 해제</button>
+                        <button class="btn btn-danger me-2" @click="setItemStatus(props.item[props.idKey], props.item.isHide, 1)" :disabled="!isExistItem || props.item.isHide === 1">리뷰 숨기기</button>
+                        <button class="btn btn-secondary" @click="setItemStatus(props.item[props.idKey], props.item.isHide, 0)" :disabled="!isExistItem || props.item.isHide === 0">숨김 해제</button>
                     </b-col>
                 </b-row>
             </template>
@@ -213,5 +228,16 @@ const setItemStatus = (id, status, newStatus) => {
 
 .content {
     min-height: 180px;
+}
+
+/* 결제 수단 스타일 */
+.bg-kakao {
+    background-color: #F9E000 !important;
+    color: black;
+}
+
+.bg-naver {
+    background-color: #00B074;
+    color: white;
 }
 </style>

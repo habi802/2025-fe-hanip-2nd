@@ -31,7 +31,7 @@ const defaultForm = {
     businessNumber: '',
     address: '',
     tel: '',
-    isActive: 0,
+    isActive: '',
     pageNumber: pagination.state.pageNumber,
     pageSize: pagination.state.pageSize
 }
@@ -231,8 +231,9 @@ onMounted(() => {
                     <b-col cols="6" xl="4" xxl="3" class="mb-2">
                         <label for="isActive" class="form-label">영업 승인</label>
                         <b-form-select id="isActive" v-model="state.form.isActive">
+                            <option value="">전체</option>
                             <option value="0">대기</option>
-                            <option value="1">완료 </option>
+                            <option value="1">완료</option>
                         </b-form-select>
                     </b-col>
                     <b-col cols="6" xl="4" xxl="3" class="ms-auto mb-2">
