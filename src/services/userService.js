@@ -42,6 +42,6 @@ export const checkPassword = password => {
     }).catch(e => e.response);
 }
 
-export const update = args => {
+export const updateUser = args => {
     return axios.put(`${path}`, args).catch(e => e.response);
 }
