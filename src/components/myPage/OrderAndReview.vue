@@ -151,9 +151,8 @@ const statusBtn = computed(() => {
             <!-- 버튼 -->
             <div class="btns">
                 <button type="button" class="btn" @click="$emit('re-order', props.order.menuItems)">재주문하기</button>
-                <button type="button" :class="['btn', { 'btn-disabled': props.order.status !== '05' }]"
-                    @click="$emit('review', props.order.orderId)" :disabled="props.order.status !== '05'">리뷰
-                    등록</button>
+                <button type="button" :class="['btn', { 'btn-disabled': props.order.status !== '05'}]"
+                    @click="router.push(`/review/${props.order.orderId}`);" :disabled="props.order.status !== '05'">리뷰 등록</button>
                 <button type="button" class="btn" @click="router.push(`/orders/${props.order.orderId}`);">주문 상세</button>
                 <button type="button"
                     :class="['btn', { 'btn-disabled': props.order.status !== '05' && props.order.status !== '06' }]"
