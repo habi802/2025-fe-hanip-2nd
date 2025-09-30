@@ -39,6 +39,8 @@ const fetchFavorites = async () => {
   // 찜 ID들을 Pinia store에 저장
   const favoriteIds = state.favorites.map((favorite) => favorite.storeId);
   favoriteStore.setFavorites(favoriteIds);
+
+  console.log("이거 뭐니", state.favorites)
 };
 
 // 찜 목록 추가/삭제 함수
@@ -122,11 +124,7 @@ const toStore = (id) => {
           <div class="all" v-for="store in visibleCards" :key="store.storeId">
             <div id="imgBigBox" class="card h-100 shadow-sm">
               <div id="imgBox" class="card-img-top">
-                <img
-                  class="sImg"
-                  :src="getImgSrc(store)"
-                  @error="(e) => (e.target.src = defaultImage)"
-                />
+                <img class="sImg" :src="getImgSrc(store)" @error="(e) => (e.target.src = defaultImage)" />
               </div>
               <div class="card-body">
                 <h6 class="card-title">{{ store.name }}</h6>
@@ -134,11 +132,8 @@ const toStore = (id) => {
                   <img class="star" :src="ratingImage" />
                   <span class="small">
                     {{ store.rating }}&nbsp;({{ store.reviews }})&nbsp;&nbsp;
-                    <img
-                      class="love"
-                      :src="store.favorite ? favoriteImage : noFavoriteImage"
-                      @click="toggleFavorite(store)"
-                    />
+                    <img class="love" :src="store.favorite ? favoriteImage : noFavoriteImage"
+                      @click="toggleFavorite(store)" />
                     {{ store.favorites }}
                   </span>
                 </div>
@@ -146,21 +141,15 @@ const toStore = (id) => {
                   <img class="star" :src="ratingImage" />
                   <span class="small">
                     0&nbsp;(0)&nbsp;&nbsp;
-                    <img
-                      class="love"
-                      :src="store.favorite ? favoriteImage : noFavoriteImage"
-                      @click="toggleFavorite(store)"
-                    />
+                    <img class="love" :src="store.favorite ? favoriteImage : noFavoriteImage"
+                      @click="toggleFavorite(store)" />
                     {{ store.favorites }}
                   </span>
                 </div>
                 <p class="mb-1 text-muted small">배달비 0원 ~ 3000원</p>
                 <p class="mb-2 text-muted small">최소 주문 금액 10,000원</p>
                 <div class="d-flex justify-content-center align-items-center">
-                  <button
-                    @click="toStore(store.storeId)"
-                    class="btn btn-outline-danger btn-sm"
-                  >
+                  <button @click="toStore(store.storeId)" class="btn btn-outline-danger btn-sm">
                     자세히보기
                   </button>
                 </div>
@@ -190,14 +179,8 @@ const toStore = (id) => {
   <img @click="arrow" class="arrow" src="/src/imgs/arrow.png" />
 
   <!-- 조회 실패 -->
-  <div
-    class="modal fade"
-    id="favorite-error"
-    tabindex="-1"
-    role="dialog"
-    aria-labelledby="exampleModalLabel"
-    aria-hidden="true"
-  >
+  <div class="modal fade" id="favorite-error" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+    aria-hidden="true">
     <div class="modal-dialog" role="document">
       <div class="modal-content">
         <div class="modal-header">
@@ -212,14 +195,7 @@ const toStore = (id) => {
   </div>
 
   <!-- 찜 실패 -->
-  <div
-    class="modal fade"
-    id="faiF"
-    tabindex="-1"
-    role="dialog"
-    aria-labelledby="exampleModalLabel"
-    aria-hidden="true"
-  >
+  <div class="modal fade" id="faiF" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
     <div class="modal-dialog" role="document">
       <div class="modal-content">
         <div class="modal-header">
@@ -237,8 +213,7 @@ const toStore = (id) => {
 <style lang="scss" scoped>
 @font-face {
   font-family: "BMJUA";
-  src: url("https://fastly.jsdelivr.net/gh/projectnoonnu/noonfonts_one@1.0/BMJUA.woff")
-    format("woff");
+  src: url("https://fastly.jsdelivr.net/gh/projectnoonnu/noonfonts_one@1.0/BMJUA.woff") format("woff");
   font-weight: 600;
   font-style: normal;
 }
@@ -287,6 +262,7 @@ const toStore = (id) => {
   align-items: center;
   overflow: hidden;
 }
+
 #imgBigBox {
   width: 360px;
   height: 470px;
@@ -366,6 +342,7 @@ const toStore = (id) => {
   text-align: center;
   margin-bottom: 50px;
 }
+
 // 반응형
 @media (max-width: 1800px) {
   .guideBox {
