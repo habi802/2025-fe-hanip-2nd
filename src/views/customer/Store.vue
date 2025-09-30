@@ -342,7 +342,7 @@ const getStoreMenu = async (storeId) => {
   if (store.menus.length <= 0) {
     let timeoutId;
     const redirectHome = () => {
-      clearTimeout(timeoutId); 
+      clearTimeout(timeoutId);
       router.push("/");
     };
     timeoutId = setTimeout(() => {
@@ -623,7 +623,7 @@ const sortedMenus = computed(() => {
 
 .arrow {
   position: sticky;
-  width: 3.8%;
+  width: 2.8%;
   bottom: 100px;
   left: 93%;
   z-index: 999;
@@ -662,7 +662,7 @@ const sortedMenus = computed(() => {
 
 .container {
   margin-top: 70px;
-  width: 100%;
+  width: 78%;
 }
 
 
@@ -889,7 +889,7 @@ const sortedMenus = computed(() => {
 
 .store-title-box {
   font-family: "BMJUA";
-  font-size: 2.3em;
+  font-size: 2.1em;
   text-align: center;
   margin-top: -20px;
 }

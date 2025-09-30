@@ -168,9 +168,9 @@ const aaa = () => {
 
     .searchBar {
       justify-content: center;
-      margin-top: 120px;
+      margin-top: 100px;
       font-size: 0.8em;
-      border: 3px solid #FF6666;
+      border: 2px solid #FF6666;
       border-radius: 50px;
 
       input {
@@ -183,7 +183,7 @@ const aaa = () => {
       }
 
       .searchImg {
-        width: 30px;
+        width: 25px;
         position: relative;
         right: 35px;
         bottom: 2px;
@@ -192,8 +192,8 @@ const aaa = () => {
 
       .searchBox {
         border: none;
-        width: 530px;
-        height: 70px;
+        width: 500px;
+        height: 60px;
         border-radius: 50px;
       }
 
@@ -233,8 +233,8 @@ const aaa = () => {
 
         // background-color: antiquewhite;
         .imgBox {
-          width: 200px;
-          height: 200px;
+          width: 160px;
+          height: 160px;
           border-radius: 50%;
           overflow: hidden;
           transition: transform 0.3s ease-in-out;
@@ -247,7 +247,7 @@ const aaa = () => {
         #cImg {
           cursor: pointer;
           // width: 220px;
-          width: 210px;
+          width: 160px;
           border-radius: 50%;
 
           // transition: transform 0.3s ease-in-out;
@@ -257,7 +257,7 @@ const aaa = () => {
         }
 
         #cName {
-          font-size: 24px;
+          font-size: 20px;
           padding-top: 25px;
           text-align: center;
           margin-left: -5px;

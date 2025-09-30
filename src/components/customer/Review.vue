@@ -39,6 +39,7 @@ const props = defineProps({
     imagePath: String,
     ownerComment: String,
     created: String,
+    isHide: Number,
   },
 });
 
@@ -68,7 +69,7 @@ const imgSrc = computed(() => {
 
 <template>
   <!-- 상단 유저 사진, 이름, 별점, 시간 -->
-  <div id="big-box" class="border rounded p-3 mb-2">
+  <div id="big-box" class="border rounded p-3 mb-2" :class="{ isHide: props.item.isHide === 1 }">
     <div class="box-top">
       <div class="user-img-box">
         <img class="user-img" src="/src/imgs/userImg.png"></img>
@@ -373,5 +374,9 @@ const imgSrc = computed(() => {
 .owner-comment {
   width: 100%;
   padding: 20px;
+}
+
+.isHide {
+  display: none;
 }
 </style>
