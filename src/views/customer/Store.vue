@@ -342,7 +342,7 @@ const getStoreMenu = async (storeId) => {
   if (store.menus.length <= 0) {
     let timeoutId;
     const redirectHome = () => {
-      clearTimeout(timeoutId); 
+      clearTimeout(timeoutId);
       router.push("/");
     };
     timeoutId = setTimeout(() => {
@@ -623,7 +623,7 @@ const sortedMenus = computed(() => {
 
 .arrow {
   position: sticky;
-  width: 3.8%;
+  width: 2.8%;
   bottom: 100px;
   left: 93%;
   z-index: 999;

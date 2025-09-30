@@ -54,7 +54,8 @@ const toStore = () => {
       </div>
       <div class="text-box">
         <div id="smallText">배달료
-          {{ (props.stores?.minDeliveryFee ?? 0).toLocaleString() }}원~{{ (props.stores?.maxDeliveryFee).toLocaleString() }}원
+          {{ (props.stores?.minDeliveryFee ?? 0).toLocaleString() }}원~{{ (props.stores?.maxDeliveryFee).toLocaleString()
+          }}원
         </div>
         <div id="smallText">최소 주문 금액 {{ (props.stores?.minAmount ?? 0).toLocaleString() }}원</div>
       </div>
@@ -103,7 +104,7 @@ const toStore = () => {
     display: flex;
     flex-direction: column;
     justify-content: space-between;
-    margin: 20px;
+    // margin: 20px;
     width: 320px;
     height: 470px;
     border-radius: 20px;
