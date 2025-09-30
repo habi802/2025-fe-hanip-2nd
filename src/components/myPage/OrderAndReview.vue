@@ -154,8 +154,8 @@ const statusBtn = computed(() => {
                 <button type="button" :class="['btn', { 'btn-disabled': props.order.status !== '05'}]"
                     @click="router.push(`/reviews-page/${props.order.orderId}`);" :disabled="props.order.status !== '05'">리뷰 등록</button>
                 <button type="button" class="btn" @click="router.push(`/orders/${props.order.orderId}`);">주문 상세</button>
-                <button type="button" :class="['btn', { 'btn-disabled': props.order.status !== '05' || props.order.status !== '06'}]"
-                    @click="$emit('delete-order', props.order)" :disabled="props.order.status !== '05' || props.order.status !== '06'">내역 삭제</button>
+                <button type="button" :class="['btn', { 'btn-disabled': props.order.status !== '05' && props.order.status !== '06'}]"
+                    @click="$emit('delete-order', props.order)" :disabled="props.order.status !== '05' && props.order.status !== '06'">내역 삭제</button>
             </div>
         </div>
     </div>

@@ -1,7 +1,7 @@
 <script setup>
 import { reactive, ref, onMounted, computed } from 'vue';
 import { useRouter } from 'vue-router';
-import { getOrder, deleteOrder } from '@/services/orderService';
+import { getOrder, deleteOrderInCustomer } from '@/services/orderService';
 import { addItem, getItem, removeCart } from '@/services/cartService';
 import OrderAndReview from '@/components/myPage/OrderAndReview.vue';
 import ConfirmModal from '@/components/modal/ConfirmModal.vue';
@@ -63,9 +63,9 @@ const removeOrder = async order => {
 
     const isConfirmed = await confirmModalRef.value.showModal('주문 내역을 삭제하시겠습니까?');
     if (isConfirmed) {
-        const res = await deleteOrder(order.orderId);
+        const res = await deleteOrderInCustomer(order.orderId);
         if (res !== undefined && res.status === 200) {
-            const deleteIdx = state.orders.findIndex((item) => item.id === order.orderId);
+            const deleteIdx = state.orders.findIndex(item => item.orderId === order.orderId);
             if (deleteIdx > -1) {
                 state.orders.splice(deleteIdx, 1);
             }
