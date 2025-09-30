@@ -4,7 +4,6 @@ import { useRouter } from 'vue-router';
 import { getOrder, deleteOrder } from '@/services/orderService';
 import { addItem, getItem, removeCart } from '@/services/cartService';
 import OrderAndReview from '@/components/myPage/OrderAndReview.vue';
-import AlertModal from '@/components/modal/AlertModal.vue';
 import ConfirmModal from '@/components/modal/ConfirmModal.vue';
 
 const router = useRouter();
@@ -17,15 +16,13 @@ onMounted(async () => {
     const res = await getOrder({ page: 1, rowPerPage: 10 });
     if (res !== undefined && res.status === 200) {
         state.orders = res.data.resultData;
-        console.log(state.orders);
     }
 });
 
-const alertModalRef = ref(null);
 const confirmModalRef = ref(null);
 
 // 재주문하기
-const reOrder = async (menus) => {
+const reOrder = async menus => {
     const res = await getItem();
     if (res !== undefined && res.status === 200) {
         const carts = res.data.resultData;
@@ -37,30 +34,38 @@ const reOrder = async (menus) => {
         }
     }
 
-    menus.forEach(async menu => {
+    // 선택한 주문 내역의 메뉴가 장바구니에 다 담긴 후에 장바구니로 이동
+    const promises = menus.map(menu => {
+        const optionId = [];
+        
+        menu.options.forEach(option => {
+            optionId.push(option.optionId);
+            optionId.push(option.children[0].optionId);
+        });
+
         const params = {
             menuId: menu.menuId,
+            optionId,
             quantity: menu.quantity,
         };
 
-        await addItem(params);
+        return addItem(params);
     });
 
-    router.push('/cart');
+    await Promise.all(promises);
+
+    router.push({ path: '/cart' });
 };
 
 // 주문 삭제
 const removeOrder = async order => {
-    if (order.status !== '01' && order.status === '02') {
-        alertModalRef.value.open('진행 중인 주문은 취소할 수 없습니다.');
-        return;
-    }
+    console.log(order);
 
     const isConfirmed = await confirmModalRef.value.showModal('주문 내역을 삭제하시겠습니까?');
     if (isConfirmed) {
-        const res = await deleteOrder(order.id);
+        const res = await deleteOrder(order.orderId);
         if (res !== undefined && res.status === 200) {
-            const deleteIdx = state.orders.findIndex((item) => item.id === order.id);
+            const deleteIdx = state.orders.findIndex((item) => item.id === order.orderId);
             if (deleteIdx > -1) {
                 state.orders.splice(deleteIdx, 1);
             }
@@ -134,7 +139,6 @@ const arrow = () => {
         <div id="btnB" v-if="visibleCount < state.orders.length" class="btn" @click="showMore">더보기</div>
     </div> -->
 
-    <AlertModal ref="alertModalRef" />
     <ConfirmModal ref="confirmModalRef" />
 
     <img @click="arrow" class="arrow" src="/src/imgs/arrow.png" />`

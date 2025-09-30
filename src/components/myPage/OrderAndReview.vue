@@ -151,9 +151,11 @@ const statusBtn = computed(() => {
             <!-- 버튼 -->
             <div class="btns">
                 <button type="button" class="btn" @click="$emit('re-order', props.order.menuItems)">재주문하기</button>
-                <button type="button" class="btn" @click="router.push(`/reviews-page/${props.order.orderId}`);">리뷰 등록</button>
+                <button type="button" :class="['btn', { 'btn-disabled': props.order.status !== '05'}]"
+                    @click="router.push(`/reviews-page/${props.order.orderId}`);" :disabled="props.order.status !== '05'">리뷰 등록</button>
                 <button type="button" class="btn" @click="router.push(`/orders/${props.order.orderId}`);">주문 상세</button>
-                <button type="button" class="btn" @click="$emit('delete-order', props.order)">내역 삭제</button>
+                <button type="button" :class="['btn', { 'btn-disabled': props.order.status !== '05' || props.order.status !== '06'}]"
+                    @click="$emit('delete-order', props.order)" :disabled="props.order.status !== '05' || props.order.status !== '06'">내역 삭제</button>
             </div>
         </div>
     </div>
@@ -388,12 +390,17 @@ const statusBtn = computed(() => {
             box-shadow: none;
             border: #ff6666 2px solid;
             border-radius: 8px;
+
+            &:hover {
+                background-color: #ff6666;
+                border: #ff6666 2px solid;
+                color: #fff;
+            }
         }
 
-        :hover.btn {
-            background-color: #ff6666;
-            border: #ff6666 2px solid;
-            color: #fff;
+        .btn-disabled {
+            color: #6B6B6B;
+            border: 2px solid #6B6B6B;
         }
     }
 }
