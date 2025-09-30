@@ -150,7 +150,7 @@ const isCartPage = computed(() => route.path.startsWith('/cart'));
 
         <!-- 로그인 시 메뉴 -->
         <template v-else>
-          <img class="menu-image me-4" src="/src/imgs/faivor.png" @click="router.push({ path: '/favorites' })"
+          <img class="menu-image me-4 favorite" src="/src/imgs/faivor.png" @click="router.push({ path: '/favorites' })"
             alt="찜목록" />
           <img class="menu-image me-4" src="/src/imgs/orders.png" @click="router.push({ path: '/orders' })"
             alt="주문내역" />
@@ -216,6 +216,10 @@ const isCartPage = computed(() => route.path.startsWith('/cart'));
 
 .address-box {
   margin-left: 150px;
+}
+
+.favorite {
+  width: 27px;
 }
 
 * {
