@@ -23,38 +23,47 @@ const confirmModalRef = ref(null);
 
 // 재주문하기
 const reOrder = async menus => {
-    const res = await getItem();
-    if (res !== undefined && res.status === 200) {
-        const carts = res.data.resultData;
+    let confirmCartRemove = false;
+
+    const cartRes = await getItem();
+    if (cartRes !== undefined && cartRes.status === 200) {
+        const carts = cartRes.data.resultData;
         if (carts !== null && carts.length > 0) {
             const isConfirmed = await confirmModalRef.value.showModal('이미 장바구니에 메뉴가 담겨져 있습니다. 장바구니를 비우고 선택한 메뉴를 장바구니에 담으시겠습니까?');
             if (isConfirmed) {
-                await removeCart();
+                confirmCartRemove = true;
+            }
+        } else {
+            confirmCartRemove = true;
+        }
+
+        if (confirmCartRemove) {
+            const cartRemoveRes = await removeCart();
+            if (cartRemoveRes !== undefined && cartRemoveRes.status === 200) {
+                // 선택한 주문 내역의 메뉴가 장바구니에 다 담긴 후에 장바구니로 이동
+                const promises = menus.map(menu => {
+                    const optionId = [];
+                    
+                    menu.options.forEach(option => {
+                        optionId.push(option.optionId);
+                        optionId.push(option.children[0].optionId);
+                    });
+
+                    const params = {
+                        menuId: menu.menuId,
+                        optionId,
+                        quantity: menu.quantity,
+                    };
+
+                    return addItem(params);
+                });
+
+                await Promise.all(promises);
+
+                router.push({ path: '/cart' });
             }
         }
     }
-
-    // 선택한 주문 내역의 메뉴가 장바구니에 다 담긴 후에 장바구니로 이동
-    const promises = menus.map(menu => {
-        const optionId = [];
-        
-        menu.options.forEach(option => {
-            optionId.push(option.optionId);
-            optionId.push(option.children[0].optionId);
-        });
-
-        const params = {
-            menuId: menu.menuId,
-            optionId,
-            quantity: menu.quantity,
-        };
-
-        return addItem(params);
-    });
-
-    await Promise.all(promises);
-
-    router.push({ path: '/cart' });
 };
 
 // 주문 삭제
