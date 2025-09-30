@@ -2,8 +2,11 @@
 import { onMounted, reactive, computed } from "vue";
 import { useRoute } from "vue-router";
 import { getOwnerOrder2 } from "@/services/orderService";
-
 import defaultImage from "@/imgs/owner/haniplogo_sample2.png";
+
+const props = defineProps({
+  order: { type: Object, required: true }
+});
 
 const route = useRoute();
 
@@ -68,7 +71,7 @@ const getPayment = computed(() => {
             <div class="mb-4">
                 <h4 class="mb-3">주문 내역</h4>
                 <div class="border rounded p-5">
-                    <div class="store-name">{{ state.order.storeName }}</div>
+                    <div class="store-name">{{ order.storeName }}</div>
                     <div class="order-box">
                         <div class="store-info col-4">
                             <div class="store-image">

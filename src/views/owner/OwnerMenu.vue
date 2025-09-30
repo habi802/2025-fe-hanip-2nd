@@ -270,9 +270,6 @@ const removeAlert = (id) => {
 </template>
 
 <style scoped lang="scss">
-.wrap{
-  width: 90%;
-}
 /* 왼쪽 영역 */
 .section-left {
   //position: relative;
