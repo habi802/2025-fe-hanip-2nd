@@ -94,7 +94,7 @@ const arrow = () => {
 
 .arrow {
     position: sticky;
-    width: 3.8%;
+    width: 2.8%;
     bottom: 100px;
     left: 93%;
     z-index: 999;

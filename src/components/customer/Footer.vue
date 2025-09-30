@@ -55,6 +55,10 @@
 * {
   // 기본 폰트 적용
   font-family: 'Pretendard-Regular';
+
+  user-select: none;
+  -webkit-user-drag: none;
+
 }
 
 .footer {
@@ -167,16 +171,18 @@
     margin-left: 2rem;
   }
 }
+
 // 고객센터 라우터 스타일 처리
 .footer-link {
-    text-decoration: none;
-    color: white;
-    cursor: pointer;
-    transition: color 0.3s ease;
+  text-decoration: none;
+  color: white;
+  cursor: pointer;
+  transition: color 0.3s ease;
 
-    &:hover {
-      color: #ff6666; /* hover 시 색상 변경 */
-    }
-
+  &:hover {
+    color: #ff6666;
+    /* hover 시 색상 변경 */
   }
+
+}
 </style>
