@@ -207,7 +207,7 @@ const optionTotal = (item) => {
 
 .storeName {
   font-family: "Pretendard-Regular";
-  font-size: 1.7em;
+  font-size: 1.5em;
   text-align: center;
 }
 
@@ -241,7 +241,7 @@ const optionTotal = (item) => {
 .modal-content {
   background: white;
   padding: 20px;
-  width: 500px;
+  width: 450px;
   max-height: 1000px;
   overflow-y: auto;
   border-radius: 12px;
@@ -257,7 +257,7 @@ const optionTotal = (item) => {
 // 모달 제목
 .modal-title {
   font-size: 25px;
-  font-weight: 600;
+  font-weight: 400;
   text-align: center;
   color: #ff6666;
   font-family: "Pretendard-Regular";

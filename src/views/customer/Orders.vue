@@ -141,12 +141,12 @@ const arrow = () => {
             </div>
 
             <order-and-review v-for="order in state.orders" :key="order.orderId" :order="order" @delete-order="removeOrder" @re-order="reOrder" />
+
+            <div v-if="state.orders.length > 0">
+                <div id="btnB" v-if="visibleCount < state.orders.length" class="btn" @click="showMore">더보기</div>
+            </div>
         </div>
     </div>
-
-    <!-- <div v-if="state.orders.length > 0" class="btnBox">
-        <div id="btnB" v-if="visibleCount < state.orders.length" class="btn" @click="showMore">더보기</div>
-    </div> -->
 
     <ConfirmModal ref="confirmModalRef" />
 

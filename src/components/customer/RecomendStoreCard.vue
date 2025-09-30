@@ -11,12 +11,14 @@ const props = defineProps({
 });
 onMounted(() => {
 });
-// 가게 이미지
-const img = `/pic/store-profile/${props.stores.storeId}/${props.stores.imagePath}`;
+
+
+const baseUrl = ref(import.meta.env.VITE_BASE_URL);
+
 // 가게 이미지가 없을 시 대체 이미지 나타내기
 const imgSrc = computed(() => {
   return props.stores && props.stores.imagePath && props.stores.imagePath !== "null"
-    ? `/pic/store-profile/${props.stores.storeId}/${props.stores.imagePath}`
+    ? `${baseUrl.value}/images/store/${props.stores.id}/${props.stores.imagePath}`
     : defaultImage;
 });
 // 해당 가게로 이동
@@ -159,16 +161,19 @@ const toStore = () => {
       }
 
       .star {
+
         display: flex;
         justify-content: center;
         align-items: center;
 
         .starNum {
+          font-family: "Pretendard-Regular";
           font-size: 18px;
         }
       }
 
       .love {
+        font-family: "Pretendard-Regular";
         display: flex;
         justify-content: center;
         align-items: center;
@@ -179,13 +184,13 @@ const toStore = () => {
   }
 
   .btn {
-    font-family: "BMJUA";
+    font-family: "Pretendard-Regular";
     font-size: 1em;
     color: #fff;
     background-color: #FF6666;
     width: 163px;
     padding: 7px;
-    border-radius: 10px;
+    border-radius: 7px;
   }
 }
 

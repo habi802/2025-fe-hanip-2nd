@@ -269,16 +269,6 @@ onUnmounted(() => {
     height: 100%; // 부모 높이 꽉 차게
 }
 
-.paddingSearch {
-    padding-top: 40px;
-    padding-left: 52px;
-}
-
-.searchBox::placeholder {
-    font-size: 16px;
-    color: #a8a8a8;
-}
-
 .icon {
     width: 60px;
     height: 50px;
@@ -286,22 +276,6 @@ onUnmounted(() => {
 
 .size {
     height: 54px;
-}
-
-.search-icon-inside {
-    position: absolute;
-    left: 15px;
-    top: 50%;
-    transform: translateY(-50%);
-    width: 20px;
-    height: 20px;
-    pointer-events: none;
-}
-
-.search {
-    border-radius: 10px;
-    width: 800px;
-    height: 50px;
 }
 
 .red-dot {
