@@ -5,7 +5,7 @@ import OrderedMenu from '@/components/owner/orderInfo/OrderedMenu.vue'
 import PaymentDetails from '@/components/owner/orderInfo/PaymentDetails.vue'
 
 defineProps({
-  order: { type: Object, required: true }, // 단일 주문 데이터
+  order: {}, // 단일 주문 데이터
 });
 
 defineEmits(["close", "accept", "cancel", "assign"]);
@@ -25,9 +25,9 @@ defineEmits(["close", "accept", "cancel", "assign"]);
     <div class="modal-contents">
       <div class="op d-flex flex-column">
         <OrderDetails :order="order" />
-        <PaymentDetails :payment="order.payment" />
+        <PaymentDetails :order="order" />
       </div>
-      <OrderedMenu :menus="order.menus" />
+      <OrderedMenu :order="order" />
     </div>
 
     <div class="btn-wrap">

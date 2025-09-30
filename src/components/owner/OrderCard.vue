@@ -1,19 +1,42 @@
 <script setup>
-import { ref } from "vue";
+import { ref, reactive } from "vue";
 import DashboardOrderDetail from "@/components/modal/DashboardOrderDetail.vue";
+import LoadingModal from '../modal/LoadingModal.vue';
+import { getOwnerOrder2 } from '@/services/orderService';
+
+// 로딩
+const loadingRef = ref(null);
+
+const fetchOrderDetail = async (orderId) => {
+  try {
+    loadingRef.value.open();
+    const res = await getOwnerOrder2(orderId);
+  } catch (e) {
+    console.error(e);
+  } finally {
+    loadingRef.value.hide();
+  }
+};
 
 const props = defineProps({
   title: String,
   orders: { type: Array, default: () => [] },
+  updatedOrders: {}
 });
 
 const isModalOpen = ref(false);
-const selectedRow = ref(null);
+const state = reactive({
+  order: {}
+})
 
-const onRowClick = (rowData) => {
-  selectedRow.value = rowData;
-  isModalOpen.value = true;
-  console.log("주문 클릭:", rowData);
+const onRowClick = async(orderId) => {
+  try {
+    const res = await getOwnerOrder2(orderId);
+    state.order = res.data.resultData;  
+    isModalOpen.value = true;
+  } catch (e) {
+    console.error("상세조회 실패:", e);
+  }
 };
 
 const emit = defineEmits(["accept", "cancel", "assign"]);
@@ -43,6 +66,7 @@ const formatTime = (dateString) => {
 
 <template>
   <div class="main-grid">
+    <LoadingModal ref="loadingRef" />
     <!-- 주문리스트 왼쪽 타이틀 카드 -->
     <div class="white-card status-title">
       {{ props.title }}
@@ -74,11 +98,12 @@ const formatTime = (dateString) => {
         <div
           v-else
           class="grid-table underline"
-          v-for="(order, index) in props.orders.slice(0, 4)"
+          :class="{ updated: props.updatedOrders.includes(order.orderId) }"
+          v-for="(order, index) in props.orders"
           :key="index"
           role="button"
           tabindex="0"
-          @click="onRowClick(order)"
+          @click="onRowClick(order.orderId)"
         >
           <div>{{ order.orderId || "-" }}</div>
           <div>{{ formatTime(order.createdAt) || "00:00" }}</div>
@@ -114,8 +139,10 @@ const formatTime = (dateString) => {
               </div>
             </template>
 
-            <template v-else>
-              <span>-</span>
+            <template v-else-if="order.status === '05'">
+              <div class="rider-info completed">                
+                <div>배달 완료</div>
+              </div>
             </template>
           </div>
         </div>
@@ -126,7 +153,7 @@ const formatTime = (dateString) => {
   <!-- 주문 상세 모달 -->
   <DashboardOrderDetail
     v-if="isModalOpen"
-    :order="selectedRow"
+    :order="state.order"
     @close="isModalOpen = false"
   />
 </template>
@@ -195,7 +222,7 @@ const formatTime = (dateString) => {
 .address {
   display: flex;
   justify-content: center;
-  text-align: left;
+  text-align: center;
 }
 
 .grid-body {
@@ -227,5 +254,20 @@ const formatTime = (dateString) => {
 
 .owner-btn-white {
   margin-right: 8px;
+}
+
+.rider-info.completed {
+  color: green;
+  font-weight: 600;
+}
+
+// status 애니메이션
+@keyframes highlight {
+  0%   { background-color: #fff8d8; } /* 연한 노랑 */
+  100% { background-color: transparent; }
+}
+
+.updated {
+  animation: highlight 1s ease-out;
 }
 </style>

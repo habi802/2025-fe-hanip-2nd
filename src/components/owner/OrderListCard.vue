@@ -120,7 +120,7 @@ const formatTime = (dateString) => {
 
 <style scoped lang="scss">
 .order-card {
-  width: 98.5%;
+  width: 100%;
   .order-content {
     width: 100%;
     height: 130px;

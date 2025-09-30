@@ -124,45 +124,42 @@ const handleSearch = async () => {
 };
 
 const selectRange = async (range) => {
-  const end = new Date();
-  end.setDate(end.getDate() + 1);
   let start;
+  let end = new Date(); // 오늘 날짜
+  
   switch (range) {
-    // Todo : 하루조회기간도 만들어서 이걸 디폴트로..!
     case "1d":
       selectedLabel.value = "오늘";
       start = new Date();
-      // 오늘 0시로 맞추기
-      start.setHours(0, 0, 0, 0);
-      data.storeId = storeId?.value;
-      data.startDate = formatDate(start);
-      data.endDate = formatDate(end);
+      start.setHours(0, 0, 0, 0); // 오늘 0시
+      end = new Date(start);
+      end.setDate(start.getDate() + 1); // 내일 0시까지
       break;
+
     case "7d":
       selectedLabel.value = "최근 1주일";
       start = new Date();
-      start.setDate(end.getDate() - 7);
-      data.storeId = storeId?.value;
-      data.startDate = formatDate(start);
-      data.endDate = formatDate(end);
+      start.setDate(start.getDate() - 7);
       break;
+
     case "1m":
       selectedLabel.value = "최근 1개월";
       start = new Date();
-      start.setMonth(end.getMonth() - 1);
-      data.storeId = storeId?.value;
-      data.startDate = formatDate(start);
-      data.endDate = formatDate(end);
+      start.setMonth(start.getMonth() - 1);
       break;
+
     case "all":
       selectedLabel.value = "전체";
-      selectedLabel.value = "전체";
-      data.storeId = storeId?.value;
-      data.startDate = null;
-      data.endDate = null;
+      start = null;
+      end = null;
       break;
   }
-  // console.log("res.data.resultData: ",data.storeId)
+
+  data.store_id = storeId?.value;
+  data.start_date = start ? formatDate(start) : null;
+  data.end_date = end ? formatDate(end) : null;
+
+  console.log("Data: ",data)
   const res = await getOrderByDate(data);
   console.log("res.data.resultData: ", res.data.resultData);
   if (res.status !== 200) {
@@ -209,7 +206,7 @@ const selectRange = async (range) => {
     <div class="section-left">
       <div class="orders-header">
         <!-- 조회기간설정 카드 -->
-        <div class="date-option dropdown" ref="orderDetail">
+        <div class="date-option dropdown">
           <button
             class="date-filter"
             type="button"
@@ -275,7 +272,17 @@ const selectRange = async (range) => {
       <div class="order-list-wrap scrollbar">
         <!-- 주문 리스트 -->
         <div v-if="orderStore.isLoading" class="loading"></div>
-        <div v-else-if="orderStore.orders.length === 0">주문이 없습니다.</div>
+        <div
+        class="empty-text mt-5 text-center d-flex flex-column"
+        style="min-height: 260px"
+        v-else-if="orderStore.orders.length === 0">
+          <img 
+          src="@/imgs/owner/owner-service7.png" 
+          alt="빈 상태 이미지" 
+          class="empty-img"/>
+          <br />
+          <div> 주문이 없습니다. </div>
+        </div>
 
         <!-- 주문 없음 -->
         <div v-else-if="0">주문이 없습니다.</div>
@@ -540,5 +547,16 @@ const selectRange = async (range) => {
     transform: translateY(0);
     opacity: 1;
   }
+}
+
+.empty-img {
+  width: 250px;
+  opacity: 0.6;
+}
+
+.empty-text { 
+  font-size: 20px;   
+  font-weight: 500; 
+  color: #9c9c9c;    
 }
 </style>

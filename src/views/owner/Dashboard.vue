@@ -1,6 +1,7 @@
 <script setup>
 import OrderCard from "@/components/owner/OrderCard.vue";
 import OrderDelivery from "@/components/owner/OrderDelivery.vue";
+import LoadingModal from '@/components/modal/LoadingModal.vue';
 import OrderPrepare from "@/components/owner/OrderPrepare.vue";
 import { useOwnerStore } from "@/stores/account";
 import { useOrderStore } from "@/stores/orderStore";
@@ -23,6 +24,9 @@ import {
 const ownerStore = useOwnerStore();
 const orderStore = useOrderStore();
 
+// 로딩 모달
+const loadingRef = ref(null);
+
 // SSE
 let eventSource = null;
 
@@ -37,12 +41,18 @@ function connectSSE(storeId) {
 
   eventSource.addEventListener("order", async (e) => {
     console.log("새로운 주문:", e.data);
+
+    const data = JSON.parse(e.data);
     const storeId = ownerStore.state.storeData.id;
     await Promise.all([
       orderStore.fetchPaidOrders(storeId),
       orderStore.fetchPreparingOrders(storeId),
       orderStore.fetchDeliveredOrders(storeId),
+      orderStore.fetchCompletedOrders(storeId),
+      orderStore.fetchCanceledOrders(storeId),
     ]);
+    console.log("e.data: ", data.orderId)
+    markUpdated(data.orderId);
   });
 
   eventSource.onerror = (err) => {
@@ -54,6 +64,17 @@ function connectSSE(storeId) {
     }, 3000);
   };
 }
+
+// sse status 애니메이션
+const updatedOrders = ref([]);
+
+const markUpdated = (orderId) => {
+  updatedOrders.value.push(orderId);
+  setTimeout(() => {
+    updatedOrders.value = updatedOrders.value.filter((id) => id !== orderId);
+  }, 1000);
+}
+
 
 // mounted 시 실행
 onMounted(() => {
@@ -69,6 +90,8 @@ watch(
       orderStore.fetchPaidOrders(storeId),
       orderStore.fetchPreparingOrders(storeId),
       orderStore.fetchDeliveredOrders(storeId),
+      orderStore.fetchCompletedOrders(storeId),
+      orderStore.fetchCanceledOrders(storeId),
     ]);
   },
   { immediate: true }
@@ -96,28 +119,29 @@ const totalOrderCount = computed(() => {
     ...orderStore.paidOrders,
     ...orderStore.preparingOrders,
     ...orderStore.deliveredOrders,
+    ...orderStore.completedOrders,
   ].filter((order) => isSameDayKST(new Date(order.createdAt), new Date()))
     .length;
 });
 
 // 오늘 배달 완료 수
 const totalDeliveryCount = computed(() => {
-  return orderStore.deliveredOrders.filter((order) =>
-    isSameDayKST(new Date(order.createdAt), new Date())
+  return orderStore.completedOrders.filter((order) =>
+    isSameDayKST(new Date(order.updatedAt), new Date())
   ).length;
 });
 
 // 오늘 취소된 주문 수
 const totalCanceledCount = computed(() => {
-  return (orderStore.canceledOrders ?? []).filter((order) =>
-    isSameDayKST(new Date(order.createdAt), new Date())
+  return orderStore.canceledOrders.filter((order) =>
+    isSameDayKST(new Date(order.updatedAt), new Date())
   ).length;
 });
 
 // 오늘 매출
 const totalPrice = computed(() => {
-  return orderStore.deliveredOrders
-    .filter((order) => isSameDayKST(new Date(order.createdAt), new Date()))
+  return orderStore.completedOrders
+    .filter((order) => isSameDayKST(new Date(order.updatedAt), new Date()))
     .reduce((sum, order) => sum + Math.round((order.amount || 0) / 10000), 0);
 });
 
@@ -259,6 +283,7 @@ const closeOrder = () => {
       <OrderCard
         title="주문대기"
         :orders="orderStore.paidOrders"
+        :updatedOrders="updatedOrders"
         @accept="handleAccept"
         @cancel="handleCancel"
         @assign="handleAssign"
@@ -266,6 +291,7 @@ const closeOrder = () => {
       <OrderCard
         title="조리대기"
         :orders="orderStore.preparingOrders"
+        :updatedOrders="updatedOrders"
         @accept="handleAccept"
         @cancel="handleCancel"
         @assign="handleAssign"
@@ -273,6 +299,7 @@ const closeOrder = () => {
       <OrderCard
         title="배달현황"
         :orders="orderStore.deliveredOrders"
+        :updatedOrders="updatedOrders"
         @accept="handleAccept"
         @cancel="handleCancel"
         @assign="handleAssign"
