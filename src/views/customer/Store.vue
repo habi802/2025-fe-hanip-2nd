@@ -158,20 +158,9 @@ const loadReviews = async (id) => {
   // console.log("comLeng: ", comLeng);
 
   // 조회 성공 시 장바구니 조회 함수 호출
-  loadCarts(id);
+
 };
 
-// 고객 유저 장바구니 조회
-const loadCarts = async (id) => {
-  // 원래 다른 가게 메뉴를 장바구니에 추가했는지 여부까지 조회해야 하지만
-  // 그걸 구현할 시간이 없어 일단 장바구니 데이터 삭제하게 해놨음..
-  const res = await removeCart();
-
-  if (res === undefined || res.data.resultStatus !== 200) {
-    //alert(res.data.resultMessage);
-    return;
-  }
-};
 
 
 
