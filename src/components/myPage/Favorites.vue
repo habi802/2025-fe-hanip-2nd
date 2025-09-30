@@ -129,11 +129,10 @@ const toStore = (id) => {
               <div class="card-body">
                 <h6 class="card-title">{{ store.name }}</h6>
                 <div v-if="store.rating !== 'NaN'">
-                  <img class="star" :src="ratingImage" />
+                  <span class="star">★</span>
                   <span class="small">
-                    {{ store.rating }}&nbsp;({{ store.reviews }})&nbsp;&nbsp;
-                    <img class="love" :src="store.favorite ? favoriteImage : noFavoriteImage"
-                      @click="toggleFavorite(store)" />
+                    {{ store.rating }}&nbsp;&nbsp;&nbsp;&nbsp;
+                    <span class="love" @click="toggleFavorite(store)">♥</span>
                     {{ store.favorites }}
                   </span>
                 </div>
@@ -141,8 +140,7 @@ const toStore = (id) => {
                   <img class="star" :src="ratingImage" />
                   <span class="small">
                     0&nbsp;(0)&nbsp;&nbsp;
-                    <img class="love" :src="store.favorite ? favoriteImage : noFavoriteImage"
-                      @click="toggleFavorite(store)" />
+                    <span class="love" @click="toggleFavorite(store)">♥</span>
                     {{ store.favorites }}
                   </span>
                 </div>
@@ -218,6 +216,13 @@ const toStore = (id) => {
   font-style: normal;
 }
 
+@font-face {
+  font-family: 'YFavorite';
+  src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/2410-1@1.0/YOnepickTTF-Regular.woff2') format('woff2');
+  font-weight: 400;
+  font-display: swap;
+}
+
 .all-box {
   display: flex;
   justify-content: center;
@@ -256,7 +261,7 @@ const toStore = (id) => {
 #imgBox {
   width: 100%;
   height: 280px;
-  border-radius: 20px 20px 0 0;
+  border-radius: 20px 20px;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -267,15 +272,16 @@ const toStore = (id) => {
   width: 360px;
   height: 470px;
   border-radius: 20px !important;
-  border: 2px solid #797979;
+  border: 2px solid #ccc;
   overflow: hidden;
+  padding: 15px;
 }
 
 .sImg {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  border-radius: 20px 20px 0 0;
+  border-radius: 20px 20px;
 }
 
 .small {
@@ -295,10 +301,17 @@ const toStore = (id) => {
 .star {
   width: 20px;
   margin-right: 5px;
+  font-family: "BMJUA";
+  font-size: 1em;
+  color: #FAC729;
 }
 
 .love {
+  font-family: 'YFavorite';
+  font-size: 1.25em;
+  color: red;
   width: 20px;
+  margin-bottom: 2px;
   cursor: pointer;
 }
 
