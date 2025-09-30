@@ -12,7 +12,7 @@ import Review from "@/components/customer/Review.vue";
 import defaultImage from '@/imgs/owner/owner-service3.png';
 import AlertModal from "@/components/modal/AlertModal.vue";
 import AlertResolveModal from "@/components/modal/AlertResolveModal.vue";
-import NoneStore from '@/imgs/NoneStoreImg.png';
+import NoneStore from '/src/imgs/foods.png';
 
 
 const alertResolveModal = ref(null);
