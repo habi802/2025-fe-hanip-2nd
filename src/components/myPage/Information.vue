@@ -4,6 +4,7 @@ import { useRouter } from "vue-router";
 import { getUser, checkPassword, updateUser } from "@/services/userService";
 import { nextTick } from "vue";
 import defaultUserProfile from "@/imgs/owner/user_profile.jpg";
+import AlertModal from "../modal/AlertModal.vue";
 
 const router = useRouter();
 const fileInput = ref(null);
@@ -16,6 +17,16 @@ function triggerFileInput() {
   fileInput.value?.click();
 }
 
+// // 프로필 이미지
+// const imgSrc = computed(() => {
+//   return state.user.id && state.store.imagePath && state.store.imagePath !== 'null'
+//     ? `${baseUrl.value}/images/store/${state.user.id}/${state.user.imagePath}`
+//     : defaultImage;
+// })
+
+// const previewImage = ref(defaultImage);
+// const baseUrl = ref(import.meta.env.VITE_BASE_URL);
+
 // 파일 선택 시 실행
 function onFileChange(event) {
   const file = event.target.files[0];
@@ -24,7 +35,7 @@ function onFileChange(event) {
 
     const reader = new FileReader();
     reader.onload = (e) => {
-      previewUrl.value = e.target.result; // 여기서 바로 previewUrl 갱신
+      previewUrl.value = e.target.result; // 미리보기 갱신
     };
     reader.readAsDataURL(file);
   }
@@ -197,14 +208,7 @@ onMounted(async () => {
 
     if (res && res.data?.resultData) {
       Object.assign(state.form, res.data.resultData);
-      // state.form.id = res.data.resultData.id;
 
-      // // 서버에 기존 프로필 이미지가 있을 경우 previewUrl 적용
-      // if (res.data.resultData.imagePath) {
-      //   previewUrl.value = res.data.resultData.imagePath;
-      // } else {
-      //   previewUrl.value = defaultUserProfile; // 없으면 기본 이미지
-      // }
       const baseURL = import.meta.env.VITE_API_BASE_URL || "http://localhost:8080";
       const imgPath = res.data.resultData.imagePath;
 
@@ -222,7 +226,6 @@ onMounted(async () => {
         phone2.value = phoneParts[1] || "";
         phone3.value = phoneParts[2] || "";
       }
-      console.log(previewUrl.value);
     } else {
       showModal("사용자 정보를 불러오는데 실패했습니다.");
     }
@@ -233,6 +236,53 @@ onMounted(async () => {
 });
 
 //  정보 수정 성공 여부
+// const submitForm = async (e) => {
+//   e.preventDefault();
+//   if (!validateForm()) return;
+
+//   if (confirmPw.value !== confirmPwCheck.value) {
+//     errors.confirmPw = "새 비밀번호가 일치하지 않습니다.";
+//     return;
+//   }
+
+//   if (checkResult.value !== "비밀번호가 확인되었습니다.") {
+//     showModal("현재 비밀번호를 먼저 확인해주세요.");
+//     return;
+//   }
+
+//   try {
+//     const formData = new FormData();
+//     const userPutReq = {
+//       name: state.form.name,
+//       loginPw: state.form.loginPw,
+//       newLoginPw: confirmPw.value,
+//       phone: `${phone1.value}-${phone2.value}-${phone3.value}`, // ✅ 하이픈 포함
+//       email: state.form.email,
+//     };
+
+//     formData.append(
+//       "req",
+//       new Blob([JSON.stringify(userPutReq)], { type: "application/json" })
+//     );
+
+//     // 이미지 파일이 선택된 경우만 업로드
+//     if (selectedFile.value) {
+//       formData.append("pic", selectedFile.value);
+//     }
+
+//     const res = await updateUser(formData);
+
+//     if (res.status === 200) {
+//       showModal("정보가 성공적으로 수정되었습니다.");
+//       router.push("/");
+//     } else {
+//       showModal("정보 수정에 실패했습니다.");
+//     }
+//   } catch (err) {
+//     console.error("정보 수정 실패:", err);
+//     showModal("정보 수정 중 오류가 발생했습니다.");
+//   }
+// };
 const submitForm = async (e) => {
   e.preventDefault();
   if (!validateForm()) return;
@@ -253,7 +303,7 @@ const submitForm = async (e) => {
       name: state.form.name,
       loginPw: state.form.loginPw,
       newLoginPw: confirmPw.value,
-      phone: `${phone1.value}-${phone2.value}-${phone3.value}`, // ✅ 하이픈 포함
+      phone: `${phone1.value}-${phone2.value}-${phone3.value}`, // 하이픈 포함
       email: state.form.email,
     };
 
