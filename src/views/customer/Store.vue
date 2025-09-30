@@ -12,7 +12,7 @@ import Review from "@/components/customer/Review.vue";
 import defaultImage from '@/imgs/owner/owner-service3.png';
 import AlertModal from "@/components/modal/AlertModal.vue";
 import AlertResolveModal from "@/components/modal/AlertResolveModal.vue";
-import NoneStore from '@/imgs/NoneStoreImg.png';
+import NoneStore from '/src/imgs/foods.png';
 
 
 const alertResolveModal = ref(null);
@@ -125,7 +125,7 @@ const loadMenus = async (id) => {
 // 가게 리뷰 조회 함수
 const loadReviews = async (id) => {
   const res = await getReviewsByStoreId(id, {
-    rowPerPage: 3,
+    rowPerPage: 10,
     page: 1,
   });
   state.reviews = res.data.resultData;

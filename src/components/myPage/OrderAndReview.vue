@@ -45,7 +45,7 @@ const statusText = computed(() => {
 });
 
 onMounted(() => {
-    
+
 });
 
 // 가게 이미지
@@ -67,37 +67,37 @@ const emit = defineEmits(["delete-order", "re-order"]);
 const statusBtn = computed(() => {
     switch (props.order.status) {
         case "ORDERED":
-        return {
-            color: "#6B6B6B",
-            border: "2px solid #6B6B6B ",
-            pointerEvents: "none",
-        };
+            return {
+                color: "#6B6B6B",
+                border: "2px solid #6B6B6B ",
+                pointerEvents: "none",
+            };
         case "PREPARING":
-        return {
-            color: "#6B6B6B",
-            border: "2px solid #6B6B6B ",
-            pointerEvents: "none",
-        };
+            return {
+                color: "#6B6B6B",
+                border: "2px solid #6B6B6B ",
+                pointerEvents: "none",
+            };
         case "DELIVERING":
-        return {
-            color: "#6B6B6B",
-            border: "2px solid #6B6B6B ",
-            pointerEvents: "none",
-        };
+            return {
+                color: "#6B6B6B",
+                border: "2px solid #6B6B6B ",
+                pointerEvents: "none",
+            };
         case "CANCELED":
-        return {
-            color: "#6B6B6B",
-            border: "2px solid #6B6B6B ",
-            pointerEvents: "none",
-        };
+            return {
+                color: "#6B6B6B",
+                border: "2px solid #6B6B6B ",
+                pointerEvents: "none",
+            };
         case "COMPLETED":
-        return 0;
+            return 0;
         default:
-        return {
-            color: "#6B6B6B",
-            border: "2px solid #6B6B6B ",
-            pointerEvents: "none",
-        };
+            return {
+                color: "#6B6B6B",
+                border: "2px solid #6B6B6B ",
+                pointerEvents: "none",
+            };
     }
 });
 </script>
@@ -120,7 +120,7 @@ const statusBtn = computed(() => {
                     <div class="menuminimum">최소 주문 금액 {{ props.order.minAmount?.toLocaleString() }}원</div>
                 </div>
             </div>
-                
+
             <!-- 카드 중앙 [ 메뉴 이름, 갯수, 가격 ] -->
             <div class="boardMiddle">
                 <div class="menuBox">
@@ -151,11 +151,14 @@ const statusBtn = computed(() => {
             <!-- 버튼 -->
             <div class="btns">
                 <button type="button" class="btn" @click="$emit('re-order', props.order.menuItems)">재주문하기</button>
-                <button type="button" :class="['btn', { 'btn-disabled': props.order.status !== '05'}]"
-                    @click="router.push(`/reviews-page/${props.order.orderId}`);" :disabled="props.order.status !== '05'">리뷰 등록</button>
+                <button type="button" :class="['btn', { 'btn-disabled': props.order.status !== '05' }]"
+                    @click="$emit('review', props.order.orderId)" :disabled="props.order.status !== '05'">리뷰
+                    등록</button>
                 <button type="button" class="btn" @click="router.push(`/orders/${props.order.orderId}`);">주문 상세</button>
-                <button type="button" :class="['btn', { 'btn-disabled': props.order.status !== '05' && props.order.status !== '06'}]"
-                    @click="$emit('delete-order', props.order)" :disabled="props.order.status !== '05' && props.order.status !== '06'">내역 삭제</button>
+                <button type="button"
+                    :class="['btn', { 'btn-disabled': props.order.status !== '05' && props.order.status !== '06' }]"
+                    @click="$emit('delete-order', props.order)"
+                    :disabled="props.order.status !== '05' && props.order.status !== '06'">내역 삭제</button>
             </div>
         </div>
     </div>
@@ -206,7 +209,7 @@ const statusBtn = computed(() => {
                 margin-left: 10px;
                 margin-top: 10px;
                 text-align: left;
-            
+
                 .menumeta {
                     display: flex;
                     justify-content: flex-start;

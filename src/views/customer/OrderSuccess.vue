@@ -108,6 +108,10 @@ const shuffle = (array) => {
         .sort((a, b) => a.sort - b.sort)
         .map(({ value }) => value);
 };
+// 셔플 3개 섞은거
+const shuffledStores = computed(() => {
+    return shuffle(state.stores).slice(0, 3)
+})
 </script>
 
 <template>
@@ -125,7 +129,7 @@ const shuffle = (array) => {
 
         <div class="container">
             <div class="mb-4">
-                <h4 class="mb-3">주문 내역</h4>
+                <div class="title">주문 내역</div>
                 <div class="border rounded p-5">
                     <div class="store-name">{{ state.order.storeName }}</div>
                     <div class="order-box">
@@ -152,13 +156,14 @@ const shuffle = (array) => {
                                             <div class="item-option" v-if="option.children"
                                                 v-for="(child, idx) in option.children" :key="child.optionId">
                                                 <div class="item-option-comment">
-                                                    <span v-if="idx === 0">{{ option.comment }}</span>
+                                                    <div class="item-option-name" v-if="idx === 0">{{ option.comment
+                                                        }}</div>
                                                 </div>
-                                                <div class="item-option-child">
-                                                    <div class="d-flex justify-content-between">
-                                                        <span>{{ child.comment }}</span>
-                                                        <span>{{ child.price?.toLocaleString() }}원</span>
-                                                    </div>
+                                                <div class="item-option-child-comment">
+                                                    <span class="option-name">{{ child.comment }}</span>
+                                                </div>
+                                                <div class="item-option-child-price">
+                                                    <span>{{ child.price?.toLocaleString() }}원</span>
                                                 </div>
                                             </div>
                                         </template>
@@ -171,7 +176,7 @@ const shuffle = (array) => {
                                 <span>2,000원</span>
                             </div> -->
 
-                            <div class="text-end pt-3">
+                            <div class="text-end pt-3 total-text">
                                 <span>총 결제 금액 </span>
                                 <span>{{ state.order.amount?.toLocaleString() }}원</span>
                             </div>
@@ -181,14 +186,14 @@ const shuffle = (array) => {
             </div>
 
             <div class="mb-4">
-                <h4 class="mb-3">주문 처리 현황</h4>
+                <div class="title">주문 처리 현황</div>
                 <div class="border rounded p-5">
                     <div class="d-flex justify-content-between mb-2">
-                        <div class="flex-fill">결제준비</div>
-                        <div class="flex-fill">결제완료</div>
-                        <div class="flex-fill">음식준비중</div>
-                        <div class="flex-fill">배달중</div>
-                        <div class="flex-fill">배달완료</div>
+                        <div >결제준비</div>
+                        <div >결제완료</div>
+                        <div>음식준비중</div>
+                        <div>배달중</div>
+                        <div>배달완료</div>
                     </div>
                     <div class="progress" style="height: 8px">
                         <div class="progress-bar" role="progressbar" :style="status"></div>
@@ -199,11 +204,11 @@ const shuffle = (array) => {
             </div>
 
             <div class="mb-4">
-                <h4 class="mb-3">다른 가게 주문</h4>
+                <div class="title">다른 가게 주문</div>
                 <div>
                     <div class="big-Box">
                         <div class="for">
-                            <div v-for="store in state.stores" :key="store.id">
+                            <div v-for="store in shuffledStores" :key="store.id">
                                 <Randomstore class="board" :store="store" />
                             </div>
                         </div>
@@ -226,6 +231,12 @@ const shuffle = (array) => {
 * {
     font-family: 'Pretendard-Regular';
     box-sizing: border-box;
+}
+
+.title {
+    font-size: 1.5em;
+    font-weight: 600;
+    padding: 0px 0px 10px 0px;
 }
 
 .order-wrapper {
@@ -316,12 +327,23 @@ const shuffle = (array) => {
     justify-content: space-between;
 }
 
-.item-option-comment {
-    width: 53%;
+.item-option-name {
+    width: 175px;
 }
 
-.item-option-child {
-    width: 47%;
+.item-option-child-comment {
+    text-align: center;
+    width: 100px;
+}
+
+.item-option-child-price {
+    text-align: end;
+    width: 100px;
+}
+
+
+.option-name {
+    width: 100px;
 }
 
 // 주문처리현황
@@ -330,15 +352,18 @@ const shuffle = (array) => {
     font-size: 25px;
     text-align: center;
 
-    .store-name {
-        font-family: "BMJUA";
-        width: 170px;
-        text-align: end;
-    }
 
-    span {
-        font-family: "BMJUA";
-    }
+
+
+}
+
+.store-name {
+    font-size: 1.5em;
+    width: 170px;
+    text-align: start;
+    font-weight: 400;
+    margin-top: -20px;
+    margin-bottom: 10px;
 }
 
 .order-info {
@@ -382,5 +407,9 @@ const shuffle = (array) => {
     .status {
         font-family: "BMJUA";
     }
+}
+
+.total-text {
+    font-weight: 600;
 }
 </style>

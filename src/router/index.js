@@ -57,6 +57,7 @@ const router = createRouter({
       path: "/contact",
       name: "contact",
       component: () => import("@/views/customer/Contact.vue"),
+      meta: { layout: CustomerLayout },
     },
     {
       path: "/stores/:id",
