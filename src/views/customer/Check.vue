@@ -1,10 +1,12 @@
 <script setup>
 import { reactive, ref } from "vue";
 import { useRouter } from "vue-router";
-import axios from "axios";
+import { checkPassword } from "@/services/userService";
+import AlertModal from "@/components/modal/AlertModal.vue";
 
 // 라우터 사용
 const router = useRouter();
+const modalRef = ref(null); // 모달 ref
 
 // 비밀번호 입력 상태
 const state = reactive({
@@ -24,24 +26,17 @@ const submitPassword = async () => {
   }
 
   try {
-    // 백엔드가 @RequestBody String 으로 받으므로 JSON이 아닌 '순수 문자열' 전송
-    const res = await axios.post(
-      "http://localhost:8080/api/check-password",
-      state.form.loginPw, // 그냥 문자열 전달
-      {
-        headers: { "Content-Type": "text/plain" }, // 중요!
-      }
-    );
+    const res = await checkPassword(state.form.loginPw);
+    console.log("checkPassword response:", res.data);
 
-    if (res.data.success && res.data.data === 1) {
-      router.push("/my-page"); // 성공 시 마이페이지 이동
+    if (res.data.resultStatus === 200 && res.data.resultData === 1) {
+      router.push("/my-page");
     } else {
       errorMessage.value = "비밀번호가 일치하지 않습니다.";
     }
   } catch (err) {
     console.error(err);
-    router.push("/my-page");
-    // errorMessage.value = "서버 오류가 발생했습니다.";
+    modalRef.value?.open("서버 오류가 발생했습니다.");
   }
 };
 </script>
@@ -50,12 +45,14 @@ const submitPassword = async () => {
   <div class="check">
     <div class="container">
       <div class="logo">
-        <img src="@/imgs/symbollogo.png" alt="한입 심볼 로고" />
+        <router-link to="/">
+          <img src="@/imgs/symbollogo.png" alt="한입 심볼 로고" />
+        </router-link>
       </div>
       <h1 class="title">비밀번호 확인</h1>
 
-      <!-- 비밀번호 확인칸 -->
-      <div class="form-floating">
+      <!-- form 태그 추가, submit 이벤트를 감지하고 preventDefault 처리 -->
+      <form @submit.prevent="submitPassword" class="form-floating">
         <input
           type="password"
           id="loginPw"
@@ -63,13 +60,15 @@ const submitPassword = async () => {
           v-model="state.form.loginPw"
           autocomplete="off"
         />
-        <button type="submit" class="btn login-btn" @click="submitPassword">제출</button>
-      </div>
+        <button type="submit" class="btn login-btn">제출</button>
+      </form>
 
       <!-- 에러 메시지 -->
       <p v-if="errorMessage" class="error-message">{{ errorMessage }}</p>
     </div>
   </div>
+  <!-- AlertModal 컴포넌트 ref 연결 -->
+  <AlertModal ref="modalRef" />
 </template>
 
 <style lang="scss" scoped>
