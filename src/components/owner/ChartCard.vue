@@ -18,10 +18,10 @@ onMounted(() => {
     chartInstance = new Chart(chartCanvas.value, {
         type: props.type,
         data: {
-            labels: props.chartData.label, //x축제목,
+            labels: props.chartData?.label || "x축 제목", //x축제목,
             datasets: [{
-                label: props.labelY, //y축 값 종류(범례)
-                data: props.chartData.data,
+                label: props?.labelY || "Y축 제목", //y축 값 종류(범례)
+                data: props.chartData?.data || [1],
                 backgroundColor: '#ffcc66'
             }]
         },

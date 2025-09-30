@@ -1,20 +1,57 @@
 <script setup>
-import {ref , reactive,  onMounted , computed } from 'vue';
+import {ref , reactive,  onMounted , computed,watch } from 'vue';
 import ChartCard from '@/components/owner/ChartCard.vue';
 import TotalCard from '@/components/owner/TotalCard.vue';
+import { useOwnerStore } from '@/stores/account';
 import { useOrderStore } from '@/stores/orderStore';
-import { getOrderByDate } from '@/services/orderService';
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
 import "dayjs/locale/ko";
+import { getStatus } from '@/services/orderService';
+
 
 dayjs.extend(relativeTime);
 dayjs.locale("ko");
 const now = dayjs();
 
-//주문정보전체호출(피니아)
+
+const ownerStore = useOwnerStore();
 const orderStore = useOrderStore();
-console.log("paidOrders : " , orderStore.paidOrders)
+console.log(ownerStore.state.storeData.id)
+
+const params = reactive({
+  storeId: ownerStore.state.storeData.id,
+  startDate: "2025-09-28",
+  endDate: "2025-09-28",
+});
+
+
+const data = ref([])
+console.log(data.value)
+
+//가게에대한 주문정보(가격, 주문갯수) 호출
+const fetchStatus = async () => {
+  if (!ownerStore.state.storeData.id) {
+    console.warn("storeId가 준비되지 않음. API 호출 생략");
+    return;
+  }
+
+  try {
+    const res = await getStatus(params);
+
+    // res가 정상인지 확인
+    if (!res || !res.data) {
+      console.warn("API 응답 없음 또는 형식 불일치:", res);
+      return;
+    }
+
+    data.value = res.data.resultData || [];
+    console.log("✅ API 응답:", res);
+    console.log("data:", data.value);
+  } catch (err) {
+    console.error("API 호출 실패:", err);
+  }
+};
 
 //필터 별 전체 주문 수
 const orderCount = computed(()=>{
@@ -59,15 +96,31 @@ const totalCardData = [
 
 const labels = ref([]);
 const chartDataValue =  ref([]);
-const charttitle = ref("주문추이");
+const chartTitle = ref("주문추이");
 // 차트데이터
-const chartData = [
-  {
-    title: charttitle.value,
-    label: labels.value,
-    data: chartDataValue.value
-  }
-];
+const chartData = reactive({
+    title: "",
+    label: [],
+    data: []
+  });
+
+// 차트에 들어갈 값
+const userChartData = reactive({
+    label: [],
+    data: [],
+});
+const storeChartData = reactive({
+    label: [],
+    data: [],
+});
+const orderChartData = reactive({
+    label: [],
+    data: [],
+});
+const amountChartData = reactive({
+    label: [],
+    data: [],
+});
 
 // const chartData = computed(() => {
 //   const paidOrders = orderStore.paidOrders || [];
@@ -83,8 +136,8 @@ const chartData = [
 //   const allData = allDates.map(d => countsByDay[d]);
 
 //   // 오늘 날짜 기준
-//   const end = new Date();
-//   const today = formatDate(end);
+//   const endDate = new Date();
+//   const today = formatDate(endDate);
 
 //   // 일간
 //   const dailyLabels = [today];
@@ -92,13 +145,13 @@ const chartData = [
 
 //   // 주간 (최근 7일)
 //   const startWeek = new Date();
-//   startWeek.setDate(end.getDate() - 6);
+//   startWeek.setDate(endDate.getDate() - 6);
 //   const weeklyLabels = allDates.filter(d => d >= formatDate(startWeek));
 //   const weeklyData = weeklyLabels.map(d => countsByDay[d]);
 
 //   // 월간 (최근 30일)
 //   const startMonth = new Date();
-//   startMonth.setDate(end.getDate() - 29);
+//   startMonth.setDate(endDate.getDate() - 29);
 //   const monthlyLabels = allDates.filter(d => d >= formatDate(startMonth));
 //   const monthlyData = monthlyLabels.map(d => countsByDay[d]);
 
@@ -139,7 +192,7 @@ const currentChartData = computed(()=>{
 
 // 날짜 조회
 const selectedLabel = ref("");
-const data = reactive({
+const selectedDate = reactive({
   // storeId: "",
   startDate: "",
   endDate: "",
@@ -147,14 +200,20 @@ const data = reactive({
 //날짜 필터 선택 시
 const selectRange = async (range) => {
   selectedChartOption.value = range;
-  const end = new Date();
-  end.setDate(end.getDate() + 1);
-  let start;
+  const endDate = new Date();
+  endDate.setDate(endDate.getDate() + 1);
+  let startDate;
   switch (range) {
     case dateOptions[3]:
     console.log("일간")
       selectedLabel.value = dateOptions[3];
       labels.value = Array.from({length: 24}, (_, i) => {return `${i}시`;});
+
+      selectedDate.startDate = now();
+      selectedDate.endDate = now();
+      console.log("시작 끝 날짜", startDate, endDate)
+      
+
       chartDataValue.value = [1,2,3,4,5,6,7,8,9,0,1,2,3,4,5,6,7,8,9,0,1,2,3,4]
       console.log(labels.value)
       break;
@@ -165,10 +224,10 @@ const selectRange = async (range) => {
       chartDataValue.value = [1,2,3,4,5,6,7]
       console.log(labels.value)
       // start = new Date();
-      // start.setDate(end.getDate() - 7);
+      // start.setDate(endDate.getDate() - 7);
       // data.storeId = storeId?.value;
       // data.startDate = formatDate(start);
-      // data.endDate = formatDate(end);
+      // data.endDate = formatDate(endDate);
       break;
     case dateOptions[1]:
     console.log("월간")
@@ -179,10 +238,10 @@ const selectRange = async (range) => {
       console.log(labels.value)
 
       // start = new Date();
-      // start.setMonth(end.getMonth() - 1);
+      // start.setMonth(endDate.getMonth() - 1);
       // data.storeId = storeId?.value;
       // data.startDate = formatDate(start);
-      // data.endDate = formatDate(end);
+      // data.endDate = formatDate(endDate);
       break;
     case dateOptions[0]:
       console.log("연간")
@@ -199,8 +258,8 @@ const selectRange = async (range) => {
 };
 
 
-onMounted(() => {
-  
+onMounted(async () => {
+  fetchStatus();
 });
 
 </script>
@@ -230,8 +289,8 @@ onMounted(() => {
     </div><!--total-wrap 끝 -->
 
     <div class="chart-wrap">
-      <ChartCard class="white-card" title=charttitle.value labelY="y축범례" type="bar" :chart-data="currentChartData" />
-      <ChartCard class="white-card" title=charttitle.value labelY="y축범례" type="line" :chart-data="currentChartData" />
+      <ChartCard class="white-card" :title=chartTitle labelY="y축범례" type="bar" :chart-data="currentChartData" />
+      <ChartCard class="white-card" :title=chartTitle labelY="y축범례" type="line" :chart-data="currentChartData" />
       <!-- <ChartCard class="white-card" title="주문 추이" labelY="y축범례" type="bar" :chart-data="currentChartData" />
       <ChartCard class="white-card" title="매출 추이" labelY="y축범례" type="line" :chart-data="currentChartData" /> -->
     </div>
