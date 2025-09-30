@@ -1,10 +1,8 @@
 <script setup>
 import { ref } from "vue";
 import { useRouter } from "vue-router";
-
 const router = useRouter();
 const search = ref("");
-
 const caLink = () => {
   router.push({ path: "/categoryList", query: { search_text: search.value } });
 };
@@ -12,18 +10,15 @@ const caLink = () => {
 const koreanLink = () => {
   router.push({ path: "/categoryList", query: { section: "korean" } });
 };
-
 const chinaLink = () => {
   router.push({ path: "/categoryList", query: { section: "china" } });
 };
 const japanLink = () => {
   router.push({ path: "/categoryList", query: { section: "japan" } });
 };
-
 const pastaLink = () => {
   router.push({ path: "/categoryList", query: { section: "pasta" } });
 };
-
 const cafeLink = () => {
   router.push({ path: "/categoryList", query: { section: "cafe" } });
 };
@@ -45,13 +40,9 @@ const pizzaLink = () => {
 const nightLink = () => {
   router.push({ path: "/categoryList", query: { section: "night" } });
 };
-
 const aaa = () => {
   router.push("/order-test")
 }
-
-
-
 </script>
 <!--           class="form-control p-3 me-3" -->
 <template>
@@ -75,7 +66,7 @@ const aaa = () => {
           </div>
           <div class="koreanfood">
             <div class="imgBox">
-              <img @click="koreanLink" id="cImg" src="/src/imgs/koreanfood.png" />
+              <img @click="koreanLink" id="cImg" src="/src/imgs/food/korean.png" />
             </div>
             <div id="cName">한식</div>
           </div>
@@ -93,13 +84,13 @@ const aaa = () => {
           </div>
           <div class="pasta">
             <div class="imgBox">
-              <img @click="pastaLink" id="cImg" src="/src/imgs/pasta.png" />
+              <img @click="pastaLink" id="cImg" src="/src/imgs/food/pasta.png" />
             </div>
             <div id="cName">양식</div>
           </div>
           <div class="dessert">
             <div class="imgBox">
-              <img @click="cafeLink" id="cImg" src="/src/imgs/dessert.png" />
+              <img @click="cafeLink" id="cImg" src="/src/imgs/food/cake.png" />
             </div>
             <div id="cName">카페/디저트</div>
           </div>
@@ -113,7 +104,7 @@ const aaa = () => {
           </div>
           <div class="hamburger">
             <div class="imgBox">
-              <img @click="fastFoodLink" id="cImg" src="/src/imgs/hamburger.png" />
+              <img @click="fastFoodLink" id="cImg" src="/src/imgs/food/hamburger.png" />
             </div>
             <div id="cName">패스트푸드</div>
           </div>
@@ -123,7 +114,6 @@ const aaa = () => {
             </div>
             <div id="cName">아시안</div>
           </div>
-
           <div class="chicken">
             <div class="imgBox">
               <img @click="chickenLink" id="cImg" src="/src/imgs/chicken.png" />
@@ -138,7 +128,7 @@ const aaa = () => {
           </div>
           <div class="pigfeet">
             <div class="imgBox">
-              <img @click="nightLink" id="cImg" src="/src/imgs/pigfeet.png" />
+              <img @click="nightLink" id="cImg" src="/src/imgs/food/pigfeet.png" />
             </div>
             <div id="cName">야식</div>
           </div>
@@ -146,9 +136,7 @@ const aaa = () => {
       </div>
     </div>
   </div>
-  <div @click="aaa"> 임시 버튼 </div>
 </template>
-
 <style lang="scss" scoped>
 @font-face {
   font-family: "BMJUA";
@@ -180,9 +168,9 @@ const aaa = () => {
 
     .searchBar {
       justify-content: center;
-      margin-top: 120px;
+      margin-top: 100px;
       font-size: 0.8em;
-      border: 3px solid #ff6666;
+      border: 2px solid #FF6666;
       border-radius: 50px;
 
       input {
@@ -195,7 +183,7 @@ const aaa = () => {
       }
 
       .searchImg {
-        width: 30px;
+        width: 25px;
         position: relative;
         right: 35px;
         bottom: 2px;
@@ -204,18 +192,18 @@ const aaa = () => {
 
       .searchBox {
         border: none;
-        width: 530px;
-        height: 70px;
+        width: 500px;
+        height: 60px;
         border-radius: 50px;
       }
 
       .searchBox::placeholder {
-        color: #fcaeae;
+        color: #FCAEAE;
       }
     }
 
     .searchBar::placeholder {
-      color: #ff6666;
+      color: #FF6666;
     }
   }
 
@@ -242,19 +230,13 @@ const aaa = () => {
       #categoryItems {
         margin-top: 70px;
         gap: 40px;
-        // background-color: antiquewhite;
 
+        // background-color: antiquewhite;
         .imgBox {
-          width: 210px;
+          width: 160px;
+          height: 160px;
           border-radius: 50%;
           overflow: hidden;
-        }
-
-        #cImg {
-          cursor: pointer;
-          // width: 220px;
-          width: 210px;
-          border-radius: 50%;
           transition: transform 0.3s ease-in-out;
 
           &:hover {
@@ -262,9 +244,21 @@ const aaa = () => {
           }
         }
 
+        #cImg {
+          cursor: pointer;
+          // width: 220px;
+          width: 160px;
+          border-radius: 50%;
+
+          // transition: transform 0.3s ease-in-out;
+          &:hover {
+            // transform: scale(1.2);
+          }
+        }
+
         #cName {
-          font-size: 24px;
-          padding-top: 11px;
+          font-size: 20px;
+          padding-top: 25px;
           text-align: center;
           margin-left: -5px;
           font-weight: 400;
@@ -273,8 +267,6 @@ const aaa = () => {
     }
   }
 }
-
-
 
 @media (max-width: 650px) {
   .searchBar {

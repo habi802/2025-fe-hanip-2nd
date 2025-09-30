@@ -2,8 +2,8 @@ import axios from "./httpRequester";
 
 const path = "/review";
 
-export const getReviewsByStoreId = (id) => {
-  return axios.get(`${path}/store/${id}`).catch((e) => e.response);
+export const getReviewsByStoreId = (id,params) => {
+  return axios.get(`${path}/store-review/all/${id}`,{params}).catch((e) => e.response);
 };
 
 export const patchOwnerComment = (reviewId, ownerComment) => {

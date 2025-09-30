@@ -97,12 +97,12 @@ export const patchOrderStatus = params => {
 
 // 가입자 수 통계 조회
 export const getUserStats = params => {
-    return axios.get(`${actionPath}/user/stats`, { params }).catch(e => e.response);
+    return axios.get(`${actorPath}/user/stats`, { params }).catch(e => e.response);
 }
 
 // 가게 등록 수 통계 조회
 export const getStoreStats = params => {
-    return axios.get(`${actionPath}/store/stats`, { params }).catch(e => e.response);
+    return axios.get(`${actorPath}/store/stats`, { params }).catch(e => e.response);
 }
 
 // 주문 건 수 통계 조회

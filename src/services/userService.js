@@ -19,8 +19,8 @@ export const reissue = () => {
 }
 
 export const findId = ({ loginId, role }) => {
-    return axios.post(`${path}/check-id`, { loginId, role }).catch(e => e.response);
-}
+    return axios.post(`${path}/check-id`, { loginId, role });
+  };  
 
 export const logined = () => {
     return axios.get(path).catch(e => e.response);
@@ -42,6 +42,6 @@ export const checkPassword = password => {
     }).catch(e => e.response);
 }
 
-export const update = args => {
+export const updateUser = args => {
     return axios.put(`${path}`, args).catch(e => e.response);
 }

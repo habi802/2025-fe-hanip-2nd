@@ -1,8 +1,7 @@
 <script setup>
-import { ref, computed, onMounted, reactive } from "vue";
+import { ref, computed, onMounted } from "vue";
 import { useRouter } from "vue-router";
-import { getStore } from "@/services/storeService";
-import { getReviewOne } from "@/services/reviewServices";
+
 import defaultImage from "@/imgs/owner/haniplogo_sample.png";
 
 const router = useRouter();
@@ -11,46 +10,7 @@ const props = defineProps({
     order: Object,
 });
 
-const reviewButton = () => {
-    router.push(`/reviews-page/${props.order?.id}`);
-};
-
-//주문 상세 페이지 이동
-const orderDetail = () => {
-    router.push({
-        path: `orders/${props.order?.storeId}`,
-        query: { id: props.order?.id },
-    });
-};
-
-//
-const previewUrl = ref(""); //이미지 경로 저장용
-
-const onImageChange = (event) => {
-    const file = event.target.files[0];
-    if (file && file.type.startsWith("image/")) {
-        const reader = new FileReader();
-        reader.onload = (e) => {
-            previewUrl.value = e.target.result;
-        };
-        reader.readAsDataURL(file);
-    }
-};
-
-let on = ref(true);
-const boardBtn = () => {
-    on.value = !on.value;
-};
-
-// 리뷰 별점
-const selected = ref(0);
-const stars = [1, 2, 3, 4, 5];
-
-const selectStar = (index) => {
-    selected.value = index + 1;
-};
-
-// 날짜 파싱
+// 주문일 표시
 const formatDateTime = (created) => {
     const date = new Date(created);
 
@@ -64,24 +24,44 @@ const formatDateTime = (created) => {
     return `${yyyy}-${mm}-${dd} ${hh}:${min}:${ss}`;
 };
 
-// 배달상태 파싱
+// 주문 상태 표시
 const statusText = computed(() => {
-    if (!props.order || !props.order.status) return "상태 없음";
     switch (props.order.status) {
-        case "ORDERED":
-            return "주문 대기중";
-        case "PREPARING":
-            return "음식준비중";
-        case "DELIVERING":
-            return "배달중";
-        case "CANCELED":
-            return "취소됨";
-        case "COMPLETED":
-            return "완료됨";
+        case '01':
+            return '미결제';
+        case '02':
+            return '결제 완료';
+        case '03':
+            return '음식 준비중';
+        case '04':
+            return '배달 중';
+        case '05':
+            return '배달 완료';
+        case '06':
+            return '주문 취소'
         default:
-            return "기타 상태";
+            return '대기중';
     }
 });
+
+onMounted(() => {
+    
+});
+
+// 가게 이미지
+const img = `/pic/store-profile/${props.order?.storeId}/${props.order?.imagePath}`;
+
+// 가게 이미지가 없을 시 대체 이미지 나타내기
+const imgSrc = computed(() => {
+    return props.order &&
+        props.order?.imagePath &&
+        props.order?.imagePath !== "null"
+        ? `/pic/store-profile/${props.order?.storeId}/${props.order?.imagePath}`
+        : defaultImage;
+});
+
+// 주문내역 삭제
+const emit = defineEmits(["delete-order", "re-order"]);
 
 // 주문 상태에 따른 버튼
 const statusBtn = computed(() => {
@@ -120,43 +100,14 @@ const statusBtn = computed(() => {
         };
     }
 });
-
-onMounted(() => {
-    //idCheck();
-});
-//
-
-// 가게 이미지
-const img = `/pic/store-profile/${props.order?.storeId}/${props.order?.imagePath}`;
-
-// 가게 이미지가 없을 시 대체 이미지 나타내기
-const imgSrc = computed(() => {
-    return props.order &&
-        props.order?.imagePath &&
-        props.order?.imagePath !== "null"
-        ? `/pic/store-profile/${props.order?.storeId}/${props.order?.imagePath}`
-        : defaultImage;
-});
-
-const revCheck = ref(null);
-
-// 주문내역 삭제
-const emit = defineEmits(["delete-order", "reorder"]);
-
-// // 리뷰 아이디 저장
-// const idCheck = async () => {
-//     const revId = await getReviewOne(props.order?.id);
-//     revCheck.value = revId.data.resultData;
-// };
 </script>
 
 <template>
     <div class="bigBoard">
-        <!-- 내부 -->
         <div class="board">
             <!-- 카드 왼쪽 [ 주문 시간 , 이미지 , 가게 이름 ] -->
             <div class="boardLeft">
-                <div class="created">{{ formatDateTime(props.order.createAt) }}</div>
+                <div class="created">{{ formatDateTime(props.order.createdAt) }}</div>
                 <div class="imgBox">
                     <img class="img" :src="imgSrc" @error="(e) => (e.target.src = defaultImage)" />
                 </div>
@@ -176,76 +127,46 @@ const emit = defineEmits(["delete-order", "reorder"]);
                     <div class="menu" v-for="menu in props.order.menuItems.slice(0, 3)" :key="menu.id">
                         <div class="name">{{ menu.menuName }}</div>
                         <div class="num">{{ menu.quantity }}개</div>
-                        <div class="price">{{ (menu.amount * menu.quantity).toLocaleString() }}원</div>
+                        <div class="price">{{ menu.amount?.toLocaleString() }}원</div>
                     </div>
-                    <!-- 메뉴가 많으면 필요함,  -->
+                    <!-- 메뉴가 3건 초과일 경우 외 n 건으로 표시 -->
                     <div v-if="props.order.menuItems.length > 3" class="more">
                         <div class="moreText">... 외 {{ props.order.menuItems.length - 3 }}건</div>
                     </div>
                 </div>
             </div>
+
             <!-- 카드 오른쪽 [ 총 결제금액, 배달상태 ] -->
             <div class="boardRigth">
                 <div class="amount">
                     <div class="amountText">총 결제 금액</div>
-                    <div class="amountNum">{{ props.order.amount?.toLocaleString() }}원</div>
+                    <div class="amountNum">{{ props.order.totalPrice?.toLocaleString() }}원</div>
                 </div>
                 <div class="orderStatus">
                     <div class="amountText">배달상태</div>
                     <div class="amountNum">{{ statusText }}</div>
                 </div>
             </div>
-            <!-- 버튼들 -->
+
+            <!-- 버튼 -->
             <div class="btns">
-                <div class="btn" @click="$emit('reorder', props.order.menuItems)">재주문하기</div>
-                <div @click="reviewButton" class="btn btn-primary" :style="statusBtn">
-                    {{ revCheck !== null ? "리뷰 수정" : "리뷰 등록" }}
-                </div>
-                <div @click="orderDetail" class="btn">주문 상세</div>
-                <div @click="$emit('delete-order', props.order)" class="btn">내역 삭제</div>
+                <button type="button" class="btn" @click="$emit('re-order', props.order.menuItems)">재주문하기</button>
+                <button type="button" :class="['btn', { 'btn-disabled': props.order.status !== '05'}]"
+                    @click="router.push(`/reviews-page/${props.order.orderId}`);" :disabled="props.order.status !== '05'">리뷰 등록</button>
+                <button type="button" class="btn" @click="router.push(`/orders/${props.order.orderId}`);">주문 상세</button>
+                <button type="button" :class="['btn', { 'btn-disabled': props.order.status !== '05' && props.order.status !== '06'}]"
+                    @click="$emit('delete-order', props.order)" :disabled="props.order.status !== '05' && props.order.status !== '06'">내역 삭제</button>
             </div>
         </div>
-        
-        <!-- 리뷰 박스 -->
-        <!-- <div class="reviewBigBox">
-                <div class="reviewBox">
-                    <div class="reviewimgBox">
-                        <img class="reviewImg" src="/src/imgs/chicken.png" />
-                    </div>
-                    <div class="reviewBoxLeft">
-                        <div class="nameBox">
-                            <div class="leftName">서하빈</div>
-                            <div id="starFill" v-for="(star, index) in stars" :key="index"
-                                :class="{ 'filled': index < selected }" @click="selectStar(index)">
-                                ★
-                            </div>
-                            <div>
-                                <input type="file" id="imgOne" class="" accept="image/*" @change="" />
-                                <div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="leftBox">
-                            <textarea class="inputBox" placeholder="리뷰를 입력해주세요" />
-                        </div>
-                    </div>
-                </div>
-            </div> -->
     </div>
-    <div class="last"></div>
 </template>
 
 <style lang="scss" scoped>
-:hover.bigBoard {
-    border: #ff6666 2px solid;
-}
-
 .bigBoard {
-    width: 1440px !important;
+    width: 1280px !important;
     border: #797979 2px solid !important;
     border-radius: 25px;
-    margin-bottom: -90px !important;
-    //overflow: clip;
+    margin-bottom: 36px;
     display: flex;
     flex-direction: column;
     padding: 20px;
@@ -469,12 +390,17 @@ const emit = defineEmits(["delete-order", "reorder"]);
             box-shadow: none;
             border: #ff6666 2px solid;
             border-radius: 8px;
+
+            &:hover {
+                background-color: #ff6666;
+                border: #ff6666 2px solid;
+                color: #fff;
+            }
         }
 
-        :hover.btn {
-            background-color: #ff6666;
-            border: #ff6666 2px solid;
-            color: #fff;
+        .btn-disabled {
+            color: #6B6B6B;
+            border: 2px solid #6B6B6B;
         }
     }
 }

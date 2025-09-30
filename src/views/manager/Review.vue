@@ -1,9 +1,12 @@
 <script setup>
 import '@/assets/manager/manager.css'
+import "flatpickr/dist/flatpickr.css";
+import { Korean } from "flatpickr/dist/l10n/ko.js";
 
 import { onMounted, reactive, ref } from 'vue';
 import { getReviewList, getReview, patchIsHide } from '@/services/managerService';
 import { usePaginationStore } from '@/stores/pagination';
+import FlatPickr from "vue-flatpickr-component";
 import PageSizeSelect from '@/components/manager/PageSizeSelect.vue';
 import DateTable from '@/components/manager/DataTable.vue';
 import BoardModal from '@/components/manager/BoardModal.vue';
@@ -12,9 +15,6 @@ import AlertModal from '@/components/modal/AlertModal.vue';
 import ConfirmModal from '@/components/modal/ConfirmModal.vue';
 
 const pagination = usePaginationStore();
-
-// 날짜 선택 Input의 입력 포맷 지정
-const formatDate = (date) => date.toLocaleDateString();
 
 const today = new Date();
 const lastWeek = new Date();
@@ -37,10 +37,31 @@ const state = reactive({
     reviews: []
 });
 
-// 날짜 선택
-const changeDate = (key, date) => {
-    state.form[key] = date.toISOString().slice(0, 10);
-};
+// 날짜 입력칸 설정
+const startDateConfig = {
+    locale: Korean,
+    dateFormat: 'Y-m-d',
+    onChange: (date) => {
+        // 선택한 시작일이 종료일보다 크면 자동으로 종료일을 시작일로 입력
+        if (date[0] && state.form.endDate) {
+            if (date[0] > new Date(state.form.endDate)) {
+                state.form.endDate = date[0];
+            }
+        }
+    }
+}
+const endDateConfig = {
+    locale: Korean,
+    dateFormat: 'Y-m-d',
+    onChange: (date) => {
+        // 선택한 종료일이 시작일보다 작으면 자동으로 시작일을 종료일로 입력
+        if (date[0] && state.form.startDate) {
+            if (date[0] < new Date(state.form.startDate)) {
+                state.form.startDate = date[0];
+            }
+        }
+    }
+}
 
 // 검색 초기화
 const resetForm = () => {
@@ -182,11 +203,11 @@ onMounted(() => {
                         <label for="" class="form-label">작성일</label>
                         <b-row class="align-items-center">
                             <b-col>
-                                <VueDatePicker :enable-time-picker="false" :format="formatDate" v-model="state.form.startDate" @update:model-value="date => changeDate('startDate', date)" />
+                                <FlatPickr class="form-control" v-model="state.form.startDate" :config="startDateConfig" />
                             </b-col>
                             ~
                             <b-col>
-                                <VueDatePicker :enable-time-picker="false" :format="formatDate" v-model="state.form.endDate" @update:model-value="date => changeDate('endDate', date)" />
+                                <FlatPickr class="form-control" v-model="state.form.endDate" :config="endDateConfig" />
                             </b-col>
                         </b-row>
                     </b-col>
