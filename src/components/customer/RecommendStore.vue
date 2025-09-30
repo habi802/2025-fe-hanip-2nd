@@ -4,7 +4,7 @@ import { onMounted, reactive, computed } from 'vue';
 import RecomendStoreCard from './RecomendStoreCard.vue';
 const state = reactive({
   form: [],
-  random:[],
+  random: [],
 })
 // 추천 가게 목록
 // const store = [
@@ -55,7 +55,7 @@ onMounted(async () => {
             >
               <recommend-store-card :stores="item" />
             </div> -->
-    <recomend-store-card v-for="store in randomThreeStores" :key="store.storeId" :stores="store"/>
+    <recomend-store-card v-for="store in randomThreeStores" :key="store.storeId" :stores="store" />
   </div>
   <div class="footer"></div>
 </template>
@@ -66,6 +66,7 @@ onMounted(async () => {
   font-weight: 600;
   font-style: normal;
 }
+
 .f-text {
   font-family: "BMJUA";
   letter-spacing: 2px;
@@ -75,12 +76,13 @@ onMounted(async () => {
   padding-top: 105px;
   margin-left: 15px;
 }
+
 .guideBox {
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
   gap: 90px 15px;
-  width: 1600px;
+  width: 1450px;
   height: 100%;
   margin: 0 auto;
   margin-top: 50px;
