@@ -71,8 +71,6 @@ const arrow = () => {
 // const handleScroll = () => {
 //     const scrollY = window.scrollY;
 //     const windowHeight = window.innerHeight;
-//     console.log(scrollY);
-//     console.log('w :', windowHeight);
 // };
 </script>
 

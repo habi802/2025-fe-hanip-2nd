@@ -56,10 +56,11 @@ const reviewSrcList = computed(() => {
   return props.item.pic.map(fileName => `${baseUrl.value}/images/Review/${props.item.id}/${fileName}`);
 });
 
-const imgSrc = computed(() => {
 
-  return state.store && state.store?.imagePath && state.store?.imagePath !== 'null'
-    ? `/pic/store-profile/${store.storeInfo.id}/${store.storeInfo?.imagePath}`
+//유저 이미지
+const imgSrc = computed(() => {
+  return props.item?.userId !== 'null'
+    ? `${baseUrl.value}/images/user/${props.item.userId}/${props.item.userPic}`
     : defaultImage;
 
 })
@@ -72,8 +73,7 @@ const imgSrc = computed(() => {
   <div id="big-box" class="border rounded p-3 mb-2" :class="{ isHide: props.item.isHide === 1 }">
     <div class="box-top">
       <div class="user-img-box">
-        <img class="user-img" src="/src/imgs/userImg.png"></img>
-        <div class="user-img"> </div>
+        <img class="user-img" :src="imgSrc" @error="e => e.target.src = defaultImage" alt="리뷰 이미지"></img>
       </div>
       <div class="review-info">
         <div class="info-top">
@@ -263,8 +263,9 @@ const imgSrc = computed(() => {
 }
 
 .user-img-box {
-  width: 6%;
-  height: 6%;
+  width: 7%;
+  aspect-ratio: 1 / 1;
+  border-radius: 50%;
   overflow: hidden;
   margin-right: 15px;
 }
@@ -283,7 +284,8 @@ const imgSrc = computed(() => {
 }
 
 .user-name {
-  font-family: "BMJUA";
+  font-family: 'Pretendard-Regular';
+  font-weight: 600;
   font-size: 1.2em;
 }
 
@@ -361,7 +363,8 @@ const imgSrc = computed(() => {
 }
 
 .owner-title {
-  font-family: "BMJUA";
+  font-family: 'Pretendard-Regular';
+  font-weight: 600;
   font-size: 1.2em;
   padding: 10px;
 }

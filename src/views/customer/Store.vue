@@ -125,7 +125,7 @@ const loadMenus = async (id) => {
 // 가게 리뷰 조회 함수
 const loadReviews = async (id) => {
   const res = await getReviewsByStoreId(id, {
-    rowPerPage: 3,
+    rowPerPage: 10,
     page: 1,
   });
   state.reviews = res.data.resultData;
