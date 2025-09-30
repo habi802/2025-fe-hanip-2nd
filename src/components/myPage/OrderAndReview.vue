@@ -166,7 +166,7 @@ const statusBtn = computed(() => {
     width: 1280px !important;
     border: #797979 2px solid !important;
     border-radius: 25px;
-    margin-bottom: -90px !important;
+    margin-bottom: 36px;
     display: flex;
     flex-direction: column;
     padding: 20px;
