@@ -7,18 +7,15 @@ import { getReviewsByStoreId, getOwnerCommentList } from "@/services/reviewServi
 import { getFavorite, addFavorite, deleteFavorite } from "@/services/favoriteService";
 import { updateQuantity, removeItem, removeCart } from "@/services/cartService";
 import { useAccountStore } from "@/stores/account";
-import { useCartStore } from "@/stores/cartStore";
 import Menu from "@/components/customer/Menu.vue";
 import Review from "@/components/customer/Review.vue";
-import { useFavoriteStore } from "@/stores/favoriteStore";
 import defaultImage from '@/imgs/owner/owner-service3.png';
 import AlertModal from "@/components/modal/AlertModal.vue";
+import AlertResolveModal from "@/components/modal/AlertResolveModal.vue";
+import NoneStore from '@/imgs/NoneStoreImg.png';
 
 
-
-// 하트 이미지
-import lovet from '@/imgs/loveFull.png';
-import lovef from '@/imgs/loveBoard.png'
+const alertResolveModal = ref(null);
 
 // 모달 창 함수
 const alertModal = ref(null);
@@ -112,7 +109,7 @@ const loadFavorite = async (id) => {
 
 // 가게 메뉴 조회하는 함수
 const loadMenus = async (id) => {
-  const res = await getOneMenu(id);
+
 
   if (res === undefined) {
     alertModal.value.showModal('조회에 실패하였습니다.');
@@ -123,20 +120,16 @@ const loadMenus = async (id) => {
     return;
   }
   state.menus = res.data.resultData;
-  // 조회 성공 시 가게 리뷰 조회 함수 호출
-  loadReviews(id);
 };
 
 // 가게 리뷰 조회 함수
 const loadReviews = async (id) => {
-  const res = await getReviewsByStoreId(id);
-
-  if (res === undefined || res.data.resultStatus !== 200) {
-    alertModal.value.showModal('조회에 실패하였습니다.');
-    return;
-  }
-
+  const res = await getReviewsByStoreId(id, {
+    rowPerPage: 3,
+    page: 1,
+  });
   state.reviews = res.data.resultData;
+  console.log("가게리뷰 전체 조회", state.reviews)
   // 리뷰 총점 구하기
   let ratingNumCal = 0;
   // console.log("state.reviews: ", state.reviews);
@@ -216,7 +209,7 @@ const banerImgSrc = computed(() => {
     !== 'null'
     ? `/pic/store-profile/${store.storeInfo.id}/${store.storeInfo?.bannerPath
     }`
-    : defaultImage;
+    : NoneStore;
 
 })
 
@@ -247,6 +240,7 @@ import { getStoreId } from "@/services/storeService";
 
 onMounted(() => {
   const storeId = route.params.id;
+  loadReviews(storeId);
   getStoreInfo(storeId);
   getStoreMenu(storeId);
   loadFavorite(storeId)
@@ -272,17 +266,23 @@ const getStoreInfo = async (id) => {
   const res = await getStoreId(id);
   store.storeInfo = res.data.resultData;
 
+  if (store.storeInfo === null || store.storeInfo === undefined) {
+    setTimeout(async () => {
+      const alret = await alertResolveModal.value.showModal("잘못된 접근입니다.");
+
+      if (alret) {
+        router.push("/")
+      }
+    }, 150);
+
+  }
+
   console.log("새로 가져온 스토어 정보", store.storeInfo)
   console.log("가게 이미지", store.storeInfo.bannerPath)
 
   const addressTest = `${store.storeInfo.address} ${store.storeInfo.addressDetail}`;
 
   showMap(addressTest);
-
-  const reviewRes = await getReviewsByStoreId(id);
-  store.reveiw = reviewRes.data.resultData;
-  console.log("리뷰", store.reveiw)
-
 
 
 
@@ -298,14 +298,17 @@ const getStoreInfo = async (id) => {
   const ownerCommentList = await getOwnerCommentList(id);
   store.ownerComment = ownerCommentList.data.resultData;
 
+
+  console.log("오늘 작성된 리뷰 계산", state.reviews)
   const today = new Date();
-  const todayString = today.toISOString().split('T')[0];
+  const todayString = today.toLocaleDateString("sv-SE");
 
   // 오늘 작성한 리뷰 개수 계산
-  const todayReviewCount = store.reveiw.filter(r => {
+  const todayReviewCount = state.reviews.filter(r => {
     const reviewDate = r.createdAt.split(' ')[0];
     return reviewDate === todayString;
   }).length;
+
 
   store.todayReviewCount = todayReviewCount;
 }
@@ -336,6 +339,25 @@ const getStoreMenu = async (storeId) => {
   store.menus = res.data.resultData;
   console.log("메뉴 정보", store.menus);
 
+  if (store.menus.length <= 0) {
+    let timeoutId;
+    const redirectHome = () => {
+      clearTimeout(timeoutId); 
+      router.push("/");
+    };
+    timeoutId = setTimeout(() => {
+      redirectHome();
+    }, 2000);
+    setTimeout(async () => {
+      const alret = await alertResolveModal.value.showModal("가게의 메뉴가 없습니다.");
+
+      if (alret) {
+        router.push("/")
+      }
+    }, 150);
+
+  }
+
 }
 
 
@@ -352,7 +374,7 @@ const sortedMenus = computed(() => {
 
 <template>
   <div class="storeImg">
-    <img class="big-img" :src="banerImgSrc" @error="e => e.target.src = defaultImage" />
+    <img class="big-img" :src="banerImgSrc" @error="e => e.target.src = NoneStore" />
   </div>
   <div class="container">
 
@@ -369,7 +391,7 @@ const sortedMenus = computed(() => {
             {{ store.storeInfo.rating }}
           </span>
           <!-- 이거 수정 -->
-          <span class="text-color review-length star-num">( {{ store.reveiw.length }} )</span>
+          <span class="text-color review-length star-num">( {{ state.reviews.length }} )</span>
           <span>
             <div class="favorite" @click="toggleFavorite(store.storeInfo.id)">{{ state.myFavorite === 1 ? "♥" : "♡"
             }}</div>
@@ -448,7 +470,7 @@ const sortedMenus = computed(() => {
               </hr>
               <div class="statistics-info">
 
-                <div> 전체 리뷰 수 {{ store.reveiw.length }}</div>
+                <div> 전체 리뷰 수 {{ state.reviews.length }}</div>
                 <div>찜 {{ store.storeInfo.favorites }}
                 </div>
               </div>
@@ -501,10 +523,10 @@ const sortedMenus = computed(() => {
                 </div>
               </div>
             </div>
-            <div v-else class="d-flex mt-5 justify-content-center align-items-center w-100"
+            <!-- <div v-else class="d-flex mt-5 justify-content-center align-items-center w-100"
               style="font-size: 40px; flex-direction: column;"> 등록된 메뉴가 없습니다.
               <img src="/src/imgs/owner/owner-service5.png" alt="메뉴없엉">
-            </div>
+            </div> -->
 
             <!-- 리뷰보기 리스트 -->
 
@@ -517,10 +539,10 @@ const sortedMenus = computed(() => {
                   <div class="review-box">
                     <div class="review-data">
                       <div>
-                        <div class="review-text">가게 전체 평점</div>
+                        <!-- <div class="review-text">가게 전체 평점</div> -->
                         <span class="star" v-for="n in Math.floor(store.storeInfo.rating || 0)" :key="n"
                           v-if="store.storeInfo.rating && store.storeInfo.rating > 0">
-                          <img class="starImg" src="/src/imgs/starBoard.png" />
+                          <span class="review-star">★</span>
                         </span>
                         <span class="star" v-else>
                           <img class="starImg" src="/src/imgs/starNull.png" />
@@ -537,7 +559,7 @@ const sortedMenus = computed(() => {
                           <span>
                             총 리뷰 수
                           </span>
-                          <span class="count-num"> {{ store.reveiw.length }}개</span>
+                          <span class="count-num"> {{ state.reviews.length }}개</span>
                         </div>
                         <!-- 하드코딩 -->
                         <div>
@@ -580,6 +602,7 @@ const sortedMenus = computed(() => {
 
   <!--  공용 모달창 -->
   <alert-modal ref="alertModal"></alert-modal>
+  <alertResolveModal ref="alertResolveModal"></alertResolveModal>
 
 </template>
 
@@ -684,7 +707,8 @@ const sortedMenus = computed(() => {
 }
 
 .mb-1 {
-  font-family: "BMJUA";
+  font-family: 'Pretendard-Regular';
+  font-weight: 600;
   letter-spacing: 1px;
   cursor: pointer;
 
@@ -766,6 +790,9 @@ const sortedMenus = computed(() => {
 }
 
 .review-box {
+  display: flex;
+  justify-content: center;
+  align-items: center;
   border: 1px #797979 solid;
   border-radius: 10px;
   width: 860px;
@@ -1031,5 +1058,11 @@ hr {
 .count-num {
   padding: 10px;
   color: #FF6666;
+}
+
+.review-star {
+  font-family: "BMJUA";
+  font-size: 1em;
+  color: #FAC729;
 }
 </style>
