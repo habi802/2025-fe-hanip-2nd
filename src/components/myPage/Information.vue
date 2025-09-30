@@ -1,12 +1,14 @@
 <script setup>
 import { onMounted, reactive, ref, watch } from "vue";
 import { useRouter } from "vue-router";
-import { getUser, checkPassword, update } from "@/services/userService";
+import { getUser, checkPassword, updateUser } from "@/services/userService";
 import { nextTick } from "vue";
 import defaultUserProfile from "@/imgs/owner/user_profile.jpg";
+import AlertModal from "../modal/AlertModal.vue";
 
 const router = useRouter();
 const fileInput = ref(null);
+//const previewUrl = ref(defaultUserProfile); // 기본값을 defaultUserProfile로 세팅
 const previewUrl = ref(""); // 미리보기 이미지 URL
 const selectedFile = ref(null); // 실제 선택된 파일
 
@@ -15,16 +17,25 @@ function triggerFileInput() {
   fileInput.value?.click();
 }
 
+// // 프로필 이미지
+// const imgSrc = computed(() => {
+//   return state.user.id && state.store.imagePath && state.store.imagePath !== 'null'
+//     ? `${baseUrl.value}/images/store/${state.user.id}/${state.user.imagePath}`
+//     : defaultImage;
+// })
+
+// const previewImage = ref(defaultImage);
+// const baseUrl = ref(import.meta.env.VITE_BASE_URL);
+
 // 파일 선택 시 실행
 function onFileChange(event) {
   const file = event.target.files[0];
   if (file) {
     selectedFile.value = file;
 
-    // 미리보기 URL 생성
     const reader = new FileReader();
     reader.onload = (e) => {
-      previewUrl.value = e.target.result;
+      previewUrl.value = e.target.result; // 미리보기 갱신
     };
     reader.readAsDataURL(file);
   }
@@ -33,17 +44,15 @@ function onFileChange(event) {
 // 사용자 정보 리스트
 const state = reactive({
   form: {
+    name: "",
     loginId: "", // ID 비활성화 해야함!!
     loginPw: "",
-    name: "",
-    postcode: "",
-    address: "",
-    addressDetail: "",
+    newLoginPw: "",
     phone: "",
     email: "",
   },
 });
-const confirmPw = ref(""); // 새 비밀번호
+const confirmPw = ref("");
 const errors = reactive({
   loginPw: "",
   confirmPw: "",
@@ -53,6 +62,9 @@ const errors = reactive({
 
 // 비밀번호 확인 유효성 코드
 const checkResult = ref("");
+
+// 새 비밀번호
+const confirmPwCheck = ref(""); // 새 비밀번호
 
 //일반 회원용 전화번호 필드
 const phone1 = ref("010");
@@ -181,36 +193,39 @@ function onPhoneKeydown(event) {
 }
 // 컴포넌트 마운트 시 사용자 정보 조회
 onMounted(async () => {
-  // modal..
   const modalEl = document.getElementById("alertModal");
-  if (modalEl) {
-    alertModal = new bootstrap.Modal(modalEl);
-  }
-  try {
-    // 로그인 시 localStorage에 저장된 사용자 ID 가져오기
-    const id = localStorage.getItem("id"); // or 로그인 시 저장된 값
-    console.log("localStorage loginId:", id); // user 로그인 정보를 저장하고 있는지 확인용
+  if (modalEl) alertModal = new bootstrap.Modal(modalEl);
 
+  try {
+    const id = localStorage.getItem("id");
     if (!id) {
       showModal("로그인 정보가 없습니다. 로그인 후 이용해주세요.");
       router.push("/login");
       return;
     }
 
-    // API 호출: 사용자 정보 조회
-    const res = await getUser(id); // userService에서 끌고와야함
+    const res = await getUser(id);
 
-    if (res && res.data) {
-      // 조회된 사용자 정보로 폼 초기화
-      Object.assign(state.form, res.data.resultData); // 정보 채우기
-      state.form.id = res.data.resultData.id; // 이 부분 추가
-    }
-    if (res.data.resultData.phone) {
-      // 전화번호 분해해서 phone1/phone2/phone3에 넣어주는 부분
-      const phoneParts = res.data.resultData.phone.split("-");
-      phone1.value = phoneParts[0] || "";
-      phone2.value = phoneParts[1] || "";
-      phone3.value = phoneParts[2] || "";
+    if (res && res.data?.resultData) {
+      Object.assign(state.form, res.data.resultData);
+
+      const baseURL = import.meta.env.VITE_API_BASE_URL || "http://localhost:8080";
+      const imgPath = res.data.resultData.imagePath;
+
+      // 절대 URL로 변환 + null 체크
+      previewUrl.value =
+        imgPath && imgPath !== "null"
+          ? imgPath.startsWith("http")
+            ? imgPath
+            : `${baseURL.replace(/\/$/, "")}/${imgPath.replace(/^\/?/, "")}`
+          : defaultUserProfile;
+
+      if (res.data.resultData.phone) {
+        const phoneParts = res.data.resultData.phone.split("-");
+        phone1.value = phoneParts[0] || "";
+        phone2.value = phoneParts[1] || "";
+        phone3.value = phoneParts[2] || "";
+      }
     } else {
       showModal("사용자 정보를 불러오는데 실패했습니다.");
     }
@@ -221,36 +236,96 @@ onMounted(async () => {
 });
 
 //  정보 수정 성공 여부
+// const submitForm = async (e) => {
+//   e.preventDefault();
+//   if (!validateForm()) return;
+
+//   if (confirmPw.value !== confirmPwCheck.value) {
+//     errors.confirmPw = "새 비밀번호가 일치하지 않습니다.";
+//     return;
+//   }
+
+//   if (checkResult.value !== "비밀번호가 확인되었습니다.") {
+//     showModal("현재 비밀번호를 먼저 확인해주세요.");
+//     return;
+//   }
+
+//   try {
+//     const formData = new FormData();
+//     const userPutReq = {
+//       name: state.form.name,
+//       loginPw: state.form.loginPw,
+//       newLoginPw: confirmPw.value,
+//       phone: `${phone1.value}-${phone2.value}-${phone3.value}`, // ✅ 하이픈 포함
+//       email: state.form.email,
+//     };
+
+//     formData.append(
+//       "req",
+//       new Blob([JSON.stringify(userPutReq)], { type: "application/json" })
+//     );
+
+//     // 이미지 파일이 선택된 경우만 업로드
+//     if (selectedFile.value) {
+//       formData.append("pic", selectedFile.value);
+//     }
+
+//     const res = await updateUser(formData);
+
+//     if (res.status === 200) {
+//       showModal("정보가 성공적으로 수정되었습니다.");
+//       router.push("/");
+//     } else {
+//       showModal("정보 수정에 실패했습니다.");
+//     }
+//   } catch (err) {
+//     console.error("정보 수정 실패:", err);
+//     showModal("정보 수정 중 오류가 발생했습니다.");
+//   }
+// };
 const submitForm = async (e) => {
   e.preventDefault();
+  if (!validateForm()) return;
 
-  // 1. 폼 유효성 검사 실행, 실패 시 함수 종료
-  if (!validateForm()) return; // 유효성 검사 추가
+  if (confirmPw.value !== confirmPwCheck.value) {
+    errors.confirmPw = "새 비밀번호가 일치하지 않습니다.";
+    return;
+  }
+
+  if (checkResult.value !== "비밀번호가 확인되었습니다.") {
+    showModal("현재 비밀번호를 먼저 확인해주세요.");
+    return;
+  }
 
   try {
-    // 2. localStorage에서 로그인한 사용자 ID 가져오기
-    const id = localStorage.getItem("id");
+    const formData = new FormData();
+    const userPutReq = {
+      name: state.form.name,
+      loginPw: state.form.loginPw,
+      newLoginPw: confirmPw.value,
+      phone: `${phone1.value}-${phone2.value}-${phone3.value}`, // 하이픈 포함
+      email: state.form.email,
+    };
 
-    // 3. ID가 없으면 로그인 페이지로 이동 및 알림창 표시
-    if (!id) {
-      showModal("로그인 정보가 없습니다.");
-      router.push("/login");
-      return;
+    formData.append(
+      "req",
+      new Blob([JSON.stringify(userPutReq)], { type: "application/json" })
+    );
+
+    // 이미지 파일이 선택된 경우만 업로드
+    if (selectedFile.value) {
+      formData.append("pic", selectedFile.value);
     }
 
-    // 4. update 함수에 수정 데이터 전달 (userService.js에서 PUT 요청 처리)
-    const res = await update(state.form);
+    const res = await updateUser(formData);
 
-    // 5. 요청 성공 시 알림창 표시 후 마이페이지로 이동
     if (res.status === 200) {
       showModal("정보가 성공적으로 수정되었습니다.");
-      router.push({ path: "/" });
+      router.push("/");
     } else {
-      // 6. 요청 실패 시 알림창 표시
       showModal("정보 수정에 실패했습니다.");
     }
   } catch (err) {
-    // 7. 네트워크 오류 등 예외 발생 시 콘솔에 에러 기록하고 알림창 표시
     console.error("정보 수정 실패:", err);
     showModal("정보 수정 중 오류가 발생했습니다.");
   }
@@ -308,8 +383,11 @@ const isPasswordChecked = ref(false); // 비밀번호 확인 여부
             <!-- 프로필 사진 수정 버튼 -->
             <div class="user">
               <!-- 이미지 미리보기 -->
-              <img class="userImg" :src="previewUrl || defaultUserProfile" />
-
+              <img
+                class="userImg"
+                :src="previewUrl"
+                @error="(e) => (e.target.src = defaultUserProfile)"
+              />
               <!-- 실제 파일 업로드 input (숨김 처리) -->
               <input
                 type="file"
@@ -386,6 +464,21 @@ const isPasswordChecked = ref(false); // 비밀번호 확인 여부
             <p v-if="errors.confirmPw" class="error-msg">
               {{ errors.confirmPw }}
             </p>
+          </div>
+          <div class="sevLine"></div>
+
+          <!-- 새 비밀번호 확인 -->
+          <div class="form-group">
+            <label>새 비밀번호 확인</label>
+            <input
+              type="password"
+              class="form-input"
+              v-model="confirmPwCheck"
+              placeholder="새로운 비밀번호를 한번 더 입력해주세요"
+              :class="{ error: errors.confirmPw }"
+              @input="clearError('confirmPw')"
+            />
+            <p v-if="errors.confirmPw" class="error-msg">{{ errors.confirmPw }}</p>
           </div>
           <div class="sevLine"></div>
 
@@ -729,7 +822,7 @@ input[readonly] {
 
 // 에러메세지
 .error-msg {
-  margin-left: 355px;
+  margin-left: 320px;
   margin-top: 10px;
   margin-bottom: -7px;
   color: #ff6666;
@@ -749,7 +842,7 @@ input[readonly] {
   font-size: 15px;
   font-weight: 600;
   margin-top: 10px;
-  margin-left: 355px;
+  margin-left: 320px;
   margin-bottom: -7px;
   user-select: none;
   transition: color 0.3s ease;
