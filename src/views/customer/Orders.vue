@@ -43,7 +43,7 @@ const reOrder = async menus => {
                 // 선택한 주문 내역의 메뉴가 장바구니에 다 담긴 후에 장바구니로 이동
                 const promises = menus.map(menu => {
                     const optionId = [];
-                    
+
                     menu.options.forEach(option => {
                         optionId.push(option.optionId);
                         optionId.push(option.children[0].optionId);
@@ -140,7 +140,8 @@ const arrow = () => {
                 <label for="custom">기간 선택</label>
             </div>
 
-            <order-and-review v-for="order in state.orders" :key="order.orderId" :order="order" @delete-order="removeOrder" @re-order="reOrder" />
+            <order-and-review v-for="order in state.orders" :key="order.orderId" :order="order"
+                @delete-order="removeOrder" @re-order="reOrder" />
         </div>
     </div>
 
@@ -150,7 +151,7 @@ const arrow = () => {
 
     <ConfirmModal ref="confirmModalRef" />
 
-    <img @click="arrow" class="arrow" src="/src/imgs/arrow.png" />`
+    <img @click="arrow" class="arrow" src="/src/imgs/arrow.png" />
 </template>
 
 <style lang="scss" scoped>
@@ -281,9 +282,9 @@ const arrow = () => {
     display: none;
 }
 
-.sort-options input[type="radio"]:checked + label {
-color: #ff4c4c;
-font-weight: bold;
+.sort-options input[type="radio"]:checked+label {
+    color: #ff4c4c;
+    font-weight: bold;
 }
 
 .sort-options .divider {
