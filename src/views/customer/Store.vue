@@ -662,7 +662,7 @@ const sortedMenus = computed(() => {
 
 .container {
   margin-top: 70px;
-  width: 100%;
+  width: 78%;
 }
 
 
@@ -889,7 +889,7 @@ const sortedMenus = computed(() => {
 
 .store-title-box {
   font-family: "BMJUA";
-  font-size: 2.3em;
+  font-size: 2.1em;
   text-align: center;
   margin-top: -20px;
 }
