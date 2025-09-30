@@ -257,7 +257,7 @@ const aaa = () => {
         }
 
         #cName {
-          font-size: 24px;
+          font-size: 20px;
           padding-top: 25px;
           text-align: center;
           margin-left: -5px;

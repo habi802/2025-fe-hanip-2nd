@@ -145,7 +145,7 @@ const toStore = () => {
       .sText {
         margin-top: 10px;
         font-size: 1.3em;
-        font-weight: 700;
+        font-weight: 500;
       }
     }
 
