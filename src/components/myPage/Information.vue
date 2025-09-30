@@ -18,11 +18,24 @@ function triggerFileInput() {
 }
 
 // 프로필 이미지
+// const imgSrc = computed(() => {
+//   return state.form.id && state.form.imagePath && state.form.imagePath !== "null"
+//     ? `${baseUrl.value}/images/user/${state.form.id}/${state.form.imagePath}`
+//     : previewUrl;
+// });
 const imgSrc = computed(() => {
-  return state.form.id && state.form.imagePath && state.form.imagePath !== 'null'
-    ? `${baseUrl.value}/images/null/${state.form.id}/${state.form.imagePath}`
-    : previewUrl;
-})
+  // 파일을 선택했으면 미리보기 적용
+  if (selectedFile.value) return previewUrl.value;
+
+  // 서버 이미지 존재 시
+  if (state.form.id && state.form.imagePath && state.form.imagePath !== "null") {
+    return `${baseUrl.value}/images/user/${state.form.id}/${state.form.imagePath}`;
+  }
+
+  // 기본 이미지
+  return defaultUserProfile;
+});
+
 
 // const previewImage = ref(defaultImage);
 const baseUrl = ref(import.meta.env.VITE_BASE_URL);
@@ -236,6 +249,7 @@ onMounted(async () => {
 });
 
 //  정보 수정 성공 여부
+
 // const submitForm = async (e) => {
 //   e.preventDefault();
 //   if (!validateForm()) return;
@@ -256,7 +270,7 @@ onMounted(async () => {
 //       name: state.form.name,
 //       loginPw: state.form.loginPw,
 //       newLoginPw: confirmPw.value,
-//       phone: `${phone1.value}-${phone2.value}-${phone3.value}`, // ✅ 하이픈 포함
+//       phone: `${phone1.value}-${phone2.value}-${phone3.value}`, // 하이픈 포함
 //       email: state.form.email,
 //     };
 
@@ -285,25 +299,34 @@ onMounted(async () => {
 // };
 const submitForm = async (e) => {
   e.preventDefault();
-  if (!validateForm()) return;
 
-  if (confirmPw.value !== confirmPwCheck.value) {
-    errors.confirmPw = "새 비밀번호가 일치하지 않습니다.";
+  // 현재 비밀번호 확인 필수
+  if (!state.form.loginPw) {
+    errors.loginPw = "현재 비밀번호를 입력해주세요.";
     return;
   }
 
-  if (checkResult.value !== "비밀번호가 확인되었습니다.") {
-    showModal("현재 비밀번호를 먼저 확인해주세요.");
-    return;
+  // 새 비밀번호를 바꾸려는 경우만 validate
+  const isPwChanging = confirmPw.value || confirmPwCheck.value;
+  if (isPwChanging) {
+    if (confirmPw.value !== confirmPwCheck.value) {
+      errors.confirmPw = "새 비밀번호가 일치하지 않습니다.";
+      return;
+    }
+    // 비밀번호 확인 버튼 누르지 않았으면
+    if (checkResult.value !== "비밀번호가 확인되었습니다.") {
+      showModal("현재 비밀번호를 먼저 확인해주세요.");
+      return;
+    }
   }
 
   try {
     const formData = new FormData();
     const userPutReq = {
       name: state.form.name,
-      loginPw: state.form.loginPw,
-      newLoginPw: confirmPw.value,
-      phone: `${phone1.value}-${phone2.value}-${phone3.value}`, // 하이픈 포함
+      loginPw: state.form.loginPw, // 항상 필요
+      newLoginPw: isPwChanging ? confirmPw.value : null, // 변경 시만 포함
+      phone: `${phone1.value}-${phone2.value}-${phone3.value}`,
       email: state.form.email,
     };
 
@@ -312,9 +335,8 @@ const submitForm = async (e) => {
       new Blob([JSON.stringify(userPutReq)], { type: "application/json" })
     );
 
-    // 이미지 파일이 선택된 경우만 업로드
     if (selectedFile.value) {
-      formData.append("pic", selectedFile.value);
+      formData.append("pic", selectedFile.value); // 이미지만 변경 가능
     }
 
     const res = await updateUser(formData);
@@ -383,16 +405,32 @@ const isPasswordChecked = ref(false); // 비밀번호 확인 여부
             <!-- 프로필 사진 수정 버튼 -->
             <div class="user">
               <!-- 이미지 미리보기 -->
-              <img class="userImg" :src="imgSrc" @error="(e) => (e.target.src = defaultUserProfile)" />
+              <img
+                class="userImg"
+                :src="imgSrc"
+                @error="(e) => (e.target.src = defaultUserProfile)"
+              />
               <!-- 실제 파일 업로드 input (숨김 처리) -->
-              <input type="file" ref="fileInput" accept="image/*" style="display: none" @change="onFileChange" />
+              <input
+                type="file"
+                ref="fileInput"
+                accept="image/*"
+                style="display: none"
+                @change="onFileChange"
+              />
 
               <!-- 버튼 클릭 시 input 클릭 -->
               <button type="button" @click="triggerFileInput">프로필 사진 수정</button>
             </div>
             <!-- 아이디 비활성화 -->
             <label> 아이디</label>
-            <input type="text" class="form-input" :value="state.form.loginId" placeholder="" readonly />
+            <input
+              type="text"
+              class="form-input"
+              :value="state.form.loginId"
+              placeholder=""
+              readonly
+            />
           </div>
           <div class="sevLine"></div>
 
@@ -418,8 +456,14 @@ const isPasswordChecked = ref(false); // 비밀번호 확인 여부
           <!-- 현재 비밀번호 -->
           <div class="form-group">
             <label>현재 비밀번호</label>
-            <input type="password" class="form-input" v-model="state.form.loginPw" placeholder="현재 비밀번호를 입력해주세요."
-              :class="{ error: errors.loginPw }" @input="clearError('loginPw')" />
+            <input
+              type="password"
+              class="form-input"
+              v-model="state.form.loginPw"
+              placeholder="현재 비밀번호를 입력해주세요."
+              :class="{ error: errors.loginPw }"
+              @input="clearError('loginPw')"
+            />
             <button class="password" @click.prevent="checkCorrectPassword()">
               비밀번호 확인
             </button>
@@ -431,8 +475,14 @@ const isPasswordChecked = ref(false); // 비밀번호 확인 여부
           <!-- 새 비밀번호 -->
           <div class="form-group">
             <label>새 비밀번호</label>
-            <input type="password" class="form-input" v-model="confirmPw" placeholder="비밀번호는 영문, 숫자, 특수문자 포함 8~16자"
-              :class="{ error: errors.confirmPw }" @input="clearError('confirmPw')" />
+            <input
+              type="password"
+              class="form-input"
+              v-model="confirmPw"
+              placeholder="비밀번호는 영문, 숫자, 특수문자 포함 8~16자"
+              :class="{ error: errors.confirmPw }"
+              @input="clearError('confirmPw')"
+            />
             <p v-if="errors.confirmPw" class="error-msg">
               {{ errors.confirmPw }}
             </p>
@@ -442,8 +492,14 @@ const isPasswordChecked = ref(false); // 비밀번호 확인 여부
           <!-- 새 비밀번호 확인 -->
           <div class="form-group">
             <label>새 비밀번호 확인</label>
-            <input type="password" class="form-input" v-model="confirmPwCheck" placeholder="새로운 비밀번호를 한번 더 입력해주세요"
-              :class="{ error: errors.confirmPw }" @input="clearError('confirmPw')" />
+            <input
+              type="password"
+              class="form-input"
+              v-model="confirmPwCheck"
+              placeholder="새로운 비밀번호를 한번 더 입력해주세요"
+              :class="{ error: errors.confirmPw }"
+              @input="clearError('confirmPw')"
+            />
             <p v-if="errors.confirmPw" class="error-msg">{{ errors.confirmPw }}</p>
           </div>
           <div class="sevLine"></div>
@@ -459,10 +515,24 @@ const isPasswordChecked = ref(false); // 비밀번호 확인 여부
                 <option>018</option>
                 <option>019</option>
               </select>
-              <input type="text" v-model="phone2" maxlength="4" @input="handlePhoneInput(phone2, 'phone')"
-                @keydown="onPhoneKeydown($event)" :class="{ error: errors.phone }" ref="phone2Input" />
-              <input type="text" v-model="phone3" maxlength="4" @input="handlePhoneInput(phone3, 'phone')"
-                @keydown="onPhoneKeydown($event)" :class="{ error: errors.phone }" ref="phone3Input" />
+              <input
+                type="text"
+                v-model="phone2"
+                maxlength="4"
+                @input="handlePhoneInput(phone2, 'phone')"
+                @keydown="onPhoneKeydown($event)"
+                :class="{ error: errors.phone }"
+                ref="phone2Input"
+              />
+              <input
+                type="text"
+                v-model="phone3"
+                maxlength="4"
+                @input="handlePhoneInput(phone3, 'phone')"
+                @keydown="onPhoneKeydown($event)"
+                :class="{ error: errors.phone }"
+                ref="phone3Input"
+              />
             </div>
             <div class="phone-error-wrapper" v-if="errors.phone">
               <p class="error-msg">{{ errors.phone }}</p>
@@ -473,8 +543,14 @@ const isPasswordChecked = ref(false); // 비밀번호 확인 여부
           <!-- 이메일 영역 -->
           <div class="form-group email-group">
             <label> 이메일</label>
-            <input type="email" class="form-input" v-model="state.form.email" placeholder="반드시 사용 중인 메일을 @ 형식으로 입력하세요."
-              @input="clearError('email')" :class="{ error: errors.email }" />
+            <input
+              type="email"
+              class="form-input"
+              v-model="state.form.email"
+              placeholder="반드시 사용 중인 메일을 @ 형식으로 입력하세요."
+              @input="clearError('email')"
+              :class="{ error: errors.email }"
+            />
           </div>
           <!-- 이메일 에러 전용 wrapper -->
           <p v-if="errors.email" class="error-msg email-error">{{ errors.email }}</p>
@@ -509,7 +585,8 @@ const isPasswordChecked = ref(false); // 비밀번호 확인 여부
 @font-face {
   // 주아체
   font-family: "BMJUA";
-  src: url("https://fastly.jsdelivr.net/gh/projectnoonnu/noonfonts_one@1.0/BMJUA.woff") format("woff");
+  src: url("https://fastly.jsdelivr.net/gh/projectnoonnu/noonfonts_one@1.0/BMJUA.woff")
+    format("woff");
   font-weight: normal;
   font-style: normal;
 }
@@ -517,7 +594,8 @@ const isPasswordChecked = ref(false); // 비밀번호 확인 여부
 @font-face {
   // 프리텐다드
   font-family: "Pretendard-Regular";
-  src: url("https://fastly.jsdelivr.net/gh/Project-Noonnu/noonfonts_2107@1.1/Pretendard-Regular.woff") format("woff");
+  src: url("https://fastly.jsdelivr.net/gh/Project-Noonnu/noonfonts_2107@1.1/Pretendard-Regular.woff")
+    format("woff");
   font-weight: 400;
   font-style: normal;
 }
