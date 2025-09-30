@@ -268,9 +268,85 @@ const aaa = () => {
   }
 }
 
-@media (max-width: 650px) {
+@media (max-width: 1600px) {
+
+  .imgBox {
+    width: 120px !important;
+    height: 120px !important;
+
+    &:hover {
+      transform: scale(1.2);
+    }
+
+    #cImg {
+      cursor: pointer;
+      width: 120px !important;
+      border-radius: 50%;
+    }
+  }
+
+  #cName {
+    font-size: 18px !important;
+    margin-top: -15px !important;
+  }
+
+}
+
+@media (max-width: 940px) {
+  #categoryItems {
+    gap: 20px !important;
+  }
+
+  .imgBox {
+    width: 100px !important;
+    height: 100px !important;
+
+    &:hover {
+      transform: scale(1.2);
+    }
+
+    #cImg {
+      cursor: pointer;
+      width: 100px !important;
+      border-radius: 50%;
+    }
+  }
+
+  #cName {
+    font-size: 18px !important;
+    margin-top: -15px !important;
+  }
+}
+
+@media (max-width: 720px) {
   .searchBar {
     display: none;
+  }
+
+  #categoryItems {
+    gap: 10px !important;
+    margin-top: 10px !important;
+  }
+
+  .imgBox {
+    width: 70px !important;
+    height: 70px !important;
+
+    &:hover {
+      transform: scale(1.2);
+    }
+
+    #cImg {
+      cursor: pointer;
+      width: 70px !important;
+      border-radius: 50%;
+    }
+  }
+
+  #cName {
+    font-size: 12px !important;
+    margin-top: -15px !important;
+
   }
 }
 </style>

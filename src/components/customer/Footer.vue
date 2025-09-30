@@ -39,7 +39,11 @@
           <div>504-30-13756</div>
         </div>
         <div class="footer-column customer-service">
-          <h4><router-link to="/contact" class="footer-link">고객센터</router-link></h4>
+          <router-link to="/contact" class="footer-link">
+            <h4>
+              고객센터
+            </h4>
+          </router-link>
           <p>고객센터 번호</p>
           <p>이메일주소</p>
         </div>
@@ -56,7 +60,6 @@
   // 기본 폰트 적용
   font-family: 'Pretendard-Regular';
 
-  user-select: none;
   -webkit-user-drag: none;
 
 }

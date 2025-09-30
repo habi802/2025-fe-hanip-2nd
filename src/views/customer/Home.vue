@@ -104,12 +104,10 @@ const arrow = () => {
 }
 
 // 반응형
-@media (max-width:800px) {
+
+@media (max-width:1200px) {
     .arrow {
-        position: relative;
-        width: 40px;
-        bottom: 250px;
-        left: 46.5%;
+        display: none;
     }
 }
 </style>

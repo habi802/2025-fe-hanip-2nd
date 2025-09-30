@@ -226,4 +226,10 @@ const isCartPage = computed(() => route.path.startsWith('/cart'));
   user-select: none;
   -webkit-user-drag: none;
 }
+
+@media (max-width: 1700px) {
+  .address-box {
+    display: none;
+  }
+}
 </style>
