@@ -67,10 +67,12 @@ const toggleFavorite = async (store) => {
   }
 };
 
+const baseUrl = ref(import.meta.env.VITE_BASE_URL);
+
 // 가게 이미지가 없을 시 대체 이미지 나타내기
 const getImgSrc = (store) => {
   return store.imagePath && store.imagePath !== "null"
-    ? `/pic/store-profile/${store.storeId}/${store.imagePath}`
+    ? `${baseUrl.value}/images/store/${store.storeId}/${store.imagePath}`
     : defaultImage;
 };
 
@@ -129,24 +131,27 @@ const toStore = (id) => {
               <div class="card-body">
                 <h6 class="card-title">{{ store.name }}</h6>
                 <div v-if="store.rating !== 'NaN'">
-                  <span class="star">★</span>
-                  <span class="small">
-                    {{ store.rating }}&nbsp;&nbsp;&nbsp;&nbsp;
+                  <div class="score-box">
+                    <span class="star">★</span>
+                    <span class="small-text">
+                      {{ store.rating }}
+                    </span>
                     <span class="love" @click="toggleFavorite(store)">♥</span>
-                    {{ store.favorites }}
-                  </span>
+                    <span class="small-text">
+                      {{ store.favorites }}
+                    </span>
+                  </div>
                 </div>
                 <div v-else>
                   <img class="star" :src="ratingImage" />
                   <span class="small">
-                    0&nbsp;(0)&nbsp;&nbsp;
                     <span class="love" @click="toggleFavorite(store)">♥</span>
                     {{ store.favorites }}
                   </span>
                 </div>
                 <p class="mb-1 text-muted small">배달비 0원 ~ 3000원</p>
                 <p class="mb-2 text-muted small">최소 주문 금액 10,000원</p>
-                <div class="d-flex justify-content-center align-items-center">
+                <div class="d-flex justify-content-center align-items-center btn-box">
                   <button @click="toStore(store.storeId)" class="btn btn-outline-danger btn-sm">
                     자세히보기
                   </button>
@@ -272,7 +277,7 @@ const toStore = (id) => {
   width: 360px;
   height: 470px;
   border-radius: 20px !important;
-  border: 2px solid #ccc;
+  border: 1px solid #797979;
   overflow: hidden;
   padding: 15px;
 }
@@ -285,12 +290,21 @@ const toStore = (id) => {
 }
 
 .small {
-  font-size: 0.7em;
+  font-family: "Pretendard-Regular";
+  color: #ccc !important;
+  font-weight: 200;
+  letter-spacing: 0.5px;
+  font-size: 0.6em;
+}
+
+.small-text {
+  font-size: 0.9em;
+
 }
 
 .btn {
   width: 180px;
-  height: 40px;
+  height: 50px;
   font-size: 20px;
   border-radius: 8px;
   background-color: white;
@@ -302,13 +316,13 @@ const toStore = (id) => {
   width: 20px;
   margin-right: 5px;
   font-family: "BMJUA";
-  font-size: 1em;
+  font-size: 1.5em;
   color: #FAC729;
 }
 
 .love {
   font-family: 'YFavorite';
-  font-size: 1.25em;
+  font-size: 1.2em;
   color: red;
   width: 20px;
   margin-bottom: 2px;
@@ -331,6 +345,7 @@ const toStore = (id) => {
   border: none;
   background-color: #ff6666;
   color: #fff;
+
 }
 
 .arrow {
@@ -354,6 +369,24 @@ const toStore = (id) => {
   font-size: 25px;
   text-align: center;
   margin-bottom: 50px;
+}
+
+.score-box {
+  width: 90px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  margin-top: -10px;
+}
+
+.card-title {
+  font-size: 1em;
+  font-weight: 600;
+}
+
+.btn-box {
+  margin-bottom: -15px;
 }
 
 // 반응형

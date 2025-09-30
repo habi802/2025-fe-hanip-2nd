@@ -17,12 +17,19 @@ function triggerFileInput() {
   fileInput.value?.click();
 }
 
-// 프로필 이미지
 const imgSrc = computed(() => {
-  return state.form.id && state.form.imagePath && state.form.imagePath !== 'null'
-    ? `${baseUrl.value}/images/null/${state.form.id}/${state.form.imagePath}`
-    : previewUrl;
-})
+  // 파일을 선택했으면 미리보기 적용
+  if (selectedFile.value) return previewUrl.value;
+
+  // 서버 이미지 존재 시
+  if (state.form.id && state.form.imagePath && state.form.imagePath !== "null") {
+    return `${baseUrl.value}/images/user/${state.form.id}/${state.form.imagePath}`;
+  }
+
+  // 기본 이미지
+  return defaultUserProfile;
+});
+
 
 // const previewImage = ref(defaultImage);
 const baseUrl = ref(import.meta.env.VITE_BASE_URL);
@@ -236,6 +243,7 @@ onMounted(async () => {
 });
 
 //  정보 수정 성공 여부
+
 // const submitForm = async (e) => {
 //   e.preventDefault();
 //   if (!validateForm()) return;
@@ -256,7 +264,7 @@ onMounted(async () => {
 //       name: state.form.name,
 //       loginPw: state.form.loginPw,
 //       newLoginPw: confirmPw.value,
-//       phone: `${phone1.value}-${phone2.value}-${phone3.value}`, // ✅ 하이픈 포함
+//       phone: `${phone1.value}-${phone2.value}-${phone3.value}`, // 하이픈 포함
 //       email: state.form.email,
 //     };
 
@@ -285,25 +293,34 @@ onMounted(async () => {
 // };
 const submitForm = async (e) => {
   e.preventDefault();
-  if (!validateForm()) return;
 
-  if (confirmPw.value !== confirmPwCheck.value) {
-    errors.confirmPw = "새 비밀번호가 일치하지 않습니다.";
+  // 현재 비밀번호 확인 필수
+  if (!state.form.loginPw) {
+    errors.loginPw = "현재 비밀번호를 입력해주세요.";
     return;
   }
 
-  if (checkResult.value !== "비밀번호가 확인되었습니다.") {
-    showModal("현재 비밀번호를 먼저 확인해주세요.");
-    return;
+  // 새 비밀번호를 바꾸려는 경우만 validate
+  const isPwChanging = confirmPw.value || confirmPwCheck.value;
+  if (isPwChanging) {
+    if (confirmPw.value !== confirmPwCheck.value) {
+      errors.confirmPw = "새 비밀번호가 일치하지 않습니다.";
+      return;
+    }
+    // 비밀번호 확인 버튼 누르지 않았으면
+    if (checkResult.value !== "비밀번호가 확인되었습니다.") {
+      showModal("현재 비밀번호를 먼저 확인해주세요.");
+      return;
+    }
   }
 
   try {
     const formData = new FormData();
     const userPutReq = {
       name: state.form.name,
-      loginPw: state.form.loginPw,
-      newLoginPw: confirmPw.value,
-      phone: `${phone1.value}-${phone2.value}-${phone3.value}`, // 하이픈 포함
+      loginPw: state.form.loginPw, // 항상 필요
+      newLoginPw: isPwChanging ? confirmPw.value : null, // 변경 시만 포함
+      phone: `${phone1.value}-${phone2.value}-${phone3.value}`,
       email: state.form.email,
     };
 
@@ -312,9 +329,8 @@ const submitForm = async (e) => {
       new Blob([JSON.stringify(userPutReq)], { type: "application/json" })
     );
 
-    // 이미지 파일이 선택된 경우만 업로드
     if (selectedFile.value) {
-      formData.append("pic", selectedFile.value);
+      formData.append("pic", selectedFile.value); // 이미지만 변경 가능
     }
 
     const res = await updateUser(formData);

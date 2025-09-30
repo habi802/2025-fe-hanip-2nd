@@ -83,14 +83,13 @@ const removeOrder = async order => {
 };
 
 // 더보기 처리
-const allBoxHeight = ref(1570);
-const length = ref(state.orders.length);
-const heightY = () => {
-    allBoxHeight.value += 890;
-};
+// const allBoxHeight = ref(1570);
+// const length = ref(state.orders.length);
+// const heightY = () => {
+//   allBoxHeight.value += 890;
+// };
 
 const visibleCount = ref(3);
-// 더보기 처리
 const showMore = () => {
     visibleCount.value += 2;
 };

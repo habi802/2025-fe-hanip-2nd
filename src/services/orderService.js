@@ -23,6 +23,16 @@ export const getOwnerDeliveredOrder = (id) => {
   return axios.get(`/order/status/delivered/${id}`).catch((e) => e.response);
 }
 
+// COMPLETED 조회
+export const getOwnerCompletedOrder = (id) => {
+  return axios.get(`/order/status/completed/${id}`).catch((e) => e.response);
+}
+
+// CANCELED 조회
+export const getOwnerCanceledOrder = (id) => {
+  return axios.get(`/order/status/canceled/${id}`).catch((e) => e.response);
+}
+
 // 주문 상태 변경 : 음식준비중
 export const patchPreparingOrder = (orderId) => {
   return axios.patch(`/order/status/preparing/${orderId}`).catch((e) => e.response);

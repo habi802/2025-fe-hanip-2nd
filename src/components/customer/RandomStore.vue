@@ -12,12 +12,22 @@ const props = defineProps({
     review: [],
 });
 
+
+// 가게 이미지
+// const imgSrc = computed(() => {
+//   return state.store.id && state.store.imagePath && state.store.imagePath !== 'null'
+//     ? `${baseUrl.value}/images/store/${state.store.id}/${state.store.imagePath}`
+//     : defaultImage;
+// })
+
+const baseUrl = ref(import.meta.env.VITE_BASE_URL);
+
 // 가게 이미지
 const imgSrc = computed(() => {
     return props.store &&
         props.store.imagePath &&
         props.store.imagePath !== "null"
-        ? `/pic/store-profile/${props.store.storeId}/${props.store.imagePath}`
+        ? `${baseUrl.value}/images/store/${props.store.id}/${props.store.imagePath}`
         : defaultImage;
 });
 
@@ -60,30 +70,29 @@ const reviews = async () => {
             </div>
             <!-- <img src="" class="card-img-top" alt="음식 이미지"> -->
             <div class="card-body">
-                <h6 class="card-title">{{ props.store.name }}</h6>
-                <div v-if="props.store.rating !== 'NaN'">
-                    <img class="star" src="/src/imgs/star.png" />&nbsp;
-                    <span class="small">
-                        {{ props.store.rating }} ({{ leng }})&nbsp;&nbsp;
-                        <img class="love" src="/src/imgs/love.png" />
-                        &nbsp;{{ props.store.favorites }}
-                    </span>
+                <div class="card-top">
+                    <div class="card-title">{{ props.store.name }}</div>
+                    <div>
+                        <img class="star" src="/src/imgs/star.png" />&nbsp;
+                        <span class="small">
+                            {{ props.store.rating }} ({{ leng }})&nbsp;&nbsp;
+                            <img class="love" src="/src/imgs/love.png" />
+                            &nbsp;{{ props.store.favorites }}
+                        </span>
+                    </div>
                 </div>
-                <div v-else>
-                    <img class="star" src="/src/imgs/star.png" />
-                    <span class="small">
-                        0 ({{ leng }})&nbsp;
-                        <img class="love" src="/src/imgs/love.png" />&nbsp;&nbsp;
-                        {{ props.store.favorites }}
-                    </span>
+                <div class="cart-bottom">
+                    <div>
+                        <div class="card-text">배달비 0원 ~ 3000원</div>
+                        <div class="card-text">최소 주문 금액 10,000원</div>
+                    </div>
+                    <div class="d-flex justify-content-center align-items-center">
+                        <button @click="sotreRouter" class="btn btn-outline-danger btn-sm">
+                            자세히보기
+                        </button>
+                    </div>
                 </div>
-                <p class="mb-1 text-muted">배달비 0원 ~ 3000원</p>
-                <p class="mb-2 text-muted">최소 주문 금액 10,000원</p>
-                <div class="d-flex justify-content-center align-items-center">
-                    <button @click="sotreRouter" class="btn btn-outline-danger btn-sm">
-                        자세히보기
-                    </button>
-                </div>
+
             </div>
         </div>
     </div>
@@ -99,11 +108,17 @@ const reviews = async () => {
 }
 
 .sImg {
-    width: 310px;
+    height: 100%;
+    border-radius: 15px;
 }
 
 #imgBigBox {
-    border-radius: 15px !important;
+    border-radius: 15px;
+    overflow: hidden;
+}
+
+.imgBox {
+    width: 100%;
 }
 
 .btn {
@@ -119,5 +134,25 @@ const reviews = async () => {
 
 .love {
     width: 20px;
+}
+
+.card-top {
+    display: flex;
+    justify-content: space-between;
+}
+
+.cart-bottom {
+    display: flex;
+    justify-content: space-between;
+}
+
+.card-text {
+    color: #797979;
+    font-weight: 400;
+    font-size: 0.8em;
+}
+
+.btn {
+    width: 100px;
 }
 </style>

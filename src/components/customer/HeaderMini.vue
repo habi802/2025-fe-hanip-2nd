@@ -29,7 +29,7 @@ const showModal = message => {
 // 로그아웃
 const signOut = async () => {
     const res = await logout();
-    
+
     if (res !== undefined && res.status === 200) {
         account.setLoggedIn(false);
         router.push({ path: "/" });
@@ -62,19 +62,23 @@ watch(
             <b-collapse class="hamburger-menu position-absolute bg-white" :visible="isMenuOpen">
                 <!-- 비로그인 시 메뉴 -->
                 <template v-if="!account.state.loggedIn">
-                    <button class="menu-button btn p-2 text-end" @click="showModal('로그인 후 이용 가능합니다.')">장바구니</button>
+                    <button class="menu-button cart btn p-2 text-end"
+                        @click="showModal('로그인 후 이용 가능합니다.')">장바구니</button>
                     <button class="menu-button btn p-2 text-end" @click="router.push({ path: '/login' })">로그인</button>
                     <button class="menu-button btn p-2 text-end" @click="router.push({ path: '/join' })">회원가입</button>
                 </template>
-                
+
                 <!-- 로그인 시 메뉴 -->
                 <template v-else>
-                    <button class="menu-button btn p-2 text-end" @click="router.push({ path: '/favorites' })">찜목록</button>
+                    <button class="menu-button btn p-2 text-end"
+                        @click="router.push({ path: '/favorites' })">찜목록</button>
                     <button class="menu-button btn p-2 text-end" @click="router.push({ path: '/orders' })">주문내역</button>
-                    <button class="menu-button btn p-2 text-end" @click="router.push({ path: '/cart' })">장바구니</button>
+                    <button class="menu-button  cart btn p-2 text-end"
+                        @click="router.push({ path: '/cart' })">장바구니</button>
                     <button class="menu-button btn p-2 text-end" @click="signOut">로그아웃</button>
-                    <button class="menu-button btn p-2 text-end" @click="router.push({ path: '/my-page' })">마이페이지</button>
-                </template> 
+                    <button class="menu-button btn p-2 text-end"
+                        @click="router.push({ path: '/my-page' })">마이페이지</button>
+                </template>
             </b-collapse>
         </div>
     </b-container>
@@ -104,6 +108,12 @@ watch(
     top: 100%;
     right: 0;
     min-width: 150px;
+}
+
+.cart {
+    pointer-events: none;
+    opacity: 0.5;
+    cursor: not-allowed;
 }
 
 .menu-button {
