@@ -241,7 +241,6 @@ const removeImage = (index) => {
                             ★
                         </div>
                     </div>
-                    <!-- <div class="text-num"> {{ review.rating }} 점</div> -->
                 </div>
 
                 <div class="box-body-img-box">
@@ -291,7 +290,7 @@ const removeImage = (index) => {
                         <button type="button" class="hn-btn-gray" data-bs-dismiss="modal">돌아가기</button>
                         <button type="button" class="hn-btn-gray"
                             :class="{ noneClick: sandReview.comment.trim() === '' }" data-bs-dismiss="modal"
-                            @click="sendFormData">리뷰등록</button>
+                            @click="sendFormData">{{ review.getReview > 0 ? "리뷰수정" : "리뷰등록" }}</button>
                     </div>
                 </div>
 
