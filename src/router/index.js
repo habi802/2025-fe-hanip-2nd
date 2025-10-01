@@ -102,12 +102,6 @@ const router = createRouter({
       meta: { layout: CustomerLayout },
     },
     {
-      path: "/review/:id",
-      name: "review",
-      component: () => import("@/views/customer/Review.vue"),
-      meta: { layout: CustomerLayout },
-    },
-    {
       path: "/order-test",
       name: "order-test",
       component: () => import("@/components/customer/OrderTest.vue"),

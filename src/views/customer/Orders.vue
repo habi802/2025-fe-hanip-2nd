@@ -3,7 +3,8 @@ import { reactive, ref, onMounted, computed } from 'vue';
 import { useRouter } from 'vue-router';
 import { getOrder, deleteOrderInCustomer } from '@/services/orderService';
 import { addItem, getItem, removeCart } from '@/services/cartService';
-import OrderAndReview from '@/components/myPage/OrderAndReview.vue';
+import OrderAndReview from '@/components/customer/OrderCard.vue';
+import ReviewModal from '@/components/customer/order/ReviewModal.vue';
 import ConfirmModal from '@/components/modal/ConfirmModal.vue';
 
 const router = useRouter();
@@ -16,6 +17,7 @@ onMounted(async () => {
     const res = await getOrder({ page: 1, rowPerPage: 10 });
     if (res !== undefined && res.status === 200) {
         state.orders = res.data.resultData;
+        console.log(state.orders);
     }
 });
 
@@ -66,6 +68,13 @@ const reOrder = async menus => {
     }
 };
 
+// 리뷰 등록 및 수정 모달 창 열기
+const reviewModalRef = ref(null);
+
+const editReview = id => {
+    reviewModalRef.value.openReview(id);
+};
+
 // 주문 삭제
 const removeOrder = async order => {
     console.log(order);
@@ -112,7 +121,7 @@ const arrow = () => {
         <div class="order-header">
             <div>
                 <h2>주문 내역</h2>
-                <div class="order-notice">주문 변경 시 고객 센터로 문의 바랍니다.</div>
+                <div class="order-notice">주문 변경 시 해당 가게나 고객 센터로 문의 바랍니다.</div>
                 <div class="solid"></div>
             </div>
         </div>
@@ -140,7 +149,8 @@ const arrow = () => {
                 <label for="custom">기간 선택</label>
             </div>
 
-            <order-and-review v-for="order in state.orders" :key="order.orderId" :order="order" @delete-order="removeOrder" @re-order="reOrder" />
+            <order-and-review v-for="order in state.orders" :key="order.orderId" :order="order"
+                @delete-order="removeOrder" @edit-order="editReview" @re-order="reOrder" />
 
             <div v-if="state.orders.length > 0">
                 <div id="btnB" v-if="visibleCount < state.orders.length" class="btn" @click="showMore">더보기</div>
@@ -148,9 +158,11 @@ const arrow = () => {
         </div>
     </div>
 
+    <ReviewModal ref="ReviewModalRef" />
+
     <ConfirmModal ref="confirmModalRef" />
 
-    <img @click="arrow" class="arrow" src="/src/imgs/arrow.png" />`
+    <img @click="arrow" class="arrow" src="/src/imgs/arrow.png" />
 </template>
 
 <style lang="scss" scoped>
