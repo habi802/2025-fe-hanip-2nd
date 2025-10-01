@@ -87,13 +87,14 @@ const getOrderList = async () => {
 
     if (res !== undefined && res.status === 200) {
         state.orders.push(...res.data.resultData);
-        console.log(res.data.resultData);
 
         if (res.data.resultData.length < state.rowPerPage) {
             state.isFinish = true;
         } else {
             state.page = state.page + state.rowPerPage;
         }
+
+        defaultForm = state.form;
     }
 
     state.isLoading = false;
