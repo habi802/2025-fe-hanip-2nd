@@ -9,6 +9,7 @@ import { addItem, getItem, removeCart } from '@/services/cartService';
 import FlatPickr from "vue-flatpickr-component";
 import OrderCard from '@/components/customer/OrderCard.vue';
 import ConfirmModal from '@/components/modal/ConfirmModal.vue';
+import ReviewModal from '@/components/modal/ReviewModal.vue';
 
 const router = useRouter();
 
@@ -165,7 +166,7 @@ const reOrder = async menus => {
                 // 선택한 주문 내역의 메뉴가 장바구니에 다 담긴 후에 장바구니로 이동
                 const promises = menus.map(menu => {
                     const optionId = [];
-                    
+
                     menu.options.forEach(option => {
                         optionId.push(option.optionId);
                         optionId.push(option.children[0].optionId);
@@ -211,6 +212,42 @@ const arrow = () => {
         behavior: 'smooth',
     });
 };
+
+
+//리뷰용
+const reviewModal = ref(null);
+
+const openModal = (orderId, storeName, menuItems, getReview) => {
+
+
+    states.orderOne.orderId = orderId;
+    states.orderOne.storeName = storeName;
+    states.orderOne.menuItems = menuItems
+    states.orderOne.getReview = getReview;
+
+    reviewModal.value.setMenuData(states.orderOne)
+    const modalElement = reviewModal.value.$el;
+    const modal = new bootstrap.Modal(modalElement);
+    modal.show();
+
+    setTimeout(() => {
+        if (reviewModal.value.swiperInstance) {
+            reviewModal.value.swiperInstance.update(); // 기존 Swiper 업데이트
+        }
+    }, 50);
+};
+
+const states = reactive({
+    orders: [],
+    orderOne: {
+        orderId: 0,
+        storeName: "",
+        getReview: 0,
+        menuItems: []
+    }
+});
+
+
 </script>
 
 <template>
@@ -227,9 +264,11 @@ const arrow = () => {
             <div class="search-wrapper">
                 <div class="search-bar">
                     <img class="search-icon" src="/src/imgs/fluent_search.png" alt="검색" />
-                    <input type="text" v-model="state.form.searchText" class="search-input" placeholder="검색: 주문한 메뉴나 가게명으로 찾아볼 수 있어요" />
+                    <input type="text" v-model="state.form.searchText" class="search-input"
+                        placeholder="검색: 주문한 메뉴나 가게명으로 찾아볼 수 있어요" />
                 </div>
-                <button class="btn-search" @click="state.orders = []; state.page = 1; state.isFinish = false; getOrderList();">검색</button>
+                <button class="btn-search"
+                    @click="state.orders = []; state.page = 1; state.isFinish = false; getOrderList();">검색</button>
             </div>
 
             <div class="sort-options">
@@ -253,8 +292,8 @@ const arrow = () => {
             </div>
 
             <template v-if="state.orders.length > 0">
-                <OrderCard v-for="order in state.orders" :key="order.orderId" :order="order"
-                    @delete-order="removeOrder" @re-order="reOrder" />
+                <OrderCard v-for="order in state.orders" :key="order.orderId" :order="order" @delete-order="removeOrder"
+                    @re-order="reOrder" @review="openModal" />
             </template>
             <template v-else>
                 <div class="no-data">주문 내역이 없습니다.</div>
@@ -263,6 +302,7 @@ const arrow = () => {
     </div>
 
     <ConfirmModal ref="confirmModalRef" />
+    <ReviewModal ref="reviewModal"></ReviewModal>
 
     <img @click="arrow" class="arrow" src="/src/imgs/arrow.png" />
 </template>
@@ -395,9 +435,9 @@ const arrow = () => {
     display: none;
 }
 
-.sort-options input[type="radio"]:checked + label {
-color: #FF4C4C;
-font-weight: bold;
+.sort-options input[type="radio"]:checked+label {
+    color: #FF4C4C;
+    font-weight: bold;
 }
 
 .sort-options .divider {
