@@ -54,6 +54,9 @@ const storeImage = computed(() => {
         ? `${baseUrl}/images/store/${props.order.storeId}/${props.order.storePic}`
         : defaultImage;
 });
+
+
+
 </script>
 
 <template>
@@ -106,7 +109,7 @@ const storeImage = computed(() => {
             <div class="btns">
                 <button type="button" class="btn" @click="$emit('re-order', props.order.menuItems)">재주문하기</button>
                 <button type="button" :class="['btn', { 'btn-disabled': props.order.status !== '05' }]"
-                    @click="$emit('review', props.order.orderId, props.order.storeName, props.order.menuItems)"
+                    @click="$emit('review', props.order.orderId, props.order.storeName, props.order.menuItems, props.order.getReview)"
                     :disabled="props.order.status !== '05'">리뷰 등록</button>
                 <button type="button" class="btn" @click="router.push(`/orders/${props.order.orderId}`);">주문 상세</button>
                 <button type="button"

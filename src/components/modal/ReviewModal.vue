@@ -353,7 +353,7 @@ const removeImage = (index) => {
 .store-name {
 
     font-size: 1.5em;
-    font-weight: 600;
+    font-weight: 400;
 
 }
 
