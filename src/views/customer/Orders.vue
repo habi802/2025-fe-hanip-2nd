@@ -25,15 +25,15 @@ let defaultForm = {
     dateType: 'WEEK',
     startDate: lastWeek.toISOString().slice(0, 10),
     endDate: today.toISOString().slice(0, 10),
-    page: 1,
-    rowPerPage: 10,
 }
 
 const state = reactive({
     orders: [],
     form: { ...defaultForm },
+    page: 1,
+    rowPerPage: 10,
     isFinish: false,
-    isLoading: false
+    isLoading: false,
 });
 
 // 날짜 입력칸 설정
@@ -70,31 +70,30 @@ const getOrderList = async () => {
         key => state.form[key] !== defaultForm[key]
     );
     if (isDifferent) {
-        state.orders.splice(0, state.orders.length);
+        state.orders = [];
+        state.page = 1;
+        state.isFinish = false;
     }
 
     state.isLoading = true;
 
     const res = await getOrder({
         searchText: state.form.searchText,
-        page: state.form.page,
-        rowPerPage: state.form.rowPerPage,
         startDate: state.form.startDate,
-        endDate: state.form.endDate
+        endDate: state.form.endDate,
+        page: state.page,
+        rowPerPage: state.rowPerPage
     });
 
     if (res !== undefined && res.status === 200) {
         state.orders.push(...res.data.resultData);
         console.log(res.data.resultData);
 
-        if (res.data.resultData.length < state.form.rowPerPage) {
+        if (res.data.resultData.length < state.rowPerPage) {
             state.isFinish = true;
         } else {
-            state.form.page = state.form.page + state.form.rowPerPage;
+            state.page = state.page + state.rowPerPage;
         }
-
-        // 조회 후 입력한 검색 Form을 기본 검색 Form으로 저장
-        defaultForm = state.form;
     }
 
     state.isLoading = false;
@@ -144,9 +143,11 @@ watch(() => state.form.dateType, dateType => {
     }
 });
 
-// 날짜 변경 시 주문 조회 함수 실행
-watch(() => [state.startDate, state.endDate], () => {
+// 날짜 변경 시 주문 목록과 페이지를 처음 상태로 되돌리고 주문 조회 함수 실행
+watch(() => [state.form.startDate, state.form.endDate], () => {
+    state.orders = [];
     state.page = 1;
+    state.isFinish = false;
     getOrderList();
 });
 
@@ -236,7 +237,7 @@ const arrow = () => {
             <div class="search-wrapper">
                 <div class="search-bar">
                     <img class="search-icon" src="/src/imgs/fluent_search.png" alt="검색" />
-                    <input type="text" v-model="state.searchText" class="search-input" placeholder="검색: 주문한 메뉴나 가게명으로 찾아볼 수 있어요" />
+                    <input type="text" v-model="state.form.searchText" class="search-input" placeholder="검색: 주문한 메뉴나 가게명으로 찾아볼 수 있어요" />
                 </div>
                 <button class="btn-search" @click="state.page = 1; getOrderList();">검색</button>
             </div>
