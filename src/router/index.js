@@ -104,7 +104,7 @@ const router = createRouter({
     {
       path: "/order-test",
       name: "order-test",
-      component: () => import("@/components/customer/order/OrderTest.vue"),
+      component: () => import("@/components/customer/OrderTest.vue"),
       meta: { layout: CustomerLayout },
     },
     // 사장 페이지

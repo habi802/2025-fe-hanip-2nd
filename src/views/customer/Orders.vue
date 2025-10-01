@@ -3,7 +3,7 @@ import { reactive, ref, onMounted, computed } from 'vue';
 import { useRouter } from 'vue-router';
 import { getOrder, deleteOrderInCustomer } from '@/services/orderService';
 import { addItem, getItem, removeCart } from '@/services/cartService';
-import OrderAndReview from '@/components/customer/order/OrderCard.vue';
+import OrderAndReview from '@/components/customer/OrderCard.vue';
 import ReviewModal from '@/components/customer/order/ReviewModal.vue';
 import ConfirmModal from '@/components/modal/ConfirmModal.vue';
 
