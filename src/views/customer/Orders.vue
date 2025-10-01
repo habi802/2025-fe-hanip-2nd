@@ -64,17 +64,6 @@ const endDateConfig = {
 
 // 주문 조회
 const getOrderList = async () => {
-    // 기본 검색 Form과 입력한 검색 Form의 속성값이 다르면 새로 검색했다는 의미이므로
-    // 주문 내역 목록을 비움
-    const isDifferent = Object.keys(state.form).some(
-        key => state.form[key] !== defaultForm[key]
-    );
-    if (isDifferent) {
-        state.orders = [];
-        state.page = 1;
-        state.isFinish = false;
-    }
-
     state.isLoading = true;
 
     const res = await getOrder({
@@ -240,7 +229,7 @@ const arrow = () => {
                     <img class="search-icon" src="/src/imgs/fluent_search.png" alt="검색" />
                     <input type="text" v-model="state.form.searchText" class="search-input" placeholder="검색: 주문한 메뉴나 가게명으로 찾아볼 수 있어요" />
                 </div>
-                <button class="btn-search" @click="state.page = 1; getOrderList();">검색</button>
+                <button class="btn-search" @click="state.orders = []; state.page = 1; state.isFinish = false; getOrderList();">검색</button>
             </div>
 
             <div class="sort-options">
