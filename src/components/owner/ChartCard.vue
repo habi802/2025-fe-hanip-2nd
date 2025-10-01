@@ -6,39 +6,52 @@ const props = defineProps({
     title: String,
     labelY: null,
     type: String,
-    chartData: Array
+    chartData: Object
 });
 
-// Chart.js 3.x 이상에서는 사용할 차트 요소를 등록해야 함
-// Chart.register(BarController, BarElement, CategoryScale, LinearScale, Legend);
+console.log(props.chartData)
+
+watch(() => props.chartData, (newData) => {
+    if(chartInstance){
+        chartInstance.data.labels = newData.label;
+        chartInstance.data.datasets[0].data = newData.data;
+        chartInstance.update();
+    }
+}, { deep: true });
+
+
 const chartCanvas = ref(null);
 
 let chartInstance = null;
-onMounted(() => {
+const currentChartData = () =>{
+
     chartInstance = new Chart(chartCanvas.value, {
         type: props.type,
         data: {
-            labels: props.chartData?.label || "x축 제목", //x축제목,
-            datasets: [{
-                label: props?.labelY || "Y축 제목", //y축 값 종류(범례)
-                data: props.chartData?.data || [1],
-                backgroundColor: '#ffcc66'
-            }]
+        labels: props.chartData?.label || ["x축 제목"], //x축제목,
+        datasets: [{
+            label: props?.labelY || "Y축 제목", //y축 값 종류(범례)
+            data: props.chartData?.data || [0],
+            backgroundColor: '#ffcc66'
+        }]
+    },
+    options: {
+        responsive: true,
+        scales: {
+            y: {
+                beginAtZero: true
+            }
         },
-        options: {
-            responsive: true,
-            scales: {
-                y: {
-                    beginAtZero: true
-                }
-            },
-            plugins: {
-                legend: {
-                    display: false
-                }
+        plugins: {
+            legend: {
+                display: false
             }
         }
-    });
+    }
+});
+}
+onMounted(() => {
+    currentChartData();
 });
 </script>
 

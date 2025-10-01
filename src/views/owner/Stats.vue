@@ -9,11 +9,17 @@ import relativeTime from "dayjs/plugin/relativeTime";
 import "dayjs/locale/ko";
 import { getStatus } from '@/services/orderService';
 import StatsDateFilter from '@/components/owner/StatsDateFilter.vue';
+import isSameOrAfter from 'dayjs/plugin/isSameOrAfter';
+import isSameOrBefore from 'dayjs/plugin/isSameOrBefore';
+
 
 //날짜기능호출
 dayjs.extend(relativeTime);
+dayjs.extend(isSameOrAfter);
+dayjs.extend(isSameOrBefore);
 dayjs.locale("ko");
 const now = dayjs();
+
 //storeid 호출
 const ownerStore = useOwnerStore();
 
@@ -53,8 +59,8 @@ const fetchStatus = async (start , end) => {
 
 
 // 차트데이터 정의
-const chartLabels = ref([]);
-const chartData =  ref([]);
+//const chartLabels = ref([]);
+//const chartData =  ref([]);
 const chartForm = reactive({
     title: "주문추이",
     label: [],
@@ -82,45 +88,76 @@ const handleDateUpdate = ({ selectedChartOption, startDate, endDate }) => {
   
   // 선택된 날짜 기준으로 서버 호출
   fetchStatus(startDate, endDate).then(()=>{
+
+    // 공통 필터: startDate ~ endDate 범위 내 데이터만
+    const filteredData = data.value.filter(order => {
+    const orderDate = dayjs(order.createdAt);
+    return orderDate.isSameOrAfter(dayjs(startDate)) && orderDate.isSameOrBefore(dayjs(endDate));
+    });
+
     switch(selectedChartOption){
     case "일간":
-    chartLabels.value = Array.from({ length: 24 }, (_, i) => dayjs().hour(i).format("H시"));
-    console.log(chartLabels.value)
+    chartForm.label = Array.from({ length: 24 }, (_, i) => dayjs().hour(i).format("H시"));
 
     const hourlyAmounts = Array.from({ length: 24 }, () => 0);
     data.value.forEach( order => {
     const hour = dayjs(order.createdAt).hour(); // createdAt에서 시간 추출 (0~23)
     hourlyAmounts[hour] += order.amount;         // 해당 시간대 amount 합산
     });
-    chartData.value = hourlyAmounts;
-    console.log(chartData.value);
-
-    chartForm.value.label = chartLabels.value.slice();
-    chartForm.value.data  = chartData.value.slice();
-    
+    chartForm.data = hourlyAmounts;
 
     break;
   
     case "주간":
-    chartLabels.value = ["월", "화", "수", "목", "금", "토", "일"];
-    console.log(chartLabels.value)
+    chartForm.label = ["일","월", "화", "수", "목", "금", "토"];
+    const weekAmounts = Array(7).fill(0);
+    // 각 주문 amount를 요일 인덱스에 더하기
+    data.value.forEach(order => {
+      const weekday = dayjs(order.createdAt).day(); // 0: 일, 1: 월, ..., 6: 토
+      weekAmounts[weekday] += order.amount;
+    });
+    chartForm.data = weekAmounts;
+    console.log(weekAmounts);
+
 
     break;
   
     case "월간":
-    const startOfMonth = now.startOf("month"); // 이번 달 1일
-    const endOfMonth = now.endOf("month");     // 이번 달 마지막 날
-    const startWeekDay = startOfMonth.day(); // 이번 달 1일 요일 (0:일, 1:월, ..., 6:토)
-    const lastDate = endOfMonth.date(); // 이번 달 마지막 날짜
-    const totalWeeks = Math.ceil((lastDate + startWeekDay) / 7); // 최대 몇 주까지 있는지 계산 (첫 주가 partial일 경우 + 마지막 날짜 포함)
-    chartLabels.value = Array.from({ length: totalWeeks }, (_, i) => `${i + 1}주`);
-    console.log(chartLabels.value)
+    // 이번 달 1일, 마지막 날
+    const now = dayjs();
+    const startOfMonth = now.startOf("month"); // 1일
+    const endOfMonth = now.endOf("month");     // 마지막 날
+    const startWeekDay = startOfMonth.day();   // 1일 요일 (0:일 ~ 6:토)
+    const lastDate = endOfMonth.date();        // 마지막 날짜
+    const totalWeeks = Math.ceil((lastDate + startWeekDay) / 7); // 최대 주 수
+
+    // 주간 amount 배열 초기화
+    const monthAmounts = Array(totalWeeks).fill(0);
+
+    filteredData.forEach(order => {
+      const dayOfMonth = dayjs(order.createdAt).date();
+      const weekIndex = Math.floor((dayOfMonth + startWeekDay - 1) / 7);
+      monthAmounts[weekIndex] += order.amount;
+    });
+
+    chartForm.label = Array.from({ length: totalWeeks }, (_, i) => `${i + 1}주`);
+
+    // // ref/ reactive 쓰고 있다면 data.value.forEach로 변경
+    // data.value.forEach(order => {
+    //   const dayOfMonth = dayjs(order.createdAt).date(); // 날짜(1~31)
+    //   // 몇 번째 주인지 계산 (0~totalWeeks-1)
+    //   const weekIndex = Math.floor((dayOfMonth + startWeekDay - 1) / 7);
+    //   monthAmounts[weekIndex] += order.amount;
+    // });
+
+    console.log(monthAmounts);
+    chartForm.data = monthAmounts;
+
     break;
   
     case "연간":
-    chartLabels.value = Array.from({ length: 12 }, (_, i) => dayjs().month(i).format("M월"));
-    console.log(chartLabels.value)
-
+    chartForm.label = Array.from({ length: 12 }, (_, i) => dayjs().month(i).format("M월"));
+    
     break;
     
   }
@@ -160,12 +197,6 @@ const totalCardData = [
 { title: '취소된 주문',  count: canceledOrdersCount || "0", toLocalString: '건' },
 { title: '총 매출',     count: totalPrice || "0" , toLocalString: '만' },
 ]
-
-
-
-
-
-
 
 
 
