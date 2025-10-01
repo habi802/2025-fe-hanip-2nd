@@ -1,6 +1,6 @@
 <script setup>
 import { naverGetCid, naverPayApply, naverPayReserve } from '@/services/payment';
-import ReviewModal from '../modal/ReviewModal.vue';
+import ReviewModal from '@/components/modal/ReviewModal.vue';
 import { ref, onMounted, reactive } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import OrderAndReview from './OrderCard.vue';
