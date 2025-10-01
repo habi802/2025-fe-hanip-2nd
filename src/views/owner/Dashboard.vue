@@ -1,12 +1,8 @@
 <script setup>
 import OrderCard from "@/components/owner/OrderCard.vue";
-import OrderDelivery from "@/components/owner/OrderDelivery.vue";
-import LoadingModal from '@/components/modal/LoadingModal.vue';
-import OrderPrepare from "@/components/owner/OrderPrepare.vue";
 import { useOwnerStore } from "@/stores/account";
 import { useOrderStore } from "@/stores/orderStore";
 import {
-  inject,
   computed,
   onMounted,
   onUnmounted,
@@ -24,46 +20,6 @@ import {
 const ownerStore = useOwnerStore();
 const orderStore = useOrderStore();
 
-// 로딩 모달
-const loadingRef = ref(null);
-
-// SSE
-let eventSource = null;
-
-function connectSSE(storeId) {
-  eventSource = new EventSource(
-    `http://localhost:8080/api/sse/order/${storeId}`
-  );
-
-  eventSource.addEventListener("connect", (e) => {
-    console.log("연결 성공:", e.data);
-  });
-
-  eventSource.addEventListener("order", async (e) => {
-    console.log("새로운 주문:", e.data);
-
-    const data = JSON.parse(e.data);
-    const storeId = ownerStore.state.storeData.id;
-    await Promise.all([
-      orderStore.fetchPaidOrders(storeId),
-      orderStore.fetchPreparingOrders(storeId),
-      orderStore.fetchDeliveredOrders(storeId),
-      orderStore.fetchCompletedOrders(storeId),
-      orderStore.fetchCanceledOrders(storeId),
-    ]);
-    console.log("e.data: ", data.orderId)
-    markUpdated(data.orderId);
-  });
-
-  eventSource.onerror = (err) => {
-    console.error("SSE 에러 발생:", err);
-    // 연결이 끊겼을 수 있으니 재연결 시도
-    setTimeout(() => {
-      console.log("SSE 재연결 시도...");
-      connectSSE(storeId);
-    }, 3000);
-  };
-}
 
 // sse status 애니메이션
 const updatedOrders = ref([]);
@@ -75,11 +31,6 @@ const markUpdated = (orderId) => {
   }, 1000);
 }
 
-
-// mounted 시 실행
-onMounted(() => {
-  connectSSE(ownerStore.state.storeData?.id);
-});
 
 // 가게 ID 변경 감시
 watch(
@@ -104,8 +55,6 @@ const hasOrders = computed(
     orderStore.deliveredOrders.length > 0
 );
 
-// 주문 차트
-const today = new Date();
 
 const isSameDayKST = (date1, date2) => {
   const d1 = new Date(date1.getTime() + 9 * 60 * 60 * 1000); // UTC → KST
@@ -197,28 +146,16 @@ const toggleStoreStatus = async () => {
 const handleAccept = async (orderId) => {
   console.log("주문 수락:", orderId);
   await patchPreparingOrder(orderId);
-  //const storeId = ownerStore.state.storeData.id;
-  //await Promise.all([
-  //  orderStore.fetchPaidOrders(storeId),
-  //  orderStore.fetchPreparingOrders(storeId),
-  //]);
 };
 
 const handleCancel = async (orderId) => {
   console.log("주문 취소:", orderId);
   await patchCanceledOrder(orderId);
-  //const storeId = ownerStore.state.storeData.id;
-  //await Promise.all([orderStore.fetchPaidOrders(storeId)]);
 };
 
 const handleAssign = async (orderId) => {
   console.log("배차하기:", orderId);
   await patchDeliveredOrder(orderId);
-  //const storeId = ownerStore.state.storeData.id;
-  //await Promise.all([
-  //  orderStore.fetchPreparingOrders(storeId),
-  //  orderStore.fetchDeliveredOrders(storeId),
-  //]);
 };
 
 // 선택된 주문 저장
@@ -283,26 +220,29 @@ const closeOrder = () => {
       <OrderCard
         title="주문대기"
         :orders="orderStore.paidOrders"
-        :updatedOrders="updatedOrders"
+        :updatedOrders="orderStore.updatedOrders"
         @accept="handleAccept"
         @cancel="handleCancel"
         @assign="handleAssign"
+        tableHeight="1000px"
       />
       <OrderCard
         title="조리대기"
         :orders="orderStore.preparingOrders"
-        :updatedOrders="updatedOrders"
+        :updatedOrders="orderStore.updatedOrders"
         @accept="handleAccept"
         @cancel="handleCancel"
         @assign="handleAssign"
+        tableHeight="1000px"
       />
       <OrderCard
         title="배달현황"
         :orders="orderStore.deliveredOrders"
-        :updatedOrders="updatedOrders"
+        :updatedOrders="orderStore.updatedOrders"
         @accept="handleAccept"
         @cancel="handleCancel"
         @assign="handleAssign"
+        tableHeight="1000px"
       />
     </div>
     <div v-else>주문정보 로딩 중...</div>
