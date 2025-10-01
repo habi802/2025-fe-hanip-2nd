@@ -44,61 +44,15 @@ const statusText = computed(() => {
     }
 });
 
-onMounted(() => {
+const emit = defineEmits(['review', 'delete-order', 're-order']);
 
-});
+const baseUrl = import.meta.env.VITE_BASE_URL;
 
 // 가게 이미지
-const img = `/pic/store-profile/${props.order?.storeId}/${props.order?.imagePath}`;
-
-// 가게 이미지가 없을 시 대체 이미지 나타내기
-const imgSrc = computed(() => {
-    return props.order &&
-        props.order?.imagePath &&
-        props.order?.imagePath !== "null"
-        ? `/pic/store-profile/${props.order?.storeId}/${props.order?.imagePath}`
+const storeImage = computed(() => {
+    return props.order && props.order.storeImg && props.order.storeImg !== null
+        ? `${baseUrl}/images/store/${props.order.storeId}/${props.order.storePic}`
         : defaultImage;
-});
-
-// 주문내역 삭제
-const emit = defineEmits(["delete-order", "re-order"]);
-
-// 주문 상태에 따른 버튼
-const statusBtn = computed(() => {
-    switch (props.order.status) {
-        case "ORDERED":
-            return {
-                color: "#6B6B6B",
-                border: "2px solid #6B6B6B ",
-                pointerEvents: "none",
-            };
-        case "PREPARING":
-            return {
-                color: "#6B6B6B",
-                border: "2px solid #6B6B6B ",
-                pointerEvents: "none",
-            };
-        case "DELIVERING":
-            return {
-                color: "#6B6B6B",
-                border: "2px solid #6B6B6B ",
-                pointerEvents: "none",
-            };
-        case "CANCELED":
-            return {
-                color: "#6B6B6B",
-                border: "2px solid #6B6B6B ",
-                pointerEvents: "none",
-            };
-        case "COMPLETED":
-            return 0;
-        default:
-            return {
-                color: "#6B6B6B",
-                border: "2px solid #6B6B6B ",
-                pointerEvents: "none",
-            };
-    }
 });
 </script>
 
@@ -109,7 +63,7 @@ const statusBtn = computed(() => {
             <div class="boardLeft">
                 <div class="created">{{ formatDateTime(props.order.createdAt) }}</div>
                 <div class="imgBox">
-                    <img class="img" :src="imgSrc" @error="(e) => (e.target.src = defaultImage)" />
+                    <img class="img" :src="storeImage" @error="(e) => (e.target.src = defaultImage)" />
                 </div>
                 <div class="textBox">
                     <div>{{ props.order.storeName }}</div>
@@ -151,8 +105,9 @@ const statusBtn = computed(() => {
             <!-- 버튼 -->
             <div class="btns">
                 <button type="button" class="btn" @click="$emit('re-order', props.order.menuItems)">재주문하기</button>
-                <button type="button" :class="['btn', { 'btn-disabled': props.order.status !== '05'}]"
-                    @click="router.push(`/review/${props.order.orderId}`);" :disabled="props.order.status !== '05'">리뷰 등록</button>
+                <button type="button" :class="['btn', { 'btn-disabled': props.order.status !== '05' }]"
+                    @click="$emit('review', props.order.orderId, props.order.storeName, props.order.menuItems)"
+                    :disabled="props.order.status !== '05'">리뷰 등록</button>
                 <button type="button" class="btn" @click="router.push(`/orders/${props.order.orderId}`);">주문 상세</button>
                 <button type="button"
                     :class="['btn', { 'btn-disabled': props.order.status !== '05' && props.order.status !== '06' }]"
