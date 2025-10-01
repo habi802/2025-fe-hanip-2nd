@@ -3,7 +3,7 @@ import { naverGetCid, naverPayApply, naverPayReserve } from '@/services/payment'
 import ReviewModal from '../modal/ReviewModal.vue';
 import { ref, onMounted, reactive } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
-import OrderAndReview from '../myPage/OrderAndReview.vue';
+import OrderAndReview from './OrderCard.vue';
 import { getOrder } from '@/services/orderService';
 
 const route = useRoute();
