@@ -122,8 +122,8 @@ const imgSrc = computed(() => {
         </swiper-slide>
       </swiper> -->
 
-      <swiper :slides-per-view="4" :modules="[Navigation, Pagination, Scrollbar, A11y, Autoplay]" :speed="1000"
-        :space-between="230" :resistance="false" :resistance-ratio="0" :allowSlidePrev="false">
+      <swiper :slides-per-view="3" :modules="[Navigation, Pagination, Scrollbar, A11y, Autoplay]" :speed="1000"
+        :space-between="10" :resistance="false" :resistance-ratio="0">
         <swiper-slide v-for="(src, index) in reviewSrcList" :key="index">
           <div class="review-image border">
             <img class="reviewImg" :src="src" @error="e => e.target.src = defaultImage" alt="리뷰 이미지" />

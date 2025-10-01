@@ -3,7 +3,7 @@ import { naverGetCid, naverPayApply, naverPayReserve } from '@/services/payment'
 import ReviewModal from '@/components/modal/ReviewModal.vue';
 import { ref, onMounted, reactive } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
-import OrderAndReview from '../OrderCard.vue';
+import OrderAndReview from '@/components/customer/OrderCard.vue';
 import { getOrder } from '@/services/orderService';
 
 const route = useRoute();
@@ -13,13 +13,13 @@ const baseUrl = import.meta.env.VITE_BASE_URL;
 
 const reviewModal = ref(null);
 
-const openModal = (orderId, storeName, menuItems) => {
+const openModal = (orderId, storeName, menuItems, getReview) => {
 
 
     state.orderOne.orderId = orderId;
     state.orderOne.storeName = storeName;
     state.orderOne.menuItems = menuItems
-
+    state.orderOne.getReview = getReview;
 
     reviewModal.value.setMenuData(state.orderOne)
     const modalElement = reviewModal.value.$el;
@@ -38,6 +38,7 @@ const state = reactive({
     orderOne: {
         orderId: 0,
         storeName: "",
+        getReview: 0,
         menuItems: []
     }
 });
@@ -105,7 +106,7 @@ const reOrder = async menus => {
     <button @click="btns">오더아이디 확인용</button>
 
     <order-and-review v-for="order in state.orders" :key="order.orderId" :order="order" @delete-order="removeOrder"
-        @review="openModal(order.orderId, order.storeName, order.menuItems)" />
+        @review="openModal(order.orderId, order.storeName, order.menuItems, order.getReview)" />
 </template>
 
 <style scoped></style>

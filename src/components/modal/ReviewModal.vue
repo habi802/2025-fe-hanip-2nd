@@ -1,5 +1,5 @@
 <script setup>
-import { ref, reactive } from 'vue';
+import { ref, reactive, computed } from 'vue';
 import defaultImage from '@/imgs/owner/owner-service3.png'
 
 import { Swiper, SwiperSlide } from 'swiper/vue';
@@ -10,7 +10,8 @@ import 'swiper/css/pagination';
 import 'swiper/css/scrollbar';
 
 import { Navigation, Pagination, Scrollbar, A11y, Autoplay } from 'swiper/modules';
-
+import { saveReview } from '@/services/reviewServices';
+import { getReviewOne } from '@/services/reviewServices';
 
 
 
@@ -23,6 +24,7 @@ const selectStar = (index) => {
     selected.value = index + 1;
 
     review.rating = selected.value;
+    sandReview.value.rating = selected.value;
 };
 
 //데이터 넘겨받기
@@ -30,14 +32,51 @@ const setMenuData = (data) => {
     review.orderId = data.orderId;
     review.storeName = data.storeName;
     review.menuItems = data.menuItems;
+    review.getReview = data.getReview;
     console.log("데이터 뭐 넘어왔나요", data);
     console.log("모달에 오더아이디 잘 받아왔는지", review.orderId);
     console.log("모달에 스토어이름 잘 받아왔는지", review.storeName);
     console.log("모달에 메뉴들 잘 받아왔는지", review.menuItems);
-    sandReview.orderId = data.orderId;
+    console.log("모달에 리뷰 잘 받아왔는지", review.getReview);
+    sandReview.value.orderId = data.orderId;
+
+    if (data.getReview > 0) {
+        getReviewInfo(review.orderId);
+    }
 }
 
 defineExpose({ setMenuData })
+
+
+// 리뷰 있으면 받을거
+const getReviewInfo = async (id) => {
+    files.image = [];
+    const res = await getReviewOne(id);
+
+    const reviewInfo = res.data.resultData;
+    console.log("적어놓은 리뷰 정보", reviewInfo);
+
+    review.rating = reviewInfo.rating;
+    selected.value = reviewInfo.rating;
+    sandReview.value.comment = reviewInfo.comment;
+    review.reviewId = reviewInfo.id;
+
+
+
+    reviewInfo.pic.forEach(fileName => {
+        files.image.push({
+            file: null,
+            preview: `${baseUrl.value}/images/Review/${reviewInfo.id}/${fileName}`
+        })
+    })
+    console.log("원래 있던 사진들어갔나요?", files.image)
+
+}
+
+const baseUrl = ref(import.meta.env.VITE_BASE_URL);
+
+
+
 
 // 리뷰 담는요옹
 const files = reactive({
@@ -45,19 +84,18 @@ const files = reactive({
 })
 
 
-const filesPlus = () => {
-
-}
 
 const review = reactive({
+    reviewId: 0,
     orderId: 0,
     storeName: "",
     rating: 0,
     comment: "",
+    getReview: 0,
     menuItems: []
 })
 
-const sandReview = reactive({
+const sandReview = ref({
     orderId: 0,
     rating: 0,
     comment: "",
@@ -65,16 +103,81 @@ const sandReview = reactive({
 
 // 리뷰 보내는 formData
 const sendFormData = async () => {
+
+    if (review.getReview > 0) {
+        return;
+    }
+
+
+
+
+
     const formData = new FormData();
 
     files.image.forEach(file => {
-        formData.append("pic", file);
+        if (file.file) {
+            formData.append("pic", file.file);
+        }
     })
 
-    formData.append("req", new Blob([JSON.stringify(sandReview)], { type: "application/json" }));
+    formData.append("req", new Blob([JSON.stringify(sandReview.value)], { type: "application/json" }));
 
-    console.log("보내기 전에 체크하기", sandReview);
+    console.log("보내기 전에 체크하기", sandReview.value);
+    for (let [key, value] of formData.entries()) {
+        console.log(key, value);
+        if (value instanceof File) {
+            console.log(key, value.name, value.size, value.type);
+        }
+    }
+
+    const res = await saveReview(formData);
+
 }
+
+
+//한글 단위로 쪼개기
+const getJamoLength = (text) => {
+    if (!text) return 0;
+    return text.normalize('NFD').length;
+};
+// 단위 감지용
+const currentLength = computed(() => getJamoLength(sandReview.comment));
+
+const checkLength = (e) => {
+    const text = e.target.value || ''; // undefined 방지
+    let count = 0;
+    let newText = '';
+
+    for (const char of text) {
+        const jamoCount = char.normalize('NFD').length;
+        if (count + jamoCount > 200) break;
+        count += jamoCount;
+        newText += char;
+    }
+
+    e.target.value = newText;
+    sandReview.comment = newText;
+};
+
+//가려진 인풋 이벤트 열게 해주는 것
+const fileInput = ref(null);
+
+const fileUpload = () => {
+    fileInput.value.click();
+}
+const onFileChange = (e) => {
+
+    const selectedFiles = Array.from(e.target.files)
+
+    selectedFiles.forEach(file => {
+        files.image.push({
+            file,
+            preview: URL.createObjectURL(file)
+        })
+    })
+
+    console.log("사진 잘 들어가는지?", files.image)
+};
 
 
 
@@ -85,7 +188,6 @@ const sendFormData = async () => {
         aria-labelledby="staticBackdropLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
-
                 <div class="header">
                     <div class="header-text">리뷰</div>
                 </div>
@@ -101,60 +203,40 @@ const sendFormData = async () => {
                             ★
                         </div>
                     </div>
-                    <div class="text-num"> {{ review.rating }}</div>
+                    <!-- <div class="text-num"> {{ review.rating }} 점</div> -->
                 </div>
 
                 <div class="box-body-img-box">
 
-                    <swiper :slidesPerView="3" :modules="[Navigation, Pagination, Scrollbar, A11y, Autoplay]"
-                        :speed="1000" :spaceBetween="170" :resistance="false" :resistanceRatio="0" :observer="true"
+                    <div v-if="files.image.length < 5" class="plus-img-box" @click="fileUpload">
+
+                        <div> <input ref="fileInput" type="file" accept="image/*" multiple @change="onFileChange"
+                                style="display: none;" />
+                        </div>
+                        <div class="file-plus">
+                            <img class="cameraImg" src="/src/imgs/camera.png"></img>
+                        </div>
+                    </div>
+                    <swiper :slidesPerView="2" :modules="[Navigation, Pagination, Scrollbar, A11y, Autoplay]"
+                        :speed="1000" :spaceBetween="-10" :resistance="false" :resistanceRatio="0" :observer="true"
                         :observe-parents="true">
-                        <swiper-slide>
+
+                        <swiper-slide v-for="(img, index) in files.image" :key="index">
                             <div>
-                                <div v-if="files.image.length < 6" class="plus-img-box" @click="filesPlus">
-                                    <div>
-                                        +
-                                    </div>
+                                <div class="review-image border">
+                                    <img class="reviewImg " :src="img.preview" alt="preview" />
                                 </div>
-                            </div>
-                        </swiper-slide>
-                        <swiper-slide>
-                            <div class="review-image border">
-                                <img class="reviewImg" src="/src/imgs/pasta.png" alt="이미지" />
-                            </div>
-                        </swiper-slide>
-                        <swiper-slide>
-                            <div class="review-image border">
-                                <img class="reviewImg" src="/src/imgs/pasta.png" alt="이미지" />
-                            </div>
-                        </swiper-slide>
-                        <swiper-slide>
-                            <div class="review-image border">
-                                <img class="reviewImg" src="/src/imgs/pasta.png" alt="이미지" />
-                            </div>
-                        </swiper-slide>
-                        <swiper-slide>
-                            <div class="review-image border">
-                                <img class="reviewImg" src="/src/imgs/pasta.png" alt="이미지" />
-                            </div>
-                        </swiper-slide>
-                        <swiper-slide>
-                            <div class="review-image border">
-                                <img class="reviewImg" src="/src/imgs/pasta.png" alt="이미지" />
+                                <div class="delete">X</div>
                             </div>
                         </swiper-slide>
                     </swiper>
 
-
-
                 </div>
                 <div class="body-bottom">
-                    <textarea class="review-text" v-modle="sandReview.comment" spellcheck="false"
-                        placeholder="리뷰를 작성해주세요"></textarea>
-
-
+                    <textarea class="review-text" v-model="sandReview.comment" spellcheck="false"
+                        placeholder="리뷰를 작성해주세요" @input="checkLength"></textarea>
                 </div>
-
+                <div>{{ getJamoLength(sandReview.comment) }}/200자</div>
                 <div class="menu-box">
                     <div class="menu-title">주문메뉴</div>
                 </div>
@@ -169,7 +251,9 @@ const sendFormData = async () => {
                 <div class="footer">
                     <div class="footer-btn">
                         <button type="button" class="hn-btn-gray" data-bs-dismiss="modal">돌아가기</button>
-                        <button type="button" class="hn-btn-gray" @click="sendFormData">리뷰등록</button>
+                        <button type="button" class="hn-btn-gray"
+                            :class="{ noneClick: sandReview.comment.trim() === '' }" data-bs-dismiss="modal"
+                            @click="sendFormData">리뷰등록</button>
                     </div>
                 </div>
 
@@ -186,9 +270,15 @@ const sendFormData = async () => {
     font-display: swap;
 }
 
+@font-face {
+    font-family: 'Suit';
+    src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_suit@1.0/SUIT-Thin.woff2') format('woff2');
+    font-weight: 100;
+    font-display: swap;
+}
+
 .swiper {
-    width: 100%;
-    height: auto;
+    margin-top: 10px;
 }
 
 .modal-content {
@@ -222,7 +312,7 @@ const sendFormData = async () => {
 
 #star-fill {
     font-family: 'Binggre';
-    font-size: 3em;
+    font-size: 2.5em;
     color: #ccc;
     margin-left: 2px;
     letter-spacing: 7px;
@@ -230,7 +320,7 @@ const sendFormData = async () => {
 }
 
 .text-num {
-    font-size: 1.8em;
+    font-size: 1.5em;
     letter-spacing: 7px;
 }
 
@@ -306,12 +396,46 @@ const sendFormData = async () => {
     display: flex;
     justify-content: center;
     align-items: center;
-    font-size: 4em;
+    font-size: 3em;
     font-weight: 100;
     border-radius: 10px;
-    width: 200px;
-    height: 200px;
+    width: 50px;
+    height: 50px;
     border: #ccc 2px solid;
     color: #ccc;
+}
+
+.file-plus {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.cameraImg {
+    width: 30px;
+    opacity: 30%;
+}
+
+.delete {
+    font-family: 'Suit';
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: absolute;
+    width: 25px;
+    height: 25px;
+    border-radius: 6px;
+    border: 1px #888 solid;
+    top: 0px;
+    left: 165px;
+    top: 5px;
+    cursor: pointer;
+    background-color: #fff;
+    color: #888;
+    z-index: 99;
+}
+
+.noneClick {
+    pointer-events: none;
 }
 </style>
