@@ -13,66 +13,33 @@ const baseUrl = import.meta.env.VITE_BASE_URL;
 
 const reviewModal = ref(null);
 
-const openModal = (id) => {
+const openModal = (orderId, storeName, menuItems) => {
+
+
+    state.orderOne.orderId = orderId;
+    state.orderOne.storeName = storeName;
+    state.orderOne.menuItems = menuItems
+
+
+    reviewModal.value.setMenuData(state.orderOne)
     const modalElement = reviewModal.value.$el;
     const modal = new bootstrap.Modal(modalElement);
     modal.show();
+
+    setTimeout(() => {
+        if (reviewModal.value.swiperInstance) {
+            reviewModal.value.swiperInstance.update(); // 기존 Swiper 업데이트
+        }
+    }, 50);
 };
-
-const naverPayBtn = ref(null);
-
-
-
-
-
-
-// const btns = async () => {
-//     const orderI = 7;
-//     console.log("orderI", orderI)
-//     console.log("왜이러지요")
-//     const res = await naverPayReserve(orderI);
-//     console.log("res", res)
-// }
-
-
-
-
-// onMounted(() => {
-
-
-//     const paymentId = route.query.paymentId;
-//     const orderId = route.query.orderId;
-//     const paymentReq = {
-//         paymentId: route.query.paymentId
-//     }
-
-//     if (paymentId != null) {
-//         console.log("payId:", paymentId);
-//         const apply = async () => {
-//             const check = await naverPayApply(paymentId, orderId);
-//             console.log("체크 확인", check);
-//             const finalPaymentId = check.data.resultData.body.paymentId;
-
-//             if (check.data || check.data.resultStatus === 200) {
-//                 console.log("라우터 확인용", "잘 이동합니다")
-//                 console.log("쿼리 넘어오는 거 머있니", orderId, finalPaymentId)
-//                 router.push({ path: '/', query: { orderId, paymentId: finalPaymentId } })
-//                     .then(() => console.log("라우터 이동 성공!"))
-//                     .catch(error => console.error("라우터 이동 실패:", error));
-
-//             }
-
-//         }
-
-
-//         apply();
-//     }
-
-
-// });
 
 const state = reactive({
     orders: [],
+    orderOne: {
+        orderId: 0,
+        storeName: "",
+        menuItems: []
+    }
 });
 
 onMounted(async () => {
@@ -138,7 +105,7 @@ const reOrder = async menus => {
     <button @click="btns">오더아이디 확인용</button>
 
     <order-and-review v-for="order in state.orders" :key="order.orderId" :order="order" @delete-order="removeOrder"
-        @review="openModal(order.orderId)" />
+        @review="openModal(order.orderId, order.storeName, order.menuItems)" />
 </template>
 
 <style scoped></style>

@@ -1,7 +1,6 @@
 <script setup>
-import { ref } from 'vue';
+import { ref, reactive } from 'vue';
 import defaultImage from '@/imgs/owner/owner-service3.png'
-
 
 import { Swiper, SwiperSlide } from 'swiper/vue';
 
@@ -22,7 +21,63 @@ const stars = [1, 2, 3, 4, 5];
 
 const selectStar = (index) => {
     selected.value = index + 1;
+
+    review.rating = selected.value;
 };
+
+//데이터 넘겨받기
+const setMenuData = (data) => {
+    review.orderId = data.orderId;
+    review.storeName = data.storeName;
+    review.menuItems = data.menuItems;
+    console.log("데이터 뭐 넘어왔나요", data);
+    console.log("모달에 오더아이디 잘 받아왔는지", review.orderId);
+    console.log("모달에 스토어이름 잘 받아왔는지", review.storeName);
+    console.log("모달에 메뉴들 잘 받아왔는지", review.menuItems);
+    sandReview.orderId = data.orderId;
+}
+
+defineExpose({ setMenuData })
+
+// 리뷰 담는요옹
+const files = reactive({
+    image: []
+})
+
+
+const filesPlus = () => {
+
+}
+
+const review = reactive({
+    orderId: 0,
+    storeName: "",
+    rating: 0,
+    comment: "",
+    menuItems: []
+})
+
+const sandReview = reactive({
+    orderId: 0,
+    rating: 0,
+    comment: "",
+})
+
+// 리뷰 보내는 formData
+const sendFormData = async () => {
+    const formData = new FormData();
+
+    files.image.forEach(file => {
+        formData.append("pic", file);
+    })
+
+    formData.append("req", new Blob([JSON.stringify(sandReview)], { type: "application/json" }));
+
+    console.log("보내기 전에 체크하기", sandReview);
+}
+
+
+
 </script>
 
 <template>
@@ -32,12 +87,12 @@ const selectStar = (index) => {
             <div class="modal-content">
 
                 <div class="header">
-                    <div class="header-text">리뷰수정</div>
+                    <div class="header-text">리뷰</div>
                 </div>
                 <hr>
                 </hr>
 
-                <div class="store-name">동성로 떡볶이</div>
+                <div class="store-name">{{ review.storeName }}</div>
 
                 <div class="body-top">
                     <div class="stars-box">
@@ -46,14 +101,23 @@ const selectStar = (index) => {
                             ★
                         </div>
                     </div>
-                    <div class="text-num"> n점</div>
+                    <div class="text-num"> {{ review.rating }}</div>
                 </div>
 
                 <div class="box-body-img-box">
 
-                    <swiper :slides-per-view="3" :modules="[Navigation, Pagination, Scrollbar, A11y, Autoplay]"
-                        :speed="1000" :space-between="170" :resistance="false" :resistance-ratio="0"
-                        :allowSlidePrev="false">
+                    <swiper :slidesPerView="3" :modules="[Navigation, Pagination, Scrollbar, A11y, Autoplay]"
+                        :speed="1000" :spaceBetween="170" :resistance="false" :resistanceRatio="0" :observer="true"
+                        :observe-parents="true">
+                        <swiper-slide>
+                            <div>
+                                <div v-if="files.image.length < 6" class="plus-img-box" @click="filesPlus">
+                                    <div>
+                                        +
+                                    </div>
+                                </div>
+                            </div>
+                        </swiper-slide>
                         <swiper-slide>
                             <div class="review-image border">
                                 <img class="reviewImg" src="/src/imgs/pasta.png" alt="이미지" />
@@ -85,7 +149,8 @@ const selectStar = (index) => {
 
                 </div>
                 <div class="body-bottom">
-                    <textarea class="review-text" spellcheck="false" placeholder="리뷰를 작성해주세요"></textarea>
+                    <textarea class="review-text" v-modle="sandReview.comment" spellcheck="false"
+                        placeholder="리뷰를 작성해주세요"></textarea>
 
 
                 </div>
@@ -95,18 +160,16 @@ const selectStar = (index) => {
                 </div>
                 <div class="menus">
                     <!-- 메뉴들 v-for -->
-                    <span class="menu-name">메뉴명1</span>
-                    <span class="menu-name">메뉴명2</span>
-                    <span class="menu-name">얼큰한 닭도리탕</span>
-                    <span class="menu-name">안얼큰한 곱도리탕</span>
-                    <span class="menu-name">안 얼큰한 닭도리탕</span>
+                    <span class="menu-vfor" v-for="value in review.menuItems" :key="value.id">
+                        <span class="menu-name">{{ value.menuName }}</span>
+                    </span>
 
                 </div>
 
                 <div class="footer">
                     <div class="footer-btn">
                         <button type="button" class="hn-btn-gray" data-bs-dismiss="modal">돌아가기</button>
-                        <button type="button" class="hn-btn-gray">리뷰등록</button>
+                        <button type="button" class="hn-btn-gray" @click="sendFormData">리뷰등록</button>
                     </div>
                 </div>
 
@@ -121,6 +184,11 @@ const selectStar = (index) => {
     src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_one@1.0/Binggrae.woff') format('woff');
     font-weight: normal;
     font-display: swap;
+}
+
+.swiper {
+    width: 100%;
+    height: auto;
 }
 
 .modal-content {
@@ -232,5 +300,18 @@ const selectStar = (index) => {
 
 .hn-btn-gray {
     padding: 10px 40px 10px 40px;
+}
+
+.plus-img-box {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 4em;
+    font-weight: 100;
+    border-radius: 10px;
+    width: 200px;
+    height: 200px;
+    border: #ccc 2px solid;
+    color: #ccc;
 }
 </style>
