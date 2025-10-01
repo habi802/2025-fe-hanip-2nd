@@ -112,7 +112,7 @@ const arrow = () => {
         <div class="order-header">
             <div>
                 <h2>주문 내역</h2>
-                <div class="order-notice">주문 변경 시 고객 센터로 문의 바랍니다.</div>
+                <div class="order-notice">주문 변경 시 해당 가게나 고객 센터로 문의 바랍니다.</div>
                 <div class="solid"></div>
             </div>
         </div>
@@ -150,7 +150,7 @@ const arrow = () => {
 
     <ConfirmModal ref="confirmModalRef" />
 
-    <img @click="arrow" class="arrow" src="/src/imgs/arrow.png" />`
+    <img @click="arrow" class="arrow" src="/src/imgs/arrow.png" />
 </template>
 
 <style lang="scss" scoped>
