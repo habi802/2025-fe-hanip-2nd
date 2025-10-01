@@ -5,13 +5,12 @@ import { Chart, BarController, BarElement, LineController, LineElement, PointEle
 // Chart.js 3.x 이상에서는 사용할 차트 요소를 등록해야 함
 Chart.register(BarController, BarElement, CategoryScale, LineController, LineElement, PointElement, LinearScale, Legend);
 
-const chartCanvas = ref(null);
-
 const props = defineProps({
     title: String,
     chartData: Object
 });
 
+const chartCanvas = ref(null);
 let chartInstance = null;
 
 onMounted(() => {

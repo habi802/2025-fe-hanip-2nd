@@ -149,10 +149,10 @@ function onPhoneInput(modelRef, event) {
   if (val.length > 4) val = val.slice(0, 4); // 최대 4자리 제한
   modelRef.value = val;
 
-//   // 자동 포커스 이동
-//   if (modelRef === phone2 && val.length === 4) {
-//     nextTick(() => phone3Input.value?.focus());
-//   }
+  //   // 자동 포커스 이동
+  //   if (modelRef === phone2 && val.length === 4) {
+  //     nextTick(() => phone3Input.value?.focus());
+  //   }
 }
 // 현재 비밀번호 서버 검증 함수
 const checkCorrectPassword = async () => {
@@ -386,6 +386,7 @@ const isPasswordChecked = ref(false); // 비밀번호 확인 여부
           <!-- 현재 비밀번호 -->
           <div class="form-group">
             <label>현재 비밀번호</label>
+
             <input
               type="password"
               class="form-input"
@@ -399,6 +400,10 @@ const isPasswordChecked = ref(false); // 비밀번호 확인 여부
               type="button"
               @click.prevent="checkCorrectPassword()"
             >
+              <!-- <input type="password" class="form-input" v-model="state.form.loginPw" placeholder="현재 비밀번호를 입력해주세요."
+              :class="{ error: errors.loginPw }" @input="clearError('loginPw')" />
+            <button class="password" @click.prevent="checkCorrectPassword()"> -->
+
               비밀번호 확인
             </button>
             <p v-if="errors.loginPw" class="error-msg">{{ errors.loginPw }}</p>

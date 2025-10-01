@@ -1,6 +1,7 @@
 <script setup>
-//주문한 메뉴내역
-
+const props = defineProps({
+  order: { type: Object, default: () => ({}) }
+});
 </script>
 
 <template>
@@ -16,23 +17,24 @@
         </tr>
       </thead>
       <tbody class="scrollbar" >
-        <tr>
+        <tr v-for="(menu, index) in order?.menuItems || []" :key="menu.menuId || index">
         <!-- <tr v-for="(menu, index) in selectedOrder?.menus || []" :key="menu.id || index" > -->
-          <td>menu.name </td>
-          <td>menu.option || "--" </td>
-          <td>menu.quantity </td>
-          <td>100000원</td>
+          <td>{{ menu.name ?? "--" }} </td>
+          <td>
+            <span v-if="menu.options?.length">
+              {{ menu.options.flatMap(opt => [opt.comment, ...(opt.children?.map(c => c.comment) || [])]).join(', ') }}
+            </span>
+            <span v-else>--</span> 
+          </td>
+          <td>{{ menu.quantity }} </td>
+          <td>{{ (menu.price * menu.quantity).toLocaleString() }}원</td>
           <!-- <td>{{ menu.name }}</td>
           <td>{{ menu.option || "--" }}</td>
           <td>{{ menu.quantity }}</td>
           <td>{{ menu.price.toLocaleString() }}원</td> -->
         </tr>
-        <tr v-for="n in 20" :key="n">
-        <!-- <tr v-if="!selectedOrder?.menus || selectedOrder.menus.length === 0" > -->
-          <td>--</td>
-          <td>--</td>
-          <td>--</td>
-          <td>--</td>
+        <tr v-if="!order?.menuItems || order.menuItems.length === 0">
+          <td colspan="4">--</td>
         </tr>
       </tbody>
     </table>
@@ -48,6 +50,7 @@ section{
   width: 100%;
 
   table{
+
   }
   thead {
     position: sticky;
@@ -57,11 +60,11 @@ section{
   }
 
   tbody {
-    display: block;      // tbody를 블록으로 만들어서 스크롤 가능하게
-    max-height: 100%; //42vh;  // 원하는 높이
-    overflow-y: auto;    // 세로 스크롤
-    overflow-x: hidden;
-  }
+  display: block;
+  max-height: 100px; // 👈 고정 높이 줘야 스크롤바 뜸
+  overflow-y: auto;
+  overflow-x: hidden;
+}
 
   tr {
     display: table;       // tbody가 block이니까 tr은 table로

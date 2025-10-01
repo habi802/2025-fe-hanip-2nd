@@ -53,11 +53,11 @@ const faqs = ref([
       <div class="inquiry-list">
 
         <div class="faq-list">
-      <div v-for="(item, index) in faqs" :key="index" class="faq-item">
-        <p class="faq-question">Q. {{ item.question }}</p>
-        <p class="faq-answer">A. {{ item.answer }}</p>
-      </div>
-    </div>
+          <div v-for="(item, index) in faqs" :key="index" class="faq-item">
+            <p class="faq-question">Q. {{ item.question }}</p>
+            <p class="faq-answer">A. {{ item.answer }}</p>
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -67,11 +67,11 @@ const faqs = ref([
 @font-face {
   // 프리텐다드
   font-family: "Pretendard-Regular";
-  src: url("https://fastly.jsdelivr.net/gh/Project-Noonnu/noonfonts_2107@1.1/Pretendard-Regular.woff")
-    format("woff");
+  src: url("https://fastly.jsdelivr.net/gh/Project-Noonnu/noonfonts_2107@1.1/Pretendard-Regular.woff") format("woff");
   font-weight: 400;
   font-style: normal;
 }
+
 * {
   font-family: "Pretendard-Regular";
   letter-spacing: 1px;
@@ -81,29 +81,33 @@ const faqs = ref([
 
 .customer-service {
   justify-content: center;
+
   .container {
     margin-bottom: 300px;
-    
-  }}
-  .faq-list {
-    width: 1480px;
-    .faq-item {
-      padding: 20px 0;
-      border-bottom: 1px solid #ddd;
-      margin-bottom: 20px;
 
-      .faq-question {
-        color: #ff6666; 
-        font-weight: bold;
-        margin-bottom: 30px;
-        margin-left: 180px;
-      }
+  }
+}
 
-      .faq-answer {
-        color: #000;
-        line-height: 1.5;
-        margin-left: 180px;
-      }
+.faq-list {
+  width: 1480px;
+
+  .faq-item {
+    padding: 20px 0;
+    border-bottom: 1px solid #ddd;
+    margin-bottom: 20px;
+
+    .faq-question {
+      color: #ff6666;
+      font-weight: 200;
+      margin-bottom: 30px;
+      margin-left: 180px;
+    }
+
+    .faq-answer {
+      color: #000;
+      line-height: 1.5;
+      margin-left: 180px;
     }
   }
+}
 </style>

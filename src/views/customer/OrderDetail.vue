@@ -2,8 +2,11 @@
 import { onMounted, reactive, computed } from "vue";
 import { useRoute } from "vue-router";
 import { getOwnerOrder2 } from "@/services/orderService";
-
 import defaultImage from "@/imgs/owner/haniplogo_sample2.png";
+
+const props = defineProps({
+    order: { type: Object, required: true }
+});
 
 const route = useRoute();
 

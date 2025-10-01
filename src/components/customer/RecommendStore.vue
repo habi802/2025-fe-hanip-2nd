@@ -88,4 +88,11 @@ onMounted(async () => {
   margin-top: 50px;
   background-color: #fff;
 }
+
+@media (max-width : 990px) {
+  .f-text {
+    letter-spacing: 2px;
+    font-size: 1.5em;
+  }
+}
 </style>

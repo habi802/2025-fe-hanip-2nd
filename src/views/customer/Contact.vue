@@ -1,8 +1,10 @@
 <script setup>
+import HomeImg from "@/components/customer/HomeImg.vue";
 import ContactMain from "@/components/customerService/ContactMain.vue";
 </script>
 
 <template>
+  <HomeImg></HomeImg>
   <div class="contact">
     <div class="container">
       <div class="contact-header">
@@ -17,10 +19,11 @@ import ContactMain from "@/components/customerService/ContactMain.vue";
 <style lang="scss" scoped>
 .title {
   font-size: 40px;
-  font-weight: 600;
+  font-weight: 400;
   text-align: center;
   margin-top: 80px;
 }
+
 // 메인 선
 .titleLine {
   width: 1480px;
