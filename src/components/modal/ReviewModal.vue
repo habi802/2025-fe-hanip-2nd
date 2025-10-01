@@ -1,5 +1,5 @@
 <script setup>
-import { ref, reactive, computed } from 'vue';
+import { ref, reactive, computed, onMounted } from 'vue';
 import defaultImage from '@/imgs/owner/owner-service3.png'
 
 import { Swiper, SwiperSlide } from 'swiper/vue';
@@ -12,6 +12,7 @@ import 'swiper/css/scrollbar';
 import { Navigation, Pagination, Scrollbar, A11y, Autoplay } from 'swiper/modules';
 import { saveReview } from '@/services/reviewServices';
 import { getReviewOne } from '@/services/reviewServices';
+import { putReview } from '@/services/reviewServices';
 
 
 
@@ -27,8 +28,18 @@ const selectStar = (index) => {
     sandReview.value.rating = selected.value;
 };
 
+//한번 리셋
+const resetModal = () => {
+    sandReview.value = { orderId: 0, rating: 0, comment: "" };
+    review.rating = 0;
+    review.getReview = 0;
+    files.image = [];
+    selected.value = 0;
+};
+
 //데이터 넘겨받기
 const setMenuData = (data) => {
+    resetModal();
     review.orderId = data.orderId;
     review.storeName = data.storeName;
     review.menuItems = data.menuItems;
@@ -41,7 +52,7 @@ const setMenuData = (data) => {
     sandReview.value.orderId = data.orderId;
 
     if (data.getReview > 0) {
-        getReviewInfo(review.orderId);
+        getReviewInfo(data.orderId);
     }
 }
 
@@ -60,7 +71,7 @@ const getReviewInfo = async (id) => {
     selected.value = reviewInfo.rating;
     sandReview.value.comment = reviewInfo.comment;
     review.reviewId = reviewInfo.id;
-
+    sandReview.value.rating = reviewInfo.rating;
 
 
     reviewInfo.pic.forEach(fileName => {
@@ -101,10 +112,35 @@ const sandReview = ref({
     comment: "",
 })
 
+const emit = defineEmits(['reviewSaved']);
+
 // 리뷰 보내는 formData
 const sendFormData = async () => {
 
+
+    // 리뷰를 수정하는 거라면!
     if (review.getReview > 0) {
+
+        const formData = new FormData();
+
+        for (const file of files.image) {
+            if (file.file) {
+                formData.append("pic", file.file);
+            } else if (file.preview) {
+                // 서버 사진 URL -> Blob -> File
+                const res = await fetch(file.preview);
+                const blob = await res.blob();
+                const fileName = file.preview.split("/").pop();
+                formData.append("pic", new File([blob], fileName, { type: blob.type }));
+            }
+        }
+
+        formData.append("req", new Blob([JSON.stringify(sandReview.value)], { type: "application/json" }));
+
+        console.log("이미지 뭐 들어가있니?", files.image)
+        const res = await putReview(formData);
+        console.log("수정용 호출!")
+        emit('reviewSaved', res);
         return;
     }
 
@@ -123,15 +159,10 @@ const sendFormData = async () => {
     formData.append("req", new Blob([JSON.stringify(sandReview.value)], { type: "application/json" }));
 
     console.log("보내기 전에 체크하기", sandReview.value);
-    for (let [key, value] of formData.entries()) {
-        console.log(key, value);
-        if (value instanceof File) {
-            console.log(key, value.name, value.size, value.type);
-        }
-    }
 
     const res = await saveReview(formData);
 
+    emit('reviewSaved', res);
 }
 
 
@@ -179,7 +210,11 @@ const onFileChange = (e) => {
     console.log("사진 잘 들어가는지?", files.image)
 };
 
+//이미지 삭제
+const removeImage = (index) => {
 
+    files.image.splice(index, 1);
+};
 
 </script>
 
@@ -194,7 +229,10 @@ const onFileChange = (e) => {
                 <hr>
                 </hr>
 
-                <div class="store-name">{{ review.storeName }}</div>
+                <div class="top">
+                    <img class="store-icon" src="/src/imgs/storeIcon.png"></img>
+                    <div class="store-name">{{ review.storeName }}</div>
+                </div>
 
                 <div class="body-top">
                     <div class="stars-box">
@@ -226,7 +264,7 @@ const onFileChange = (e) => {
                                 <div class="review-image border">
                                     <img class="reviewImg " :src="img.preview" alt="preview" />
                                 </div>
-                                <div class="delete">X</div>
+                                <div class="delete" @click="removeImage(index)">X</div>
                             </div>
                         </swiper-slide>
                     </swiper>
@@ -236,7 +274,7 @@ const onFileChange = (e) => {
                     <textarea class="review-text" v-model="sandReview.comment" spellcheck="false"
                         placeholder="리뷰를 작성해주세요" @input="checkLength"></textarea>
                 </div>
-                <div>{{ getJamoLength(sandReview.comment) }}/200자</div>
+                <div class="font-length">{{ getJamoLength(sandReview.comment) }}/200자</div>
                 <div class="menu-box">
                     <div class="menu-title">주문메뉴</div>
                 </div>
@@ -299,15 +337,30 @@ const onFileChange = (e) => {
     align-items: center;
 }
 
+.top {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 10px;
+}
+
+.store-icon {
+    width: 30px;
+    height: 30px;
+    opacity: 30%;
+}
+
 .store-name {
+
     font-size: 1.5em;
     font-weight: 600;
-    margin-top: 20px;
+
 }
 
 .stars-box {
     display: flex;
     justify-content: center;
+    margin-bottom: 10px;
 }
 
 #star-fill {
@@ -437,5 +490,11 @@ const onFileChange = (e) => {
 
 .noneClick {
     pointer-events: none;
+}
+
+.font-length {
+    display: flex;
+    justify-content: end;
+    margin-top: 10px;
 }
 </style>
