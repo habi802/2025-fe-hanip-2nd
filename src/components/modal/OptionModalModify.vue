@@ -178,7 +178,7 @@ const emit = defineEmits(['cart-updated']);
                                         :checked="selectData.optionId.map(Number).includes(Number(child.optionId))"
                                         @click="onOptionSelect($event, optionItem.optionId, child.optionId)" />
                                     <span class="option-detail">{{ child.comment }}</span>
-                                    <div class="menu-price">{{ child.price }}원</div>
+                                    <div class="menu-price">{{ child.price.toLocaleString() }}원</div>
                                 </div>
                             </div>
                         </div>

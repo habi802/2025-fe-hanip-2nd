@@ -195,7 +195,6 @@ const formatDate = (dateStr) => {
 
         .boardMiddle {
             width: 500px;
-            margin-top: 20px;
             font-family: "BMJUA";
             font-size: 1.3em;
 
@@ -207,11 +206,11 @@ const formatDate = (dateStr) => {
             }
 
             .menuBox {
-                height: 330px;
+                // height: 330px;
                 display: flex;
                 flex-direction: column;
 
-                padding: 20px;
+                padding: 0 20px;
 
                 .menu {
                     display: flex;
