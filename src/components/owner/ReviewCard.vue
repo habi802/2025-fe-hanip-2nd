@@ -12,38 +12,52 @@ const ownerStore = useOwnerStore();
 // 리뷰 데이터 가져오기
 const reviewStore = useReviewStore();
 
-// 더보기
-const visibleCount = ref(6);
-const visibleReview = computed(() => {
-  return reviewStore.reviews.slice(0, visibleCount.value);
-});
-const loadMore = () => {
-  visibleCount.value += 6;
-};
-
 const userId = computed(() => userInfo.userId);
 const storeId = computed(() => ownerStore.storeId);
 
-defineProps({
+const props = defineProps({
   reviews: Array,
 });
+console.log( "프롭" , props.reviews )
+
+//프롭정보 갱신 감시
+watch(
+  () => props.reviews,
+  (newVal) => {
+    console.log("프롭 변경됨:", newVal)
+  },
+  { immediate: true }
+)
+
+
+// 더보기
+// const visibleCount = ref(6);
+// const visibleReview = computed(() => {
+//   return reviewStore.reviews.slice(0, visibleCount.value);
+// });
+// const loadMore = () => {
+//   visibleCount.value += 6;
+// };
+
+
+
 
 onMounted(async () => {
-  // 1. 유저 정보 먼저 불러오기
-  await userInfo.fetchStore();
-  console.log("유저정보: ", userId.value);
+  // // 1. 유저 정보 먼저 불러오기
+  // await userInfo.fetchStore();
+  // console.log("유저정보: ", userId.value);
 
-  // storeId가 존재하는 경우에만 리뷰를 가져오기
-  await ownerStore.fetchStoreInfo();
-  console.log("스토어 아이디:", storeId.value);
+  // // storeId가 존재하는 경우에만 리뷰를 가져오기
+  // await ownerStore.fetchStoreInfo();
+  // console.log("스토어 아이디:", storeId.value);
 
-  if (storeId.value) {
-    // 리뷰 데이터를 가져오는 메서드 호출
-    await reviewStore.fetchReviews(storeId.value);
-    console.log("리뷰 데이터 구조:", reviewStore.reviews);
-  } else {
-    console.error("스토어 아이디가 없습니다.");
-  }
+  // if (storeId.value) {
+  //   // 리뷰 데이터를 가져오는 메서드 호출
+  //   await reviewStore.fetchReviews(storeId.value);
+  //   console.log("리뷰 데이터 구조:", reviewStore.reviews);
+  // } else {
+  //   console.error("스토어 아이디가 없습니다.");
+  // }
 });
 
 //리뷰별표시
@@ -201,12 +215,12 @@ const formatDateTime = (isoStr) => {
           />
         </div>
         <div class="profile-username">
-          <span>{{ review.userName }}</span>
-          <span>{{ formatDateTime(review.created) }}</span>
+          <span> review.userName ||  "-" </span>
+          <span> formatDateTime(review.created) ||  "-" </span>
         </div>
         <div class="orderMenu">
           <!-- 메뉴 연동하기 -->
-          <p>{{ review.menuName }}</p>
+          <p> review.menuName ||  "-" </p>
           <!-- 리뷰말고 메뉴로 바꿔야함 -->
           <!-- <span v-if="review.reviews.menuName.length > 1"> 외 {{ review.reviews.menuName.length - 1 }} 건 </span> -->
         </div>
@@ -259,17 +273,17 @@ const formatDateTime = (isoStr) => {
                   </svg>
                 </div>
               </div>
-              <span class="score-text">{{ review.rating }}</span>
+              <span class="score-text">{{ review.rating ||  "-" }}</span>
             </div>
           </div>
-          <p class="line-clamp-2">{{ review.comment }}</p>
+          <p class="line-clamp-2">{{ review.comment ||  "-" }}</p>
         </div>
         <div
           class="comment-wrap"
           v-if="review.ownerComment != null && review.ownerComment != ''"
         >
           <span>사장님 답글</span>
-          <p class="line-clamp-2">{{ review.ownerComment }}</p>
+          <p class="line-clamp-2">{{ review.ownerComment ||  "-" }}</p>
         </div>
       </div>
       <div class="btn-wrap">
@@ -319,7 +333,7 @@ const formatDateTime = (isoStr) => {
       :class="{ active: currentPage === page }"
       @click="goToPage(page)"
     >
-      {{ page }}
+      {{ page ||  "-"}}
     </span>
 
     <!-- 다음 버튼 -->
@@ -333,18 +347,12 @@ const formatDateTime = (isoStr) => {
   </div>
 
   <!-- 모달 컴포넌트 -->
-  <OwnerReviewModal
-    :review="selectedReview"
-    v-model:show="isModalOpen"
-    v-model="replyComment"
-    @submit="handleSubmit"
-  />
+  <OwnerReviewModal :review="selectedReview" v-model:show="isModalOpen" v-model="replyComment" @submit="handleSubmit" />
+
 </template>
 
 <style lang="scss" scoped>
-body,
-html,
-.wrap {
+body, html, .wrap {
   min-height: 100vh; /* 항상 화면 크기 이상 */
 }
 // 버튼

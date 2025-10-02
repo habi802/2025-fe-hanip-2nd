@@ -117,7 +117,7 @@ const router = createRouter({
     {
       path: "/owner/review",
       name: "owner-review",
-      component: () => import("@/components/owner/Review.vue"),
+      component: () => import("@/views/owner/Review.vue"),
       meta: { layout: OwnerLayout },
     },
     {
