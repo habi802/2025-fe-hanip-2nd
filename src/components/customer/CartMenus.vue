@@ -12,6 +12,7 @@ const optionModal = ref(null);
 const cartStore = useCartStore();
 
 
+
 const openModal = async () => {
     await cartStore.getCart();
 
@@ -82,8 +83,7 @@ const firstItem = reactive({
 
 <template>
     <div class="big-box">
-        <div v-if="props.item.isHide !== 0" class="menu border rounded-4"
-            :class="{ soldOut: props.item.isSoldOut === 0 }" @click="openModal">
+        <div class="menu border rounded-4" @click="openModal">
             <div class="row-box">
                 <div id="menuImgs" class="col-4 col-md-2 border rounded">
                     <img class="menuImgBox" :src="menuSrc" @error="e => e.target.src = defaultImage" />
@@ -102,8 +102,9 @@ const firstItem = reactive({
             </div>
         </div>
     </div>
-
-    <option-modal ref="optionModal" @cartAdded="$emit('cartAdded')"></option-modal>
+    <teleport to="body">
+        <option-modal ref="optionModal" @cartAdded="$emit('cartAdded')"></option-modal>
+    </teleport>
 </template>
 
 <style lang="scss" scoped>
@@ -139,8 +140,8 @@ const firstItem = reactive({
 
 #menuImgs {
     display: flex;
-    width: 250px;
-    height: 150px;
+    width: 150px;
+    height: 100px;
     overflow: hidden;
     justify-content: center;
     align-items: center;

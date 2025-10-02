@@ -1,5 +1,5 @@
 <script setup>
-import { reactive, onMounted, computed, ref } from "vue";
+import { reactive, onMounted, computed, ref, toRaw } from "vue";
 import { useRouter } from "vue-router";
 import { getItem, removeItem, updateQuantity } from "@/services/cartService";
 import { useAccountStore } from "@/stores/account";
@@ -29,7 +29,6 @@ import { Navigation, Pagination, Scrollbar, A11y, Autoplay } from 'swiper/module
 
 
 
-
 const router = useRouter();
 const account = useAccountStore();
 
@@ -50,6 +49,14 @@ const load = async () => {
     return;
 
   state.items = res.data.resultData || [];
+  console.log("아이템", state.items);
+  const menuIds = state.items.map(item => item.menuId);
+  const setMenuId = new Set(menuIds);
+  const delId = [...setMenuId];
+  store.deleteMenus = delId;
+  console.log("카트에 담긴 메뉴아이디", store.deleteMenus);
+
+
 
   await Promise.all(
     state.items.map(async (item) => {
@@ -272,7 +279,10 @@ const selectOption = reactive({
 })
 
 const store = reactive({
-  menus: []
+  menus: [],
+  newMenus: [],
+  deleteMenus: [],
+  finalMenus: []
 })
 
 // 가게 메뉴 조회
@@ -280,6 +290,32 @@ const getStoreMenu = async (storeId) => {
   const res = await getMenus(storeId);
   store.menus = res.data.resultData;
   console.log("메뉴 정보", store.menus);
+  const allMenus = computed(() => {
+    const random = store.menus.flatMap(item => item.menus.map(menu => toRaw(menu)))
+    for (let i = random.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [random[i], random[j]] = [random[j], random[i]];
+    }
+    return random;
+  }
+  );
+
+
+  store.newMenus = allMenus;
+
+  const rawArray = toRaw(store.deleteMenus);
+
+  const filteredMenus = store.newMenus.filter(menu => !rawArray.includes(Number(menu.menuId)));
+  console.log("추천메뉴", store.newMenus);
+  console.log("삭제해야할 메뉴", rawArray);
+  console.log("삭제됐는지", filteredMenus);
+
+  store.finalMenus = filteredMenus;
+
+  const swiperMenus = computed(() => {
+    const rawArray = toRaw(store.finalMenus);
+    return store.finalMenus.filter(menu => !rawArray.includes(Number(menu.menuId)));
+  });
 
   if (store.menus.length <= 0) {
     let timeoutId;
@@ -301,6 +337,7 @@ const getStoreMenu = async (storeId) => {
   }
 
 }
+
 
 
 </script>
@@ -464,15 +501,20 @@ const getStoreMenu = async (storeId) => {
     </div>
     <!-- 메뉴 카드용! -->
     <div class="menus-big-box">
-      <div class="menus-title">{{ state.store.name }}의 다른 메뉴는 어떠세요 ?</div>
+      <div class="menus-title">함께 먹는 메뉴로 어떠신가요?</div>
       <div class="menus-box">
-        <div class="menus-small-box" v-for="(group, idx) in store.menus" :key="idx">
-          <div v-for="menu in group.menus" :key="menu.id">
+        <swiper :slidesPerView="store.finalMenus.length - 1"
+          :modules="[Navigation, Pagination, Scrollbar, A11y, Autoplay]" :speed="1000" :spaceBetween="10"
+          :resistance="false" :resistanceRatio="0" :observer="true" :observe-parents="true" :loop="true">
+          <swiper-slide v-for="menu in store.finalMenus" :key="menu.id"
+            :class="{ hide: menu.isSoldOut === 0 || menu.isHide === 0 }">
             <Menu @cartAdded="load" :item="menu"></Menu>
-          </div>
-        </div>
+          </swiper-slide>
+
+        </swiper>
       </div>
     </div>
+    <div class="buttom"></div>
   </div>
 
   <option-modal-modify ref="optionModal" @cart-updated="load"></option-modal-modify>
@@ -693,7 +735,7 @@ const getStoreMenu = async (storeId) => {
 
 // 박스 정렬
 .store-layout {
-  max-width: 1030px;
+  max-width: 1140px;
   margin: auto; // 전체 가운데 정렬
   display: flex;
   justify-content: center;
@@ -1023,7 +1065,7 @@ const getStoreMenu = async (storeId) => {
   margin-top: 18px;
   height: 2px;
   background: #000000;
-  width: 54%;
+  width: 60%;
 }
 
 .rigth-box {
@@ -1044,7 +1086,7 @@ p {
 }
 
 .menus-title {
-  width: 54%;
+  width: 60%;
   font-size: 1.4em;
   font-weight: 400;
   letter-spacing: 2px;
@@ -1055,17 +1097,24 @@ p {
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  margin-bottom: 200px;
 }
 
 .menus-box {
-  width: 54%;
+  width: 60%;
   display: flex;
   justify-content: flex-start;
-  overflow-x: scroll;
+
 }
 
 .menus-small-box {
   display: flex;
+}
+
+.hide {
+  display: none;
+}
+
+.buttom {
+  margin-bottom: 200px;
 }
 </style>
