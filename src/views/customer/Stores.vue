@@ -7,13 +7,12 @@ import 'swiper/css/navigation';
 import 'swiper/css/pagination';
 import 'swiper/css/scrollbar';
 
-import { reactive, onMounted, ref, watch } from 'vue';
-import { useRoute, useRouter } from 'vue-router';
+import { reactive, onMounted, ref } from 'vue';
+import { useRoute } from 'vue-router';
 import { getStoreList } from '@/services/storeService';
 import StoreCard from '@/components/customer/StoreCard.vue';
 
 const route = useRoute();
-const router = useRouter();
 
 const state = reactive({
     stores: [],
