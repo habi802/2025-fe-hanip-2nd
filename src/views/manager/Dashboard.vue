@@ -81,6 +81,7 @@ const currentChartData = computed(() => {
     const index = chartOptions.indexOf(selectedChartOption.value);
     return chartData[index];
 });
+
 </script>
 
 <template>

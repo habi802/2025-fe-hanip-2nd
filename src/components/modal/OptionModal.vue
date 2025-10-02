@@ -149,7 +149,7 @@ const readyCart = () => {
     goCart();
 }
 
-
+const emit = defineEmits(['cartAdded'])
 
 
 const goCart = async () => {
@@ -183,6 +183,7 @@ const goCart = async () => {
         console.log("카트 메뉴 담기 성공 !")
 
         console.log("담긴 카트 ", res.data.resultData)
+        emit('cartAdded', res.data.resultData);
         menuOption.optionId = [];
         menuData.options.children = [];
     }
@@ -228,7 +229,7 @@ const goCart = async () => {
                                         :checked="menuOption.optionId.includes(child.optionId)"
                                         @click="onOptionSelect($event, optionItem.optionId, child.optionId)" />
                                     <span class="option-detail">{{ child.comment }}</span>
-                                    <div class="menu-price">{{ child.price }}원</div>
+                                    <div class="menu-price">{{ child.price.toLocaleString() }}원</div>
                                 </div>
                             </div>
                         </div>

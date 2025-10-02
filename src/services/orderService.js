@@ -8,6 +8,11 @@ export const modifyStatus = (params) => {
   return axios.patch("/order/status", params).catch((e) => e.response)
 }
 
+//가게 전체주문내역조회
+export const getStatus = (params) => {
+  return axios.get("/order/statistics", {params}).catch((e) => e.response)
+}
+
 // PAID 조회
 export const getOwnerPaidOrder = (id) => {
   return axios.get(`/order/status/ordered/${id}`).catch((e) => e.response);
@@ -45,7 +50,7 @@ export const patchDeliveredOrder = (orderId) => {
 
 // 주문 상태 변경 : 취소됨
 export const patchCanceledOrder = (orderId) => {
-  return axios.patch(`/order/status/canceled/${orderId}`).catch((e) => e.response)
+  return axios.post(`/order/cancel/${orderId}`).catch((e) => e.response)
 }
 
 export const getOwnerOrder2 = (id) => {

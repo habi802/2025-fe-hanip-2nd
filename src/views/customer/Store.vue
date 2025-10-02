@@ -185,21 +185,18 @@ const reviewbutton = () => {
 
 
 const imgSrc = computed(() => {
-
   return state.store && state.store?.imagePath && state.store?.imagePath !== 'null'
     ? `/pic/store-profile/${store.storeInfo.id}/${store.storeInfo?.imagePath}`
     : defaultImage;
 
 })
 
-const banerImgSrc = computed(() => {
-  return store.storeInfo && store.storeInfo?.bannerPath
-    && store.storeInfo?.bannerPath
-    !== 'null'
-    ? `/pic/store-profile/${store.storeInfo.id}/${store.storeInfo?.bannerPath
-    }`
-    : NoneStore;
+const baseUrl = ref(import.meta.env.VITE_BASE_URL);
 
+const banerImgSrc = computed(() => {
+  return store.storeInfo && store.storeInfo?.bannerPath && store.storeInfo?.bannerPath !== 'null'
+    ? `${baseUrl.value}/images/store/${store.storeInfo.id}/${store.storeInfo?.bannerPath}`
+    : NoneStore;
 })
 
 
@@ -874,6 +871,7 @@ const sortedMenus = computed(() => {
 .big-img {
   width: 100%;
   height: 330px;
+  object-fit: cover;
 }
 
 .store-title-box {

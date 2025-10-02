@@ -2,6 +2,10 @@ import axios from "./httpRequester";
 
 const path = "/review";
 
+export const getReviewScoreByStoreId = (id,params) => {
+  return axios.get(`${path}/store-review/${id}`,{params}).catch((e) => e.response);
+};
+
 export const getReviewsByStoreId = (id,params) => {
   return axios.get(`${path}/store-review/all/${id}`,{params}).catch((e) => e.response);
 };

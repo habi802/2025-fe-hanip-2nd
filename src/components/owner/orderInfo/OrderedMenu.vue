@@ -1,6 +1,7 @@
 <script setup>
 const props = defineProps({
-  order: { type: Object, default: () => ({}) }
+  order: { type: Object, default: () => ({}) },
+  tableHeight: { type: String, default: "100px" }
 });
 </script>
 
@@ -16,7 +17,7 @@ const props = defineProps({
           <th>가격</th>
         </tr>
       </thead>
-      <tbody class="scrollbar" >
+      <tbody class="scrollbar" :style="{ maxHeight: props.tableHeight }" >
         <tr v-for="(menu, index) in order?.menuItems || []" :key="menu.menuId || index">
         <!-- <tr v-for="(menu, index) in selectedOrder?.menus || []" :key="menu.id || index" > -->
           <td>{{ menu.name ?? "--" }} </td>

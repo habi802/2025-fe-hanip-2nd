@@ -1,5 +1,5 @@
 <script setup>
-import { ref, reactive } from "vue";
+import { ref, reactive, onMounted, onUnmounted } from "vue";
 import DashboardOrderDetail from "@/components/modal/DashboardOrderDetail.vue";
 import LoadingModal from '../modal/LoadingModal.vue';
 import { getOwnerOrder2 } from '@/services/orderService';
@@ -62,6 +62,24 @@ const formatTime = (dateString) => {
     hour12: false,
   });
 };
+
+// 경과시간
+const now = ref(new Date());
+
+onMounted(() => {
+  const timer = setInterval(() => {
+    now.value = new Date();
+  }, 60000); // 1분마다
+  onUnmounted(() => clearInterval(timer));
+});
+
+const getElapsed = (createdAt) => {
+  if (!createdAt) return "0분";
+  const start = new Date(createdAt);
+  const diffMs = now.value - start;
+  const diffMin = Math.floor(diffMs / 60000);
+  return diffMin > 0 ? `${diffMin}분` : "방금";
+};
 </script>
 
 <template>
@@ -107,7 +125,7 @@ const formatTime = (dateString) => {
         >
           <div>{{ order.orderId || "-" }}</div>
           <div>{{ formatTime(order.createdAt) || "00:00" }}</div>
-          <div>{{ order.elapsed || "0분" }}</div>
+          <div>{{ getElapsed(order.updatedAt) }}</div>
           <div class="address">
             {{ order.address || "-" }}<br />{{ order.addressDetail || "-" }}
           </div>
@@ -139,7 +157,7 @@ const formatTime = (dateString) => {
               </div>
             </template>
 
-            <template v-else-if="order.status === '05'">
+            <template v-else-if="order.status === '05', '06'">
               <div class="rider-info completed">                
                 <div>배달 완료</div>
               </div>
@@ -152,10 +170,14 @@ const formatTime = (dateString) => {
 
   <!-- 주문 상세 모달 -->
   <DashboardOrderDetail
-    v-if="isModalOpen"
-    :order="state.order"
-    @close="isModalOpen = false"
-  />
+  v-if="isModalOpen"
+  :order="state.order"
+  tableHeight="100px"
+  @close="isModalOpen = false"
+  @accept="onAccept"
+  @cancel="onCancel"
+  @assign="onAssign"
+/>
 </template>
 
 <style scoped lang="scss">
