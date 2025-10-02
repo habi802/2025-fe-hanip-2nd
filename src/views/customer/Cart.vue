@@ -49,12 +49,6 @@ const load = async () => {
     return;
 
   state.items = res.data.resultData || [];
-  console.log("아이템", state.items);
-  const menuIds = state.items.map(item => item.menuId);
-  const setMenuId = new Set(menuIds);
-  const delId = [...setMenuId];
-  store.deleteMenus = delId;
-  console.log("카트에 담긴 메뉴아이디", store.deleteMenus);
 
 
 
@@ -62,7 +56,6 @@ const load = async () => {
     state.items.map(async (item) => {
       try {
         const optionRes = await getOption(item.menuId); // 메뉴 아이디로 옵션 조회 API 호출
-        console.log("옵션정보가 있는가?", optionRes.data.resultData)
         // 옵션이 있으면 true, 없으면 false
         item.hasOptions = optionRes.data.resultData.options.length > 0;
       } catch (err) {
@@ -84,7 +77,6 @@ const storeMap = reactive({});
 const fetchStoreDetails = async () => {
   const storeId = state.items[0].storeId;
   getStoreMenu(storeId);
-
 
   const review = await getReviewsByStoreId(storeId, {
     rowPerPage: 10,
@@ -117,8 +109,9 @@ const fetchStoreDetails = async () => {
 
 
 
-onMounted(() => {
+onMounted(async () => {
   load();
+  cartMenu();
 });
 
 const goToLogin = () => router.push("/login");
@@ -129,16 +122,6 @@ const goToOrder = (items) => {
     return;
   }
 
-  // const orderItems = group.items.map((item) => ({
-  //   id: item.id,
-  //   menuId: item.menuId,
-  //   quantity: item.quantity,
-  //   price: item.price,
-  //   name: item.name,
-  //   imagePath: item.image_path,
-  // }));
-
-  // localStorage.setItem("orderItems", JSON.stringify(orderItems));
   router.push(`/stores/${items}/order`);
 };
 
@@ -289,34 +272,6 @@ const store = reactive({
 const getStoreMenu = async (storeId) => {
   const res = await getMenus(storeId);
   store.menus = res.data.resultData;
-  console.log("메뉴 정보", store.menus);
-  const allMenus = computed(() => {
-    const random = store.menus.flatMap(item => item.menus.map(menu => toRaw(menu)))
-    for (let i = random.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [random[i], random[j]] = [random[j], random[i]];
-    }
-    return random;
-  }
-  );
-
-
-  store.newMenus = allMenus;
-
-  const rawArray = toRaw(store.deleteMenus);
-
-  const filteredMenus = store.newMenus.filter(menu => !rawArray.includes(Number(menu.menuId)));
-  console.log("추천메뉴", store.newMenus);
-  console.log("삭제해야할 메뉴", rawArray);
-  console.log("삭제됐는지", filteredMenus);
-
-  store.finalMenus = filteredMenus;
-
-  const swiperMenus = computed(() => {
-    const rawArray = toRaw(store.finalMenus);
-    return store.finalMenus.filter(menu => !rawArray.includes(Number(menu.menuId)));
-  });
-
   if (store.menus.length <= 0) {
     let timeoutId;
     const redirectHome = () => {
@@ -335,10 +290,50 @@ const getStoreMenu = async (storeId) => {
     }, 150);
 
   }
-
 }
 
+// 다른메뉴 전용으로 만듬
+const recMenu = reactive({
+  items: [],
+  menus: [],
+  newMenus: [],
+  deleteMenus: [],
+  finalMenus: []
+})
 
+
+const cartMenu = async () => {
+  const res2 = await getItem();
+
+  recMenu.items = res2.data.resultData || [];
+  const res = await getMenus(recMenu.items[0].storeId);
+  recMenu.menus = res.data.resultData;
+
+  const menuIds = recMenu.items.map(item => item.menuId);
+  const setMenuId = new Set(menuIds);
+  const delId = [...setMenuId];
+  recMenu.deleteMenus = delId;
+
+
+  const allMenus = computed(() => {
+    const random = recMenu.menus.flatMap(item => item.menus.map(menu => toRaw(menu)))
+    for (let i = random.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [random[i], random[j]] = [random[j], random[i]];
+    }
+    return random;
+  }
+  );
+
+
+  recMenu.newMenus = allMenus;
+
+  const rawArray = toRaw(recMenu.deleteMenus);
+
+  const filteredMenus = recMenu.newMenus.filter(menu => !rawArray.includes(Number(menu.menuId)));
+  recMenu.finalMenus = filteredMenus;
+
+}
 
 </script>
 
@@ -480,7 +475,7 @@ const getStoreMenu = async (storeId) => {
             </div>
 
             <div class="store-info">
-              <p class="store-minAmount">
+              <p class="store-minAmount" :class="{ minAomunt: totalPrice < state.store.minAmount }">
                 최소 주문 금액
                 {{ state.store.minAmount.toLocaleString() || '10,000' }}원
               </p>
@@ -500,20 +495,29 @@ const getStoreMenu = async (storeId) => {
       </div>
     </div>
     <!-- 메뉴 카드용! -->
-    <div class="menus-big-box">
-      <div class="menus-title">함께 먹는 메뉴로 어떠신가요?</div>
-      <div class="menus-box">
-        <swiper :slidesPerView="store.finalMenus.length - 1"
-          :modules="[Navigation, Pagination, Scrollbar, A11y, Autoplay]" :speed="1000" :spaceBetween="10"
-          :resistance="false" :resistanceRatio="0" :observer="true" :observe-parents="true" :loop="true">
-          <swiper-slide v-for="menu in store.finalMenus" :key="menu.id"
-            :class="{ hide: menu.isSoldOut === 0 || menu.isHide === 0 }">
-            <Menu @cartAdded="load" :item="menu"></Menu>
-          </swiper-slide>
+    <div v-if="recMenu.finalMenus.length >= 3">
+      <div class="menus-title-box">
+        <div class="menus-title">함께 먹는 메뉴로 어떠신가요?</div>
+      </div>
 
-        </swiper>
+      <div class="menus-big-box">
+        <div class="menus-box">
+          <swiper :slidesPerView="recMenu.finalMenus.length > 5 ? 5 : recMenu.finalMenus.length - 1"
+            :modules="[Navigation, Pagination, Scrollbar, A11y, Autoplay]" :speed="1000" :spaceBetween="0"
+            :resistance="false" :resistanceRatio="0" :observer="true" :observe-parents="true" :loop="true">
+            <swiper-slide v-for="menu in recMenu.finalMenus" :key="menu.id"
+              :class="{ hide: menu.isSoldOut === 0 || menu.isHide === 0 }">
+              <Menu @cartAdded="load" :item="menu"></Menu>
+            </swiper-slide>
+
+          </swiper>
+        </div>
       </div>
     </div>
+    <div v-else>
+
+    </div>
+
     <div class="buttom"></div>
   </div>
 
@@ -683,7 +687,7 @@ const getStoreMenu = async (storeId) => {
   background-color: #fff;
   padding: 40px;
   border-radius: 25px;
-  width: 1250px;
+  width: 1140px;
   height: 400px;
   margin: 0 auto 40px auto; // 가운데 정렬 및 여백
 }
@@ -691,7 +695,7 @@ const getStoreMenu = async (storeId) => {
 .groupContainer {
   display: flex;
   justify-content: center;
-  margin-top: 35px;
+  margin-top: 38px;
   gap: 20px;
   margin-bottom: 30px;
 }
@@ -748,7 +752,7 @@ const getStoreMenu = async (storeId) => {
 // 음식점 가게 카드
 .store-card {
   width: 368px; // 카드 전체 너비
-  border: 2px solid #ccc;
+  border: 1px solid #ccc;
   border-radius: 25px;
   padding: 20px;
   border-radius: 10px;
@@ -821,6 +825,10 @@ const getStoreMenu = async (storeId) => {
 }
 
 .store-minAmount {
+  color: #888;
+}
+
+.minAomunt {
   color: #ff6666;
 }
 
@@ -832,7 +840,7 @@ const getStoreMenu = async (storeId) => {
   width: 830px;
   min-height: 556px;
   padding: 20px;
-  border: 2px solid #ccc;
+  border: 1px solid #ccc;
   border-radius: 15px;
   background-color: #fff;
 
@@ -926,7 +934,7 @@ const getStoreMenu = async (storeId) => {
 .hn-btn-white {
   padding: 10px 130px;
   font-size: 1.8em;
-  border: 2px solid;
+  border: 1px solid;
 
   &:hover {
     background-color: inherit;
@@ -1037,7 +1045,7 @@ const getStoreMenu = async (storeId) => {
 
 .steps-box {
   display: flex;
-  width: 77%;
+  width: 80%;
   justify-content: end;
 }
 
@@ -1116,5 +1124,16 @@ p {
 
 .buttom {
   margin-bottom: 200px;
+}
+
+.menus-title-box {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.min {
+  width: 20%;
 }
 </style>
