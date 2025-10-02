@@ -45,12 +45,12 @@ const createAddress = () => {
 .address-bar {
     display: flex;
     justify-content: center;
-    margin-bottom: 2rem;
+    margin-bottom: 4rem;
 
     .container {
         display: flex;
         align-items: center;
-        width: 1525px;
+        width: 1140px;
     }
 
     /* 검색 input 래퍼 */
@@ -74,7 +74,7 @@ const createAddress = () => {
             width: 100%;
             height: 60px;
             padding: 0.75rem 1rem 0.75rem 50px; // 왼쪽 padding 넉넉히
-            border: 2px solid #ff6666;
+            border: 1px solid #ff6666;
             border-radius: 20px;
             text-align: center;
 

@@ -208,6 +208,9 @@ onMounted(async () => {
     font-weight: 400;
     font-style: normal;
 }
+.container{
+  max-width: 1140px;
+}
 .add-title {
     font-family: "Pretendard-Regular";
   text-align: center;
