@@ -1,9 +1,11 @@
+
+// if (import.meta.env.VITE_USE_MOCK === 'true') {
+//     import('@/services/test/mock.js'); // mock.js가 실행되면서 axios에 목업(임시데이터)이 붙음!
+//   }
 import BootstrapVue3 from 'bootstrap-vue-3'
 import 'bootstrap-vue-3/dist/bootstrap-vue-3.css'
 import 'bootstrap/dist/css/bootstrap.min.css'
-import 'bootstrap/dist/js/bootstrap.bundle.min.js'
-
-import "@/services/test/mock.js"; //임시 목업데이터
+import 'bootstrap/dist/js/bootstrap.bundle.min.js'  // 부트스트랩 드랍다운기능있음
 
 import { createApp } from 'vue'
 import { createPinia } from 'pinia'
