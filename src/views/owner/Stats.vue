@@ -1,109 +1,218 @@
 <script setup>
-import {ref , reactive,  onMounted , computed } from 'vue';
+import {ref , reactive,  onMounted , computed,watch } from 'vue';
 import ChartCard from '@/components/owner/ChartCard.vue';
 import TotalCard from '@/components/owner/TotalCard.vue';
+import { useOwnerStore } from '@/stores/account';
+import { useOrderStore } from '@/stores/orderStore';
+import dayjs from "dayjs";
+import relativeTime from "dayjs/plugin/relativeTime";
+import "dayjs/locale/ko";
+import { getStatus } from '@/services/orderService';
+import StatsDateFilter from '@/components/owner/StatsDateFilter.vue';
+import isSameOrAfter from 'dayjs/plugin/isSameOrAfter';
+import isSameOrBefore from 'dayjs/plugin/isSameOrBefore';
 
-// 토탈카드 임시데이터
-const totalCardData = [
-  //conunt 백엔드 자료 연결
-{ title: '전체 주문 수', count: 2000, toLocalString: '건' },
-{ title: '전체 배달 수', count: 2000, toLocalString: '건' },
-{ title: '취소된 주문',  count: 2000, toLocalString: '건' },
-{ title: '총 매출',     count: 2000, toLocalString: '만' }
-]
 
-// 차트 임시데이터
-const chartData = [
-  {
-    title: '주문 추이',
-    label: ['1월', '2월', '3월'],
-    data: [47, 98, 250]
-  }
-  ,
-  {
-    title: '매출 추이',
-    label: ['4월', '5월', '6월'],
-    data: [1, 50, 200]
-  }
-];
+//날짜기능호출
+dayjs.extend(relativeTime);
+dayjs.extend(isSameOrAfter);
+dayjs.extend(isSameOrBefore);
+dayjs.locale("ko");
+const now = dayjs();
 
-// 날짜필터 선택 관련 변수
-const chartOptions = ['연간', '월간', '주간' , '일간'];
-const selectedChartOption = ref(chartOptions[1]);  //기본값 : 힌딜
-// 날짜필터 선택 시 chartData[] 해당배열번호 리턴
-const currentChartData = computed(()=>{
-  const index = chartOptions.indexOf(selectedChartOption.value);
-  // 예외 시 빈 배열 반환 : chartData의 길이가 chartOptions의 길이와 다르거나, index가 범위를 벗어나는 경우
-  if (index === -1 || index >= chartData.length) {
-    return { label: [], data: [] };
-  }
-  return chartData[index];
-})
+//storeid 호출
+const ownerStore = useOwnerStore();
 
-// 날짜 조회
-const selectedLabel = ref("");
-const data = reactive({
-  // storeId: "",
-  startDate: "",
-  endDate: "",
-});
-//날짜 필터 선택 시
-const selectRange = async (range) => {
-  selectedChartOption.value = range;
-  const end = new Date();
-  end.setDate(end.getDate() + 1);
-  let start;
-  switch (range) {
-    case chartOptions[3]:
-    console.log("일간")
-      selectedLabel.value = chartOptions[3];
-      break;
-    case chartOptions[2]:
-    console.log("주간")
-      selectedLabel.value = chartOptions[2];
-      start = new Date();
-      start.setDate(end.getDate() - 7);
-      data.storeId = storeId?.value;
-      data.startDate = formatDate(start);
-      data.endDate = formatDate(end);
-      break;
-    case chartOptions[1]:
-    console.log("월간")
-      selectedLabel.value = chartOptions[1];
-      start = new Date();
-      start.setMonth(end.getMonth() - 1);
-      data.storeId = storeId?.value;
-      data.startDate = formatDate(start);
-      data.endDate = formatDate(end);
-      break;
-    case chartOptions[0]:
-      console.log("연간")
-      selectedLabel.value = chartOptions[0];
-      data.storeId = storeId?.value;
-      data.startDate = null;
-      data.endDate = null;
-      break;
-  }
-  // console.log("res.data.resultData: ",data.storeId)
-  const res = await getOrderByDate(data);
-  console.log("res.data.resultData: ", res.data.resultData);
-  if (res.status !== 200) {
-    showAlert("데이터 조회에 실패하였습니다.");
+//가게에대한 주문정보(가격, 주문갯수) 호출
+const data = ref([])
+const fetchStatus = async (start , end) => {
+  const params = reactive({
+    storeId: ownerStore.state.storeData.id,
+    startDate: start,
+    endDate: end,
+  });
+  
+  if (!ownerStore.state.storeData.id) {
+    console.warn("storeId가 준비되지 않았습니다");
     return;
   }
-  if (res.status === 403) {
-    showAlert("데이터 조회 권한이 없습니다.");
+
+  if (!start || !end) {
+    console.warn("날짜정보가 입력되지 않았습니다");
     return;
   }
-  orderStore.orders = res.data.resultData;
+
+  try {
+    const res = await getStatus(params);
+
+    // res가 정상인지 확인
+    if (!res || !res.data) {
+      console.warn("API 응답 없음 또는 형식 불일치:", res);
+      return;
+    }
+    data.value = res.data.resultData || [];
+    console.log("data:", data.value);
+  } catch (err) {
+    console.error("API 호출 실패:", err);
+  }
 };
 
 
-onMounted(() => {
+// 차트데이터 정의
+//const chartLabels = ref([]);
+//const chartData =  ref([]);
+const chartForm = reactive({
+    title: "주문추이",
+    label: [],
+    data: []
+  });
+  const chartForm2 = reactive({
+    title: "매출추이",
+    label: [],
+    data: []
+  });
+
+
+//날짜 선택 상태 (emit)
+const selectedDate = reactive({
+  selectedChartOption:"",
+  startDate: now.subtract(1, "month").format("YYYY-MM-DD"),
+  endDate: now.format("YYYY-MM-DD"),
+});
+
+//날짜 선택 시 실행
+const handleDateUpdate = ({ selectedChartOption, startDate, endDate }) => {
+  selectedDate.selectedChartOption = selectedChartOption
+  selectedDate.startDate = startDate;
+  selectedDate.endDate = endDate;
   
-  // 월간 데이터 자동 선택
-  selectRange(selectedChartOption.value);
+  // 선택된 날짜 기준으로 서버 호출
+  fetchStatus(startDate, endDate).then(()=>{
+
+    // 공통 필터: startDate ~ endDate 범위 내 데이터만
+    const filteredData = data.value.filter(order => {
+    const orderDate = dayjs(order.createdAt);
+    return orderDate.isSameOrAfter(dayjs(startDate)) && orderDate.isSameOrBefore(dayjs(endDate));
+    });
+
+    switch(selectedChartOption){
+    case "일간":
+    chartForm.label = Array.from({ length: 24 }, (_, i) => dayjs().hour(i).format("H시"));
+
+    const hourlyAmounts = Array.from({ length: 24 }, () => 0);
+    data.value.forEach( order => {
+    const hour = dayjs(order.createdAt).hour(); // createdAt에서 시간 추출 (0~23)
+    hourlyAmounts[hour] += order.amount;         // 해당 시간대 amount 합산
+    });
+    chartForm.data = hourlyAmounts;
+
+    break;
   
+    case "주간":
+    chartForm.label = ["일","월", "화", "수", "목", "금", "토"];
+    const weekAmounts = Array(7).fill(0);
+    // 각 주문 amount를 요일 인덱스에 더하기
+    data.value.forEach(order => {
+      const weekday = dayjs(order.createdAt).day(); // 0: 일, 1: 월, ..., 6: 토
+      weekAmounts[weekday] += order.amount;
+    });
+    chartForm.data = weekAmounts;
+    console.log(weekAmounts);
+
+
+    break;
+  
+    case "월간":
+    // 이번 달 1일, 마지막 날
+    const now = dayjs();
+    const startOfMonth = now.startOf("month"); // 1일
+    const endOfMonth = now.endOf("month");     // 마지막 날
+    const startWeekDay = startOfMonth.day();   // 1일 요일 (0:일 ~ 6:토)
+    const lastDate = endOfMonth.date();        // 마지막 날짜
+    const totalWeeks = Math.ceil((lastDate + startWeekDay) / 7); // 최대 주 수
+
+    // 주간 amount 배열 초기화
+    const monthAmounts = Array(totalWeeks).fill(0);
+
+    filteredData.forEach(order => {
+      const dayOfMonth = dayjs(order.createdAt).date();
+      const weekIndex = Math.floor((dayOfMonth + startWeekDay - 1) / 7);
+      monthAmounts[weekIndex] += order.amount;
+    });
+
+    chartForm.label = Array.from({ length: totalWeeks }, (_, i) => `${i + 1}주`);
+
+    // // ref/ reactive 쓰고 있다면 data.value.forEach로 변경
+    // data.value.forEach(order => {
+    //   const dayOfMonth = dayjs(order.createdAt).date(); // 날짜(1~31)
+    //   // 몇 번째 주인지 계산 (0~totalWeeks-1)
+    //   const weekIndex = Math.floor((dayOfMonth + startWeekDay - 1) / 7);
+    //   monthAmounts[weekIndex] += order.amount;
+    // });
+
+    console.log(monthAmounts);
+    chartForm.data = monthAmounts;
+
+    break;
+  
+    case "연간":
+    chartForm.label = Array.from({ length: 12 }, (_, i) => dayjs().month(i).format("M월"));
+    
+    break;
+    
+  }
+
+  })};
+
+
+
+
+
+//전체 주문 수
+const orderCount = computed(()=>{
+  return data.value.length;
+})
+//전체 배달 수
+const deliveredOrdersCount = computed(()=>{
+  return data.value.filter(order => order.status === '05').length;
+})
+
+//취소주문 건
+const canceledOrdersCount = computed(()=>{
+  return data.value.filter(order => order.status === '06').length;
+})
+
+//총 매출
+const totalPrice = computed(() => {
+  // amount 값 다 더하고 만원 단위로 변환 (반올림)
+  const result = data.value.reduce((sum, order) => sum + (order.amount || 0), 0);
+  const manWon = Math.floor(result / 10000); // 만원 단위로 변환, 소수점 제거
+  return manWon.toLocaleString("ko-KR");
+});
+
+//토탈카드 데이터
+const totalCardData = [
+{ title: '전체 주문 수', count: orderCount || "0" , toLocalString : '건' },
+{ title: '전체 배달 수', count: deliveredOrdersCount || "0" , toLocalString: '건' },
+{ title: '취소된 주문',  count: canceledOrdersCount || "0", toLocalString: '건' },
+{ title: '총 매출',     count: totalPrice || "0" , toLocalString: '만' },
+]
+
+
+
+
+// 날짜필터 선택 시 chartForm[] 해당배열번호 리턴
+// const currentChartData = computed(()=>{
+//   const index = dateOptions.indexOf(selectedChartOption.value);
+//   // 예외 시 빈 배열 반환 : chartForm의 길이가 dateOptions의 길이와 다르거나, index가 범위를 벗어나는 경우
+//   if (index === -1 || index >= chartForm.length) {
+//     return { label: [], data: [] };
+//   }
+//   return chartForm[index];
+// })
+
+
+onMounted(async () => {
 });
 
 </script>
@@ -112,20 +221,7 @@ onMounted(() => {
   
   <div class="wrap">
     <!-- 조회기간 설정 (기본 한달) -->
-    <div class="date-option dropdown" ref="orderDetail">
-      <button class="date-filter" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown">
-        <img src="/src/imgs/owner/Icon_조회기간설정2.svg" alt="캘린더아이콘" />
-        <span> {{selectedLabel ? selectedLabel : "조회 기간 선택"}}</span>
-        <img src="/src/imgs/owner/Icon_목록단추.svg" alt="목록단추" />
-      </button>
-      <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdownMenuButton">
-        <li v-for="(op,idx) in chartOptions" :key="idx" >
-          <button class="dropdown-item" @click="selectRange(chartOptions[idx])" >
-            {{ op }}
-          </button>
-        </li>
-      </ul>
-    </div>
+     <StatsDateFilter @update-date="handleDateUpdate" ></StatsDateFilter>
     <!-- 조회기간설정카드 끝-->
 
     <div class="total-wrap">
@@ -133,8 +229,8 @@ onMounted(() => {
     </div><!--total-wrap 끝 -->
 
     <div class="chart-wrap">
-      <ChartCard class="white-card" title="주문 추이" labelY="y축범례" type="bar" :chart-data="currentChartData" />
-      <ChartCard class="white-card" title="매출 추이" labelY="y축범례" type="line" :chart-data="currentChartData" />
+      <ChartCard class="white-card" :title=chartForm.title labelY="y축범례" type="bar" :chart-data="chartForm" />
+      <ChartCard class="white-card" :title=chartForm2.title labelY="y축범례" type="line" :chart-data="chartForm" />
       <!-- <ChartCard class="white-card" title="주문 추이" labelY="y축범례" type="bar" :chart-data="currentChartData" />
       <ChartCard class="white-card" title="매출 추이" labelY="y축범례" type="line" :chart-data="currentChartData" /> -->
     </div>
@@ -149,29 +245,6 @@ display: flex;
 flex-direction: column;
 justify-content: left;
 gap: 20px;
-
-.date-filter {
-  width: 300px;
-  height: 50px;
-  background-color: #fff;
-  border-radius: var(--card-lg-radius);
-  box-shadow: var(--card-shadow);
-  display: flex;
-  justify-content: space-around;
-  align-items: center;
-  padding: 10px 15px;
-  span {
-    display: block;
-    width: 100%;
-    font-size: 1.2rem;
-    text-align: left;
-    padding-left: 10%;
-  }
-  img:last-child {
-    transform: translateY(-1px);
-  }
-}
-
 
 .total-wrap{
   width: 100%;
