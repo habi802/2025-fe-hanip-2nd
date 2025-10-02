@@ -50,6 +50,7 @@ const createAddress = () => {
     .container {
         display: flex;
         align-items: center;
+        width: 1525px;
     }
 
     /* 검색 input 래퍼 */
@@ -90,7 +91,7 @@ const createAddress = () => {
         background-color: #ff6666;
         color: #fff;
         border: none;
-        border-radius: 20px;
+        border-radius: 15px;
         cursor: pointer;
         display: flex;
         align-items: center;
