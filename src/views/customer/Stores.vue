@@ -1,197 +1,105 @@
 <script setup>
 import { Swiper, SwiperSlide } from 'swiper/vue';
 import { Navigation, Pagination, Scrollbar, A11y, Autoplay, } from 'swiper/modules';
-
 import 'swiper/css';
 import 'swiper/css';
 import 'swiper/css/navigation';
 import 'swiper/css/pagination';
 import 'swiper/css/scrollbar';
 
-import { reactive, onMounted, nextTick, ref } from 'vue';
-import { useRouter, useRoute } from 'vue-router';
+import { reactive, onMounted, ref, watch } from 'vue';
+import { useRoute, useRouter } from 'vue-router';
 import { getStoreList } from '@/services/storeService';
-import StoreList from '@/components/customer/StoreList.vue';
+import StoreCard from '@/components/customer/StoreCard.vue';
 
 const route = useRoute();
 const router = useRouter();
 
 const state = reactive({
     stores: [],
+    form: {
+        category: '',
+        searchText: ''
+    },
+    page: 1,
+    size: 8
 });
-const stores = ref([]);
 
-// 쿼리에서 검색어 추출
-const query = ref(route.query.search_text || '');
-const result = ref([]);
+const searchTextRef = ref('');
 
-const searchText = async (search_text) => {
-    try {
-        const params = { search_text };
-        const res = await getStoreList({ page: 0, size: 10 });
+// 가게 조회
+const getStore = async () => {
+    console.log(state.form);
+    const res = await getStoreList({
+        category: state.form.category,
+        searchText: state.form.searchText,
+        page: state.page,
+        size: state.size
+    });
 
-        result.value = res.data.resultData || [];
-        state.stores = result.value;
-    } catch (error) {
-        console.error('에러 발생:', error);
-        result.value = [];
-        state.stores = [];
+    if (res !== undefined && res.status === 200) {
+        state.stores = res.data.resultData;
+        console.log(state.stores);
     }
 };
 
-const name = reactive({
-    text: '전체',
-});
-
 onMounted(() => {
-    searchText(query.value);
-    nextTick(() => {
-        if (query.value) {
-            name.text = query.value;
-        }
-        const text = router.currentRoute.value.query.section;
-        switch (text) {
+    if (route.query.category !== undefined) {
+        switch (route.query.category) {
             case 'korean':
-                searchKoreanFood();
+                state.form.category = '01';
                 break;
-            case 'china':
-                searchChina();
+            case 'chinese':
+                state.form.category = '02';
                 break;
-            case 'japan':
-                searchJapanese();
+            case 'japanese':
+                state.form.category = '03';
                 break;
-            case 'pasta':
-                searchWesternFood();
+            case 'western':
+                state.form.category = '04';
                 break;
-            case 'cafe':
-                searchDessert();
+            case 'dessert':
+                state.form.category = '05';
                 break;
             case 'snack':
-                searchSnackFood();
+                state.form.category = '06';
                 break;
-            case 'fast':
-                searchFastFood();
+            case 'fastfood':
+                state.form.category = '07';
                 break;
             case 'asian':
-                searchAsian();
+                state.form.category = '08';
                 break;
             case 'chicken':
-                searchChick();
+                state.form.category = '09';
                 break;
             case 'pizza':
-                searchPizza();
+                state.form.category = '10';
                 break;
             case 'night':
-                searchLateNight();
+                state.form.category = '11';
                 break;
-            default:
-                if (query.value) {
-                    return;
-                }
-                findAll({});
         }
-    });
+    }
+    if (route.query.searchText !== undefined) {
+        state.form.searchText = route.query.searchText;
+        searchTextRef.value = state.form.searchText;
+    }
+
+    getStore();
 });
 
-// 카테고리 필터
-// 전체 찾기
-const searchAll = () => {
-    findAll();
-    name.text = '전체';
-};
-// 한식 찾기
-const searchKoreanFood = () => {
-    const searchCategory = {
-        category: '한식',
-    };
-    name.text = '한식';
-    findAll(searchCategory);
-};
-// 중식 찾기
-const searchChina = () => {
-    const searchCategory = {
-        category: '중식',
-    };
-    name.text = '중식';
-    findAll(searchCategory);
-};
-// 일식 찾기
-const searchJapanese = () => {
-    const searchCategory = {
-        category: '일식',
-    };
-    name.text = '일식';
-    findAll(searchCategory);
-};
-// 양식 찾기
-const searchWesternFood = () => {
-    const searchCategory = {
-        category: '양식',
-    };
-    name.text = '양식';
-    findAll(searchCategory);
-};
-// 디저트 찾기
-const searchDessert = () => {
-    const searchCategory = {
-        category: '카페',
-    };
-    name.text = '카페/디저트';
-    findAll(searchCategory);
-};
-// 분식 찾기
-const searchSnackFood = () => {
-    const searchCategory = {
-        category: '분식',
-    };
-    name.text = '분식';
-    findAll(searchCategory);
-};
-// 패스트푸드 찾기
-const searchFastFood = () => {
-    const searchCategory = {
-        category: '패스트푸드',
-    };
-    name.text = '패스트푸드';
-    findAll(searchCategory);
-};
-// 아시안 푸드 찾기
-const searchAsian = () => {
-    const searchCategory = {
-        category: '아시안',
-    };
-    name.text = '아시안';
-    findAll(searchCategory);
-};
-// 치킨 찾기
-const searchChick = () => {
-    const searchCategory = {
-        category: '치킨',
-    };
-    name.text = '치킨';
-    findAll(searchCategory);
-};
-// 피자 찾기
-const searchPizza = () => {
-    const searchCategory = {
-        category: '피자',
-    };
-    name.text = '피자';
-    findAll(searchCategory);
-};
-// 야식 찾기
-const searchLateNight = () => {
-    const searchCategory = {
-        category: '야식',
-    };
-    name.text = '야식';
-    findAll(searchCategory);
-};
+const searchStore = (category, searchText) => {
+    router.push({ path: '/stores', query: { category: category, searchText: searchText }});
 
-const findAll = async (params) => {
-    const res = await getStoreList(params);
-    state.stores = res.data.resultData || [];
-};
+    state.form.category = category;
+    state.form.searchText = searchText;
+    searchTextRef.value = searchText;
+}
+
+watch(() => [state.form.category, state.form.searchText], () => {
+    getStore();
+});
 
 const sortKey = ref('');
 const sortOrder = ref('asc');
@@ -205,22 +113,13 @@ function setSort(key) {
     }
 }
 
+// 화면 상단 이동
 const arrow = () => {
     window.scrollTo({
         top: 0,
         behavior: 'smooth',
     });
 };
-
-// 검색
-const search = ref('');
-
-const caLink = async () => {
-    const res = await getStoreList({ searchText: search.value });
-    state.stores = res.data.resultData;
-    name.text = search.value;
-};
-
 </script>
 
 <template>
@@ -233,73 +132,73 @@ const caLink = async () => {
                 :modules="[ Navigation, Pagination, Scrollbar, A11y, Autoplay ]" :speed="100" :loop="true">
                 <swiper-slide>
                     <div class="imgBox">
-                        <img @click="searchAll" id="cImg" src="/src/imgs/allImg.png" alt="allImg" />
+                        <img @click="searchStore('', state.form.searchText)" id="cImg" src="/src/imgs/allImg.png" alt="allImg" />
                     </div>
                     <div id="cName">전체</div>
                 </swiper-slide>
                 <swiper-slide>
                     <div class="imgBox">
-                        <img @click="searchKoreanFood" id="cImg" src="/src/imgs/koreanfood.png" alt="koreanImg" />
+                        <img @click="searchStore('korean', state.form.searchText)" id="cImg" src="/src/imgs/koreanfood.png" alt="koreanImg" />
                     </div>
                     <div id="cName">한식</div>
                 </swiper-slide>
                 <swiper-slide>
                     <div class="imgBox">
-                        <img @click="searchChina" id="cImg" src="/src/imgs/jjajangmyeon.png" alt="ChinaImg" />
+                        <img @click="searchStore('chinese', state.form.searchText)" id="cImg" src="/src/imgs/jjajangmyeon.png" alt="ChinaImg" />
                     </div>
                     <div id="cName">중식</div>
                 </swiper-slide>
                 <swiper-slide>
                     <div class="imgBox">
-                        <img @click="searchJapanese" id="cImg" src="/src/imgs/porkcutlet.png" alt="japanese" />
+                        <img @click="searchStore('japanese', state.form.searchText)" id="cImg" src="/src/imgs/porkcutlet.png" alt="japanese" />
                     </div>
                     <div id="cName">일식</div>
                 </swiper-slide>
                 <swiper-slide>
                     <div class="imgBox">
-                        <img @click="searchWesternFood" id="cImg" src="/src/imgs/pasta.png" alt="westernFood" />
+                        <img @click="searchStore('western', state.form.searchText)" id="cImg" src="/src/imgs/pasta.png" alt="westernFood" />
                     </div>
                     <div id="cName">양식</div>
                 </swiper-slide>
                 <swiper-slide>
                     <div class="imgBox">
-                        <img @click="searchDessert" id="cImg" src="/src/imgs/dessert.png" alt="dessert" />
+                        <img @click="searchStore('dessert', state.form.searchText)" id="cImg" src="/src/imgs/dessert.png" alt="dessert" />
                     </div>
                     <div id="cName">카페/디저트</div>
                 </swiper-slide>
                 <swiper-slide>
                     <div class="imgBox">
-                        <img @click="searchSnackFood" id="cImg" src="/src/imgs/tteokbokki.png" alt="snackFood" />
+                        <img @click="searchStore('snack', state.form.searchText)" id="cImg" src="/src/imgs/tteokbokki.png" alt="snackFood" />
                     </div>
                     <div id="cName">분식</div>
                 </swiper-slide>
                 <swiper-slide>
                     <div class="imgBox">
-                        <img @click="searchFastFood" id="cImg" src="/src/imgs/hamburger.png" alt="fastFood" />
+                        <img @click="searchStore('fastfood', state.form.searchText)" id="cImg" src="/src/imgs/hamburger.png" alt="fastFood" />
                     </div>
                     <div id="cName">패스트푸드</div>
                 </swiper-slide>
                 <swiper-slide>
                     <div class="imgBox">
-                        <img @click="searchAsian" id="cImg" src="/src/imgs/nd.png" alt="asian" />
+                        <img @click="searchStore('asian', state.form.searchText)" id="cImg" src="/src/imgs/nd.png" alt="asian" />
                     </div>
                     <div id="cName">아시안</div>
                 </swiper-slide>
                 <swiper-slide>
                     <div class="imgBox">
-                        <img @click="searchChick" id="cImg" src="/src/imgs/chicken.png" alt="chick" />
+                        <img @click="searchStore('chicken', state.form.searchText)" id="cImg" src="/src/imgs/chicken.png" alt="chick" />
                     </div>
                     <div id="cName">치킨</div>
                 </swiper-slide>
                 <swiper-slide>
                     <div class="imgBox">
-                        <img @click="searchPizza" id="cImg" src="/src/imgs/pizza.png" alt="pizza" />
+                        <img @click="searchStore('pizza', state.form.searchText)" id="cImg" src="/src/imgs/pizza.png" alt="pizza" />
                     </div>
                     <div id="cName">피자</div>
                 </swiper-slide>
                 <swiper-slide>
                     <div class="imgBox">
-                        <img @click="searchLateNight" id="cImg" src="/src/imgs/pigfeet.png" alt="lateNight" />
+                        <img @click="searchStore('night', state.form.searchText)" id="cImg" src="/src/imgs/pigfeet.png" alt="lateNight" />
                     </div>
                     <div id="cName">야식</div>
                 </swiper-slide>
@@ -309,11 +208,13 @@ const caLink = async () => {
             </div>
         </div>
     </div>
+
     <div class="searchBar">
-        <input v-model="search" @keyup.enter="caLink" type="text" id="title" class="searchBox"
-            placeholder="찾는 맛집 이름,메뉴가 무엇인가요?" />
-        <img @click="caLink" class="searchImg" src="/src//imgs/fluent_search.png" />
+        <input v-model="searchTextRef" @keyup.enter="searchStore(route.query.category, searchTextRef)"
+            type="text" id="title" class="searchBox" placeholder="찾는 맛집 이름,메뉴가 무엇인가요?" />
+        <img @click="searchStore(route.query.category, searchTextRef)" class="searchImg" src="/src//imgs/fluent_search.png" />
     </div>
+
     <div class="sort-options">
         <span :class="{ active: sortKey === 'price' }" @click="setSort('price')">주문 금액 순</span>
         <span class="divider">|</span>
@@ -324,42 +225,16 @@ const caLink = async () => {
         <span class="divider">|</span>
         <span :class="{ active: sortKey === 'review' }" @click="setSort('review')">리뷰순</span>
     </div>
-    <div class="card-list">
-        <div class="card" v-for="store in stores" :key="store.id">
-            <div class="card-img-wrapper">
-                <img :src="store.imageUrl" alt="가게 이미지" class="card-img" />
-                <div v-if="!store.isOpen" class="closed-overlay">영업 준비중 입니다</div>
-            </div>
-
-            <div class="card-body">
-                <h3 class="card-title">{{ store.name }}</h3>
-                <div class="card-meta">
-                    <span class="rating">⭐ {{ store.rating }}</span>
-                    <span class="review">({{ store.reviewCount }})</span>
-                    <span class="like">❤️ {{ store.likeCount }}</span>
-                </div>
-
-                <p class="delivery">
-                    배달료 {{ store.deliveryFeeMin }}원 ~ {{ store.deliveryFeeMax }}원
-                </p>
-                <p class="min-order">
-                    최소 주문 금액 {{ formatPrice(store.minOrderPrice) }}원
-                </p>
-
-                <button class="detail-btn">자세히보기</button>
-            </div>
-        </div>
-    </div>
+    
     <div class="guideBox">
         <div class="position-relative" v-if="state.stores.length === 0">
             <img src="/src/imgs/owner/owner-service2.png" style="position: absolute; transform: translateX(540px)" />
         </div>
         <div v-for="store in state.stores" :key="store.storeId">
-            <StoreList :stores="store" />
+            <StoreCard :store="store" />
         </div>
     </div>
 
-    <div class="footer"></div>
     <img @click="arrow" class="arrow" src="/src/imgs/arrow.png" />
 </template>
 
@@ -464,10 +339,6 @@ const caLink = async () => {
     margin: 0 auto;
     margin-top: 100px;
     background-color: #fff;
-}
-
-.footer {
-    margin-bottom: 300px;
 }
 
 .imgBox {
