@@ -118,7 +118,7 @@ const isCartPage = computed(() => route.path.startsWith("/cart"));
           <img class="address-image" src="/src/imgs/weui_location-filled.png" />
           <span class="address-text ms-3">
             <span class="login-address"
-              >{{ state.user.address }} {{ state.user.addressDetail?? "주소를 입력해주세요" }}</span
+              >{{ state.user.address }} {{ state.user.addressDetail }}</span
             >
           </span>
         </div>
