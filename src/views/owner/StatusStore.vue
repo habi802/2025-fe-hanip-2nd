@@ -25,6 +25,7 @@ const state = reactive({
             tel2: owner.state.storeData.tel.split('-')[1],
             tel3: owner.state.storeData.tel.split('-')[2],
             imagePath: owner.state.storeData.imagePath,
+            bannerPath: owner.state.storeData.bannerPath,
             comment: owner.state.storeData.comment,
             categories: owner.state.storeData.categories
         }
@@ -35,7 +36,7 @@ const selected = ref('control');
 
 // 가게 정보 저장
 const updateStore = async () => {
-    console.log(state.form);
+    console.log("state.form", state.form);
 
     const formData = new FormData();
     
@@ -58,6 +59,7 @@ const updateStore = async () => {
     };
 
     formData.append('pic', state.form.static.imagePath);
+    formData.append('bannerPic', state.form.static.bannerPath);
     formData.append('req', new Blob([JSON.stringify(payload)], { type: 'application/json' }));
 
     const res = await modify(formData);
