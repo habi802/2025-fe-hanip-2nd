@@ -8,6 +8,11 @@ export const modifyStatus = (params) => {
   return axios.patch("/order/status", params).catch((e) => e.response)
 }
 
+//가게 전체주문내역조회
+export const getStatus = (params) => {
+  return axios.get("/order/statistics", {params}).catch((e) => e.response)
+}
+
 // PAID 조회
 export const getOwnerPaidOrder = (id) => {
   return axios.get(`/order/status/ordered/${id}`).catch((e) => e.response);

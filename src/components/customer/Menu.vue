@@ -195,5 +195,6 @@ const firstItem = reactive({
 .soldOut {
     opacity: 0.4;
     pointer-events: none;
+    background-color: #ccc;
 }
 </style>

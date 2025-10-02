@@ -10,19 +10,6 @@ const props = defineProps({
     order: Object,
 });
 
-// 주문일 표시
-const formatDateTime = (created) => {
-    const date = new Date(created);
-
-    const yyyy = date.getFullYear();
-    const mm = String(date.getMonth() + 1).padStart(2, '0');
-    const dd = String(date.getDate()).padStart(2, '0');
-    const hh = String(date.getHours()).padStart(2, '0');
-    const min = String(date.getMinutes()).padStart(2, '0');
-    const ss = String(date.getSeconds()).padStart(2, '0');
-
-    return `${yyyy}-${mm}-${dd} ${hh}:${min}:${ss}`;
-};
 
 // 주문 상태 표시
 const statusText = computed(() => {
@@ -44,62 +31,29 @@ const statusText = computed(() => {
     }
 });
 
-onMounted(() => {
+const emit = defineEmits(['review', 'delete-order', 're-order']);
 
-});
+const baseUrl = ref(import.meta.env.VITE_BASE_URL);
+
 
 // 가게 이미지
-const img = `/pic/store-profile/${props.order?.storeId}/${props.order?.imagePath}`;
-
-// 가게 이미지가 없을 시 대체 이미지 나타내기
 const imgSrc = computed(() => {
-    return props.order &&
-        props.order?.imagePath &&
-        props.order?.imagePath !== "null"
-        ? `/pic/store-profile/${props.order?.storeId}/${props.order?.imagePath}`
+    return props.order && props.order.storePic !== null
+        ? `${baseUrl.value}/images/store/${props.order.storeId}/${props.order.storePic}`
         : defaultImage;
-});
+})
 
-// 주문내역 삭제
-const emit = defineEmits(["delete-order", "re-order"]);
 
-// 주문 상태에 따른 버튼
-const statusBtn = computed(() => {
-    switch (props.order.status) {
-        case "ORDERED":
-            return {
-                color: "#6B6B6B",
-                border: "2px solid #6B6B6B ",
-                pointerEvents: "none",
-            };
-        case "PREPARING":
-            return {
-                color: "#6B6B6B",
-                border: "2px solid #6B6B6B ",
-                pointerEvents: "none",
-            };
-        case "DELIVERING":
-            return {
-                color: "#6B6B6B",
-                border: "2px solid #6B6B6B ",
-                pointerEvents: "none",
-            };
-        case "CANCELED":
-            return {
-                color: "#6B6B6B",
-                border: "2px solid #6B6B6B ",
-                pointerEvents: "none",
-            };
-        case "COMPLETED":
-            return 0;
-        default:
-            return {
-                color: "#6B6B6B",
-                border: "2px solid #6B6B6B ",
-                pointerEvents: "none",
-            };
-    }
-});
+//날짜!
+const formatDate = (dateStr) => {
+    const date = new Date(dateStr);
+    const options = { year: 'numeric', month: 'numeric', day: 'numeric', weekday: 'short' };
+    // 한국어 기준
+    return date.toLocaleDateString('ko-KR', options);
+};
+
+
+
 </script>
 
 <template>
@@ -107,15 +61,18 @@ const statusBtn = computed(() => {
         <div class="board">
             <!-- 카드 왼쪽 [ 주문 시간 , 이미지 , 가게 이름 ] -->
             <div class="boardLeft">
-                <div class="created">{{ formatDateTime(props.order.createdAt) }}</div>
+                <div class="created">{{ formatDate(props.order.createdAt) }}</div>
                 <div class="imgBox">
                     <img class="img" :src="imgSrc" @error="(e) => (e.target.src = defaultImage)" />
                 </div>
                 <div class="textBox">
                     <div>{{ props.order.storeName }}</div>
                     <div class="menumeta">
-                        <span class="star">⭐{{ props.order.rating }} ({{ props.order?.reviews || "983" }})</span>
-                        <span class="heart">❤️ {{ props.order.favorites }}</span>
+                        <span class="star">★</span>
+                        <span class="total-num">{{ props.order.rating }} ({{ props.order?.reviewLength || "983"
+                            }})</span>
+                        <span class="heart">♥</span>
+                        <span class="total-num">{{ props.order.favorites }}</span>
                     </div>
                     <div class="menuminimum">최소 주문 금액 {{ props.order.minAmount?.toLocaleString() }}원</div>
                 </div>
@@ -124,14 +81,14 @@ const statusBtn = computed(() => {
             <!-- 카드 중앙 [ 메뉴 이름, 갯수, 가격 ] -->
             <div class="boardMiddle">
                 <div class="menuBox">
-                    <div class="menu" v-for="menu in props.order.menuItems.slice(0, 3)" :key="menu.id">
+                    <div class="menu" v-for="menu in props.order.menuItems.slice(0, 5)" :key="menu.id">
                         <div class="name">{{ menu.menuName }}</div>
                         <div class="num">{{ menu.quantity }}개</div>
                         <div class="price">{{ menu.amount?.toLocaleString() }}원</div>
                     </div>
                     <!-- 메뉴가 3건 초과일 경우 외 n 건으로 표시 -->
                     <div v-if="props.order.menuItems.length > 3" class="more">
-                        <div class="moreText">... 외 {{ props.order.menuItems.length - 3 }}건</div>
+                        <div class="moreText">... 외 {{ props.order.menuItems.length - 5 }}건</div>
                     </div>
                 </div>
             </div>
@@ -151,8 +108,9 @@ const statusBtn = computed(() => {
             <!-- 버튼 -->
             <div class="btns">
                 <button type="button" class="btn" @click="$emit('re-order', props.order.menuItems)">재주문하기</button>
-                <button type="button" :class="['btn', { 'btn-disabled': props.order.status !== '05'}]"
-                    @click="router.push(`/review/${props.order.orderId}`);" :disabled="props.order.status !== '05'">리뷰 등록</button>
+                <button type="button" :class="['btn', { 'btn-disabled': props.order.status !== '05' }]"
+                    @click="$emit('review', props.order.orderId, props.order.storeName, props.order.menuItems, props.order.getReview)"
+                    :disabled="props.order.status !== '05'">{{ props.order.getReview > 0 ? "리뷰 수정" : "리뷰 등록" }}</button>
                 <button type="button" class="btn" @click="router.push(`/orders/${props.order.orderId}`);">주문 상세</button>
                 <button type="button"
                     :class="['btn', { 'btn-disabled': props.order.status !== '05' && props.order.status !== '06' }]"
@@ -164,6 +122,13 @@ const statusBtn = computed(() => {
 </template>
 
 <style lang="scss" scoped>
+@font-face {
+    font-family: 'YFavorite';
+    src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/2410-1@1.0/YOnepickTTF-Regular.woff2') format('woff2');
+    font-weight: 400;
+    font-display: swap;
+}
+
 .bigBoard {
     width: 1280px !important;
     border: #797979 2px solid !important;
@@ -175,6 +140,7 @@ const statusBtn = computed(() => {
 
     .board {
         display: flex;
+
         width: 100%;
         justify-content: space-between;
         align-items: center;
@@ -202,9 +168,9 @@ const statusBtn = computed(() => {
             }
 
             .textBox {
-                font-family: "BMJUA";
+
                 font-size: 1.5em;
-                font-weight: 700;
+                font-weight: 400;
                 margin-left: 10px;
                 margin-top: 10px;
                 text-align: left;
@@ -237,10 +203,16 @@ const statusBtn = computed(() => {
                 margin-top: 10px;
                 display: flex;
                 justify-content: end;
-                margin-right: 50px;
+                // margin-right: 50px;
             }
 
             .menuBox {
+                height: 330px;
+                display: flex;
+                flex-direction: column;
+
+                padding: 20px;
+
                 .menu {
                     display: flex;
                     justify-content: space-between;
@@ -267,8 +239,10 @@ const statusBtn = computed(() => {
         }
 
         .boardRigth {
+
             display: flex;
-            gap: 80px;
+            justify-content: center;
+            gap: 40px;
             text-align: center;
 
             .amountText {
@@ -430,5 +404,26 @@ const statusBtn = computed(() => {
     font-size: 0.6em;
     margin-left: 10px;
     margin-bottom: 10px;
+}
+
+.moreText {
+    color: #888;
+}
+
+.star {
+    font-family: "BMJUA";
+    font-size: 1.5em;
+    color: #FAC729;
+}
+
+.heart {
+    font-family: 'YFavorite';
+    font-size: 1.25em;
+    color: red;
+    width: 20px;
+}
+
+.total-num {
+    font-weight: 600;
 }
 </style>
