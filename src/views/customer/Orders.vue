@@ -74,6 +74,7 @@ const getOrderList = async () => {
         page: state.page,
         rowPerPage: state.rowPerPage
     });
+    console.log("오더 데이터",res)
 
     if (res !== undefined && res.status === 200) {
         state.orders.push(...res.data.resultData);
