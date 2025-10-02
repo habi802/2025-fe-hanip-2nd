@@ -48,9 +48,9 @@ const router = createRouter({
       meta: { layout: CustomerLayout },
     },
     {
-      path: "/categoryList",
-      name: "category",
-      component: () => import("@/views/customer/Category.vue"),
+      path: "/stores",
+      name: "stores",
+      component: () => import("@/views/customer/Stores.vue"),
       meta: { layout: CustomerLayout },
     },
     {

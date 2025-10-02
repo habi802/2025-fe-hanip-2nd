@@ -42,7 +42,6 @@ const removeAddress = () => emit('remove-address', props.address.id);
     grid-template-columns: repeat(2, 1fr);
     gap: 2rem;
     justify-items: center; // 가운데 정렬
-    margin-bottom: 5rem;
 }
 
 // 카드 전체 스타일
@@ -75,24 +74,21 @@ const removeAddress = () => emit('remove-address', props.address.id);
 
         // 현재 주소지 설정 버튼
         .current-btn {
-            width: 250px;
-            height: 40px;
             border-radius: 8px;
             cursor: pointer;
-            font-size: 14px;
-            border: 1px solid #ff6666;
-            background-color: white;
-            color: #ff6666;
+            font-size: 20px;
+            background-color: #fff;
+            color: #ccc;
             transition: all 0.15s;
 
             &:hover {
-                background-color: #ffe6e6;
+                color: #fcaeae;
             }
 
             &.active {
-                background-color: #ff6666;
-                color: white;
-                border: none;
+                background-color: #fff;
+                color: #ff6666;
+                font-weight: 600;
             }
         }
     }

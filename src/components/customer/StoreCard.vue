@@ -1,0 +1,183 @@
+<script setup>
+import { computed, onMounted, ref } from "vue";
+import defaultImage from "@/imgs/owner/haniplogo_sample4.png";
+import { useRouter } from "vue-router";
+import { getReviewScoreByStoreId } from "@/services/reviewServices";
+
+const router = useRouter();
+
+// 가게 정보
+const props = defineProps({
+    store: Object,
+});
+
+onMounted(() => {
+    reviews();
+});
+
+// 가게 이미지
+const storeImage = computed(() => {
+    return props.store && props.store.imagePath && props.store.imagePath !== null
+        ? `/pic/store/${props.store.id}/${props.store.imagePath}`
+        : defaultImage;
+});
+
+// 별점 조회
+let total = ref(0);
+let leng = ref(0);
+
+const reviews = async () => {
+    const res = await getReviewScoreByStoreId(props.store.id);
+    if (res !== undefined && res.status === 200) {
+        const data = res.data.resultData;
+        leng.value = data.length;
+
+        let totals = 0;
+        for (let i = 0; i < data.length; i++) {
+            const forNum = data[i].rating;
+            totals += forNum;
+        }
+        totals = (totals / data.length).toFixed(1);
+        total.value = totals;
+    }
+};
+</script>
+
+<template>
+    <div class="store">
+        <div class="storeImgBox">
+            <img class="sImg" :src="storeImage" @error="(e) => (e.target.src = defaultImage)" />
+        </div>
+        <div class="storeTextBox">
+            <div class="sText">{{ props.store?.name }}</div>
+            <div class="icons">
+                <div class="d-flex align-items-center star">
+                    <img id="icon" src="/src/imgs/star.png" />
+                    <span class="starNum" v-if="total !== 'NaN'">
+                        {{ total ? total : 0 }}
+                    </span>
+                    <span class="starNum" v-else>0</span>
+                    <span class="starNum"></span>
+                </div>
+                <div class="d-flex align-items-center love">
+                    <img id="icon" src="/src/imgs/love.png" />
+                    {{ props.store?.favorites }}
+                </div>
+            </div>
+            <div id="smallText">
+                <span v-if="props.store.maxDeliveryFee !== 0 && props.store.minDeliveryFee !== 0">
+                    배달료 {{ props.store.minDeliveryFee.toLocaleString() }}원 ~ {{ props.store.maxDeliveryFee.toLocaleString() }}원
+                </span>
+                <span v-else>
+                    배달료 0원
+                </span>
+            </div>
+            <div id="smallText">
+                최소 주문 금액 {{ props.store.minAmount.toLocaleString() }}원
+            </div>
+        </div>
+        <div class="w-100 d-flex justify-content-center mt-3">
+            <div class="btn" @click="router.push(`/stores/${props.store.id}`)">자세히보기</div>
+        </div>
+    </div>
+</template>
+
+<style lang="scss" scoped>
+@font-face {
+    font-family: "BMJUA";
+    src: url("https://fastly.jsdelivr.net/gh/projectnoonnu/noonfonts_one@1.0/BMJUA.woff")
+        format("woff");
+    font-weight: 600;
+    font-style: normal;
+}
+
+.f-text {
+    font-family: "BMJUA";
+    letter-spacing: 2px;
+    color: #ff6666;
+    font-size: 2em;
+    text-align: center;
+    padding-top: 105px;
+    margin-left: 15px;
+}
+
+.store {
+    width: 280px;
+    height: 380px;
+    border-radius: 20px;
+    border: #797979 solid 1px;
+    //-webkit-box-shadow: 6px 7px 5px -2px rgba(0, 0, 0, 0.33);
+    //box-shadow: 6px 7px 5px -2px rgba(0, 0, 0, 0.33);
+
+    .storeImgBox {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        width: 100%;
+        height: 180px;
+        overflow: hidden;
+        border-radius: 20px 20px 0 0;
+
+        .sImg {
+            width: 100%;
+            height: 100%;
+            text-align: center;
+            margin: auto;
+            border-radius: 20px 20px 0 0;
+            object-fit: cover;
+        }
+    }
+
+    .storeTextBox {
+        margin-left: 25px;
+
+        #smallText {
+            font-size: 0.8em;
+            color: #6c6c6c;
+            margin-top: 4px;
+        }
+
+        .sText {
+            font-size: 1.3em;
+            font-weight: 700;
+            margin-top: 15px;
+        }
+    }
+
+    .icons {
+        font-family: "BMJUA";
+        display: flex;
+
+        #icon {
+            width: 20px;
+            margin-right: 5px;
+        }
+
+        .star {
+            .starNum {
+                font-size: 18px;
+            }
+        }
+
+        .love {
+            margin-left: 10px;
+            font-size: 18px;
+        }
+    }
+}
+
+.btn {
+    font-family: "BMJUA";
+    font-size: 1em;
+    color: #fff;
+    background-color: #ff6666;
+    text-align: center;
+    width: 163px;
+    padding: 7px;
+    border-radius: 10px;
+}
+
+.footer {
+    margin-bottom: 100px;
+}
+</style>
