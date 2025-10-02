@@ -1,50 +1,49 @@
 <script setup>
 import { ref } from "vue";
 import { useRouter } from "vue-router";
+
 const router = useRouter();
 const search = ref("");
+
 const caLink = () => {
-  router.push({ path: "/categoryList", query: { search_text: search.value } });
+  router.push({ path: "/stores", query: { category: '', searchText: search.value } });
 };
-//
+
 const koreanLink = () => {
-  router.push({ path: "/categoryList", query: { section: "korean" } });
+  router.push({ path: "/stores", query: { category: "korean", searchText: search.value } });
 };
 const chinaLink = () => {
-  router.push({ path: "/categoryList", query: { section: "china" } });
+  router.push({ path: "/stores", query: { category: "chinese", searchText: search.value } });
 };
 const japanLink = () => {
-  router.push({ path: "/categoryList", query: { section: "japan" } });
+  router.push({ path: "/stores", query: { category: "japanese", searchText: search.value } });
 };
 const pastaLink = () => {
-  router.push({ path: "/categoryList", query: { section: "pasta" } });
+  router.push({ path: "/stores", query: { category: "western", searchText: search.value } });
 };
 const cafeLink = () => {
-  router.push({ path: "/categoryList", query: { section: "cafe" } });
+  router.push({ path: "/stores", query: { category: "dessert", searchText: search.value } });
 };
 const snackLink = () => {
-  router.push({ path: "/categoryList", query: { section: "snack" } });
+  router.push({ path: "/stores", query: { category: "snack", searchText: search.value } });
 };
 const fastFoodLink = () => {
-  router.push({ path: "/categoryList", query: { section: "fast" } });
+  router.push({ path: "/stores", query: { category: "fastfood", searchText: search.value } });
 };
 const asianLink = () => {
-  router.push({ path: "/categoryList", query: { section: "asian" } });
+  router.push({ path: "/stores", query: { category: "asian", searchText: search.value } });
 };
 const chickenLink = () => {
-  router.push({ path: "/categoryList", query: { section: "chicken" } });
+  router.push({ path: "/stores", query: { category: "chicken", searchText: search.value } });
 };
 const pizzaLink = () => {
-  router.push({ path: "/categoryList", query: { section: "pizza" } });
+  router.push({ path: "/stores", query: { category: "pizza", searchText: search.value } });
 };
 const nightLink = () => {
-  router.push({ path: "/categoryList", query: { section: "night" } });
+  router.push({ path: "/stores", query: { category: "night", searchText: search.value } });
 };
-const aaa = () => {
-  router.push("/order-test")
-}
 </script>
-<!--           class="form-control p-3 me-3" -->
+
 <template>
   <div class="all">
     <div class="box d-flex">
