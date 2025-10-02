@@ -14,109 +14,9 @@ const account = useAccountStore();
 const owner = useOwnerStore();
 const orderStore = useOrderStore();
 
-const redDot = ref(false);
-// const orderStore = useOrderStore();
-const notifications = ref([]); // 알림배열
-const removedNotification = ref(new Set());
-
 onMounted( async () => {
-    //가게정보 피니아
     await owner.fetchStoreInfo();
-
-    // const res = await getOwnerStore();
-    // if (res !== undefined && res.status === 200) {
-        
-        // owner.state.storeId = res.data.resultData.id;
-        // owner.state.storeData = res.data.resultData;
-
-    //     // provide를 통해 하위 컴포넌트에 값을 물려줌. 하위 컴포넌트에서는 inject를 써서 그 값을 물려받을 수 있음
-    //     // provide("isOpen", owner.state.storeData.isOpen);
-    //     // provide("ownerName", owner.state.storeData.ownerName);
-    //     // provide("storeId", owner.state.storeData.id);
-    //     // provide("storeActive", owner.state.storeData.isActive);
-    //     // provide("toggleBusiness", toggleBusiness);
-        
-    // }
 });
-
-
-// 알림 갱신
-onMounted(async () => {
-    const saved = localStorage.getItem("removedNotification");
-    if (saved) {
-        removedNotification.value = new Set(JSON.parse(saved));
-    }
-    //checkAcconut();
-});
-
-watch(() => route.path, () => {
-    //checkAcconut();
-});
-
-// 알림 갱신 (watch)
-watch(
-    () => orderStore.orderedList,
-    (newOrders) => {
-        newOrders.forEach((order) => {
-        // 삭제한 알림이면 추가하지 않음
-        if (removedNotification.value.has(order.id)) return;
-
-        const exists = notifications.value.find((n) => n.id === order.id);
-        if (!exists) {
-            notifications.value.push({
-            id: order.id,
-            message: `새로운 주문: ${order.id}`,
-            });
-            redDot.value = true; // 빨간 점
-        }
-        });
-    },
-    { deep: true }
-);
-
-const openDropdown = () => {
-    redDot.value = false;
-};
-
-// 삭제할 때 localStorage에 저장
-const removeNotification = (id) => {
-    notifications.value = notifications.value.filter((n) => n.id !== id);
-    removedNotification.value.add(id);
-    localStorage.setItem(
-        "removedNotification",
-        JSON.stringify(Array.from(removedNotification.value))
-    );
-};
-
-// 영업 버튼 토글
-// const isOpen = ref(false);
-
-// const toggleBusiness = async () => {
-//     const storeId = state.store.id;
-//     const willOpen = !isOpen.value;
-
-//     const confirmMessage = willOpen
-//         ? "가게 영업을 시작하시겠습니까?"
-//         : "가게 영업을 중지하겠습니까?";
-
-//     if (confirm(confirmMessage)) {
-//         await patchIsOpen(storeId);
-
-//         const res = await getOwnerStore();
-//         if (res.status === 200) {
-//             state.store = res.data.resultData;
-//             isOpen.value = state.store.isActive;
-
-//             // 상태에 따라 경로 이동
-//             if (isOpen.value) {
-//                 router.push("/owner/dashboard");
-//             } else {
-//                 router.push("/owner");
-//             }
-//         }
-//     } else {
-//     }
-// };
 
 // 로그아웃
 const signOut = async () => {
@@ -141,36 +41,59 @@ const menus = [
     { text: "메뉴 관리", path: "/owner/menu" },
     { text: "리뷰 관리", path: "/owner/review" },
     { text: "통계 현황", path: "/owner/donations" },
-    // { text: "배달 관리", path: "/owner/delivery" },
-    // { text: "고객 관리", path: "/owner/customer" },
-    // { text: "쿠폰 관리", path: "/owner/coupons" },
-    // { text: "광고 관리", path: "/owner/ads" },
 ];
 
-// 시계
-// const currentTime = ref("");
 
-// const updateClock = () => {
-//     const now = new Date();
-
-//     const month = now.getMonth() + 1;
-//     const date = now.getDate();
-//     const dayNames = ["일", "월", "화", "수", "목", "금", "토"];
-//     const day = dayNames[now.getDay()];
-
-//     currentTime.value = `${month}월 ${date}일 (${day})`;
-// };
-
-// let intervalId = null;
-
+// SSE
 onMounted(() => {
-    // updateClock();
-    // intervalId = setInterval(updateClock, 1000);
+    if (owner.state.storeData?.id) {
+    connectSSE(owner.state.storeData.id);
+  }
 });
 
 onUnmounted(() => {
-    // clearInterval(intervalId);
+  if (eventSource) eventSource.close();
 });
+
+// SSE 대쉬보드 알림
+const redDotDashboard = ref(false); // 대시보드 빨간 불 상태
+let eventSource = null;
+
+// SSE 연결
+function connectSSE(storeId) {
+  eventSource = new EventSource(`http://localhost:8080/api/sse/order/${storeId}`);
+
+  eventSource.addEventListener("connect", (e) => {
+    console.log("SSE 연결 성공:", e.data);
+  });
+
+  eventSource.addEventListener("order", (e) => {
+    const data = JSON.parse(e.data);
+    console.log("새 주문 도착:", data);
+    orderStore.fetchPaidOrders(storeId);
+    orderStore.fetchPreparingOrders(storeId);
+    orderStore.fetchDeliveredOrders(storeId);
+    orderStore.markUpdated(data.orderId);
+
+    if (route.path !== "/owner/dashboard") {
+      redDotDashboard.value = true;
+    }
+  });
+
+  eventSource.onerror = () => {
+    console.error("SSE 오류, 재연결 시도...");
+    setTimeout(() => connectSSE(storeId), 3000);
+  };
+}
+
+watch(
+  () => route.path,
+  (path) => {
+    if (path === "/owner/dashboard") {
+      redDotDashboard.value = false;
+    }
+  }
+);
 </script>
 
 <template>
@@ -215,15 +138,16 @@ onUnmounted(() => {
             </div>
             <ul class="nav nav-pills flex-column gap-4 align-items-center">
                 <li class="nav-item" v-for="menu in menus" :key="menu.text">
-                    <RouterLink :to="menu.path"
-                        class="nav-link w-80 text-center size d-flex justify-content-center align-items-center" :style="{
-                            backgroundColor: route.path === menu.path ? '#f66463' : '#dddddd',
-                            color:
-                                route.path === menu.path
-                                ? '#FFFFFF !important'
-                                : '#333333 !important',
-                            fontSize: '17px',
-                        }">
+                    <RouterLink
+                    :to="menu.path"
+                    class="nav-link w-80 text-center size d-flex justify-content-center align-items-center"
+                    :class="{ blinking: menu.path === '/owner/dashboard' && redDotDashboard }"
+                    :style="{
+                        backgroundColor: route.path === menu.path ? '#f66463' : '#dddddd',
+                        color: route.path === menu.path ? '#FFFFFF !important' : '#333333 !important',
+                        fontSize: '17px',
+                        }"
+                        >
                         {{ menu.text }}
                     </RouterLink>
                 </li>
@@ -279,14 +203,22 @@ onUnmounted(() => {
 }
 
 .red-dot {
-    width: 12px;
-    height: 12px;
-    background-color: red;
-    border-radius: 50%;
-    position: absolute;
-    top: 0px;
-    right: 4px;
-    border: 1px solid white;
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  margin-left: 6px;
+  background: red;
+  border-radius: 50%;
+}
+
+@keyframes blink {
+  0%   { background-color: #f66463; }  /* 원래 빨간색 */
+  50%  { background-color: #ff9a9a; }  /* 밝은 빨강 */
+  100% { background-color: #f66463; }
+}
+
+.nav-link.blinking {
+  animation: blink 1s ease-in-out infinite;
 }
 
 .vertical-line {

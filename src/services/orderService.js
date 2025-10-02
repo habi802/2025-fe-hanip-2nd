@@ -50,7 +50,7 @@ export const patchDeliveredOrder = (orderId) => {
 
 // 주문 상태 변경 : 취소됨
 export const patchCanceledOrder = (orderId) => {
-  return axios.patch(`/order/status/canceled/${orderId}`).catch((e) => e.response)
+  return axios.post(`/order/cancel/${orderId}`).catch((e) => e.response)
 }
 
 export const getOwnerOrder2 = (id) => {

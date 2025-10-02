@@ -15,6 +15,7 @@
     "bootstrap-vue": "^2.23.1",
     "bootstrap-vue-3": "^0.5.1",
     "chart.js": "^4.5.0",
+    "cropperjs": "^2.0.1",
     "dayjs": "^1.11.18",
     "faker": "^6.6.6",
     "flatpickr": "^4.6.13",

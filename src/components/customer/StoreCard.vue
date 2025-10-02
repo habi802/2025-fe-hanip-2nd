@@ -15,16 +15,10 @@ onMounted(() => {
     reviews();
 });
 
-
 // 가게 이미지
-const img = `/pic/store-profile/${props.store.storeId}/${props.store.imagePath}`;
-
-// 가게 이미지가 없을 시 대체 이미지 나타내기
-const imgSrc = computed(() => {
-    return props.store &&
-        props.store.imagePath &&
-        props.store.imagePath !== "null"
-        ? `/pic/store-profile/${props.store.storeId}/${props.store.imagePath}`
+const storeImage = computed(() => {
+    return props.store && props.store.imagePath && props.store.imagePath !== null
+        ? `/pic/store/${props.store.id}/${props.store.imagePath}`
         : defaultImage;
 });
 
@@ -52,32 +46,39 @@ const reviews = async () => {
 <template>
     <div class="store">
         <div class="storeImgBox">
-            <img
-                class="sImg"
-                :src="imgSrc"
-                @error="(e) => (e.target.src = defaultImage)"
-            />
+            <img class="sImg" :src="storeImage" @error="(e) => (e.target.src = defaultImage)" />
         </div>
         <div class="storeTextBox">
             <div class="sText">{{ props.store?.name }}</div>
             <div class="icons">
-                <div class="star">
+                <div class="d-flex align-items-center star">
                     <img id="icon" src="/src/imgs/star.png" />
                     <span class="starNum" v-if="total !== 'NaN'">
                         {{ total ? total : 0 }}
                     </span>
-                    <span class="starNum" v-else> 0 </span>
+                    <span class="starNum" v-else>0</span>
                     <span class="starNum"></span>
                 </div>
-                <div class="love">
+                <div class="d-flex align-items-center love">
                     <img id="icon" src="/src/imgs/love.png" />
                     {{ props.store?.favorites }}
                 </div>
             </div>
-            <div id="smallText">배달료 0원 ~ 3000원</div>
-            <div id="smallText">최소 주문 금액 11000원</div>
+            <div id="smallText">
+                <span v-if="props.store.maxDeliveryFee !== 0 && props.store.minDeliveryFee !== 0">
+                    배달료 {{ props.store.minDeliveryFee.toLocaleString() }}원 ~ {{ props.store.maxDeliveryFee.toLocaleString() }}원
+                </span>
+                <span v-else>
+                    배달료 0원
+                </span>
+            </div>
+            <div id="smallText">
+                최소 주문 금액 {{ props.store.minAmount.toLocaleString() }}원
+            </div>
         </div>
-        <div class="btn" @click="router.push(`/stores/${props.store.id}`)">자세히보기</div>
+        <div class="w-100 d-flex justify-content-center mt-3">
+            <div class="btn" @click="router.push(`/stores/${props.store.id}`)">자세히보기</div>
+        </div>
     </div>
 </template>
 
@@ -100,151 +101,83 @@ const reviews = async () => {
     margin-left: 15px;
 }
 
-.guideBox {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    gap: 80px 30px;
-    width: 1600px;
-    height: 100%;
-    margin: 0 auto;
-    margin-top: 50px;
-    background-color: #fff;
+.store {
+    width: 280px;
+    height: 380px;
+    border-radius: 20px;
+    border: #797979 solid 1px;
+    //-webkit-box-shadow: 6px 7px 5px -2px rgba(0, 0, 0, 0.33);
+    //box-shadow: 6px 7px 5px -2px rgba(0, 0, 0, 0.33);
 
-    .store {
-        width: 360px;
-        height: 470px;
-        border-radius: 20px;
-        border: #797979 solid 2px;
-        //-webkit-box-shadow: 6px 7px 5px -2px rgba(0, 0, 0, 0.33);
-        //box-shadow: 6px 7px 5px -2px rgba(0, 0, 0, 0.33);
+    .storeImgBox {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        width: 100%;
+        height: 180px;
+        overflow: hidden;
+        border-radius: 20px 20px 0 0;
 
-        .storeImgBox {
-            display: flex;
-            justify-content: center;
-            align-items: center;
+        .sImg {
             width: 100%;
-            height: 280px;
-            overflow: hidden;
+            height: 100%;
+            text-align: center;
+            margin: auto;
             border-radius: 20px 20px 0 0;
-
-            .sImg {
-                width: 100%;
-                height: 100%;
-                text-align: center;
-                margin: auto;
-                border-radius: 20px 20px 0 0;
-                object-fit: cover;
-            }
-        }
-
-        .storeTextBox {
-            margin-left: 25px;
-
-            #smallText {
-                font-size: 0.8em;
-                color: #6c6c6c;
-                margin-top: 4px;
-            }
-
-            .sText {
-                font-size: 1.3em;
-                font-weight: 700;
-                margin-top: 10px;
-            }
-        }
-
-        .icons {
-            font-family: "BMJUA";
-            display: flex;
-            margin-top: 5px;
-
-            #icon {
-                width: 20px;
-            }
-
-            .star {
-                .starNum {
-                font-size: 18px;
-                }
-            }
-
-            .love {
-                margin-left: 10px;
-                font-size: 18px;
-            }
+            object-fit: cover;
         }
     }
 
-    .btn {
+    .storeTextBox {
+        margin-left: 25px;
+
+        #smallText {
+            font-size: 0.8em;
+            color: #6c6c6c;
+            margin-top: 4px;
+        }
+
+        .sText {
+            font-size: 1.3em;
+            font-weight: 700;
+            margin-top: 15px;
+        }
+    }
+
+    .icons {
         font-family: "BMJUA";
-        font-size: 1em;
-        color: #fff;
-        background-color: #ff6666;
-        text-align: center;
-        width: 163px;
-        padding: 7px;
-        margin-top: 15px;
-        margin-left: 100px;
-        border-radius: 10px;
+        display: flex;
+
+        #icon {
+            width: 20px;
+            margin-right: 5px;
+        }
+
+        .star {
+            .starNum {
+                font-size: 18px;
+            }
+        }
+
+        .love {
+            margin-left: 10px;
+            font-size: 18px;
+        }
     }
+}
+
+.btn {
+    font-family: "BMJUA";
+    font-size: 1em;
+    color: #fff;
+    background-color: #ff6666;
+    text-align: center;
+    width: 163px;
+    padding: 7px;
+    border-radius: 10px;
 }
 
 .footer {
     margin-bottom: 100px;
-}
-
-// 반응형
-@media (max-width: 1800px) {
-    .guideBox {
-        justify-content: center;
-        width: 1200px;
-    }
-}
-
-@media (max-width: 1400px) {
-    .guideBox {
-        width: 900px;
-
-        .store {
-            width: 200px;
-            height: 300px;
-
-            .storeImgBox {
-                width: 150px;
-                height: 130px;
-                margin-left: 25px;
-                margin-top: 2px;
-
-                .sImg {
-                    width: 150px;
-                }
-            }
-
-            .storeTextBox {
-                margin-top: -10px;
-                font-size: 0.8em;
-            }
-
-            .btn {
-                width: 100px;
-                font-size: 0.6em;
-                margin-top: 3px;
-                margin-left: 50px;
-            }
-        }
-    }
-}
-
-@media (max-width: 1030px) {
-    .guideBox {
-        width: 800px;
-    }
-}
-
-@media (max-width: 800px) {
-    .guideBox {
-        width: 450px;
-    }
 }
 </style>

@@ -2,230 +2,223 @@
 import { ref, computed, onMounted } from 'vue';
 import { useOwnerStore } from '@/stores/account';
 import defaultImage from '@/imgs/owner/owner-service2.png';
+import BannerCropperModal from '../modal/BannerCropperModal.vue';
 
 const owner = useOwnerStore();
 
 const props = defineProps({
-    form: Object
+  form: Object
 });
-
 const emit = defineEmits(['update-form']);
 
 const baseUrl = import.meta.env.VITE_BASE_URL;
 
+const bannerFile = ref(null);
+const showCropModal = ref(false);
+
 const storeImageFileInput = ref(null);
+const bannerImageFileInput = ref(null);
 const storePreviewImage = ref(`${baseUrl}/images/store/${owner.state.storeData.id}/${props.form.imagePath}`);
+const bannerPreviewImage = ref(`${baseUrl}/images/store/${owner.state.storeData.id}/${props.form.bannerPath}`);
 
-// 가게 이미지 미리보기 div 클릭 시 보이지 않게 해놓은 input을 강제로 클릭하게 하여 파일 첨부하는 창 열리게 함
-const selectStoreImageFile = () => {
-    storeImageFileInput.value?.click();
-};
+// 이미지 선택
+const selectStoreImageFile = () => storeImageFileInput.value?.click();
+const selectBannerImageFile = () => bannerImageFileInput.value?.click();
 
-// 이미지 파일 선택 시 가게 이미지 미리보기가 바뀌게 하는 함수
 const changeStoreImageFile = e => {
-    const file = e.target.files[0];
-    if (file) {
-        storePreviewImage.value = URL.createObjectURL(file);
-        updateForm('imagePath', file);
-    }
+  const file = e.target.files[0];
+  if (file) {
+    storePreviewImage.value = URL.createObjectURL(file);
+    updateForm('imagePath', file);
+  }
+};
+const changeBannerImageFile = e => {
+  const file = e.target.files[0];
+  if (file) {
+    bannerPreviewImage.value = URL.createObjectURL(file);
+    updateForm('bannerPath', file);
+    // bannerFile.value = file;
+    // showCropModal.value = true;
+  }
+};
+const onCroppedBanner = (file) => {
+  updateForm("bannerPath", file);
+  bannerPreviewImage.value = URL.createObjectURL(file);
 };
 
+// 카테고리
 const selectedCategory = ref([]);
 const showCategoryDropdown = ref(false);
+const categoryOption = ['한식','중식','일식','양식','디저트','분식','패스트푸드','아시안','치킨','피자','야식'];
 
-// 카테고리 option 선택
 function toggleCategoryItem(option) {
-    const idx = selectedCategory.value.indexOf(option);
-    if (idx === -1) {
-        selectedCategory.value.push(option);
-    } else {
-        selectedCategory.value.splice(idx, 1);
-    }
-
-    updateForm('categories', [...sortedSelectedCategory.value]);
+  const idx = selectedCategory.value.indexOf(option);
+  if (idx === -1) selectedCategory.value.push(option);
+  else selectedCategory.value.splice(idx, 1);
+  updateForm('categories', [...sortedSelectedCategory.value]);
 }
+const sortedSelectedCategory = computed(() =>
+  categoryOption.filter(option => selectedCategory.value.includes(option))
+);
 
-const categoryOption = ['한식', '중식', '일식', '양식', '디저트', '분식', '패스트푸드', '아시안', '치킨', '피자', '야식'];
-
-// 선택한 카테고리 정렬
-const sortedSelectedCategory = computed(() => categoryOption.filter(option => selectedCategory.value.includes(option)));
-
-// 백엔드에서 받아 온 가게의 카테고리를 selectedCategory에 넣음
 onMounted(() => {
-    selectedCategory.value = props.form.categories.filter(val => categoryOption.includes(val));
+  selectedCategory.value = props.form.categories.filter(val => categoryOption.includes(val));
 });
 
-// 부모 컴포넌트(StatusStore.vue)에 입력한 값 전달
 const updateForm = (key, value) => {
-    emit('update-form', { ...props.form, [key]: value });
-}
+  emit('update-form', { ...props.form, [key]: value });
+};
 </script>
 
 <template>
-    <form>
-        <div class="store-info-wrap1">
-            <span>대표자 이름</span>
-            <div class="gray-content">{{ owner.state.storeData.ownerName }}</div>
-            <span>가게 상호명</span>
-            <div class="gray-content">{{ owner.state.storeData.name }}</div>
-            <span>사업자 등록번호</span>
-            <div class="gray-content">{{ owner.state.storeData.businessNumber }}</div>
-            <span>가게 주소</span>
-                <div class="address-box gray-content">
-                    {{ `${owner.state.storeData.postCode}, ${owner.state.storeData.address + (owner.state.storeData.addressDetail ? ', ' + owner.state.storeData.addressDetail : '')}` }}
-                </div>
-            <span>가게 전화</span>
-            <div class="call-box d-flex gap-2">
-                <select v-model="props.form.tel1" @change="updateForm('tel1', $event.target.value)" class="gray-content">
-                    <option>02</option>
-                    <option>053</option> 
-                    <option>010</option>
-                </select>
-                <input v-model="props.form.tel2" @input="updateForm('tel2', $event.target.value)" class="gray-content"></input> 
-                <input v-model="props.form.tel3" @input="updateForm('tel3', $event.target.value)" class="gray-content"></input>
-            </div>
+  <div class="container-fluid">
 
-            <span>업종</span>
-            <div class="gray-content select-category">
-                <input type="text" :value="sortedSelectedCategory.join(', ')" @click="showCategoryDropdown = !showCategoryDropdown" readonly />
-                <ul v-if="showCategoryDropdown" class="select-category-dropdown">
-                    <li @click="toggleCategoryItem('한식')" :class="{ selected: selectedCategory.includes('한식') }">한식</li>
-                    <li @click="toggleCategoryItem('중식')" :class="{ selected: selectedCategory.includes('중식') }">중식</li>
-                    <li @click="toggleCategoryItem('일식')" :class="{ selected: selectedCategory.includes('일식') }">일식</li>
-                    <li @click="toggleCategoryItem('양식')" :class="{ selected: selectedCategory.includes('양식') }">양식</li>
-                    <li @click="toggleCategoryItem('디저트')" :class="{ selected: selectedCategory.includes('디저트') }">디저트</li>
-                    <li @click="toggleCategoryItem('분식')" :class="{ selected: selectedCategory.includes('분식') }">분식</li>
-                    <li @click="toggleCategoryItem('패스트푸드')" :class="{ selected: selectedCategory.includes('패스트푸드') }">패스트푸드</li>
-                    <li @click="toggleCategoryItem('아시안')" :class="{ selected: selectedCategory.includes('아시안') }">아시안</li>
-                    <li @click="toggleCategoryItem('치킨')" :class="{ selected: selectedCategory.includes('치킨') }">치킨</li>
-                    <li @click="toggleCategoryItem('피자')" :class="{ selected: selectedCategory.includes('피자') }">피자</li>
-                    <li @click="toggleCategoryItem('야식')" :class="{ selected: selectedCategory.includes('야식') }">야식</li>
-                </ul>
-            </div>
+    <!-- 기본정보 + 수정정보 2열 -->
+    <h5 class="mb-3 fw-bold border-bottom pb-2 text-center">가게 기본정보</h5>
+    <div class="row align-items-start">
+      <!-- 좌측: 고정정보 -->
+      <div class="col-md-6">
+        <div class="mb-3 row">
+          <label class="col-sm-3 col-form-label fw-semibold">대표자 이름</label>
+          <div class="col-sm-8 pt-2">{{ owner.state.storeData.ownerName }}</div>
+        </div>
+        <div class="mb-3 row">
+          <label class="col-sm-3 col-form-label fw-semibold">가게 상호명</label>
+          <div class="col-sm-8 pt-2">{{ owner.state.storeData.name }}</div>
+        </div>
+        <div class="mb-3 row">
+          <label class="col-sm-3 col-form-label fw-semibold">사업자 등록번호</label>
+          <div class="col-sm-8 pt-2">{{ owner.state.storeData.businessNumber }}</div>
+        </div>
+        <div class="mb-3 row">
+          <label class="col-sm-3 col-form-label fw-semibold">가게 주소</label>
+          <div class="col-sm-8 pt-2">
+            {{ `${owner.state.storeData.postCode}, ${owner.state.storeData.address}${owner.state.storeData.addressDetail ? ', ' + owner.state.storeData.addressDetail : ''}` }}
+          </div>
+        </div>
+      </div>
+
+      <!-- 우측: 수정 가능한 필드 -->
+      <div class="col-md-6">
+        <div class="mb-3 row">
+          <label class="col-sm-3 col-form-label fw-semibold">가게 전화</label>
+          <div class="col-sm-8 d-flex gap-2">
+            <select v-model="props.form.tel1" @change="updateForm('tel1', $event.target.value)" class="form-select w-auto">
+              <option>02</option>
+              <option>053</option>
+              <option>010</option>
+            </select>
+            <input v-model="props.form.tel2" @input="updateForm('tel2', $event.target.value)" class="form-control w-25" />
+            <input v-model="props.form.tel3" @input="updateForm('tel3', $event.target.value)" class="form-control w-25" />
+          </div>
         </div>
 
-        <div class="store-info-wrap2">
-            <span>가게 대표 이미지</span>
-            <div class="store-image" @click="selectStoreImageFile">
-                <template v-if="storePreviewImage">
-                    <img :src="storePreviewImage" @error="e => e.target.src = defaultImage" alt="가게 대표 이미지 미리보기" />
-                </template>
-                <template v-else>
-                    이미지를 등록하세요
-                </template>
-            </div>
-            <input id="imgInput" ref="storeImageFileInput" type="file" accept="image/*" @change="changeStoreImageFile" style="display: none" />
-            <span>가게 소개글</span>
-            <div class="store-comment-wrapper">
-                <textarea class="store-comment p-2" v-model="props.form.comment" @input="updateForm('comment', $event.target.value)"></textarea>
-                <span class="store-comment-placeholder" v-if="!props.form.comment">
-                    최대 200자 이하<br/>
-                    짧은 홍보 문구를 작성해보세요!
-                </span>
-            </div>
+        <div class="mb-3 row">
+          <label class="col-sm-3 col-form-label fw-semibold">업종</label>
+          <div class="col-sm-8 position-relative">
+            <input type="text" class="form-control" :value="sortedSelectedCategory.join(', ')" readonly
+                   @click="showCategoryDropdown = !showCategoryDropdown" />
+            <ul v-if="showCategoryDropdown" class="dropdown-menu show w-100">
+              <li v-for="option in categoryOption" :key="option"
+                  @click="toggleCategoryItem(option)"
+                  :class="{ 'dropdown-item': true, active: selectedCategory.includes(option) }">
+                {{ option }}
+              </li>
+            </ul>
+          </div>
         </div>
-    </form>
+
+        <div class="mb-3 row">
+          <label class="col-sm-3 col-form-label fw-semibold">가게 소개글</label>
+          <div class="col-sm-8">
+            <textarea class="form-control" rows="4" v-model="props.form.comment"
+                      @input="updateForm('comment', $event.target.value)"
+                      placeholder="최대 200자 이하, 짧은 홍보 문구를 작성해보세요!"></textarea>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 이미지 관리 -->
+    <h5 class="mt-4 mb-3 fw-bold border-bottom pb-2 text-center">이미지 관리</h5>
+    <div class="row g-4 justify-content-center">
+      <div class="col-md-4">
+        <div class="image-upload-card">
+          <div class="image-wrapper" @click="selectStoreImageFile">
+            <img :src="storePreviewImage" @error="e => e.target.src = defaultImage" alt="대표 이미지" />
+            <div class="overlay">대표 이미지 변경</div>
+          </div>
+          <input ref="storeImageFileInput" type="file" accept="image/*" @change="changeStoreImageFile" style="display: none" />
+        </div>
+      </div>
+
+      <div class="col-md-8">
+        <div class="image-upload-card">
+          <div class="image-wrapper banner" @click="selectBannerImageFile">
+            <img :src="bannerPreviewImage" @error="e => e.target.src = defaultImage" alt="배너 이미지" />
+            <div class="overlay">배너 이미지 변경</div>
+          </div>
+          <input ref="bannerImageFileInput" type="file" accept="image/*" @change="changeBannerImageFile" style="display: none" />
+        </div>
+      </div>
+    </div>
+
+    <!-- 크롭 모달 -->
+    <BannerCropperModal
+      :file="bannerFile"
+      :show="showCropModal"
+      @close="showCropModal = false"
+      @cropped="onCroppedBanner"
+    />
+  </div>
 </template>
 
 <style scoped lang="scss">
-form {
-    display: flex;
-    gap: 50px;
-}
+.image-upload-card {
+  .image-wrapper {
+    position: relative;
+    width: 300px;
+    height: 280px;
+    background: #f8f9fa;
+    border-radius: var(--card-lg-radius);
+    cursor: pointer;
+    overflow: hidden;
+    border: 2px dashed #dee2e6;
+    transition: all 0.3s ease;
 
-.store-info-wrap1 {
-    display: grid;
-    grid-template-columns: 100px 620px;
-    align-items: center;
-    gap: 20px;
-
-    .call-box {
-        display: flex;
+    &.banner {
+        width: 900px;
+        height: 280px;
     }
 
-    .select-category {
-        position: relative;
+    img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      border-radius: var(--card-lg-radius);
+      transition: transform 0.3s ease;
     }
 
-    .select-category input {
-        width: 100%;
-        border: none;
-        outline: none;
-        box-shadow: none;
-        cursor: pointer;
+    .overlay {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(0, 0, 0, 0.55);
+      color: #fff;
+      opacity: 0;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+      transition: opacity 0.3s ease;
     }
 
-    .select-category-dropdown {
-        position: absolute;
-        top: 100%;
-        left: 0;
-        width: 100%;
-        border: 1px solid #ccc;
-        background: white;
-        list-style: none;
-        margin: 0;
-        padding: 0;
-        max-height: 150px;
-        overflow-y: auto;
-        z-index: 10;
+    &:hover img {
+      transform: scale(1.05);
     }
-
-    .select-category-dropdown li {
-        padding: 5px;
-        cursor: pointer;
+    &:hover .overlay {
+      opacity: 1;
     }
-
-    .select-category-dropdown li.selected {
-        background-color: #dedede;
-    }
-}
-
-.store-info-wrap2 {
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-
-    .address-box {
-        display: flex;
-        flex-direction: column;
-    }
-
-    .store-image {
-        width: 420px;
-        height: 230px;
-        cursor: pointer;
-        background-color: #E8E8E8;
-        border-radius: var(--card-lg-radius);
-        border: none;
-
-        img {
-            width: 100%;
-            height: 100%;
-            object-fit: contain;
-            border-radius: var(--card-lg-radius);
-        }
-    }
-
-    .store-comment-wrapper {
-        position: relative;
-        height: 150px;
-
-        .store-comment {
-            border-radius: var(--card-lg-radius);
-            border: 1px solid var(--grey2);
-            width: 100%;
-            height: 100%;
-        }
-
-        .store-comment-placeholder {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            pointer-events: none;
-            color: #999;
-            text-align: center;
-        }
-    }
+  }
 }
 </style>
