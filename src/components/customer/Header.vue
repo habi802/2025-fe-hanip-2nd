@@ -98,7 +98,9 @@ const isCartPage = computed(() => route.path.startsWith("/cart"));
 </script>
 
 <template>
-  <b-container class="d-flex align-items-center justify-content-spween h-100 container">
+  <b-container
+    class="d-flex align-items-center justify-content-spween h-100 container"
+  >
     <!-- 큰 박스 -->
     <div class="big-box">
       <!-- (왼쪽) 로고 -->
@@ -120,8 +122,10 @@ const isCartPage = computed(() => route.path.startsWith("/cart"));
         <div class="address-box">
           <img class="address-image" src="/src/imgs/weui_location-filled.png" />
           <span class="address-text ms-3">
-            <span class="login-address">{{ state.user.address }} {{ state.user.addressDetail ?? "주소를 입력해주세요"
-            }}</span>
+            <span class="login-address"
+              >{{ state.user.address }}
+              {{ state.user.addressDetail ?? "주소를 입력해주세요" }}</span
+            >
           </span>
         </div>
       </div>

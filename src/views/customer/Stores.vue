@@ -247,7 +247,7 @@ const arrow = () => {
 }
 
 * {
-    font-family: 'BMJUA';
+    font-family: 'Pretendard-Regular';
     letter-spacing: 1px;
 }
 
@@ -290,7 +290,7 @@ const arrow = () => {
 
         // 카테고리 이름
         #cName {
-            font-size: 24px;
+            font-size: 20px;
             padding-top: 10px;
             margin-left: -5px;
             font-weight: 400;
