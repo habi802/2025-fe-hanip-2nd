@@ -236,7 +236,7 @@ const getStoreInfo = async (id) => {
 
   if (store.storeInfo === null || store.storeInfo === undefined) {
     setTimeout(async () => {
-
+  const alret = await alertResolveModal.value.showModal("잘못된 접근입니다.");
       if (alret) {
         router.push("/")
       }
@@ -305,7 +305,7 @@ const getStoreMenu = async (storeId) => {
       redirectHome();
     }, 2000);
     setTimeout(async () => {
-
+      const alret = await alertResolveModal.value.showModal("가게의 메뉴가 없습니다.");
       if (alret) {
         router.push("/")
       }
