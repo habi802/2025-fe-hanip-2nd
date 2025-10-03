@@ -133,6 +133,10 @@ const save = () => {
     })),
   };
   emit("saved", payload, selectedFile.value);
+
+  if (props.mode === "create") {
+    resetForm();
+  }
 };
 
 // 메뉴 삭제

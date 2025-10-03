@@ -1,8 +1,8 @@
 <script setup>
 import { ref, reactive, onMounted, onUnmounted } from "vue";
 import DashboardOrderDetail from "@/components/modal/DashboardOrderDetail.vue";
-import LoadingModal from '../modal/LoadingModal.vue';
-import { getOwnerOrder2 } from '@/services/orderService';
+import LoadingModal from "../modal/LoadingModal.vue";
+import { getOwnerOrder2 } from "@/services/orderService";
 
 // 로딩
 const loadingRef = ref(null);
@@ -21,18 +21,19 @@ const fetchOrderDetail = async (orderId) => {
 const props = defineProps({
   title: String,
   orders: { type: Array, default: () => [] },
-  updatedOrders: {}
+  updatedOrders: {},
+  storeData: { type: Object, default: null },
 });
 
 const isModalOpen = ref(false);
 const state = reactive({
-  order: {}
-})
+  order: {},
+});
 
-const onRowClick = async(orderId) => {
+const onRowClick = async (orderId) => {
   try {
     const res = await getOwnerOrder2(orderId);
-    state.order = res.data.resultData;  
+    state.order = res.data.resultData;
     isModalOpen.value = true;
   } catch (e) {
     console.error("상세조회 실패:", e);
@@ -85,6 +86,7 @@ const getElapsed = (createdAt) => {
 <template>
   <div class="main-grid">
     <LoadingModal ref="loadingRef" />
+
     <!-- 주문리스트 왼쪽 타이틀 카드 -->
     <div class="white-card status-title">
       {{ props.title }}
@@ -104,80 +106,92 @@ const getElapsed = (createdAt) => {
       </div>
 
       <div class="grid-body scrollbar">
-        <!-- 주문이 없을 때 -->
-        <div
-          v-if="!props.orders || props.orders.length === 0"
-          class="empty-row"
-        >
-          주문이 없습니다.
-        </div>
-
-        <!-- 주문이 있을 때 -->
-        <div
-          v-else
-          class="grid-table underline"
-          :class="{ updated: props.updatedOrders.includes(order.orderId) }"
-          v-for="(order, index) in props.orders"
-          :key="index"
-          role="button"
-          tabindex="0"
-          @click="onRowClick(order.orderId)"
-        >
-          <div>{{ order.orderId || "-" }}</div>
-          <div>{{ formatTime(order.createdAt) || "00:00" }}</div>
-          <div>{{ getElapsed(order.updatedAt) }}</div>
-          <div class="address">
-            {{ order.address || "-" }}<br />{{ order.addressDetail || "-" }}
+        <!-- 조건 체인 -->
+        <template v-if="props.storeData?.isOpen === 0">
+          <div class="empty-row text-danger fw-bold">
+            🚫 현재 영업 정비 상태입니다!
           </div>
-          <div>
-            {{ order.menuItems[0]?.name || "-" }} 외
-            {{ order.menuItems.length }}건
+        </template>
+
+        <template v-else-if="props.storeData?.isActive === 0">
+          <div class="empty-row text-warning fw-bold">
+            ⚠️ 가게가 아직 활성화되지 않았습니다!
           </div>
-          <div>{{ order.amount ? order.amount.toLocaleString() : "-" }}원</div>
-          <div>
-            <!-- 상태별 버튼 -->
-            <template v-if="order.status === '02'">
-              <button class="owner-btn-white" @click.stop="onAccept(order)">
-                주문 수락
-              </button>
-              <button class="owner-btn-cancel" @click.stop="onCancel(order)">
-                주문 취소
-              </button>
-            </template>
+        </template>
 
-            <template v-else-if="order.status === '03'">
-              <button class="owner-btn-white" @click.stop="onAssign(order)">
-                배차하기
-              </button>
-            </template>
+        <template v-else-if="!props.orders || props.orders.length === 0">
+          <div class="empty-row">주문이 없습니다.</div>
+        </template>
 
-            <template v-else-if="order.status === '04'">
-              <div class="rider-info">
-                <div>{{ order.riderName || "배달 중" }}</div>
-              </div>
-            </template>
+        <!-- 주문 있음 -->
+        <template v-else>
+          <div
+            class="grid-table underline"
+            :class="{ updated: props.updatedOrders.includes(order.orderId) }"
+            v-for="(order, index) in props.orders"
+            :key="index"
+            role="button"
+            tabindex="0"
+            @click="onRowClick(order.orderId)"
+          >
+            <div>{{ order.orderId || "-" }}</div>
+            <div>{{ formatTime(order.createdAt) || "00:00" }}</div>
+            <div>{{ getElapsed(order.updatedAt) }}</div>
+            <div class="address">
+              {{ order.address || "-" }}<br />{{ order.addressDetail || "-" }}
+            </div>
+            <div>
+              {{ order.menuItems[0]?.name || "-" }} 외
+              {{ order.menuItems.length }}건
+            </div>
+            <div>
+              {{ order.amount ? order.amount.toLocaleString() : "-" }}원
+            </div>
+            <div>
+              <!-- 상태별 버튼 -->
+              <template v-if="order.status === '02'">
+                <button class="owner-btn-white" @click.stop="onAccept(order)">
+                  주문 수락
+                </button>
+                <button class="owner-btn-cancel" @click.stop="onCancel(order)">
+                  주문 취소
+                </button>
+              </template>
 
-            <template v-else-if="order.status === '05', '06'">
-              <div class="rider-info completed">                
-                <div>배달 완료</div>
-              </div>
-            </template>
+              <template v-else-if="order.status === '03'">
+                <button class="owner-btn-white" @click.stop="onAssign(order)">
+                  배차하기
+                </button>
+              </template>
+
+              <template v-else-if="order.status === '04'">
+                <div class="rider-info">
+                  <div>{{ order.riderName || "배달 중" }}</div>
+                </div>
+              </template>
+
+              <template v-else-if="order.status === '05' || order.status === '06'">
+                <div class="rider-info completed">
+                  <div>배달 완료</div>
+                </div>
+              </template>
+            </div>
           </div>
-        </div>
+        </template>
       </div>
     </div>
   </div>
 
   <!-- 주문 상세 모달 -->
   <DashboardOrderDetail
-  v-if="isModalOpen"
-  :order="state.order"
-  tableHeight="100px"
-  @close="isModalOpen = false"
-  @accept="onAccept"
-  @cancel="onCancel"
-  @assign="onAssign"
-/>
+    v-if="isModalOpen"
+    :order="state.order"
+    tableHeight="100px"
+    @close="isModalOpen = false"
+    @accept="onAccept"
+    @cancel="onCancel"
+    @assign="onAssign"
+  />
 </template>
 
 <style scoped lang="scss">
@@ -285,8 +299,12 @@ const getElapsed = (createdAt) => {
 
 // status 애니메이션
 @keyframes highlight {
-  0%   { background-color: #fff8d8; } /* 연한 노랑 */
-  100% { background-color: transparent; }
+  0% {
+    background-color: #fff8d8;
+  } /* 연한 노랑 */
+  100% {
+    background-color: transparent;
+  }
 }
 
 .updated {

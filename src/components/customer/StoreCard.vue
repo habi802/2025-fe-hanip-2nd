@@ -1,8 +1,7 @@
 <script setup>
-import { computed, onMounted, ref } from "vue";
+import { computed } from "vue";
 import defaultImage from "@/imgs/owner/haniplogo_sample4.png";
 import { useRouter } from "vue-router";
-import { getReviewScoreByStoreId } from "@/services/reviewServices";
 
 const router = useRouter();
 
@@ -11,36 +10,12 @@ const props = defineProps({
     store: Object,
 });
 
-onMounted(() => {
-    reviews();
-});
-
 // 가게 이미지
 const storeImage = computed(() => {
     return props.store && props.store.imagePath && props.store.imagePath !== null
         ? `/pic/store/${props.store.id}/${props.store.imagePath}`
         : defaultImage;
 });
-
-// 별점 조회
-let total = ref(0);
-let leng = ref(0);
-
-const reviews = async () => {
-    const res = await getReviewScoreByStoreId(props.store.id);
-    if (res !== undefined && res.status === 200) {
-        const data = res.data.resultData;
-        leng.value = data.length;
-
-        let totals = 0;
-        for (let i = 0; i < data.length; i++) {
-            const forNum = data[i].rating;
-            totals += forNum;
-        }
-        totals = (totals / data.length).toFixed(1);
-        total.value = totals;
-    }
-};
 </script>
 
 <template>
@@ -49,19 +24,15 @@ const reviews = async () => {
             <img class="sImg" :src="storeImage" @error="(e) => (e.target.src = defaultImage)" />
         </div>
         <div class="storeTextBox">
-            <div class="sText">{{ props.store?.name }}</div>
+            <div class="sText">{{ props.store.name }}</div>
             <div class="icons">
                 <div class="d-flex align-items-center star">
                     <img id="icon" src="/src/imgs/star.png" />
-                    <span class="starNum" v-if="total !== 'NaN'">
-                        {{ total ? total : 0 }}
-                    </span>
-                    <span class="starNum" v-else>0</span>
-                    <span class="starNum"></span>
+                    <span class="starNum">{{ props.store.rating !== 0 ? props.store.rating.toFixed(1) : 0 }}</span>
                 </div>
                 <div class="d-flex align-items-center love">
                     <img id="icon" src="/src/imgs/love.png" />
-                    {{ props.store?.favorites }}
+                    {{ props.store.favorites }}
                 </div>
             </div>
             <div id="smallText">
