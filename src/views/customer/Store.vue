@@ -1001,9 +1001,9 @@ hr {
 }
 
 .division-text {
-  font-family: "BMJUA";
   color: #FF6666;
   font-size: 1.2em;
+  font-weight: 5g00;
 }
 
 .count-num {
