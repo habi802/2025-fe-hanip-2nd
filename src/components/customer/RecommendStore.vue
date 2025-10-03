@@ -5,21 +5,21 @@ import RecomendStoreCard from './RecomendStoreCard.vue';
 const state = reactive({
   form: [],
   random: [],
+  stores: [],
+  form: {
+      category: '',
+      searchText: '',
+      sortColumn: '',
+      sortOrder: '',
+      page: 1,
+      size: 8
+    }
 })
-// 추천 가게 목록
-// const store = [
-//   {search_text: "강식당"},
-//   {search_text: "박쉪버거"},
-//   {search_text: "향택"},
-//   {search_text: "반월당부자식당"},
-//   {search_text: "오십계"},
-//   {search_text: "백홍식당"},
-//   {search_text: "설옥곰탕"},
-//   {search_text: "경탄성"},
-// ]
+
+
 //   랜덤 스토어용 값 가져오기
 const randomList = async (params) => {
-  const random = await getStoreList({ page: 0, size: 12 });
+    const random = await getStoreList(state.form);
   console.log("random", random.data.resultData);
   state.random = random.data.resultData;
   console.log("ra", state.random);
