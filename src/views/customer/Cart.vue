@@ -330,13 +330,15 @@ const cartMenu = async () => {
 
   const rawArray = toRaw(recMenu.deleteMenus);
 
+  
+
   const filteredMenus = recMenu.newMenus.filter(menu => {
   const menuId = Number(menu.menuId);
     // 메뉴 숨김 품절처리 
   return (
     !rawArray.includes(menuId) &&
-    menu.isHide !== 1 &&
-    menu.isSoldOut !== 1
+    menu.isHide !== 0 &&
+    menu.isSoldOut !== 0
   );
 });
   recMenu.finalMenus = filteredMenus;
