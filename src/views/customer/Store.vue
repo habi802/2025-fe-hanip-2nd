@@ -477,12 +477,8 @@ const sortedMenus = computed(() => {
                           v-if="store.storeInfo.rating && store.storeInfo.rating > 0">
                           <span class="review-star">★</span>
                         </span>
-                        <span class="star" v-else>
-                          <img class="starImg" src="/src/imgs/starNull.png" />
-                          <img class="starImg" src="/src/imgs/starNull.png" />
-                          <img class="starImg" src="/src/imgs/starNull.png" />
-                          <img class="starImg" src="/src/imgs/starNull.png" />
-                          <img class="starImg" src="/src/imgs/starNull.png" />
+                        <span class= v-else>
+                          <span class="no-star">★★★★★</span>
                         </span>
                         <div class="review-num ">{{ isNaN(store.storeInfo.rating) ? 0 : store.storeInfo.rating }}</div>
                       </div>
@@ -751,7 +747,12 @@ const sortedMenus = computed(() => {
   font-family: "BMJUA";
   font-size: 30px;
   color: #FAC729;
-
+}
+.no-star{
+    font-family: "BMJUA";
+    font-size: 1.5em;
+  color: #ccc;
+  
 }
 
 .left-box {
