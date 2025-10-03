@@ -500,7 +500,7 @@ watch(sortedMenus, (newVal) => {
                           v-if="store.storeInfo.rating && store.storeInfo.rating > 0">
                           <span class="review-star">★</span>
                         </span>
-                        <span class= v-else>
+                        <span v-else>
                           <span class="no-star">★★★★★</span>
                         </span>
                         <div class="review-num ">{{ isNaN(store.storeInfo.rating) ? 0 : store.storeInfo.rating }}</div>
