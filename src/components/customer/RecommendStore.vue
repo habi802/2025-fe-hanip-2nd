@@ -73,7 +73,7 @@ onMounted(async () => {
   color: #FF6666;
   font-size: 2em;
   text-align: center;
-  padding-top: 105px;
+  // padding-top: 20px;
   margin-left: 15px;
 }
 
@@ -87,6 +87,9 @@ onMounted(async () => {
   margin: 0 auto;
   margin-top: 50px;
   background-color: #fff;
+}
+.footer{
+  margin-bottom: 200px;
 }
 
 @media (max-width : 990px) {

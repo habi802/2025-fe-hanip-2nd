@@ -349,14 +349,17 @@ const toStore = (id) => {
 }
 
 .arrow {
-  position: sticky;
-  width: 3.8%;
-  bottom: 100px;
-  left: 93%;
-  z-index: 999;
-  margin-bottom: 100px;
-}
+    position: sticky;
+    width: 2.8%;
+    bottom: 100px;
+    left: 93%;
+    z-index: 999;
+    margin-bottom: 100px;
 
+    &:hover {
+        opacity: 80%;
+    }
+}
 .text-no {
   text-align: center;
   font-size: 30px;

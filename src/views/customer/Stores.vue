@@ -322,7 +322,7 @@ const arrow = () => {
     padding: 0 20px;
     width: 600px;
     height: 70px;
-    border: 3px solid #ff6666;
+    border: 1px solid #ff6666;
     border-radius: 50px;
     position: relative;
     background-color: white;

@@ -36,7 +36,7 @@ const arrow = () => {
     <div class="allBody">
         <HomeImg></HomeImg>
         <category></category>
-        <Guide></Guide>
+        <!-- <Guide></Guide> -->
         <RecommendStore></RecommendStore>
         <img @click="arrow" class="arrow" src="/src/imgs/arrow.png" />
     </div>

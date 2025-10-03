@@ -50,7 +50,7 @@ const createAddress = () => {
     .container {
         display: flex;
         align-items: center;
-        width: 1140px;
+        width: 1170px;
     }
 
     /* 검색 input 래퍼 */
@@ -77,12 +77,18 @@ const createAddress = () => {
             border: 1px solid #ff6666;
             border-radius: 20px;
             text-align: center;
+            font-size: 0.8em;
 
             &::placeholder {
-                color: #ff6666;
+                color: #FCAEAE;
             }
         }
     }
+
+    .search-input:focus {
+    border-color: #ff6666;
+    outline: none;
+}
 
     /* 현재 위치 버튼 */
     .location-btn {
