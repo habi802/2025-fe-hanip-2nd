@@ -234,6 +234,7 @@ const getStoreInfo = async (id) => {
     setTimeout(async () => {
   const alret = await alertResolveModal.value.showModal("잘못된 접근입니다.");
       if (alret) {
+        document.body.style.overflow = "";
         router.push("/")
       }
     }, 150);

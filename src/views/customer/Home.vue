@@ -13,6 +13,9 @@ import { naverGetCid } from '@/services/payment';
 const route = useRoute();
 
 onMounted(() => {
+     if (document.body.style.overflow === "hidden") {
+    document.body.style.overflow = "";
+  }
 });
 
 
