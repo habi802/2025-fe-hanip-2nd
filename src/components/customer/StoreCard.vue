@@ -19,7 +19,8 @@ const storeImage = computed(() => {
 </script>
 
 <template>
-  <div class="store">
+    <div class="store">
+      <div v-if="store.isOpen ===0" class="overlay">운영 준비중 입니다...</div>
     <div class="storeImgBox">
       <img
         class="sImg"
@@ -92,6 +93,8 @@ const storeImage = computed(() => {
 }
 
 .store {
+    display: flex;
+    flex-direction: column;
   width: 280px;
   height: 380px;
   border-radius: 20px;
@@ -177,5 +180,9 @@ const storeImage = computed(() => {
 
 .footer {
   margin-bottom: 100px;
+}
+.overlay{
+    position:absolute;
+     transform: translate(50%, 300%);
 }
 </style>
