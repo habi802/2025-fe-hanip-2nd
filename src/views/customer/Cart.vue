@@ -332,6 +332,7 @@ const cartMenu = async () => {
 
   const filteredMenus = recMenu.newMenus.filter(menu => !rawArray.includes(Number(menu.menuId)));
   recMenu.finalMenus = filteredMenus;
+  console.log("왜 안 사라져",recMenu.finalMenus)
 
 }
 

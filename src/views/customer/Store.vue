@@ -1,16 +1,12 @@
 <script setup>
-import { onMounted,onBeforeUnmount, reactive, ref, computed } from "vue";
+import { onMounted,onBeforeUnmount, reactive, ref, computed,watch } from "vue";
 import { useRoute, useRouter } from "vue-router";
-import { getStore, getStoreList } from "@/services/storeService";
 import { getMenus } from "@/services/menuService";
 import { getReviewsByStoreId, getOwnerCommentList } from "@/services/reviewServices";
 import { getFavorite, addFavorite, deleteFavorite } from "@/services/favoriteService";
-import { updateQuantity, removeItem, removeCart } from "@/services/cartService";
 import { useAccountStore } from "@/stores/account";
 import Menu from "@/components/customer/Menu.vue";
 import Review from "@/components/customer/Review.vue";
-import defaultImage from '@/imgs/owner/owner-service3.png';
-import AlertModal from "@/components/modal/AlertModal.vue";
 import AlertResolveModal from "@/components/modal/AlertResolveModal.vue";
 import NoneStore from '/src/imgs/foods.png';
 import { getStoreId } from "@/services/storeService";
@@ -41,6 +37,20 @@ const state = reactive({
   myFavorite: 0  
 });
 
+onMounted(() => {
+  const storeId = route.params.id;
+  currentPage.value = 1;     
+  noMoreReviews.value = false;
+  getStoreInfo(storeId);
+  getStoreMenu(storeId);
+  loadFavorite(storeId)
+  loadReviews(storeId, true);
+  window.addEventListener('scroll', handleScroll);
+});
+
+onBeforeUnmount(() => {
+  window.removeEventListener('scroll', handleScroll);
+});
 
 
 // 지도를 보여주는 함수
@@ -201,20 +211,6 @@ const arrow = () => {
 
 
 
-onMounted(() => {
-  const storeId = route.params.id;
-  currentPage.value = 1;     
-  noMoreReviews.value = false;
-  getStoreInfo(storeId);
-  getStoreMenu(storeId);
-  loadFavorite(storeId)
-  loadReviews(storeId, true);
-  window.addEventListener('scroll', handleScroll);
-});
-
-onBeforeUnmount(() => {
-  window.removeEventListener('scroll', handleScroll);
-});
 
 const store = reactive({
   storeInfo: Object,
@@ -315,11 +311,37 @@ const getStoreMenu = async (storeId) => {
 
 }
 
+//이게 가게에서 해줘야하는게 맞을지...
 const sortedMenus = computed(() => {
-  return store.menus.slice().sort((a, b) => {
-    const order = ["단품", "세트", "사이드", "음료수"]; // 원하는 순서
+  //메뉴 타입 순서대로 정렬
+  const order = ["단품", "세트", "사이드", "음료수"];
+  const sorted = store.menus.slice().sort((a, b) => {
     return order.indexOf(a.menuType) - order.indexOf(b.menuType);
   });
+
+  // 전체 하이드인 메뉴 없애기
+  const filtered = sorted
+    .map(group => {
+      return {
+        menuType: group.menuType,
+        menus: group.menus.filter(menu => menu.isHide === 1),
+      };
+    })
+    .filter(group => group.menus.length > 0);
+
+  return filtered;
+});
+// 꼭 하단에 위치.
+
+watch(sortedMenus, (newVal) => {
+  if (newVal.length === 0) {
+        setTimeout(async () => {
+  const alret = await alertResolveModal.value.showModal("판매하는 메뉴가 없습니다.");
+      if (alret) {
+        router.push("/")
+      }
+    }, 150);
+  }
 });
 
 
