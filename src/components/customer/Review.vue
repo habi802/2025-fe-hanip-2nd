@@ -51,7 +51,7 @@ const baseUrl = ref(import.meta.env.VITE_BASE_URL);
 
 
 const reviewSrcList = computed(() => {
-  if (!props.item?.pic || props.item.pic.length === 0) return [defaultImage];
+  if (!props.item?.pic || props.item.pic.length === 0) return [];
 
   return props.item.pic.map(fileName => `${baseUrl.value}/images/Review/${props.item.id}/${fileName}`);
 });
@@ -64,7 +64,6 @@ const imgSrc = computed(() => {
     : defaultImage;
 
 })
-
 
 </script>
 
@@ -93,9 +92,11 @@ const imgSrc = computed(() => {
     </div>
     <!-- 이미지  -->
     <div class="box-body-img-box">
-      <swiper :slides-per-view="3" :modules="[Navigation, Pagination, Scrollbar, A11y, Autoplay]" :speed="1000"
+      <swiper 
+      v-if="reviewSrcList.length > 0"
+      :slides-per-view="3" :modules="[Navigation, Pagination, Scrollbar, A11y, Autoplay]" :speed="1000"
         :space-between="10" :resistance="false" :resistance-ratio="0">
-        <swiper-slide v-for="(src, index) in reviewSrcList" :key="index">
+        <swiper-slide v-for="(src, index) in reviewSrcList " :key="index">
           <div class="review-image border">
             <img class="reviewImg" :src="src" @error="e => e.target.src = defaultImage" alt="리뷰 이미지" />
           </div>
