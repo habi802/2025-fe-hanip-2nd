@@ -230,6 +230,16 @@ const getStoreInfo = async (id) => {
   const res = await getStoreId(id);
   store.storeInfo = res.data.resultData;
 
+  if(store.storeInfo.isActive !=1 || store.storeInfo.isOpen !=1){
+     setTimeout(async () => {
+  const alret = await alertResolveModal.value.showModal("준비중인 가게입니다.");
+      if (alret) {
+        document.body.style.overflow = "";
+        router.push("/")
+      }
+    }, 150);
+  }
+
   if (store.storeInfo === null || store.storeInfo === undefined) {
     setTimeout(async () => {
   const alret = await alertResolveModal.value.showModal("잘못된 접근입니다.");
