@@ -186,6 +186,7 @@ onMounted(async () => {
       </div>
     </div>
   </div>
+  <div class="foot"></div>
 
   <!-- 수정 모달 -->
   <EditAddress
@@ -209,22 +210,25 @@ onMounted(async () => {
     font-style: normal;
 }
 .container{
-  max-width: 1140px;
+  display: flex;
+  justify-content: center;
+  flex-direction: column;
+  max-width: 1168px;
 }
 .add-title {
     font-family: "Pretendard-Regular";
   text-align: center;
   font-size: 30px;
   font-weight: 400;
-  margin-top: 5rem;
-  margin-bottom: 40px;
+  margin-top: 2.8rem;
+  margin-bottom: 70px;
 }
 
 // 메인 구분 선
 .titleLine {
   width: 100%;
-  border-bottom: 1px solid #000;
-  margin: 0 auto 3rem;
+  border-bottom: 2px solid #000;
+  margin: 0 auto 2.27rem;
 }
 
 // 카드 리스트 배치
@@ -257,5 +261,9 @@ onMounted(async () => {
       transform: translateY(-1px); 
     }
   }
+}
+
+.foot{
+  margin-bottom: 200px;
 }
 </style>

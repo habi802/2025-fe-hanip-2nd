@@ -585,6 +585,8 @@ const pay = reactive({
   font-size: 14px;
   resize: vertical;
   background: #fff;
+  outline: none;
+  resize: none;
 }
 
 .payment-section {

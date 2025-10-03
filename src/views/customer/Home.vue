@@ -13,50 +13,11 @@ import { naverGetCid } from '@/services/payment';
 const route = useRoute();
 
 onMounted(() => {
-    // 라우터가 처음 로드됐을 때
-    // naverPay();
-
-    // // 쿼리가 나중에 들어오는 경우 대비
-    // watch(
-    //     () => route.query,
-    //     (newQuery) => {
-    //         if (newQuery.routeOrderId && newQuery.paymentId) {
-    //             console.log("쿼리 감지용", newQuery);
-    //             naverPay();
-    //         }
-    //     },
-    //     { immediate: true } // 처음에도 바로 실행
-    // );
+     if (document.body.style.overflow === "hidden") {
+    document.body.style.overflow = "";
+  }
 });
 
-// const naverPay = async () => {
-//     if (route.query.routeOrderId && route.query.paymentId) {
-//         console.log("쿼리 들어옴", route.query);
-
-//         const orderId = parseInt(route.query.routeOrderId);
-//         const paymentId = route.query.paymentId;
-
-
-//         if (orderId || paymentId) {
-
-//             const payreq = {
-//                 paymentId: route.query.paymentId
-//             }
-
-//             console.log("orderId", orderId);
-//             console.log("paymentId", paymentId);
-
-//             const tid = await naverGetCid(orderId, payreq);
-//             console.log("cid 주입 완료", tid);
-//             window.location.href = window.location.pathname;
-//         }
-
-
-//     } else {
-//         console.log("쿼리 안 옴");
-//     }
-
-// }
 
 
 
@@ -68,17 +29,14 @@ const arrow = () => {
     });
 };
 
-// const handleScroll = () => {
-//     const scrollY = window.scrollY;
-//     const windowHeight = window.innerHeight;
-// };
+
 </script>
 
 <template>
     <div class="allBody">
         <HomeImg></HomeImg>
         <category></category>
-        <Guide></Guide>
+        <!-- <Guide></Guide> -->
         <RecommendStore></RecommendStore>
         <img @click="arrow" class="arrow" src="/src/imgs/arrow.png" />
     </div>

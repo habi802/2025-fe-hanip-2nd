@@ -110,7 +110,7 @@ const toStore = () => {
     width: 320px;
     height: 470px;
     border-radius: 20px;
-    border: #ccc solid 2px;
+    border: #ccc solid 1px;
 
     //-webkit-box-shadow: 6px 7px 5px -2px rgba(0, 0, 0, 0.33);
     //box-shadow: 6px 7px 5px -2px rgba(0, 0, 0, 0.33);
