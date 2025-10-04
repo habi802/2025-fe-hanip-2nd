@@ -11,6 +11,8 @@ import OptionModal from '../modal/OptionModal.vue';
 const optionModal = ref(null);
 const cartStore = useCartStore();
 
+
+
 const openModal = async () => {
     await cartStore.getCart();
 
@@ -34,7 +36,6 @@ const openModal = async () => {
     const modal = new bootstrap.Modal(modalElement);
     modal.show();
 };
-
 const account = useAccountStore();
 const emit = defineEmits(['addCart'])
 
@@ -81,44 +82,29 @@ const firstItem = reactive({
 </script>
 
 <template>
-    <div v-if="props.item.isHide !== 0" class="menu border rounded-4" :class="{ soldOut: props.item.isSoldOut === 0 }"
-        @click="openModal">
-        <div class="row-box">
-            <div class="container">
-                <div class="menu-box">
-                    <h5>{{ props.item.name }}</h5>
-                    <p class="comment">{{ props.item.comment }}</p>
-                    <div class="bottom-box">
-                        <span>{{ props.item.price.toLocaleString() }}원</span>
-                        <span class="check">
-                        </span>
+    <div class="big-box">
+        <div class="menu border rounded-4" @click="openModal">
+            <div class="row-box">
+                <div id="menuImgs" class="col-4 col-md-2 border rounded">
+                    <img class="menuImgBox" :src="menuSrc" @error="e => e.target.src = defaultImage" />
+                </div>
+                <div class="container">
+                    <div class="menu-box">
+                        <h5>{{ props.item.name }}</h5>
+                        <!-- <p class="comment">{{ props.item.comment }}</p> -->
+                        <div class="bottom-box">
+                            <span>{{ props.item.price.toLocaleString() }}원</span>
+                            <span class="check">
+                            </span>
+                        </div>
                     </div>
                 </div>
             </div>
-            <div id="menuImgs" class="col-4 col-md-2 border rounded">
-                <img class="menuImgBox" :src="menuSrc" @error="e => e.target.src = defaultImage" />
-            </div>
         </div>
     </div>
-    <!-- 공통 알림 모달 -->
-
-    <div class="modal fade" id="alertModal" tabindex="-1" role="dialog" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">알림</h5>
-                </div>
-                <div class="modal-body" id="alertModalBody">내용</div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-primary" data-bs-dismiss="modal">
-                        확인
-                    </button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <option-modal ref="optionModal"></option-modal>
+    <teleport to="body">
+        <option-modal ref="optionModal" @cartAdded="$emit('cartAdded')"></option-modal>
+    </teleport>
 </template>
 
 <style lang="scss" scoped>
@@ -134,14 +120,18 @@ const firstItem = reactive({
     font-family: 'Pretendard-Regular';
     font-size: 20px;
     font-size: 800;
+    user-select: none;
+    -webkit-user-drag: none;
 }
+
 
 .menu {
     display: flex;
+    flex-direction: column;
     justify-content: space-between;
     cursor: pointer;
-    padding: 20px 10px 20px 10px;
-    margin-top: 20px;
+    padding: 10px;
+
 
     &:hover {
         border-color: #fcaeae !important;
@@ -150,15 +140,16 @@ const firstItem = reactive({
 
 #menuImgs {
     display: flex;
-    width: 170px;
-    height: 104px;
+    width: 150px;
+    height: 100px;
     overflow: hidden;
     justify-content: center;
     align-items: center;
-    margin-left: 25px;
+    margin-bottom: 10px;
 
     .menuImgBox {
-        width: 170px;
+        width: 100%;
+        height: 100%;
     }
 }
 
@@ -174,27 +165,11 @@ const firstItem = reactive({
     display: flex;
     justify-content: center;
     align-items: center;
+    flex-direction: column;
 
-}
-
-
-
-
-.comment {
-    font-size: 18px;
-    margin-top: 10px;
-    width: 600px;
-    min-height: 30px;
-    color: #9E9E9E;
-    word-wrap: break-word;
-    white-space: pre-wrap;
-    line-height: 1.6;
-    text-align: left;
 }
 
 .soldOut {
-    opacity: 0.4;
-    pointer-events: none;
-    background-color: #f5f5f5;
+    display: none;
 }
 </style>

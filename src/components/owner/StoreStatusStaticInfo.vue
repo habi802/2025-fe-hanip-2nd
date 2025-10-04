@@ -7,7 +7,8 @@ import BannerCropperModal from '../modal/BannerCropperModal.vue';
 const owner = useOwnerStore();
 
 const props = defineProps({
-  form: Object
+  form: Object,
+  isActive: Number
 });
 const emit = defineEmits(['update-form']);
 
@@ -35,10 +36,10 @@ const changeStoreImageFile = e => {
 const changeBannerImageFile = e => {
   const file = e.target.files[0];
   if (file) {
-    bannerPreviewImage.value = URL.createObjectURL(file);
-    updateForm('bannerPath', file);
-    // bannerFile.value = file;
-    // showCropModal.value = true;
+    // bannerPreviewImage.value = URL.createObjectURL(file);
+    // updateForm('bannerPath', file);
+    bannerFile.value = file;
+    showCropModal.value = true;
   }
 };
 const onCroppedBanner = (file) => {
@@ -103,13 +104,13 @@ const updateForm = (key, value) => {
         <div class="mb-3 row">
           <label class="col-sm-3 col-form-label fw-semibold">가게 전화</label>
           <div class="col-sm-8 d-flex gap-2">
-            <select v-model="props.form.tel1" @change="updateForm('tel1', $event.target.value)" class="form-select w-auto">
+            <select v-model="props.form.tel1" @change="updateForm('tel1', $event.target.value)" class="form-select w-auto" :disabled="props.isActive === 1">
               <option>02</option>
               <option>053</option>
               <option>010</option>
             </select>
-            <input v-model="props.form.tel2" @input="updateForm('tel2', $event.target.value)" class="form-control w-25" />
-            <input v-model="props.form.tel3" @input="updateForm('tel3', $event.target.value)" class="form-control w-25" />
+            <input v-model="props.form.tel2" @input="updateForm('tel2', $event.target.value)" class="form-control w-25" :disabled="props.isActive === 1" />
+            <input v-model="props.form.tel3" @input="updateForm('tel3', $event.target.value)" class="form-control w-25" :disabled="props.isActive === 1" />
           </div>
         </div>
 
@@ -117,11 +118,17 @@ const updateForm = (key, value) => {
           <label class="col-sm-3 col-form-label fw-semibold">업종</label>
           <div class="col-sm-8 position-relative">
             <input type="text" class="form-control" :value="sortedSelectedCategory.join(', ')" readonly
-                   @click="showCategoryDropdown = !showCategoryDropdown" />
+                   @click="showCategoryDropdown = !showCategoryDropdown"
+                   :disabled="props.isActive === 1" />
             <ul v-if="showCategoryDropdown" class="dropdown-menu show w-100">
               <li v-for="option in categoryOption" :key="option"
                   @click="toggleCategoryItem(option)"
-                  :class="{ 'dropdown-item': true, active: selectedCategory.includes(option) }">
+                  :class="[
+                    'dropdown-item',
+                    selectedCategory.includes(option) ? 'active' : '',
+                    !selectedCategory.includes(option) && selectedCategory.length >= 3 ? 'disabled text-muted' : ''
+                    ]"
+                    style="cursor: pointer;">
                 {{ option }}
               </li>
             </ul>
@@ -187,14 +194,15 @@ const updateForm = (key, value) => {
     transition: all 0.3s ease;
 
     &.banner {
-        width: 900px;
-        height: 280px;
+      width: 900px;
+      aspect-ratio: 1900 / 400; 
+      height: auto; 
     }
 
     img {
       width: 100%;
       height: 100%;
-      object-fit: cover;
+      object-fit: cover; 
       border-radius: var(--card-lg-radius);
       transition: transform 0.3s ease;
     }

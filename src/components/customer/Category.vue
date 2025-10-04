@@ -169,7 +169,7 @@ const nightLink = () => {
       justify-content: center;
       margin-top: 100px;
       font-size: 0.8em;
-      border: 2px solid #FF6666;
+      border: 1px solid #FF6666;
       border-radius: 50px;
 
       input {

@@ -221,6 +221,7 @@ const closeOrder = () => {
         title="주문대기"
         :orders="orderStore.paidOrders"
         :updatedOrders="orderStore.updatedOrders"
+        :storeData="ownerStore.state.storeData"
         @accept="handleAccept"
         @cancel="handleCancel"
         @assign="handleAssign"
@@ -230,6 +231,7 @@ const closeOrder = () => {
         title="조리대기"
         :orders="orderStore.preparingOrders"
         :updatedOrders="orderStore.updatedOrders"
+        :storeData="ownerStore.state.storeData"
         @accept="handleAccept"
         @cancel="handleCancel"
         @assign="handleAssign"
@@ -239,13 +241,13 @@ const closeOrder = () => {
         title="배달현황"
         :orders="orderStore.deliveredOrders"
         :updatedOrders="orderStore.updatedOrders"
+        :storeData="ownerStore.state.storeData"
         @accept="handleAccept"
         @cancel="handleCancel"
         @assign="handleAssign"
         tableHeight="1000px"
       />
     </div>
-    <div v-else>주문정보 로딩 중...</div>
   </div>
 </template>
 

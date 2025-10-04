@@ -5,11 +5,12 @@ import { useCartStore } from '@/stores/cartStore';
 import ConfirmModal from '@/components/modal/ConfirmModal.vue'; // 컴포넌트 추가
 import { removeCart } from '@/services/cartService';
 import AlertModal from '@/components/modal/AlertModal.vue'; // 컴포넌트 가져오기
+import { useAccountStore } from '@/stores/account';
 
 const alertModal = ref(null);
-
-
 const confirmModal = ref(null);
+
+const account = useAccountStore();
 
 const firstItem = reactive({
     itemInfo: Object
@@ -149,10 +150,13 @@ const readyCart = () => {
     goCart();
 }
 
-
+const emit = defineEmits(['cartAdded'])
 
 
 const goCart = async () => {
+    if(!account.state.loggedIn){
+        alertModal.value.open('로그인 후 이용해주세요');
+    }
 
 
     console.log("내가 담을려고 하는 메뉴의 스토어 아이디", menuData.storeId);
@@ -183,6 +187,7 @@ const goCart = async () => {
         console.log("카트 메뉴 담기 성공 !")
 
         console.log("담긴 카트 ", res.data.resultData)
+        emit('cartAdded', res.data.resultData);
         menuOption.optionId = [];
         menuData.options.children = [];
     }
@@ -228,7 +233,7 @@ const goCart = async () => {
                                         :checked="menuOption.optionId.includes(child.optionId)"
                                         @click="onOptionSelect($event, optionItem.optionId, child.optionId)" />
                                     <span class="option-detail">{{ child.comment }}</span>
-                                    <div class="menu-price">{{ child.price }}원</div>
+                                    <div class="menu-price">{{ child.price.toLocaleString() }}원</div>
                                 </div>
                             </div>
                         </div>

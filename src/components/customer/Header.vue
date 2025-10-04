@@ -69,6 +69,9 @@ onMounted(async () => {
   console.log("유저데이터", state.user);
 });
 
+//로그인 바로 적용되게
+const isLoggedIn = computed(() => account.state.loggedIn);
+
 // 로그인 상태가 바뀌면 fetchStore 실행
 watch(
   () => account.state.loggedIn,
@@ -95,7 +98,9 @@ const isCartPage = computed(() => route.path.startsWith("/cart"));
 </script>
 
 <template>
-  <b-container class="d-flex align-items-center justify-content-spween h-100 container">
+  <b-container
+    class="d-flex align-items-center justify-content-spween h-100 container"
+  >
     <!-- 큰 박스 -->
     <div class="big-box">
       <!-- (왼쪽) 로고 -->
@@ -109,7 +114,7 @@ const isCartPage = computed(() => route.path.startsWith("/cart"));
 
       <!-- (가운데) 주소 -->
       <div
-        v-if="account.state.loggedIn"
+        v-if="isLoggedIn"
         class="mx-auto flex-grow-1 text-center"
         @click="goToAddress"
         style="cursor: pointer"
@@ -118,7 +123,8 @@ const isCartPage = computed(() => route.path.startsWith("/cart"));
           <img class="address-image" src="/src/imgs/weui_location-filled.png" />
           <span class="address-text ms-3">
             <span class="login-address"
-              >{{ state.user.address }} {{ state.user.addressDetail }}</span
+              >{{ state.user.address }}
+              {{ state.user.addressDetail ?? "주소를 입력해주세요" }}</span
             >
           </span>
         </div>
@@ -140,7 +146,7 @@ const isCartPage = computed(() => route.path.startsWith("/cart"));
       <div class="menu-box">
         <!-- 비로그인 시 메뉴 -->
         <div></div>
-        <template v-if="!account.state.loggedIn">
+        <template v-if="!isLoggedIn">
           <div class="login-menu">
             <!-- 여러 개의 요소에 같은 스타일 줄 거면 id로 하지 말고 class로 할것 -->
             <img

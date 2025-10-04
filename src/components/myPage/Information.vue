@@ -326,7 +326,7 @@ const isPasswordChecked = ref(false); // 비밀번호 확인 여부
 <template>
   <div class="box">
     <div>
-      <h2>정보 수정</h2>
+      <div class="title">정보 수정</div>
       <div class="solid"></div>
 
       <div class="container">
@@ -547,21 +547,16 @@ input:focus {
 }
 
 .box {
-  // 주소 검색 박스
-  font-family: "BMJUA";
+  margin-top: -30px;
   font-size: 25px;
   letter-spacing: -1.5px;
 
-  h2 {
-    font-family: "BMJUA";
-    text-align: center;
-  }
 
   .solid {
     // 정보 수정 메인 선
     width: 1110px;
     border: 1px #000 solid;
-    margin-top: 50px;
+    margin-top: 66px;
     margin-bottom: 55px;
   }
 }
@@ -815,5 +810,9 @@ input[readonly] {
   margin-bottom: -7px;
   user-select: none;
   transition: color 0.3s ease;
+}
+.title{
+  text-align: center;
+  font-size: 1.2em;
 }
 </style>

@@ -74,6 +74,7 @@ const getOrderList = async () => {
         page: state.page,
         rowPerPage: state.rowPerPage
     });
+    console.log("오더 데이터",res)
 
     if (res !== undefined && res.status === 200) {
         state.orders.push(...res.data.resultData);
@@ -323,7 +324,7 @@ const states = reactive({
 
 .order-wrapper {
     max-width: 1180px;
-    margin: 40px auto;
+    margin: 39px auto;
     padding: 0 18px 80px;
     color: #222;
 }
@@ -346,7 +347,7 @@ const states = reactive({
     right: 0;
     top: 70px;
     font-size: 16px;
-    color: #6B6B6B;
+    color: #ccc;
 }
 
 .solid {
@@ -367,7 +368,7 @@ const states = reactive({
     display: flex;
     justify-content: center;
     align-items: center;
-    width: 100%;
+    width: 1140px;
     margin-bottom: 1rem;
 
     .search-bar {
@@ -388,14 +389,18 @@ const states = reactive({
             width: 100%;
             height: 60px;
             padding: 0.75rem 1rem 0.75rem 50px;
-            border: 2px solid #FF6666;
+            border: 1px solid #FF6666;
             border-radius: 20px;
             text-align: center;
 
             &::placeholder {
-                color: #FF6666;
+                color: #FCAEAE;
             }
         }
+        .search-input:focus {
+         border-color: #ff6666;
+        outline: none;
+}
     }
 
     .btn-search {
@@ -467,13 +472,13 @@ const states = reactive({
 }
 
 .no-data {
-    margin: 1rem 0;
+    margin: 6rem ;
     font-size: 22px;
 }
 
 .arrow {
     position: sticky;
-    width: 3.8%;
+    width: 2.8%;
     bottom: 100px;
     left: 93%;
     z-index: 999;

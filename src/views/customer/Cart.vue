@@ -1,5 +1,5 @@
 <script setup>
-import { reactive, onMounted, computed, ref } from "vue";
+import { reactive, onMounted, computed, ref, toRaw } from "vue";
 import { useRouter } from "vue-router";
 import { getItem, removeItem, updateQuantity } from "@/services/cartService";
 import { useAccountStore } from "@/stores/account";
@@ -14,9 +14,17 @@ import { plusQuantity, minusQuantity } from "@/services/cartService";
 
 import { getOption } from "@/services/menuService";
 import { getOptions } from "@/services/cartService";
+import { getMenus } from "@/services/menuService";
+import Menu from "@/components/customer/CartMenus.vue";
 
-//const cartStore = useCartStore();
+import { Swiper, SwiperSlide } from 'swiper/vue';
 
+import 'swiper/css';
+import 'swiper/css/navigation';
+import 'swiper/css/pagination';
+import 'swiper/css/scrollbar';
+
+import { Navigation, Pagination, Scrollbar, A11y, Autoplay } from 'swiper/modules';
 
 
 
@@ -41,13 +49,13 @@ const load = async () => {
     return;
 
   state.items = res.data.resultData || [];
-  console.log("아이템 정보들", state.items)
+
+
 
   await Promise.all(
     state.items.map(async (item) => {
       try {
         const optionRes = await getOption(item.menuId); // 메뉴 아이디로 옵션 조회 API 호출
-        console.log("옵션정보가 있는가?", optionRes.data.resultData)
         // 옵션이 있으면 true, 없으면 false
         item.hasOptions = optionRes.data.resultData.options.length > 0;
       } catch (err) {
@@ -57,7 +65,6 @@ const load = async () => {
     })
   );
 
-  console.log("옵션 포함 아이템 정보", state.items);
 
 
 
@@ -66,12 +73,16 @@ const load = async () => {
 
 // 가게 정보 불러오는 함수(가 맞겠지? 최초로 쓴 사람만 알고 있다..)
 const storeMap = reactive({});
+
 const fetchStoreDetails = async () => {
   const storeId = state.items[0].storeId;
+  getStoreMenu(storeId);
 
-  const review = await getReviewsByStoreId(storeId);
+  const review = await getReviewsByStoreId(storeId, {
+    rowPerPage: 10,
+    page: 1,
+  });
   state.reviewLeng = review.data.resultData;
-  console.log("리뷰 정보", state.reviewLeng)
   if (!storeMap[storeId]) {
     const res = await getStore(storeId);
 
@@ -93,14 +104,14 @@ const fetchStoreDetails = async () => {
   }
 
   calculateTotal();
-  console.log("가게 정보", state.store)
 
 };
 
 
 
-onMounted(() => {
+onMounted(async () => {
   load();
+  cartMenu();
 });
 
 const goToLogin = () => router.push("/login");
@@ -111,16 +122,6 @@ const goToOrder = (items) => {
     return;
   }
 
-  // const orderItems = group.items.map((item) => ({
-  //   id: item.id,
-  //   menuId: item.menuId,
-  //   quantity: item.quantity,
-  //   price: item.price,
-  //   name: item.name,
-  //   imagePath: item.image_path,
-  // }));
-
-  // localStorage.setItem("orderItems", JSON.stringify(orderItems));
   router.push(`/stores/${items}/order`);
 };
 
@@ -133,7 +134,6 @@ const calculateTotal = () => {
 
   state.items.forEach((item) => {
     _totalPrice += item.price;
-    console.log("이거 왜이렇게 비싸", item.price)
   });
 
   totalPrice.value = _totalPrice;
@@ -226,24 +226,16 @@ const menu = reactive({
 });
 
 const openOptionModal = async (item) => {
-  console.log("item에 뭐가 있나", item)
 
   const res = await getOption(item.menuId);
 
   menu.item.options = res.data.resultData.options;
 
-  console.log("메뉴 확인", item.quantity
-  )
-
   optionModal.value.setMenuData(menu.item.options)
   const modalElement = optionModal.value.$el;
   const modal = new bootstrap.Modal(modalElement);
 
-  // 내가 선택했던 옵션
-  console.log("선택한 옵션 보이는지 확인", item.options)
-
   const optionRes = await getOptions(item.id)
-  console.log("옵션정보?", optionRes)
 
   const info = optionRes.data.resultData;
 
@@ -252,14 +244,10 @@ const openOptionModal = async (item) => {
   selectOption.info.quantity = item.quantity;
   selectOption.info.cartId = item.id;
 
-  console.log("데이터 넣기 전에 뭐가 담겼나?", info)
-  console.log("내가 넣은 데이터 조회", selectOption.info)
-
   optionModal.value.setSelectData(selectOption.info);
   modal.show();
 
 };
-
 
 
 // 내가 선택한거 담기용
@@ -273,7 +261,90 @@ const selectOption = reactive({
   }
 })
 
+const store = reactive({
+  menus: [],
+  newMenus: [],
+  deleteMenus: [],
+  finalMenus: []
+})
 
+// 가게 메뉴 조회
+const getStoreMenu = async (storeId) => {
+  const res = await getMenus(storeId);
+  store.menus = res.data.resultData;
+  if (store.menus.length <= 0) {
+    let timeoutId;
+    const redirectHome = () => {
+      clearTimeout(timeoutId);
+      router.push("/");
+    };
+    timeoutId = setTimeout(() => {
+      redirectHome();
+    }, 2000);
+    setTimeout(async () => {
+      const alret = await alertResolveModal.value.showModal("가게의 메뉴가 없습니다.");
+
+      if (alret) {
+        router.push("/")
+      }
+    }, 150);
+
+  }
+}
+
+// 다른메뉴 전용으로 만듬
+const recMenu = reactive({
+  items: [],
+  menus: [],
+  newMenus: [],
+  deleteMenus: [],
+  finalMenus: []
+})
+
+
+const cartMenu = async () => {
+  const res2 = await getItem();
+
+  recMenu.items = res2.data.resultData || [];
+  const res = await getMenus(recMenu.items[0].storeId);
+  recMenu.menus = res.data.resultData;
+
+  const menuIds = recMenu.items.map(item => item.menuId);
+  const setMenuId = new Set(menuIds);
+  const delId = [...setMenuId];
+  recMenu.deleteMenus = delId;
+
+
+  const allMenus = computed(() => {
+    const random = recMenu.menus.flatMap(item => item.menus.map(menu => toRaw(menu)))
+    for (let i = random.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [random[i], random[j]] = [random[j], random[i]];
+    }
+    return random;
+  }
+  );
+
+
+  recMenu.newMenus = allMenus;
+
+  const rawArray = toRaw(recMenu.deleteMenus);
+
+  
+
+  const filteredMenus = recMenu.newMenus.filter(menu => {
+  const menuId = Number(menu.menuId);
+    // 메뉴 숨김 품절처리 
+  return (
+    !rawArray.includes(menuId) &&
+    menu.isHide !== 0 &&
+    menu.isSoldOut !== 0
+  );
+});
+  recMenu.finalMenus = filteredMenus;
+  console.log("왜 안 사라져",recMenu.finalMenus)
+
+}
 
 </script>
 
@@ -317,49 +388,11 @@ const selectOption = reactive({
   </div>
 
   <!-- 3. 로그인 후 장바구니에 음식 있음 -->
-  <div v-else>
+  <div class="cart-box" v-else>
     <!-- 음식점 가게 카드 -->
     <div class="store-layout">
       <!-- 가게 대표 카드 -->
       <!-- <div class="store-card" v-if="groupedItems.length > 0"> -->
-      <div class="store-card" v-if="state.items.length > 0">
-        <img class="thumbnail" :src="imgSrc" @error="e => e.target.src = defaultImage" />
-        <div class="store-content">
-          <h3 class="store-name">{{ state.store.name }}</h3>
-          <div class="store-meta">
-            <div class="rating">
-              <img id="icon" src="/src/imgs/star.png" alt="별점" />
-              <div v-if="state.reviewNum !== 'NaN'">
-                <span class="score">{{ state.store.rating }}</span>
-                <span class="count">({{ (state.reviewLeng?.length || 0) }})</span>
-              </div>
-              <div v-else>
-                <div class="score-box">
-                  <div class="score"> 0</div>
-                  <div class="count">(0)</div>
-
-                </div>
-              </div>
-            </div>
-            <div class="likes">
-              <img id="icon" src="/src/imgs/love.png" alt="찜" />
-              <span class="like-count">{{ state.store.favorites }}</span>
-            </div>
-          </div>
-
-          <div class="store-info">
-            <p class="store-minAmount">
-              최소 주문 금액
-              {{ state.store.minAmount.toLocaleString() || '10,000' }}원
-            </p>
-            <p>
-              배달료
-              {{ (state.store.minDeliveryFee ?? 0).toLocaleString() || "3,000" }}원
-              ~ {{ (state.store.maxDeliveryFee ?? 0).toLocaleString() }}원
-            </p>
-          </div>
-        </div>
-      </div>
 
       <!-- 오른쪽 박스 -->
       <div class="store-box">
@@ -426,36 +459,87 @@ const selectOption = reactive({
           </div>
         </div>
       </div>
-    </div>
+      <div class="rigth-box">
+        <div class="store-card" v-if="state.items.length > 0">
+          <img class="thumbnail" :src="imgSrc" @error="e => e.target.src = defaultImage" />
+          <div class="store-content">
+            <h3 class="store-name">{{ state.store.name }}</h3>
+            <div class="store-meta">
+              <div class="rating">
+                <img id="icon" src="/src/imgs/star.png" alt="별점" />
+                <div v-if="state.reviewNum !== 'NaN'">
+                  <span class="score">{{ state.store.rating }}</span>
+                  <span class="count">({{ (state.reviewLeng?.length || 0) }})</span>
+                </div>
+                <div v-else>
+                  <div class="score-box">
+                    <div class="score"> 0</div>
+                    <div class="count">(0)</div>
 
-    <div class="groupContainer">
-      <div class="hn-btn-white" :class="{ minAmount: state.store.minAmount > totalPrice }"
-        @click="goToOrder(state.store.id)">주문하기</div>
-    </div>
-  </div>
+                  </div>
+                </div>
+              </div>
+              <div class="likes">
+                <img id="icon" src="/src/imgs/love.png" alt="찜" />
+                <span class="like-count">{{ state.store.favorites }}</span>
+              </div>
+            </div>
 
-  <!--  -->
-  <div class="modal fade" id="alertModal" tabindex="-1" role="dialog" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered" role="document">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title">알림</h5>
+            <div class="store-info">
+              <p class="store-minAmount" :class="{ minAomunt: totalPrice < state.store.minAmount }">
+                최소 주문 금액
+                {{ state.store.minAmount.toLocaleString() || '10,000' }}원
+              </p>
+              <p>
+                배달료
+                {{ (state.store.minDeliveryFee ?? 0).toLocaleString() || "3,000" }}원
+                ~ {{ (state.store.maxDeliveryFee ?? 0).toLocaleString() }}원
+              </p>
+            </div>
+          </div>
         </div>
-        <div class="modal-body" id="alertModalBody">내용</div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-primary" data-bs-dismiss="modal">
-            확인
-          </button>
+
+        <div class="groupContainer">
+          <div class="hn-btn-white" :class="{ minAmount: state.store.minAmount > totalPrice }"
+            @click="goToOrder(state.store.id)">주문하기</div>
         </div>
       </div>
     </div>
+    <!-- 메뉴 카드용! -->
+    <div v-if="recMenu.finalMenus.length >= 3">
+      <div class="menus-title-box">
+        <div class="menus-title">함께 먹는 메뉴로 어떠신가요?</div>
+      </div>
+
+      <div class="menus-big-box">
+        <div class="menus-box">
+          <swiper :slidesPerView="recMenu.finalMenus.length > 5 ? 5 : recMenu.finalMenus.length - 1"
+            :modules="[Navigation, Pagination, Scrollbar, A11y, Autoplay]" :speed="1000" :spaceBetween="0"
+            :resistance="false" :resistanceRatio="0" :observer="true" :observe-parents="true" :loop="true">
+            <swiper-slide v-for="menu in recMenu.finalMenus" :key="menu.id"
+              :class="{ hide: menu.isSoldOut === 0 || menu.isHide === 0 }">
+              <Menu @cartAdded="load" :item="menu"></Menu>
+            </swiper-slide>
+
+          </swiper>
+        </div>
+      </div>
+    </div>
+    <div v-else>
+
+    </div>
+
+    <div class="buttom"></div>
   </div>
+
   <option-modal-modify ref="optionModal" @cart-updated="load"></option-modal-modify>
 </template>
 
 <style lang="scss" scoped>
 * {
   font-family: "Pretendard-Regular";
+  user-select: none;
+  -webkit-user-drag: none;
 }
 
 @font-face {
@@ -614,7 +698,7 @@ const selectOption = reactive({
   background-color: #fff;
   padding: 40px;
   border-radius: 25px;
-  width: 1250px;
+  width: 1140px;
   height: 400px;
   margin: 0 auto 40px auto; // 가운데 정렬 및 여백
 }
@@ -622,9 +706,9 @@ const selectOption = reactive({
 .groupContainer {
   display: flex;
   justify-content: center;
-  margin-top: 20px;
+  margin-top: 38px;
   gap: 20px;
-  margin-bottom: 200px;
+  margin-bottom: 30px;
 }
 
 .div-login {
@@ -666,7 +750,7 @@ const selectOption = reactive({
 
 // 박스 정렬
 .store-layout {
-  max-width: 1200px;
+  max-width: 1140px;
   margin: auto; // 전체 가운데 정렬
   display: flex;
   justify-content: center;
@@ -679,27 +763,31 @@ const selectOption = reactive({
 // 음식점 가게 카드
 .store-card {
   width: 368px; // 카드 전체 너비
-  border: 2px solid #ccc;
+  border: 1px solid #ccc;
   border-radius: 25px;
+  padding: 20px;
+  border-radius: 10px;
   overflow: hidden; // 내부 요소 넘칠 경우 숨김
 
   .thumbnail {
     // 사진
-    width: 370px; // 썸네일 가로 꽉 차게
-    height: 325px; // 썸네일 고정 높이
+    width: 100%; // 썸네일 가로 꽉 차게
+    // height: 10%; // 썸네일 고정 높이
+    border-radius: 10px;
     object-fit: cover; // 이미지 비율 유지하며 채우기
   }
 
   .store-content {
-    padding: 20px; // 내부 여백
+
 
 
     .store-name {
       font-size: 25px;
       font-weight: 200;
-      margin-bottom: 12px;
+
       color: #000;
       text-align: center;
+      margin: 30px 0px;
     }
 
     .store-meta {
@@ -707,15 +795,12 @@ const selectOption = reactive({
       justify-content: center;
       align-items: center;
       gap: 40px;
-      margin-bottom: 12px;
-      margin: 20px 25%;
 
       .rating,
       .likes {
         width: 50px;
         display: flex;
         align-items: center;
-        gap: 10px;
         color: #797979;
       }
 
@@ -723,6 +808,7 @@ const selectOption = reactive({
         // 별, 하트 아이콘
         width: 20px;
         height: 20px;
+        margin-right: 5px;
       }
 
 
@@ -744,13 +830,16 @@ const selectOption = reactive({
     .store-info {
       color: #797979;
       font-size: 18px;
-      margin-bottom: 20px;
       text-align: center;
     }
   }
 }
 
 .store-minAmount {
+  color: #888;
+}
+
+.minAomunt {
   color: #ff6666;
 }
 
@@ -761,8 +850,8 @@ const selectOption = reactive({
   justify-content: space-between;
   width: 830px;
   min-height: 556px;
-  padding: 50px;
-  border: 2px solid #ccc;
+  padding: 20px;
+  border: 1px solid #ccc;
   border-radius: 15px;
   background-color: #fff;
 
@@ -854,11 +943,9 @@ const selectOption = reactive({
 //신규
 
 .hn-btn-white {
-  margin-top: 80px;
-  margin-bottom: 100px;
-  padding: 10px 200px 10px 200px;
+  padding: 10px 130px;
   font-size: 1.8em;
-  border: 2px solid;
+  border: 1px solid;
 
   &:hover {
     background-color: inherit;
@@ -872,6 +959,7 @@ const selectOption = reactive({
   justify-content: center;
   align-items: center;
   gap: 200px;
+  margin-bottom: 10px;
 
 }
 
@@ -997,5 +1085,66 @@ const selectOption = reactive({
   height: 2px;
   background: #000000;
   width: 60%;
+}
+
+.rigth-box {
+  display: flex;
+  flex-direction: column;
+
+}
+
+p {
+  margin: 5px;
+}
+
+.menu-box {
+  min-height: 400px;
+  max-height: 400px;
+  padding: 10px;
+  overflow-y: scroll;
+}
+
+.menus-title {
+  width: 60%;
+  font-size: 1.4em;
+  font-weight: 400;
+  letter-spacing: 2px;
+}
+
+.menus-big-box {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.menus-box {
+  width: 60%;
+  display: flex;
+  justify-content: flex-start;
+
+}
+
+.menus-small-box {
+  display: flex;
+}
+
+.hide {
+  display: none;
+}
+
+.buttom {
+  margin-bottom: 200px;
+}
+
+.menus-title-box {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.min {
+  width: 20%;
 }
 </style>

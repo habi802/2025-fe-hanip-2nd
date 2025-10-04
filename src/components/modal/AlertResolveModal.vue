@@ -1,5 +1,5 @@
 <script setup>
-import { defineExpose, ref } from 'vue';
+import { defineExpose, ref, watch } from 'vue';
 
 
 
@@ -31,14 +31,14 @@ const cancel = () => {
     document.body.style.overflow = "";
 };
 
-const hide = () => {
-    show.value = false;
-    document.body.style.overflow = "";
-};
+// 배경 누르면 스크롤 되는 거 방지용
+watch(show, (newVal) => {
+  document.body.style.overflow = newVal ? 'hidden' : '';
+});
 </script>
 
 <template>
-    <b-modal v-model="show" @hide="hide" title="알림" centered :no-close-on-backdrop="true" :no-close-on-esc="true">
+    <b-modal v-model="show" title="알림" centered :no-close-on-backdrop="true" :no-close-on-esc="true">
         {{ body }}
 
         <!-- footer 커스텀 -->
@@ -49,7 +49,7 @@ const hide = () => {
 
     <!-- <div v-if="isVisible" class="modal fade show" aria-labelledby="confirmModal" >
         <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content">
+            <div class="modal-content"> 
                 <div class="modal-header">
                     <h5 class="modal-title">확인</h5>
                 </div>

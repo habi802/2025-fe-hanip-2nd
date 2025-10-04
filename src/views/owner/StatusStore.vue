@@ -5,6 +5,27 @@ import { modify } from '@/services/storeService';
 import StoreStatusStaticInfo from '@/components/owner/StoreStatusStaticInfo.vue';
 import StoreStatusControl from '@/components/owner/StoreStatusControl.vue';
 
+// 부트스트랩 alert
+let alertId = 0;
+
+const alerts = reactive([]);
+
+const showAlert = (message, type = "alert-danger") => {
+  const id = ++alertId;
+  const newAlert = { id, message, type };
+  alerts.push(newAlert);
+
+  // 자동 삭제 (3초 뒤)
+  setTimeout(() => {
+    removeAlert(id);
+  }, 3000);
+};
+
+const removeAlert = (id) => {
+  const index = alerts.findIndex((a) => a.id === id);
+  if (index !== -1) alerts.splice(index, 1);
+};
+
 const owner = useOwnerStore();
 
 const state = reactive({
@@ -64,12 +85,40 @@ const updateStore = async () => {
 
     const res = await modify(formData);
     if (res !== undefined && res.status === 200) {
+        showAlert("정상적으로 수정되었습니다.", "alert-success")
         console.log('수정 완료');
     }
 };
 </script>
 
 <template>
+     <!-- alert -->
+  <div
+    style="
+      position: fixed;
+      top: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 1055;
+    "
+  >
+    <div
+      v-for="(alert, index) in alerts"
+      :key="alert.id"
+      :class="['alert', alert.type, 'alert-dismissible', 'fade', 'show']"
+      role="alert"
+      style="margin-bottom: 10px; min-width: 300px; max-width: 600px"
+    >
+      {{ alert.message }}
+      <button
+        type="button"
+        class="btn-close"
+        @click="removeAlert(alert.id)"
+      ></button>
+    </div>
+  </div>
+  <!-- alert 끝 -->
+
     <div class="section-wrap">
         <div class="btn-group gap-3" role="group">
             <button type="button" class="submenu-btn" :class="selected === 'control' ? 'submenu-active' : 'submenu-none'" @click="selected = 'control'">
@@ -82,7 +131,7 @@ const updateStore = async () => {
 
         <div class="white-card">
             <StoreStatusControl v-if="selected === 'control'" :form="state.form.dynamic" @update-form="val => state.form.dynamic = val" />
-            <StoreStatusStaticInfo v-if="selected === 'basic'" :form="state.form.static" @update-form="val => state.form.static = val" />
+            <StoreStatusStaticInfo v-if="selected === 'basic'"  :is-active="owner.state.storeData.isActive" :form="state.form.static" @update-form="val => state.form.static = val" />
             <div class="btn-wrap">
                 <span>** 가게 정보 수정 시 내용을 꼭 확인해주세요.** </span>
                 <div class="button-row">
@@ -143,5 +192,21 @@ const updateStore = async () => {
         width: 120px;
         //flex: 0 0 auto; // 여기는 필요하면 살려놔도 돼.
     }
+}
+
+/* alert 에니메이션 */
+.fade.show {
+  animation: slideDown 0.5s ease;
+}
+
+@keyframes slideDown {
+  from {
+    transform: translateY(-20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
 }
 </style>
