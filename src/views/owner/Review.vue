@@ -22,8 +22,9 @@ const reviews = ref([])
 
 const fetchReviews = async () => {
     try {
+        const prams = { rowPerPage: 300, page: 1, };
         const response = await getReviewsByStoreId(ownerStore.state.storeId, params);
-        const ScoreResponse = await getReviewScoreByStoreId(ownerStore.state.storeId,{ "뭐넣어야하노" : "??"})
+        // const ScoreResponse = await getReviewScoreByStoreId(ownerStore.state.storeId, prams )
         reviews.value = response.data.resultData;
         console.log("통신결과:", reviews.value);
         console.log("별점결과 :", ScoreResponse);

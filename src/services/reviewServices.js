@@ -12,6 +12,11 @@ export const getReviewsByStoreId = (id,params) => {
   return axios.get(`${path}/store-review/all/${id}`,{params}).catch((e) => e.response);
 };
 
+// // 가게 모든 리뷰 + 사장코멘트 조회 (페이지네이션 x)
+// export const getReviewsAllByStoreId = (id) => {
+//   return axios.get(`${path}/store-review/all/${id}`).catch((e) => e.response);
+// };
+
 
 // 사용x
 export const patchOwnerComment = (reviewId, ownerComment) => {

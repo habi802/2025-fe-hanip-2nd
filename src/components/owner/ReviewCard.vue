@@ -9,8 +9,8 @@ import OwnerReviewModal from "../modal/OwnerReviewModal.vue";
 const userInfo = useUserInfo();
 //가게정보가져오기
 const ownerStore = useOwnerStore();
-// 리뷰 데이터 가져오기
-const reviewStore = useReviewStore();
+// // 리뷰 데이터 가져오기
+// const reviewStore = useReviewStore();
 
 const userId = computed(() => userInfo.userId);
 const storeId = computed(() => ownerStore.storeId);
@@ -20,14 +20,14 @@ const props = defineProps({
 });
 console.log( "프롭" , props.reviews )
 
-//프롭정보 갱신 감시
-watch(
-  () => props.reviews,
-  (newVal) => {
-    console.log("프롭 변경됨:", newVal)
-  },
-  { immediate: true }
-)
+// //프롭정보 갱신 감시
+// watch(
+//   () => props.reviews,
+//   (newVal) => {
+//     console.log("프롭 변경됨:", newVal)
+//   },
+//   { immediate: true }
+// )
 
 
 // 더보기
@@ -61,133 +61,133 @@ onMounted(async () => {
 });
 
 //리뷰별표시
-const averageScore = computed(() => {
-  const reviews = reviewStore.reviews;
-  if (!reviews || reviews.length === 0) return 0;
-  const total = reviews.reduce((sum, review) => sum + review.rating, 0);
-  return (total / reviews.length).toFixed(1);
-});
-console.log("별점평균 : ", averageScore);
-const ratingToPercent = computed(() => averageScore.value * 20); // 4.5 -> 90%
+// const averageScore = computed(() => {
+//   const reviews = reviewStore.reviews;
+//   if (!reviews || reviews.length === 0) return 0;
+//   const total = reviews.reduce((sum, review) => sum + review.rating, 0);
+//   return (total / reviews.length).toFixed(1);
+// });
+// console.log("별점평균 : ", averageScore);
+// const ratingToPercent = computed(() => averageScore.value * 20); // 4.5 -> 90%
 
-// 별 아이콘 컴포넌트 정의
-const StarIcon = {
-  template: `
-    <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg" class="star-icon">
-        <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/>
-    </svg>
-    `,
-};
-//---------- 페이지네이션 ------------
+// // 별 아이콘 컴포넌트 정의
+// const StarIcon = {
+//   template: `
+//     <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg" class="star-icon">
+//         <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/>
+//     </svg>
+//     `,
+// };
+// //---------- 페이지네이션 ------------
 
-// 페이지네이션 관련
-const currentPage = ref(1); // 현재 페이지
-const pageSize = 6; // 페이지당 리뷰 개수
+// // 페이지네이션 관련
+// const currentPage = ref(1); // 현재 페이지
+// const pageSize = 6; // 페이지당 리뷰 개수
 
-const totalPages = computed(() => {
-  return Math.ceil(reviewStore.reviews.length / pageSize);
-});
+// const totalPages = computed(() => {
+//   return Math.ceil(reviewStore.reviews.length / pageSize);
+// });
 
-// 현재 페이지에 맞는 리뷰 목록
-const pagedReviews = computed(() => {
-  const start = (currentPage.value - 1) * pageSize;
-  const end = start + pageSize;
-  return reviewStore.reviews.slice(start, end);
-});
+// // 현재 페이지에 맞는 리뷰 목록
+// // const pagedReviews = computed(() => {
+// //   const start = (currentPage.value - 1) * pageSize;
+// //   const end = start + pageSize;
+// //   return reviewStore.reviews.slice(start, end);
+// // });
 
-// 페이지네이션 숫자 계산
-const pageNumbers = computed(() => {
-  const pages = [];
-  for (let i = 1; i <= totalPages.value; i++) {
-    pages.push(i);
-  }
-  return pages;
-});
+// // 페이지네이션 숫자 계산
+// const pageNumbers = computed(() => {
+//   const pages = [];
+//   for (let i = 1; i <= totalPages.value; i++) {
+//     pages.push(i);
+//   }
+//   return pages;
+// });
 
-const goToPage = (page) => {
-  if (page < 1 || page > totalPages.value) return;
-  currentPage.value = page;
-};
+// const goToPage = (page) => {
+//   if (page < 1 || page > totalPages.value) return;
+//   currentPage.value = page;
+// };
 
-//----------사장 댓글 다는 부분------------
-// 모달
-const ownerReviewModalRef = ref(null);
+// //----------사장 댓글 다는 부분------------
+// // 모달
+// const ownerReviewModalRef = ref(null);
 
-// 모달 입력값 (v-model로 연결됨)
-const replyComment = ref("");
+// // 모달 입력값 (v-model로 연결됨)
+// const replyComment = ref("");
 
-// 선택된 리뷰 저장용
-const selectedReview = ref(null);
+// // 선택된 리뷰 저장용
+// const selectedReview = ref(null);
 
-//댓글 상태
-const ownerComment = ref("");
+// //댓글 상태
+// const ownerComment = ref("");
 
-// 모달 열림 상태
-const isModalOpen = ref(false);
+// // 모달 열림 상태
+// const isModalOpen = ref(false);
 
-//-댓글 달 모달창-
-const addReviewModal = ref(null);
-const newdReview = reactive({
-  comment: "",
-});
+// //-댓글 달 모달창-
+// const addReviewModal = ref(null);
+// const newdReview = reactive({
+//   comment: "",
+// });
 
-// 모달 열기
-const openAddReviewModal = (review) => {
-  selectedReview.value = review;
-  ownerComment.value = review.ownerComment || "";
-  const modal = new bootstrap.Modal(addReviewModal.value);
-  modal.show();
-};
+// // 모달 열기
+// const openAddReviewModal = (review) => {
+//   selectedReview.value = review;
+//   ownerComment.value = review.ownerComment || "";
+//   const modal = new bootstrap.Modal(addReviewModal.value);
+//   modal.show();
+// };
 
-// 모달 닫기
-const handleClose = () => {
-  selectedReview.value = null;
-  replyComment.value = "";
-  isModalOpen.value = false; // 모달 닫기
-};
+// // 모달 닫기
+// const handleClose = () => {
+//   selectedReview.value = null;
+//   replyComment.value = "";
+//   isModalOpen.value = false; // 모달 닫기
+// };
 
-// 모달에서 submit 처리
-const handleSubmit = async () => {
-  if (!selectedReview.value) return;
-  try {
-    await reviewStore.saveOwnerComment({
-      reviewId: selectedReview.value.id,
-      ownerComment: replyComment.value,
-    });
-    selectedReview.value.ownerComment = replyComment.value;
-    alert("댓글이 등록되었습니다.");
-  } catch (e) {
-    console.error("댓글 저장 실패", e);
-  }
-};
+// // 모달에서 submit 처리
+// const handleSubmit = async () => {
+//   if (!selectedReview.value) return;
+//   try {
+//     await reviewStore.saveOwnerComment({
+//       reviewId: selectedReview.value.id,
+//       ownerComment: replyComment.value,
+//     });
+//     selectedReview.value.ownerComment = replyComment.value;
+//     alert("댓글이 등록되었습니다.");
+//   } catch (e) {
+//     console.error("댓글 저장 실패", e);
+//   }
+// };
 
-const submitReview = async () => {
-  if (!selectedReview.value) return;
+// const submitReview = async () => {
+//   if (!selectedReview.value) return;
 
-  const payload = {
-    reviewId: selectedReview.value.id,
-    ownerComment: ownerComment.value,
-  };
+//   const payload = {
+//     reviewId: selectedReview.value.id,
+//     ownerComment: ownerComment.value,
+//   };
 
-  try {
-    await reviewStore.saveOwnerComment(payload);
-    selectedReview.value.ownerComment = ownerComment.value;
-  } catch (e) {
-    console.error("댓글 저장 실패", e);
-  }
-};
+//   try {
+//     await reviewStore.saveOwnerComment(payload);
+//     selectedReview.value.ownerComment = ownerComment.value;
+//   } catch (e) {
+//     console.error("댓글 저장 실패", e);
+//   }
+// };
 
-// 유저 프로필 없을 시 대체 이미지 나타내기
-const imgSrc = computed(() => {
-  return reviewStore.reviews &&
-    reviewStore.reviews.imagePath &&
-    reviewStore.reviews.imagePath !== "null"
-    ? `/pic/store-profile/${reviewStore.reviews.id}/${reviewStore.reviews.imagePath}`
-    : defaultUserProfile;
-});
+// // 유저 프로필 없을 시 대체 이미지 나타내기
+// const imgSrc = computed(() => {
+//   return reviewStore.reviews &&
+//     reviewStore.reviews.imagePath &&
+//     reviewStore.reviews.imagePath !== "null"
+//     ? `/pic/store-profile/${reviewStore.reviews.id}/${reviewStore.reviews.imagePath}`
+//     : defaultUserProfile;
+// });
 
-// 유저 프로필 경로
-const img = "`/pic/user-profile/${review.id}/${review.imagePath}`";
+// // 유저 프로필 경로
+// const img = "`/pic/user-profile/${review.id}/${review.imagePath}`";
 
 // 리뷰카드 날짜
 const formatDateTime = (isoStr) => {
@@ -196,33 +196,28 @@ const formatDateTime = (isoStr) => {
     year: "numeric",
     month: "2-digit",
     day: "2-digit",
-    hour: "2-digit",
-    minute: "2-digit",
+    // hour: "2-digit",
+    // minute: "2-digit",
   });
 };
 </script>
 
 <template>
   <!-- 리뷰카드  -->
-  <div v-if="pagedReviews?.length > 0" class="review-box-wrap">
-    <div class="review-box shadow" v-for="review in pagedReviews" :key="review.id">
+  <div v-if="reviews?.length > 0" class="review-box-wrap">
+    <div class="review-box shadow" v-for="reviews in props.reviews" :key="reviews.id">
       <div class="profile">
         <div class="profile-circle">
-          <img
-            :src="imgSrc"
-            @error="(e) => (e.target.src = defaultUserProfile)"
-            alt="프로필"
-          />
+          <img :src="imgSrc" @error="(e) => (e.target.src = defaultUserProfile)" alt="프로필" />
         </div>
         <div class="profile-username">
-          <span> review.userName ||  "-" </span>
-          <span> formatDateTime(review.created) ||  "-" </span>
+          <span> {{ reviews.userName ||  "-" }} </span>
+          <span> {{ formatDateTime(reviews.createdAt) ||  "-" }} </span>
         </div>
         <div class="orderMenu">
           <!-- 메뉴 연동하기 -->
-          <p> review.menuName ||  "-" </p>
-          <!-- 리뷰말고 메뉴로 바꿔야함 -->
-          <!-- <span v-if="review.reviews.menuName.length > 1"> 외 {{ review.reviews.menuName.length - 1 }} 건 </span> -->
+          <span> {{ reviews.menuName[1] ||  "-" }} </span>
+          <span v-if="reviews.menuName.length > 1"> 외 {{ reviews.menuName.length - 1 }} 건 </span>
         </div>
       </div>
 
@@ -234,32 +229,15 @@ const formatDateTime = (isoStr) => {
             <div class="review-score">
               <div class="star-ratings">
                 <!-- 채워진 별 -->
-                <div
-                  class="star-ratings-fill"
-                  :style="{ width: review.rating * 20 + '%' }"
-                >
-                  <svg
-                    v-for="n in 5"
-                    :key="'fill' + n"
-                    class="star-icon"
-                    viewBox="0 0 24 24"
-                    fill="currentColor"
-                  >
-                    <path
-                      d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.286 3.975a1 1 0 00.95.69h4.184c.969 0 1.371 1.24.588 1.81l-3.39 2.46a1 1 0 00-.364 1.118l1.286 3.975c.3.921-.755 1.688-1.54 1.118l-3.39-2.46a1 1 0 00-1.175 0l-3.39 2.46c-.785.57-1.84-.197-1.54-1.118l1.286-3.975a1 1 0 00-.364-1.118L2.22 9.402c-.783-.57-.38-1.81.588-1.81h4.184a1 1 0 00.95-.69l1.286-3.975z"
-                    />
+                <div  class="star-ratings-fill" :style="{ width: reviews.rating * 20 + '%' }" >
+                  <svg v-for="n in 5" :key="'fill' + n" class="star-icon" viewBox="0 0 24 24" fill="currentColor" >
+                    <path  d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.286 3.975a1 1 0 00.95.69h4.184c.969 0 1.371 1.24.588 1.81l-3.39 2.46a1 1 0 00-.364 1.118l1.286 3.975c.3.921-.755 1.688-1.54 1.118l-3.39-2.46a1 1 0 00-1.175 0l-3.39 2.46c-.785.57-1.84-.197-1.54-1.118l1.286-3.975a1 1 0 00-.364-1.118L2.22 9.402c-.783-.57-.38-1.81.588-1.81h4.184a1 1 0 00.95-.69l1.286-3.975z" />
                   </svg>
                 </div>
 
                 <!-- 기본 별 -->
                 <div class="star-ratings-base">
-                  <svg
-                    v-for="n in 5"
-                    :key="'base' + n"
-                    class="star-icon"
-                    viewBox="0 0 24 24"
-                    fill="currentColor"
-                  >
+                  <svg  v-for="n in 5" :key="'base' + n" class="star-icon" viewBox="0 0 24 24" fill="currentColor" >
                     <path
                       d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.286 3.975a1 
                                     1 0 00.95.69h4.184c.969 0 1.371 1.24.588 
@@ -273,30 +251,18 @@ const formatDateTime = (isoStr) => {
                   </svg>
                 </div>
               </div>
-              <span class="score-text">{{ review.rating ||  "-" }}</span>
+              <span class="score-text">{{ reviews.rating ||  "-" }}</span>
             </div>
           </div>
-          <p class="line-clamp-2">{{ review.comment ||  "-" }}</p>
+          <p class="line-clamp-2">{{ reviews.comment ||  "-" }}</p>
         </div>
-        <div
-          class="comment-wrap"
-          v-if="review.ownerComment != null && review.ownerComment != ''"
-        >
+        <div class="comment-wrap" v-if="reviews.ownerComment != null && reviews.ownerComment != ''" >
           <span>사장님 답글</span>
-          <p class="line-clamp-2">{{ review.ownerComment ||  "-" }}</p>
+          <p class="line-clamp-2">{{ reviews.ownerComment ||  "-" }}</p>
         </div>
       </div>
       <div class="btn-wrap">
-        <button
-          class="btn btn-comment"
-          @click="
-            () => {
-              selectedReview = review;
-              replyComment = review.ownerComment || '';
-              isModalOpen = true;
-            }
-          "
-        >
+        <button  class="btn btn-comment" @click=" () => { selectedReview = review; replyComment = review.ownerComment || ''; isModalOpen = true; } ">
           댓글 작성
         </button>
       </div>
@@ -306,12 +272,7 @@ const formatDateTime = (isoStr) => {
     <p class="text-muted">아직 등록된 리뷰가 없습니다.</p>
   </div>
   <div class="d-flex justify-content-center mt-3">
-    <div
-      v-for="n in 6 - pagedReviews.length"
-      :key="'empty-' + n"
-      class="review-box shadow empty-card"
-      v-if="pagedReviews.length < 6"
-    ></div>
+    <div  v-for="n in 6 - reviews.length"  :key="'empty-' + n"  class="review-box shadow empty-card"  v-if="reviews.length < 6" ></div>
   </div>
 
   <!-- 페이지네이션 버튼 -->
