@@ -1,5 +1,5 @@
 <script setup>
-import { computed, ref, reactive, onMounted, inject } from "vue";
+import { computed, ref, reactive, onMounted, inject,watch } from "vue";
 import { useOwnerStore, useUserInfo } from "@/stores/account";
 import { useReviewStore } from "@/stores/review";
 import defaultUserProfile from "@/imgs/owner/user_profile.jpg";
@@ -20,14 +20,8 @@ const props = defineProps({
 });
 console.log( "프롭" , props.reviews )
 
-// //프롭정보 갱신 감시
-// watch(
-//   () => props.reviews,
-//   (newVal) => {
-//     console.log("프롭 변경됨:", newVal)
-//   },
-//   { immediate: true }
-// )
+//프롭정보 갱신 감시
+watch(() => props.reviews,  (newVal) => { console.log("프롭 변경됨:", newVal) },  { immediate: true });
 
 
 // 더보기
@@ -43,13 +37,7 @@ console.log( "프롭" , props.reviews )
 
 
 onMounted(async () => {
-  // // 1. 유저 정보 먼저 불러오기
-  // await userInfo.fetchStore();
-  // console.log("유저정보: ", userId.value);
 
-  // // storeId가 존재하는 경우에만 리뷰를 가져오기
-  // await ownerStore.fetchStoreInfo();
-  // console.log("스토어 아이디:", storeId.value);
 
   // if (storeId.value) {
   //   // 리뷰 데이터를 가져오는 메서드 호출
@@ -78,36 +66,7 @@ onMounted(async () => {
 //     </svg>
 //     `,
 // };
-// //---------- 페이지네이션 ------------
 
-// // 페이지네이션 관련
-// const currentPage = ref(1); // 현재 페이지
-// const pageSize = 6; // 페이지당 리뷰 개수
-
-// const totalPages = computed(() => {
-//   return Math.ceil(reviewStore.reviews.length / pageSize);
-// });
-
-// // 현재 페이지에 맞는 리뷰 목록
-// // const pagedReviews = computed(() => {
-// //   const start = (currentPage.value - 1) * pageSize;
-// //   const end = start + pageSize;
-// //   return reviewStore.reviews.slice(start, end);
-// // });
-
-// // 페이지네이션 숫자 계산
-// const pageNumbers = computed(() => {
-//   const pages = [];
-//   for (let i = 1; i <= totalPages.value; i++) {
-//     pages.push(i);
-//   }
-//   return pages;
-// });
-
-// const goToPage = (page) => {
-//   if (page < 1 || page > totalPages.value) return;
-//   currentPage.value = page;
-// };
 
 // //----------사장 댓글 다는 부분------------
 // // 모달
@@ -271,42 +230,13 @@ const formatDateTime = (isoStr) => {
   <div v-else class="review-box-wrap text-center py-4">
     <p class="text-muted">아직 등록된 리뷰가 없습니다.</p>
   </div>
-  <div class="d-flex justify-content-center mt-3">
-    <div  v-for="n in 6 - reviews.length"  :key="'empty-' + n"  class="review-box shadow empty-card"  v-if="reviews.length < 6" ></div>
-  </div>
 
-  <!-- 페이지네이션 버튼 -->
-  <div class="pagination d-flex justify-content-center mt-4 align-items-center gap-3">
-    <!-- 이전 버튼 -->
-    <span
-      class="page-arrow"
-      @click="goToPage(currentPage - 1)"
-      :class="{ disabled: currentPage === 1 }"
-    >
-      &lt;
-    </span>
-
-    <!-- 숫자 버튼 -->
-    <span
-      v-for="page in pageNumbers"
-      :key="page"
-      class="page-number"
-      :class="{ active: currentPage === page }"
-      @click="goToPage(page)"
-    >
-      {{ page ||  "-"}}
-    </span>
-
-    <!-- 다음 버튼 -->
-    <span
-      class="page-arrow"
-      @click="goToPage(currentPage + 1)"
-      :class="{ disabled: currentPage === totalPages }"
-    >
-      &gt;
-    </span>
-  </div>
-
+  <!--  리뷰카드 밑 여백인데 필요없을듯?
+    <div class="d-flex justify-content-center mt-3">
+      <div  v-for="n in 6 - reviews.length"  :key="'empty-' + n"  class="review-box shadow empty-card"  v-if="reviews.length < 6" ></div>
+    </div>
+  -->
+    
   <!-- 모달 컴포넌트 -->
   <OwnerReviewModal :review="selectedReview" v-model:show="isModalOpen" v-model="replyComment" @submit="handleSubmit" />
 

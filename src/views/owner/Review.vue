@@ -1,5 +1,5 @@
 <script setup>
-import { computed, ref , reactive, onMounted, inject } from 'vue';
+import { computed, ref , reactive, onMounted, inject, watch } from 'vue';
 import { useOwnerStore, useUserInfo } from '@/stores/account'
 import { useReviewStore } from '@/stores/review';
 import defaultUserProfile from "@/imgs/owner/user_profile.jpg"
@@ -17,9 +17,7 @@ const params = reactive({
     rowPerPage : 6
 })
 
-
 const reviews = ref([])
-
 const fetchReviews = async () => {
     try {
         const prams = { rowPerPage: 300, page: 1, };
@@ -27,7 +25,7 @@ const fetchReviews = async () => {
         // const ScoreResponse = await getReviewScoreByStoreId(ownerStore.state.storeId, prams )
         reviews.value = response.data.resultData;
         console.log("통신결과:", reviews.value);
-        console.log("별점결과 :", ScoreResponse);
+        //console.log("별점결과 :", ScoreResponse);
     } catch (error) {
         console.error("리뷰 조회 에러:", error);
     }
@@ -36,26 +34,20 @@ const fetchReviews = async () => {
 //페이지네이션 total-lows
 const row = 100;
 
+watch(() => [params.page, params.rowPerPage], fetchReviews, { immediate: true });
 
-// onMounted(async () => {
-    
-    // // 1. 유저 정보 먼저 불러오기
-    // await userInfo.fetchStore();
-    // console.log("유저정보: ", userId.value);
 
-    // // storeId가 존재하는 경우에만 리뷰를 가져오기
-    // await ownerStore.fetchStoreInfo();
-    // console.log("스토어 아이디:", storeId.value);
+onMounted(async () => {
 
-    // if (storeId.value) {
-    // // 리뷰 데이터를 가져오는 메서드 호출
-    // await reviewStore.fetchReviews(storeId.value);
-    // console.log("리뷰 데이터 구조:", reviewStore.reviews);
-    // } else {
-    // console.error('스토어 아이디가 없습니다.');
-    // }
+    if (storeId.value) {
+    // 리뷰 데이터를 가져오는 메서드 호출
+    await reviewStore.fetchReviews(storeId.value);
+    console.log("리뷰 데이터 구조:", reviewStore.reviews);
+    } else {
+    console.error('스토어 아이디가 없습니다.');
+    }
 
-// });
+});
 
 
 // 전체 리뷰 수
@@ -82,7 +74,6 @@ onMounted(()=> {
             <!-- 전체 토탈 카드 -->
             <div class="total-wrap">
                 <div class="total-box">
-                    <div class="circle"></div>
                     <div>
                         <span>{{ totalReviewCount || 0 }} </span>
                         <span>전체 리뷰 수</span>
@@ -90,9 +81,8 @@ onMounted(()=> {
                 </div>
                 
                 <div class="total-box">
-                    <div class="circle"></div>
                     <div>
-                        <span>avgReview || 0 </span>
+                        <span>{{avgReview || 0}} </span>
                         <span>평균 별점</span>
                     </div>
                 </div>
@@ -122,7 +112,7 @@ onMounted(()=> {
         </div>
 
         <!-- 리뷰카드  -->
-        <ReviewCard v-if="reviews.length" :reviews="reviews" />
+        <ReviewCard v-if="reviews.length"  :key="params.page"  :reviews="reviews" />
     </div>
 
     <b-pagination v-model="params.page" :total-rows="row" :per-page="params.rowPerPage" aria-controls="my-table"></b-pagination>
