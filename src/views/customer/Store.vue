@@ -412,7 +412,7 @@ watch(sortedMenus, (newVal) => {
             </div>
             <div class="phone">
               <div class="text-color">전화번호</div>
-              <div>{{ store.storeInfo.businessNumber }}</div>
+              <div>{{ store.storeInfo.tel }}</div>
             </div>
             <div class="min-amount">
               <div class="text-color">최소 주문 금액</div>

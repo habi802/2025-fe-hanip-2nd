@@ -45,3 +45,7 @@ export const checkPassword = password => {
 export const updateUser = args => {
     return axios.put(`${path}`, args).catch(e => e.response);
 }
+
+export const kakaoLogin = () => {
+    return axios.get(`/kakao-login/authorize`).catch(e => e.response);
+}
