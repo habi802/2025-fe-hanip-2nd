@@ -48,16 +48,17 @@ onMounted(async () => {
   storeInfo();
   const res = await getUser();
 
-  state.form.postcode = res.data.resultData.postcode;
-  state.form.address = res.data.resultData.address;
-  state.form.addressDetail = res.data.resultData.addressDetail;
+state.form.postcode = res?.data?.resultData?.postcode ?? "";
+state.form.address = res?.data?.resultData?.address ?? "";
+state.form.addressDetail = res?.data?.resultData?.addressDetail ?? "";
 
-  console.log("유저 정보", res.data.resultData)
-  const phone = res.data.resultData.phone.split('-');
-  phone1.value = phone[0];
-  phone2.value = phone[1];
-  phone3.value = phone[2];
-  state.form.phone = `${phone1.value}-${phone2.value}-${phone3.value}`;
+console.log("유저 정보", res?.data?.resultData ?? {});
+
+const phone = res?.data?.resultData?.phone?.split('-') ?? ["010", "1111", "1111"];
+phone1.value = phone[0] ?? "010";
+phone2.value = phone[1] ?? "1111";
+phone3.value = phone[2] ?? "1111";
+state.form.phone = `${phone1.value}-${phone2.value}-${phone3.value}`;
 
 
   await cart.getCart();

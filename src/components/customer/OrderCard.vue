@@ -58,6 +58,11 @@ const formatDate = (dateStr) => {
     .replace(/\. /g, ".")
     .replace(/\.$/, "");
 };
+
+// 리뷰 반응
+const reviewButton = computed(() => {
+  return props.order.getReview > 0 ? "리뷰 수정" : "리뷰 등록";
+});
 </script>
 
 <template>
@@ -154,7 +159,7 @@ const formatDate = (dateStr) => {
         "
         :disabled="props.order.status !== '05'"
       >
-        {{ props.order.getReview > 0 ? "리뷰 수정" : "리뷰 등록" }}
+        {{ reviewButton }}
       </button>
       <button
         type="button"
