@@ -14,7 +14,7 @@ import '@/assets/customer/customer.css';
 
     <!-- 헤더 (큰 화면에서만 보임) -->
     <header class="d-none d-lg-block bg-white sticky-top">
-        <Header />
+        <Header  :key="$route.fullPath" />
     </header>
 
     <!-- 메인 -->

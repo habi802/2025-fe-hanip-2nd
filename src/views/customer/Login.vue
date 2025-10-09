@@ -1,11 +1,10 @@
 <script setup>
 import { reactive, onMounted, ref } from "vue";
 import { useRouter } from "vue-router";
-import { login } from "@/services/userService";
+import { kakaoLogin, login } from "@/services/userService";
 import { getStore } from "@/services/storeService";
 import { useAccountStore, useOwnerStore } from "@/stores/account";
 import AlertModal from "@/components/modal/AlertModal.vue";
-import { kakaoLogin } from "@/services/userService";
 
 const router = useRouter();
 const account = useAccountStore();
@@ -80,7 +79,19 @@ const submit = async () => {
 };
 
 const kakao = async() =>{
- const res = await kakaoLogin();
+window.location.href = "http://localhost:8080/api/kakao-login";
+}
+
+const kakaoLoginready = async() =>{
+      const params = new URLSearchParams(window.location.search);
+      const code = params.get("code");
+            if (code) {
+          const res = await kakaoLogin({code});
+          if(res != null){
+            account.setLoggedIn(true);
+            router.push('/')
+          }
+      }
 }
 
 // 아이디 저장 (저장되긴하는데 마지막 사용자 기준으로 하는건지.. 의문)
@@ -90,6 +101,7 @@ onMounted(() => {
     state.form.loginId = savedId;
     state.saveId = true;
   }
+  kakaoLoginready();
 });
 </script>
 
@@ -156,7 +168,7 @@ onMounted(() => {
         </div>
 
         <button type="submit" class="btn login-btn">로그인</button>
-        <button type="submit" class="btn naver-btn">네이버 로그인</button>
+        <!-- <button type="submit" class="btn naver-btn">네이버 로그인</button> -->
         <div class="btn kakao-btn" @click="kakao">카카오 로그인</div>
         <div class="foot"></div>
       </form>

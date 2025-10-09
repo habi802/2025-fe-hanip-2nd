@@ -140,6 +140,7 @@ const sendFormData = async () => {
         console.log("이미지 뭐 들어가있니?", files.image)
         const res = await putReview(formData);
         console.log("수정용 호출!")
+         window.location.reload();
         emit('reviewSaved', res);
         return;
     }
@@ -161,7 +162,7 @@ const sendFormData = async () => {
     console.log("보내기 전에 체크하기", sandReview.value);
 
     const res = await saveReview(formData);
-
+    window.location.reload();
     emit('reviewSaved', res);
 }
 

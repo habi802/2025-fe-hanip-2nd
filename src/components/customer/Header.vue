@@ -183,7 +183,10 @@ const isCartPage = computed(() => route.path.startsWith("/cart"));
           />
           <span class="menu-text me-3" @click="signOut">로그아웃</span>
           <span class="menu-text me-3">|</span>
-          <router-link class="menu-text" to="/check">마이페이지</router-link>
+          <!-- 카카오는 비밀번호 x.. 마이페이지 수정을 못함 -->
+          <span v-if="state.user.providerType !='카카오' "> 
+            <router-link class="menu-text" to="/check">마이페이지</router-link>
+          </span>
         </template>
       </div>
     </div>
