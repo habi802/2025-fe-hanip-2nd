@@ -38,7 +38,12 @@ const submit = async () => {
     if (res !== undefined && res.status === 200) {
         account.setLoggedIn(true);
         user.fetchStore();
-        router.push({ path: managerPath });
+
+        if (user.state.userData.role === '관리자') {
+            router.push({ path: managerPath });
+        } else {
+            router.push({ path: '/' });
+        }
     }
 
     loadingModalRef.value.hide();
