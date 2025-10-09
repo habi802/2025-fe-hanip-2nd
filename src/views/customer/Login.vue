@@ -1,7 +1,7 @@
 <script setup>
 import { reactive, onMounted, ref } from "vue";
 import { useRouter } from "vue-router";
-import { kakaoLogin, login } from "@/services/userService";
+import { kakaoLogin, login} from "@/services/userService";
 import { getStore } from "@/services/storeService";
 import { useAccountStore, useOwnerStore } from "@/stores/account";
 import AlertModal from "@/components/modal/AlertModal.vue";
@@ -78,9 +78,11 @@ const submit = async () => {
   }
 };
 
-const kakao = async() =>{
-window.location.href = "http://localhost:8080/api/kakao-login";
-}
+const kakao = () => {
+  const clientId = import.meta.env.VITE_KAKAO_CLIENT_ID;
+  const redirectUri = import.meta.env.VITE_FRONT_REDIRECT_URI; 
+  window.location.href = `https://kauth.kakao.com/oauth/authorize?response_type=code&client_id=${clientId}&redirect_uri=${redirectUri}`;
+};
 
 const kakaoLoginready = async() =>{
       const params = new URLSearchParams(window.location.search);
