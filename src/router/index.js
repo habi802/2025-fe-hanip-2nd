@@ -248,17 +248,22 @@ const ownerPathList = ['owner', 'owner-dashboard', 'owner-check', 'owner-status'
 const managerPathList = ['manager-dashboard', 'manager-user', 'manager-store', 'manager-order', 'manager-review', 'manager-recommand', 'manager-stats'];
 const loginPath = ['login', 'join', 'manager-login'];
 
-router.beforeEach((to, from) => {
-  console.log(to.name)
+router.beforeEach(async (to, from) => {
   const account = useAccountStore();
-  const user = useUserInfo();
+  const userInfo = useUserInfo();
+
+  if (account.state.loggedIn && userInfo.state.userId === 0) {
+    // 로그인 중에 페이지가 먼저 이동하게 되어버려 페이지를 잘못 이동하는 경우 생김
+    // 그래서 유저 정보가 들어올 때까지 대기
+    await userInfo.fetchStore();
+  }
 
   if (!router.hasRoute(to.name)) {
     // 라우터에 등록하지 않은 주소(없는 페이지)로 이동하려고 하는 경우
     if (account.state.loggedIn) {
-      if (user.state.userData.role === '관리자') {
+      if (userInfo.state.userData.role === '관리자') {
         return { path: '/hanip-manager' };
-      } else if (user.state.userData.role === '사장') {
+      } else if (userInfo.state.userData.role === '사장') {
         return { path: '/owner' };
       } else {
         return { path: '/' };
@@ -268,10 +273,10 @@ router.beforeEach((to, from) => {
     }
   }
 
-  if (customerPathList.includes(to.name) && (!account.state.loggedIn || account.state.loggedIn && user.state.userData.role !== '고객')) {
+  if (customerPathList.includes(to.name) && (!account.state.loggedIn || account.state.loggedIn && userInfo.state.userData.role !== '고객')) {
     // 로그인 상태가 아니거나, 고객이 아닌 계정으로 고객 정보가 필요한 페이지로 이동하려고 하는 경우
     if (account.state.loggedIn) {
-      if (user.state.userData.role === '관리자') {
+      if (userInfo.state.userData.role === '관리자') {
         return { path: '/hanip-manager' };
       } else {
         return { path: '/owner' };
@@ -281,10 +286,10 @@ router.beforeEach((to, from) => {
     }
   }
 
-  if (ownerPathList.includes(to.name) && (!account.state.loggedIn || account.state.loggedIn && user.state.userData.role !== '사장')) {
+  if (ownerPathList.includes(to.name) && (!account.state.loggedIn || account.state.loggedIn && userInfo.state.userData.role !== '사장')) {
     // 로그인 상태가 아니거나, 사장이 아닌 계정으로 로그인한 상태로 사장 페이지로 이동하려고 하는 경우
     if (account.state.loggedIn) {
-      if (user.state.userData.role === '관리자') {
+      if (userInfo.state.userData.role === '관리자') {
         return { path: '/hanip-manager' };
       } else {
         return { path: '/' };
@@ -296,19 +301,19 @@ router.beforeEach((to, from) => {
 
   if (loginPath.includes(to.name) && account.state.loggedIn) {
     // 로그인한 상태에서 로그인 페이지, 관리자 로그인 페이지, 회원 가입 페이지로 이동하려고 하는 경우
-    if (user.state.userData.role === '관리자') {
+    if (userInfo.state.userData.role === '관리자') {
       return { path: '/hanip-manager' };
-    } else if (user.state.userData.role === '사장') {
+    } else if (userInfo.state.userData.role === '사장') {
       return { path: '/owner' };
     } else {
       return { path: '/' };
     }
   }
 
-  if (managerPathList.includes(to.name) && (!account.state.loggedIn || (account.state.loggedIn && user.state.userData.role !== '관리자'))) {
+  if (managerPathList.includes(to.name) && (!account.state.loggedIn || (account.state.loggedIn && userInfo.state.userData.role !== '관리자'))) {
     // 로그인 상태가 아니거나, 관리자가 아닌 계정으로 로그인한 상태로 관리자 페이지로 이동하려고 하는 경우
     if (account.state.loggedIn) {
-      if (user.state.userData.role === '사장') {
+      if (userInfo.state.userData.role === '사장') {
         return { path: '/owner' };
       } else {
         return { path: '/' };
