@@ -20,13 +20,13 @@ export const useAccountStore = defineStore('account',
 export const useUserInfo = defineStore('userInfo',
     () => {
         const state = reactive({
-            userId: null,
-            userName: null,
+            userId: 0,
+            userName: '',
             userAddr: '',
             userData: null,
         });
 
-        const fetchStore = async () => {
+        const fetchUserData = async () => {
             try {
                 const res = await getUser();
 
@@ -42,7 +42,14 @@ export const useUserInfo = defineStore('userInfo',
             }
         };
 
-        return { state, fetchStore };
+        const dispatchUserData = () => {
+            state.userId = 0;
+            state.userName = '';
+            state.userAddr = '';
+            state.userData = null;
+        };
+
+        return { state, fetchStore: fetchUserData, dispatchUserData };
     },
     { persist: true }
 );

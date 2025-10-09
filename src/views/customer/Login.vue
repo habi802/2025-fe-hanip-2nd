@@ -50,7 +50,7 @@ const submit = async () => {
       account.setLoggedIn(true);
       userInfo.fetchStore();
 
-      if (userInfo.state.userData.role === '사장') {
+      if (role === '사장') {
         const ownerStore = useOwnerStore();
         const res = await ownerStore.fetchStoreInfo();
         const isActive = ownerStore.storeData?.isActive;
