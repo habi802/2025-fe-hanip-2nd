@@ -20,7 +20,7 @@ export const reissue = () => {
 
 export const findId = ({ loginId, role }) => {
     return axios.post(`${path}/check-id`, { loginId, role });
-  };  
+};
 
 export const logined = () => {
     return axios.get(path).catch(e => e.response);
@@ -46,6 +46,6 @@ export const updateUser = args => {
     return axios.put(`${path}`, args).catch(e => e.response);
 }
 
-export const kakaoLogin = ({code})=>{
-    return axios.post('/kakao-login/login',{code}).catch(e => e.response);
+export const kakaoLogin = ({ code }) => {
+    return axios.post('/kakao-login/login', { code }).catch(e => e.response);
 }

@@ -23,11 +23,31 @@ function triggerFileInput() {
 }
 
 // 프로필 이미지
+// const imgSrc = computed(() => {
+//   // 파일을 선택했으면 미리보기 적용
+//   if (selectedFile.value) return previewUrl.value;
+
+//   // 서버 이미지 존재 시
+//   if (state.form.id && state.form.imagePath && state.form.imagePath !== "null") {
+//     return `${baseUrl.value}/images/user/${state.form.id}/${state.form.imagePath}`;
+//   }
+
+//   // 기본 이미지
+//   return defaultUserProfile;
+// });
+
 const imgSrc = computed(() => {
-  // 파일을 선택했으면 미리보기 적용
+  // 파일 선택 시 미리보기 우선
   if (selectedFile.value) return previewUrl.value;
 
-  // 서버 이미지 존재 시
+  // 소셜 로그인(userPic이 외부 URL인 경우)
+  if (state.form.providerType !== "로컬" && state.form.imagePath) {
+    if (state.form.imagePath.startsWith("http")) {
+      return state.form.imagePath.replace(/^http:\/\//, "https://");
+    }
+  }
+
+  // 로컬 로그인 또는 서버 이미지
   if (state.form.id && state.form.imagePath && state.form.imagePath !== "null") {
     return `${baseUrl.value}/images/user/${state.form.id}/${state.form.imagePath}`;
   }
@@ -62,6 +82,7 @@ const state = reactive({
     newLoginPw: "",
     phone: "",
     email: "",
+    providerType: "", // 소셜로그인 확인용
   },
 });
 const confirmPw = ref("");
@@ -95,6 +116,8 @@ watch([phone1, phone2, phone3], () => {
 
 // 유효성 검사 함수
 function validateForm() {
+  // 소셜 로그인 회원이면 유효성 검사 생략
+  if (state.form.providerType !== "로컬") return true;
   let isValid = true;
 
   // 현재 비밀번호 필수
@@ -155,7 +178,29 @@ function onPhoneInput(modelRef, event) {
   //   }
 }
 // 현재 비밀번호 서버 검증 함수
+// const checkCorrectPassword = async () => {
+//   if (!state.form.loginPw) {
+//     errors.loginPw = "비밀번호를 입력해주세요.";
+//     return;
+//   }
+
+//   const res = await checkPassword(state.form.loginPw);
+
+//   if (res === undefined || res.data.resultStatus !== 200) {
+//     showModal("비밀번호 확인 중 오류가 발생했습니다.");
+//     return;
+//   }
+
+//   if (res.data.resultData !== 1) {
+//     errors.loginPw = "비밀번호가 일치하지 않습니다.";
+//   } else {
+//     checkResult.value = "비밀번호가 확인되었습니다.";
+//   }
+// };
 const checkCorrectPassword = async () => {
+  // 로컬 로그인 유저만 실행
+  if (state.form.providerType !== "로컬") return;
+
   if (!state.form.loginPw) {
     errors.loginPw = "비밀번호를 입력해주세요.";
     return;
@@ -199,6 +244,7 @@ onMounted(async () => {
 
     if (res && res.data?.resultData) {
       Object.assign(state.form, res.data.resultData);
+      console.log("providerType:", state.form.providerType);
 
       const baseURL = import.meta.env.VITE_API_BASE_URL || "http://localhost:8080";
       const imgPath = res.data.resultData.imagePath;
@@ -225,70 +271,197 @@ onMounted(async () => {
     showModal("사용자 정보 로딩 중 오류가 발생했습니다.");
   }
 });
-
 //  정보 수정 성공 여부
+
+// const submitForm = async (e) => {
+//   e.preventDefault();
+
+//   // 현재 비밀번호 확인 필수
+//   if (!state.form.loginPw) {
+//     errors.loginPw = "현재 비밀번호를 입력해주세요.";
+//     return;
+//   }
+
+//   // 새 비밀번호를 바꾸려는 경우만 validate
+//   const isPwChanging = confirmPw.value || confirmPwCheck.value;
+//   if (isPwChanging) {
+//     if (confirmPw.value !== confirmPwCheck.value) {
+//       errors.confirmPw = "새 비밀번호가 일치하지 않습니다.";
+//       return;
+//     }
+//     // 비밀번호 확인 버튼 누르지 않았으면
+//     if (checkResult.value !== "비밀번호가 확인되었습니다.") {
+//       showModal("현재 비밀번호를 먼저 확인해주세요.");
+//       return;
+//     }
+//   }
+
+//   try {
+//     const formData = new FormData();
+//     const userPutReq = {
+//       name: state.form.name,
+//       loginPw: state.form.loginPw, // 항상 필요
+//       newLoginPw: isPwChanging ? confirmPw.value : null, // 변경 시만 포함
+//       phone: `${phone1.value}-${phone2.value}-${phone3.value}`,
+//       email: state.form.email,
+//     };
+
+//     formData.append(
+//       "req",
+//       new Blob([JSON.stringify(userPutReq)], { type: "application/json" })
+//     );
+
+//     if (selectedFile.value) {
+//       formData.append("pic", selectedFile.value); // 이미지만 변경 가능
+//     }
+
+//     const res = await updateUser(formData);
+
+//     if (res.status === 200) {
+//       showModal("정보가 성공적으로 수정되었습니다.");
+//       router.push("/");
+//     } else {
+//       showModal("정보 수정에 실패했습니다.");
+//     }
+//   } catch (err) {
+//     console.error("정보 수정 실패:", err);
+//     showModal("정보 수정 중 오류가 발생했습니다.");
+//   }
+// };
+
+
+// const submitForm = async (e) => {
+//   e.preventDefault();
+
+//   // 로컬 로그인이면 비밀번호 검증
+//   if (state.form.providerType === "로컬") {
+//     if (!state.form.loginPw) {
+//       errors.loginPw = "현재 비밀번호를 입력해주세요.";
+//       return;
+//     }
+
+//     const isPwChanging = confirmPw.value || confirmPwCheck.value;
+//     if (isPwChanging) {
+//       if (confirmPw.value !== confirmPwCheck.value) {
+//         errors.confirmPw = "새 비밀번호가 일치하지 않습니다.";
+//         return;
+//       }
+//       if (checkResult.value !== "비밀번호가 확인되었습니다.") {
+//         showModal("현재 비밀번호를 먼저 확인해주세요.");
+//         return;
+//       }
+//     }
+//   }
+
+//   try {
+//     const formData = new FormData();
+
+//     // 서버로 보낼 객체
+//     const userPutReq = {
+//       name: state.form.name,
+//       phone: `${phone1.value}-${phone2.value}-${phone3.value}`,
+//       email: state.form.email,
+//     };
+
+//     // 로컬 회원이면 비밀번호 포함
+//     if (state.form.providerType === "로컬") {
+//       userPutReq.loginPw = state.form.loginPw;
+//       const isPwChanging = confirmPw.value || confirmPwCheck.value;
+//       if (isPwChanging) userPutReq.newLoginPw = confirmPw.value;
+//     }
+
+//     formData.append(
+//       "req",
+//       new Blob([JSON.stringify(userPutReq)], { type: "application/json" })
+//     );
+
+//     if (selectedFile.value) {
+//       formData.append("pic", selectedFile.value);
+//     }
+
+//     const res = await updateUser(formData);
+
+//     if (res.status === 200) {
+//       showModal("정보가 성공적으로 수정되었습니다.");
+//       router.push("/");
+//     } else {
+//       showModal("정보 수정에 실패했습니다.");
+//     }
+//   } catch (err) {
+//     console.error("정보 수정 실패:", err);
+//     showModal("정보 수정 중 오류가 발생했습니다.");
+//   }
+// };
 const submitForm = async (e) => {
   e.preventDefault();
 
-  // 현재 비밀번호 확인 필수
-  if (!state.form.loginPw) {
-    errors.loginPw = "현재 비밀번호를 입력해주세요.";
-    return;
-  }
-
-  // 새 비밀번호를 바꾸려는 경우만 validate
-  const isPwChanging = confirmPw.value || confirmPwCheck.value;
-  if (isPwChanging) {
-    if (confirmPw.value !== confirmPwCheck.value) {
-      errors.confirmPw = "새 비밀번호가 일치하지 않습니다.";
-      return;
-    }
-    // 비밀번호 확인 버튼 누르지 않았으면
-    if (checkResult.value !== "비밀번호가 확인되었습니다.") {
-      showModal("현재 비밀번호를 먼저 확인해주세요.");
-      return;
-    }
-  }
-
   try {
+    // FormData 생성
     const formData = new FormData();
+
+    // 서버로 보낼 객체
     const userPutReq = {
       name: state.form.name,
-      loginPw: state.form.loginPw, // 항상 필요
-      newLoginPw: isPwChanging ? confirmPw.value : null, // 변경 시만 포함
       phone: `${phone1.value}-${phone2.value}-${phone3.value}`,
       email: state.form.email,
     };
 
+    if (state.form.providerType === "로컬") {
+      // 로컬 로그인 유저: 기존 비밀번호 처리
+      if (!state.form.loginPw) {
+        errors.loginPw = "현재 비밀번호를 입력해주세요.";
+        return;
+      }
+      userPutReq.loginPw = state.form.loginPw;
+
+      // 새 비밀번호 변경 시
+      const isPwChanging = confirmPw.value || confirmPwCheck.value;
+      if (isPwChanging) {
+        if (confirmPw.value !== confirmPwCheck.value) {
+          errors.confirmPw = "새 비밀번호가 일치하지 않습니다.";
+          return;
+        }
+        // 비밀번호 확인 버튼 클릭 여부
+        if (checkResult.value !== "비밀번호가 확인되었습니다.") {
+          showModal("현재 비밀번호를 먼저 확인해주세요.");
+          return;
+        }
+        userPutReq.newLoginPw = confirmPw.value;
+      }
+    } else if (state.form.providerType === "카카오") {
+      // 카카오 로그인 유저: 더미 비밀번호 삽입
+      const kakaoDummyPw = "kakao_LoginPw_Hanip_Custromer_info";
+      userPutReq.loginPw = kakaoDummyPw;
+      userPutReq.newLoginPw = kakaoDummyPw;
+    }
+
+    // FormData에 JSON 문자열로 추가
     formData.append(
       "req",
       new Blob([JSON.stringify(userPutReq)], { type: "application/json" })
     );
 
+    // 프로필 사진 업로드가 있을 경우만 추가
     if (selectedFile.value) {
-      formData.append("pic", selectedFile.value); // 이미지만 변경 가능
+      formData.append("pic", selectedFile.value);
     }
 
+    // 서버 PUT 요청
     const res = await updateUser(formData);
 
     if (res.status === 200) {
       showModal("정보가 성공적으로 수정되었습니다.");
       router.push("/");
     } else {
+      console.error("PUT 요청 실패:", res.data);
       showModal("정보 수정에 실패했습니다.");
     }
   } catch (err) {
-    console.error("정보 수정 실패:", err);
+    console.error("정보 수정 중 오류 발생:", err);
     showModal("정보 수정 중 오류가 발생했습니다.");
   }
 };
 
-// 새비밀번호 입력창 아래에 비밀번호 조건 안내 문구
-// watch(phone2, (val) => {
-//   if (val.length === 4) {
-//     nextTick(() => phone3Input.value?.focus());
-//   }
-// });
 // 에러 지우기 (email, phone 등 key값 전달)
 function clearError(key) {
   errors[key] = "";
@@ -382,66 +555,68 @@ const isPasswordChecked = ref(false); // 비밀번호 확인 여부
             />/
           </div>
           <div class="sevLine"></div> -->
+          <!-- 비밀번호 입력칸 (LOCAL 전용) -->
+          <div v-if="state.form.providerType === '로컬'">
+            <!-- <div v-show="state.form.providerType === '로컬'"> -->
+            <!-- 현재 비밀번호 -->
+            <div class="form-group">
+              <label>현재 비밀번호</label>
 
-          <!-- 현재 비밀번호 -->
-          <div class="form-group">
-            <label>현재 비밀번호</label>
-
-            <input
-              type="password"
-              class="form-input"
-              v-model="state.form.loginPw"
-              placeholder="현재 비밀번호를 입력해주세요."
-              :class="{ error: errors.loginPw }"
-              @input="clearError('loginPw')"
-            />
-            <button
-              class="password"
-              type="button"
-              @click.prevent="checkCorrectPassword()"
-            >
-              <!-- <input type="password" class="form-input" v-model="state.form.loginPw" placeholder="현재 비밀번호를 입력해주세요."
+              <input
+                type="password"
+                class="form-input"
+                v-model="state.form.loginPw"
+                placeholder="현재 비밀번호를 입력해주세요."
+                :class="{ error: errors.loginPw }"
+                @input="clearError('loginPw')"
+              />
+              <button
+                class="password"
+                type="button"
+                @click.prevent="checkCorrectPassword()"
+              >
+                <!-- <input type="password" class="form-input" v-model="state.form.loginPw" placeholder="현재 비밀번호를 입력해주세요."
               :class="{ error: errors.loginPw }" @input="clearError('loginPw')" />
             <button class="password" @click.prevent="checkCorrectPassword()"> -->
 
-              비밀번호 확인
-            </button>
-            <p v-if="errors.loginPw" class="error-msg">{{ errors.loginPw }}</p>
-            <p v-else-if="checkResult" class="success-msg">{{ checkResult }}</p>
-          </div>
-          <div class="sevLine"></div>
+                비밀번호 확인
+              </button>
+              <p v-if="errors.loginPw" class="error-msg">{{ errors.loginPw }}</p>
+              <p v-else-if="checkResult" class="success-msg">{{ checkResult }}</p>
+            </div>
+            <div class="sevLine"></div>
 
-          <!-- 새 비밀번호 -->
-          <div class="form-group">
-            <label>새 비밀번호</label>
-            <input
-              type="password"
-              class="form-input"
-              v-model="confirmPw"
-              placeholder="비밀번호는 영문, 숫자, 특수문자 포함 8~16자"
-              :class="{ error: errors.confirmPw }"
-              @input="clearError('confirmPw')"
-            />
-            <p v-if="errors.confirmPw" class="error-msg">
-              {{ errors.confirmPw }}
-            </p>
+            <!-- 새 비밀번호 -->
+            <div class="form-group">
+              <label>새 비밀번호</label>
+              <input
+                type="password"
+                class="form-input"
+                v-model="confirmPw"
+                placeholder="비밀번호는 영문, 숫자, 특수문자 포함 8~16자"
+                :class="{ error: errors.confirmPw }"
+                @input="clearError('confirmPw')"
+              />
+              <p v-if="errors.confirmPw" class="error-msg">
+                {{ errors.confirmPw }}
+              </p>
+            </div>
+            <div class="sevLine"></div>
+            <!-- 새 비밀번호 확인 -->
+            <div class="form-group">
+              <label>새 비밀번호 확인</label>
+              <input
+                type="password"
+                class="form-input"
+                v-model="confirmPwCheck"
+                placeholder="새로운 비밀번호를 한번 더 입력해주세요"
+                :class="{ error: errors.confirmPw }"
+                @input="clearError('confirmPw')"
+              />
+              <p v-if="errors.confirmPw" class="error-msg">{{ errors.confirmPw }}</p>
+            </div>
+            <div class="sevLine"></div>
           </div>
-          <div class="sevLine"></div>
-
-          <!-- 새 비밀번호 확인 -->
-          <div class="form-group">
-            <label>새 비밀번호 확인</label>
-            <input
-              type="password"
-              class="form-input"
-              v-model="confirmPwCheck"
-              placeholder="새로운 비밀번호를 한번 더 입력해주세요"
-              :class="{ error: errors.confirmPw }"
-              @input="clearError('confirmPw')"
-            />
-            <p v-if="errors.confirmPw" class="error-msg">{{ errors.confirmPw }}</p>
-          </div>
-          <div class="sevLine"></div>
 
           <!-- 휴대전화 -->
           <div class="form-group phone-input-wrap">
@@ -551,7 +726,6 @@ input:focus {
   font-size: 25px;
   letter-spacing: -1.5px;
 
-
   .solid {
     // 정보 수정 메인 선
     width: 1110px;
@@ -572,7 +746,7 @@ input:focus {
   border-bottom: 0.5px solid #c8c8c8;
   width: 1110px;
   margin-bottom: 10px;
-  margin-top: 15px;
+  // margin-top: 15px;
 }
 
 .container {
@@ -811,7 +985,7 @@ input[readonly] {
   user-select: none;
   transition: color 0.3s ease;
 }
-.title{
+.title {
   text-align: center;
   font-size: 1.2em;
 }

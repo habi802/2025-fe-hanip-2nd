@@ -25,6 +25,8 @@ onMounted ( () => {
     .then(res => {
       if (res.status === 200) {
         console.log("user data:", res.data); // 확인용
+        console.log("user data:", res.data.resultData.providerType);
+
         const data = res.data.resultData;
         user.name = data.name;
         // user.orders = data.orders;
