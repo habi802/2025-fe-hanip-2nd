@@ -63,10 +63,12 @@ let eventSource = null;
 
 // SSE 연결
 function connectSSE(storeId) {
-    const baseUrl = ref(import.meta.env.VITE_BASE_URL);
+    const baseUrl = import.meta.env.VITE_BASE_URL; // 예: https://api.example.com
+    const url = `${baseUrl}/api/sse/order/${storeId}`;
 
-  eventSource = new EventSource(`${baseUrl.value}/api/sse/order/${storeId}`);
 
+    eventSource = new EventSource(url, { withCredentials: true });
+    
   eventSource.addEventListener("connect", (e) => {
     console.log("SSE 연결 성공:", e.data);
   });
