@@ -48,17 +48,17 @@ onMounted(async () => {
   storeInfo();
   const res = await getUser();
 
-state.form.postcode = res?.data?.resultData?.postcode ?? "";
-state.form.address = res?.data?.resultData?.address ?? "";
-state.form.addressDetail = res?.data?.resultData?.addressDetail ?? "";
+  state.form.postcode = res?.data?.resultData?.postcode ?? "";
+  state.form.address = res?.data?.resultData?.address ?? "";
+  state.form.addressDetail = res?.data?.resultData?.addressDetail ?? "";
 
-console.log("유저 정보", res?.data?.resultData ?? {});
+  console.log("유저 정보", res?.data?.resultData ?? {});
 
-const phone = res?.data?.resultData?.phone?.split('-') ?? ["010", "1111", "1111"];
-phone1.value = phone[0] ?? "010";
-phone2.value = phone[1] ?? "1111";
-phone3.value = phone[2] ?? "1111";
-state.form.phone = `${phone1.value}-${phone2.value}-${phone3.value}`;
+  const phone = res?.data?.resultData?.phone?.split('-') ?? ["010", "1111", "1111"];
+  phone1.value = phone[0] ?? "010";
+  phone2.value = phone[1] ?? "1111";
+  phone3.value = phone[2] ?? "1111";
+  state.form.phone = `${phone1.value}-${phone2.value}-${phone3.value}`;
 
 
   await cart.getCart();
@@ -220,6 +220,8 @@ const showModal = (message) => {
 
 //신규 주문하기 버튼 
 const ordering = async () => {
+  if (isProcessing.value) return;
+  isProcessing.value = true;
   if (state.form.address.trim().length === 0) {
     showModal("주소를 입력해주세요");
     return;
@@ -275,8 +277,11 @@ const ordering = async () => {
 
 
 }
-//카카오페이용
+
+const isProcessing = ref(false);
 const buy = async () => {
+  if (isProcessing.value) return;
+  isProcessing.value = true;
   if (state.form.address.trim().length === 0) {
     showModal("주소를 입력해주세요");
     return;
