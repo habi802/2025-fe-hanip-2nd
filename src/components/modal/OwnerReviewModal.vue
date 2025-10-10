@@ -73,131 +73,130 @@ const displayImage = computed(() => {
 <template>
   <Teleport to="body">
     <!-- 모달 전체 백드롭 -->
-    <div v-if="show" class="modal-backdrop">
-      <div class="modal-content">
-        <!-- 헤더: 작성자 프로필과 닫기 버튼 -->
-        <div class="modal-header">
-          <div class="profile-box">
-            <img :src="profileImage" alt="프로필" />
-            <div class="profile-info">
-              <p>{{ review?.userName }}</p>
-              <!-- 작성자 이름 -->
-              <span>{{ timeAgo }}</span>
-              <!-- 작성 시간 -->
-            </div>
-          </div>
-          <!-- <button @click="$emit('update:show', false)">X</button> -->
-        </div>
-        <!-- 본문: 좌측 리뷰 이미지 및 주문메뉴 / 우측 댓글 -->
-        <div class="modal-body">
-          <!-- 좌측: 리뷰 이미지 -->
-          <div class="left-side">
-            <div class="review-image">
+    <div v-if="show" class="modal-backdrop" @click="$emit('update:show', false)">
+      <div class="modal-wrap white-card">
+        <div class="modal-content " @click.stop>
+          <!-- 좌측: 리뷰 이미지 TODO : v-if=review.pic 추가하기--> 
+          <div  class="left-side">
+            <div class="review-image-wrap">
               <!-- <img :src="displayImage" alt="리뷰 이미지" /> -->
-              <Swiper
-                :modules="[Navigation]"
-                :navigation="{
-                  nextEl: '.swiperRight',
-                  prevEl: '.swiperLeft',
-                }"
-                class="mySwiper"
-              >
+              <div class="swiperLeft arrow-btn">
+                <!-- <img class="left" src="/src/imgs/NavigationLeft.png" /> -->
+                <
+              </div>
+              <Swiper :modules="[Navigation]" :navigation="{ nextEl: '.swiperRight',  prevEl: '.swiperLeft', }" class="mySwiper">
                 <SwiperSlide v-for="(img, index) in mockImages" :key="index">
                   <img :src="img" alt="리뷰 이미지" />
                 </SwiperSlide>
               </Swiper>
-              <div class="swiperLeft">
-                <img class="left" src="/src/imgs/NavigationLeft.png" />
+              <div class="swiperRight arrow-btn">
+                <!-- <img class="right" src="/src/imgs/NavigationRight.png" /> -->
+                >
               </div>
-              <div class="swiperRight">
-                <img class="right" src="/src/imgs/NavigationRight.png" />
-              </div>
-              <!-- 주문 메뉴 -->
-              <div class="menu-box">
-                <p>{{ review.menuName }}</p>
-              </div>
+            </div> <!--review-image 끝-->
+            <!-- 주문 메뉴 -->
+            <div class="menu-box">
+              <div v-for="menuName in review.menuName">{{ menuName }}</div>
             </div>
-          </div>
+          </div> <!-- left-side 끝-->
 
+          
           <!-- 우측: 주문 메뉴, 고객 리뷰, 사장 답글 -->
           <div class="right-side">
+            <!-- 프로필 -->
+            <div class="profile-header">
+              <div class="profile-box">
+                <img :src="profileImage" alt="프로필" />
+                <div class="profile-info">
+                  <span>{{ review?.userName }}</span>
+                  <!-- 작성자 이름 -->
+                  <p>{{ timeAgo || "작성시간확인불가" }}</p>
+                  <!-- 작성 시간 -->
+                </div>
+              </div>
+              <!-- <button @click="$emit('update:show', false)">X</button> -->
+            </div><!--modal-header 끝-->
             <!-- 고객 리뷰 -->
-            <div class="review-text">
-              <span>고객님 리뷰</span>
-              <!-- 별점표시 -->
-              <div class="review-score-wrapper">
-                <div class="review-score">
-                  <div class="star-ratings">
-                    <!-- 채워진 별 -->
-                    <div
-                      class="star-ratings-fill"
-                      :style="{ width: review.rating * 20 + '%' }"
-                    >
-                      <svg
-                        v-for="n in 5"
-                        :key="'fill' + n"
-                        class="star-icon"
-                        viewBox="0 0 24 24"
-                        fill="currentColor"
+            <div class="customer-review">
+              <div class="review-title">
+                <span>고객님 리뷰</span>
+                <!-- 별점표시 -->
+                <div class="review-score-wrapper">
+                  <div class="review-score">
+                    <div class="star-ratings">
+                      <!-- 채워진 별 -->
+                      <div
+                        class="star-ratings-fill"
+                        :style="{ width: review.rating * 20 + '%' }"
                       >
-                        <path
-                          d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.286 3.975a1 1 0 00.95.69h4.184c.969 0 1.371 1.24.588 1.81l-3.39 2.46a1 1 0 00-.364 1.118l1.286 3.975c.3.921-.755 1.688-1.54 1.118l-3.39-2.46a1 1 0 00-1.175 0l-3.39 2.46c-.785.57-1.84-.197-1.54-1.118l1.286-3.975a1 1 0 00-.364-1.118L2.22 9.402c-.783-.57-.38-1.81.588-1.81h4.184a1 1 0 00.95-.69l1.286-3.975z"
-                        />
-                      </svg>
+                        <svg
+                          v-for="n in 5"
+                          :key="'fill' + n"
+                          class="star-icon"
+                          viewBox="0 0 24 24"
+                          fill="currentColor"
+                        >
+                          <path
+                            d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.286 3.975a1 1 0 00.95.69h4.184c.969 0 1.371 1.24.588 1.81l-3.39 2.46a1 1 0 00-.364 1.118l1.286 3.975c.3.921-.755 1.688-1.54 1.118l-3.39-2.46a1 1 0 00-1.175 0l-3.39 2.46c-.785.57-1.84-.197-1.54-1.118l1.286-3.975a1 1 0 00-.364-1.118L2.22 9.402c-.783-.57-.38-1.81.588-1.81h4.184a1 1 0 00.95-.69l1.286-3.975z"
+                          />
+                        </svg>
+                      </div>
+    
+                      <!-- 기본 별 -->
+                      <div class="star-ratings-base">
+                        <svg
+                          v-for="n in 5"
+                          :key="'base' + n"
+                          class="star-icon"
+                          viewBox="0 0 24 24"
+                          fill="currentColor"
+                        >
+                          <path
+                            d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.286 3.975a1 
+                                      1 0 00.95.69h4.184c.969 0 1.371 1.24.588 
+                                      1.81l-3.39 2.46a1 1 0 00-.364 1.118l1.286 
+                                      3.975c.3.921-.755 1.688-1.54 
+                                      1.118l-3.39-2.46a1 1 0 00-1.175 
+                                      0l-3.39 2.46c-.785.57-1.84-.197-1.54-1.118l1.286-3.975a1 
+                                      1 0 00-.364-1.118L2.22 9.402c-.783-.57-.38-1.81.588-1.81h4.184a1 
+                                      1 0 00.95-.69l1.286-3.975z"
+                          />
+                        </svg>
+                      </div>
                     </div>
-
-                    <!-- 기본 별 -->
-                    <div class="star-ratings-base">
-                      <svg
-                        v-for="n in 5"
-                        :key="'base' + n"
-                        class="star-icon"
-                        viewBox="0 0 24 24"
-                        fill="currentColor"
-                      >
-                        <path
-                          d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.286 3.975a1 
-                                    1 0 00.95.69h4.184c.969 0 1.371 1.24.588 
-                                    1.81l-3.39 2.46a1 1 0 00-.364 1.118l1.286 
-                                    3.975c.3.921-.755 1.688-1.54 
-                                    1.118l-3.39-2.46a1 1 0 00-1.175 
-                                    0l-3.39 2.46c-.785.57-1.84-.197-1.54-1.118l1.286-3.975a1 
-                                    1 0 00-.364-1.118L2.22 9.402c-.783-.57-.38-1.81.588-1.81h4.184a1 
-                                    1 0 00.95-.69l1.286-3.975z"
-                        />
-                      </svg>
-                    </div>
+                    <span class="star-score">{{ review.rating }}</span>
                   </div>
-                  <span class="star-score">{{ review.rating }}</span>
                 </div>
               </div>
               <p>{{ review?.comment }}</p>
             </div>
 
             <!-- 사장님 답글 입력 -->
-            <div class="owner-comment-box">
-              <span>사장님 답글</span>
+            <div class="owner-comment">
+              <div class="review-title">
+                <span>사장님 답글</span>
+              </div>
               <textarea
                 v-model="localComment"
                 placeholder="답글을 입력하세요. 고객과의 소통은 매출상승의 지름길입니다!"
               ></textarea>
             </div>
-          </div>
-        </div>
-
+          </div><!--right-side 끝-->
+        </div><!--modal-content 끝-->
         <!-- 하단 등록 버튼 -->
         <div class="modal-footer">
           <button class="delete-btn" @click="$emit('update:show', false)">취소</button>
           <button class="accept-btn" @click="handleSubmit">등록</button>
         </div>
-      </div>
-    </div>
+
+
+        </div><!-- modal-wrap 끝-->
+    </div><!-- modal-backdrop 끝-->
   </Teleport>
 </template>
 
 <style lang="scss" scoped>
 //모달 백드롭
-
 .modal-backdrop {
   position: fixed;
   inset: 0;
@@ -207,95 +206,48 @@ const displayImage = computed(() => {
   align-items: center;
   z-index: 1000;
 }
+.modal-wrap{
+  width: 70%;
+  max-width: 835px;
+  padding: 40px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 30px;
+  overflow: visible !important;
+}
+
 
 // 모달 내용 박스
 .modal-content {
-  overflow: visible !important;
-  background: #fff;
-  border-radius: 15px;
-  padding: 20px 30px;
-  width: 100%;
-  max-width: 830px;
-}
-
-// 헤더: 프로필 영역
-.modal-header {
   display: flex;
+  flex-direction: row;
   justify-content: space-between;
   align-items: center;
-
-  .profile-box {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    margin-left: 30px;
-
-    img {
-      width: 50px;
-      height: 50px;
-      border-radius: 50%;
-      object-fit: cover;
-      border: 1px solid #c8c8c8;
-    }
-
-    .profile-info {
-      display: flex;
-      flex-direction: column;
-      gap: 2px;
-      p {
-        margin-bottom: -2px;
-        color: #797979;
-      }
-      span {
-        font-size: 14px;
-        font-weight: 500;
-        color: #d9d9d9;
-      }
-    }
-  }
-}
-.modal-content,
-.modal-body {
-  overflow: visible;
-}
-//본문: 좌우 레이아웃
-.modal-body {
-  display: flex;
   gap: 30px;
-  margin-top: 15px;
+}
 
-  .left-side {
-    flex: 1;
-    display: flex;
-    justify-content: center;
-  }
-  .right-side {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-  }
-  // 리뷰이미지
-  // .review-image img {
-  //   width: 100%;
-  //   max-width: 320px;
-  //   height: 320px;
-  //   object-fit: cover;
-  //   border-radius: 10px;
-  // }
-  .review-image {
-    position: relative;
+.left-side {
+  width: 45%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
+  .review-image-wrap {
     width: 100%;
     max-width: 320px;
     height: 320px;
     border-radius: 10px;
-
-    .swiper {
-      width: 100%;
-      height: 100%;
-      position: relative;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    
+    .swiper{
+      width: 320px;
+      height: 320px;
+      overflow: hidden;   /* 넘치는 부분 잘라내기 */
+      object-fit: cover;  /* ✅ 핵심 */
     }
-
     .swiper-slide {
       display: flex;
       justify-content: center;
@@ -312,55 +264,101 @@ const displayImage = computed(() => {
     :deep(.swiper-button-prev) {
       display: none;
     }
-    .swiperLeft img,
-    .swiperRight img {
-      // width: 20px; // 원하는 가로 크기
+    .arrow-btn img{
+      width: 20px; // 원하는 가로 크기
       height: 40px; // 원하는 세로 크기
       object-fit: contain; // 이미지 비율 유지
     }
-    .swiperLeft,
-    .swiperRight {
-      position: absolute;
-      top: 50%;
-      transform: translateY(-50%);
-      z-index: 10;
-      width: 30px;
-      height: 30px;
-      border-radius: 50%;
-      display: flex;
-      justify-content: center;
-      align-items: center;
+    .arrow-btn {
+      // top: 50%;
+      // transform: translateY(-50%);
+      // z-index: 10; 
+      // width: 30px;
+      // height: 30px;
+      // border-radius: 50%;
+      // display: flex;
+      // justify-content: center;
+      // align-items: center;
       cursor: pointer;
-      color: #000;
-    }
+      color: #bcbcbc;
+      font-size: 25px;
+      transform: scaleY(3); /* 세로로 3배 늘림 */
 
-    .swiperLeft {
-      left: -40px; // 원하는 위치로 조정
-    }
-    .swiperRight {
-      right: -40px;
     }
   }
-
   .menu-box {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 5px 20px;
     margin-top: 20px;
-    margin-bottom: -40px;
-    p {
+    margin-left: 40px;
+
+    div {
       font-size: 14px;
       font-weight: 300;
+      border-radius: 9999px;
+      border: solid 1px #ccc;
+      padding: 10px;
     }
   }
-  .review-text,
-  .owner-comment-box {
-    display: flex; // 💡 텍스트와 별점 가로 정렬
+}
+
+
+.right-side { 
+  width: 45%;
+  
+  .profile-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+  }
+
+  .profile-box {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    align-items: center;
+
+    img {
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 1px solid #c8c8c8;
+    }
+
+    .profile-info {
+      display: flex;
+      flex-direction: column;
+
+      gap: 2px;
+      span {
+        margin-bottom: -2px;
+        color: #797979;
+      }
+      p {
+        font-size: 14px;
+        font-weight: 500;
+        color: #a8a8a8;
+        margin-bottom: 0;
+      }
+    }
+  }
+  
+  .review-title {
+    display: flex;
     gap: 10px;
     flex-wrap: wrap; //  줄바꿈 허용
-
     span {
       color: #ff6666;
       font-weight: 400;
       font-size: 14pt;
     }
+  }
+  .customer-review,
+  .owner-comment{
     p {
       color: #000;
       white-space: pre-wrap;
@@ -383,7 +381,7 @@ const displayImage = computed(() => {
         width: 120px; /* 너비를 고정하면 퍼센트 연산이 더 정확 */
         height: 24px;
       }
-
+  
       .star-ratings-base,
       .star-ratings-fill {
         position: absolute;
@@ -393,18 +391,18 @@ const displayImage = computed(() => {
         width: 100%;
         height: 100%;
       }
-
+  
       .star-ratings-base {
         color: #dcdcdc;
         z-index: 0;
       }
-
+  
       .star-ratings-fill {
         color: gold;
         overflow: hidden;
         z-index: 1;
       }
-
+  
       .star-icon {
         width: 24px;
         height: 24px;
@@ -417,6 +415,7 @@ const displayImage = computed(() => {
     }
   }
 }
+
 
 // 하단 버튼 영역
 .modal-footer {
@@ -447,4 +446,6 @@ const displayImage = computed(() => {
   width: 150px;
   height: 40px;
 }
+
+
 </style>

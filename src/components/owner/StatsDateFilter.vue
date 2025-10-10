@@ -93,6 +93,31 @@ onMounted(async () => {
   selectRange("월간");
 });
 
+
+
+
+  // 임시보관용ㅎㅎ;
+  // <div>
+  //   <div class="date-filter">
+  //     <img src="/src/imgs/owner/Icon_조회기간설정.svg" alt="캘린더아이콘" title="캘린더아이콘">
+  //     <div>
+  //         <span style="font-size: 20px;">조회 기간 설정</span>
+  //         <span style="font-size: 13px; color: #838383; font-weight: 200;">2025.07.01 ~ 2025.08.01</span>
+  //     </div>
+  //     <img src="/src/imgs/owner/Icon_목록단추.svg" alt="목록단추" title="달력 열기" style="cursor: pointer;" @click="toggleDatePicker" />
+      
+  //     <!-- 달력 영역 -->
+  //     <div v-if="showDatePicker" class="date-picker-popup">
+  //         <label>
+  //             시작일 <input type="date" v-model="startDate" />
+  //         </label>
+  //         <label>
+  //             종료일 <input type="date" v-model="endDate" />
+  //         </label>
+  //     </div>
+  //   </div>
+  // </div>
+
 </script>
 
 <template>
@@ -111,6 +136,7 @@ onMounted(async () => {
       </li>
     </ul>
   </div>
+
 </template>
 
 <style scoped scss="lang">
