@@ -142,15 +142,16 @@ const isOverThreeDays = computed(() => {
       <button type="button" class="btn" @click="$emit('re-order', props.order.menuItems)">
         재주문하기
       </button>
-      <button type="button" :class="['btn', { 'btn-disabled': props.order.status !== '05' }]" @click="
-        $emit(
-          'review',
-          props.order.orderId,
-          props.order.storeName,
-          props.order.menuItems,
-          props.order.getReview
-        )
-        " :disabled="props.order.status !== '05' || isOverThreeDays">
+      <button type="button"
+        :class="['btn', { 'btn-disabled': props.order.status !== '05' }, { 'none-click': isOverThreeDays }]" @click="
+          $emit(
+            'review',
+            props.order.orderId,
+            props.order.storeName,
+            props.order.menuItems,
+            props.order.getReview
+          )
+          " :disabled="props.order.status !== '05' || isOverThreeDays">
         {{ reviewButton }}
       </button>
       <button type="button" :class="[
@@ -507,5 +508,11 @@ const isOverThreeDays = computed(() => {
   justify-content: space-between;
   align-items: center;
   padding: 0px 20px;
+}
+
+.none-click {
+  border: #888 1px solid !important;
+  color: #888 !important;
+
 }
 </style>
