@@ -18,9 +18,9 @@ export const reissue = () => {
     return axios.post(`${path}/reissue`).catch(e => e.response);
 }
 
-export const findId = ({ loginId, role }) => {
-    return axios.post(`${path}/check-id`, { loginId, role });
-};
+export const findId = (loginId) => axios.post(`${path}/check-id`, null, {
+    params: { loginId },
+  });
 
 export const logined = () => {
     return axios.get(path).catch(e => e.response);

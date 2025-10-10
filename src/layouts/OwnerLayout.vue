@@ -63,7 +63,9 @@ let eventSource = null;
 
 // SSE 연결
 function connectSSE(storeId) {
-  eventSource = new EventSource(`http://localhost:8080/api/sse/order/${storeId}`);
+    const baseUrl = ref(import.meta.env.VITE_BASE_URL);
+
+  eventSource = new EventSource(`${baseUrl.value}/api/sse/order/${storeId}`);
 
   eventSource.addEventListener("connect", (e) => {
     console.log("SSE 연결 성공:", e.data);
