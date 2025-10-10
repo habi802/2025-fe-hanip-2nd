@@ -170,14 +170,8 @@ onMounted(async () => {
 
       <!-- 주소 카드 리스트 -->
       <div class="address-list">
-        <AddressCard
-          v-for="address in state.addresses.slice(0, SHOW_COUNT)"
-          :key="address.id"
-          :address="address"
-          @set-main-address="setMainAddress"
-          @edit-address="openEditModal"
-          @remove-address="removeAddress"
-        />
+        <AddressCard v-for="address in state.addresses.slice(0, SHOW_COUNT)" :key="address.id" :address="address"
+          @set-main-address="setMainAddress" @edit-address="openEditModal" @remove-address="removeAddress" />
       </div>
 
       <!-- 더보기 버튼 -->
@@ -186,16 +180,16 @@ onMounted(async () => {
       </div>
     </div>
   </div>
+
+  <div v-if="state.addresses.length < 1" class="non-address">
+    저장된 주소가 없습니다.
+  </div>
+
   <div class="foot"></div>
 
   <!-- 수정 모달 -->
-  <EditAddress
-    :isShow="addressModal"
-    :form="state.form"
-    :mode="state.mode"
-    @save-address="saveAddress"
-    @close-modal="closeModal"
-  />
+  <EditAddress :isShow="addressModal" :form="state.form" :mode="state.mode" @save-address="saveAddress"
+    @close-modal="closeModal" />
 
   <AlertModal ref="alertModalRef" />
   <ConfirmModal ref="confirmModalRef" />
@@ -204,17 +198,18 @@ onMounted(async () => {
 <style lang="scss" scoped>
 @font-face {
   font-family: "Pretendard-Regular";
-  src: url("https://fastly.jsdelivr.net/gh/Project-Noonnu/noonfonts_2107@1.1/Pretendard-Regular.woff")
-    format("woff");
+  src: url("https://fastly.jsdelivr.net/gh/Project-Noonnu/noonfonts_2107@1.1/Pretendard-Regular.woff") format("woff");
   font-weight: 400;
   font-style: normal;
 }
-.container{
+
+.container {
   display: flex;
   justify-content: center;
   flex-direction: column;
   max-width: 1168px;
 }
+
 .add-title {
   font-family: "Pretendard-Regular";
   text-align: center;
@@ -239,6 +234,7 @@ onMounted(async () => {
   justify-items: center;
   margin-bottom: 3rem;
 }
+
 // 더보기 버튼
 .plus {
   display: flex;
@@ -256,6 +252,7 @@ onMounted(async () => {
     cursor: pointer;
     font-size: 20px;
     transition: background-color 0.3s ease, transform 0.1s ease;
+
     &:hover {
       background-color: darken(#ff6666, 5%);
       transform: translateY(-1px);
@@ -263,7 +260,13 @@ onMounted(async () => {
   }
 }
 
-.foot{
+.non-address {
+  text-align: center;
+  margin-top: 100px;
+  margin-bottom: 400px;
+}
+
+.foot {
   margin-bottom: 200px;
 }
 </style>

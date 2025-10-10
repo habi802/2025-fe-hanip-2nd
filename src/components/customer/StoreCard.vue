@@ -19,14 +19,10 @@ const storeImage = computed(() => {
 </script>
 
 <template>
-    <div class="store">
-      <div v-if="store.isOpen ===0" class="overlay">운영 준비중 입니다...</div>
+  <div class="store">
+    <div v-if="store.isOpen === 0" class="overlay">운영 준비중 입니다...</div>
     <div class="storeImgBox">
-      <img
-        class="sImg"
-        :src="storeImage"
-        @error="(e) => (e.target.src = defaultImage)"
-      />
+      <img class="sImg" :src="storeImage" @error="(e) => (e.target.src = defaultImage)" />
     </div>
     <div class="storeTextBox">
       <div class="sText">{{ props.store.name }}</div>
@@ -40,16 +36,14 @@ const storeImage = computed(() => {
         <div class="d-flex align-items-center love">
           <span class="love">♥</span>
           <span class="love-num">
-              {{ props.store.favorites }}
+            {{ props.store.favorites }}
           </span>
         </div>
       </div>
       <div id="smallText">
-        <span
-          v-if="
-            props.store.maxDeliveryFee !== 0 && props.store.minDeliveryFee !== 0
-          "
-        >
+        <span v-if="
+          props.store.maxDeliveryFee !== 0 && props.store.minDeliveryFee !== 0
+        ">
           배달료 {{ props.store.minDeliveryFee.toLocaleString() }}원 ~
           {{ props.store.maxDeliveryFee.toLocaleString() }}원
         </span>
@@ -70,11 +64,11 @@ const storeImage = computed(() => {
 <style lang="scss" scoped>
 @font-face {
   font-family: "BMJUA";
-  src: url("https://fastly.jsdelivr.net/gh/projectnoonnu/noonfonts_one@1.0/BMJUA.woff")
-    format("woff");
+  src: url("https://fastly.jsdelivr.net/gh/projectnoonnu/noonfonts_one@1.0/BMJUA.woff") format("woff");
   font-weight: 600;
   font-style: normal;
 }
+
 @font-face {
   font-family: 'YFavorite';
   src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/2410-1@1.0/YOnepickTTF-Regular.woff2') format('woff2');
@@ -93,8 +87,8 @@ const storeImage = computed(() => {
 }
 
 .store {
-    display: flex;
-    flex-direction: column;
+  display: flex;
+  flex-direction: column;
   width: 280px;
   height: 380px;
   border-radius: 20px;
@@ -120,7 +114,7 @@ const storeImage = computed(() => {
       object-fit: cover;
     }
   }
-  
+
 
   .storeTextBox {
     margin-left: 25px;
@@ -143,6 +137,7 @@ const storeImage = computed(() => {
     font-size: 1.4em;
     color: #fac729;
     gap: 5px;
+
     .starNum {
       color: #000;
       font-size: 18px;
@@ -155,7 +150,8 @@ const storeImage = computed(() => {
     color: red;
     gap: 5px;
   }
-  .love-num{
+
+  .love-num {
     font-size: 0.85em;
     color: #000;
   }
@@ -172,17 +168,18 @@ const storeImage = computed(() => {
   border-radius: 10px;
 }
 
-.icons{
-    display: flex;
-    align-items: center;
-    gap: 10px;
+.icons {
+  display: flex;
+  align-items: center;
+  gap: 10px;
 }
 
 .footer {
   margin-bottom: 100px;
 }
-.overlay{
-    position:absolute;
-     transform: translate(50%, 300%);
+
+.overlay {
+  position: absolute;
+  transform: translate(40%, 300%);
 }
 </style>
