@@ -1,7 +1,7 @@
 <script setup>
 import { ref, onMounted, onUnmounted, provide, watch, computed, reactive, } from "vue";
 import { RouterLink, useRouter, useRoute } from "vue-router";
-import { useAccountStore, useOwnerStore } from "@/stores/account";
+import { useAccountStore, useUserInfo, useOwnerStore } from "@/stores/account";
 import { logout } from "@/services/userService";
 import { patchIsOpen, getOwnerStore } from "@/services/storeService";
 import { useOrderStore } from "@/stores/orderStore";
@@ -11,6 +11,7 @@ const router = useRouter();
 const route = useRoute();
 
 const account = useAccountStore();
+const userInfo = useUserInfo();
 const owner = useOwnerStore();
 const orderStore = useOrderStore();
 
@@ -28,6 +29,7 @@ const signOut = async () => {
         const logOutRes = await logout();
         if (logOutRes !== undefined && logOutRes.status === 200) {
             account.setLoggedIn(false);
+            userInfo.dispatchUserData();
             router.push({ path: "/" });
         }
     }
@@ -61,8 +63,12 @@ let eventSource = null;
 
 // SSE 연결
 function connectSSE(storeId) {
-  eventSource = new EventSource(`http://localhost:8080/api/sse/order/${storeId}`);
+    const baseUrl = import.meta.env.VITE_BASE_URL; // 예: https://api.example.com
+    const url = `${baseUrl}/api/sse/order/${storeId}`;
 
+
+    eventSource = new EventSource(url, { withCredentials: true });
+    
   eventSource.addEventListener("connect", (e) => {
     console.log("SSE 연결 성공:", e.data);
   });

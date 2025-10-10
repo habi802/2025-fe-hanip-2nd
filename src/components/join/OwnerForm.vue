@@ -281,7 +281,7 @@ watch(
         <input type="text" :value="localOwner.businessNumber" maxlength="10" @input="handleBusinessNumberInput"
           @blur="validateBusinessNumber" :class="{ invalid: errors.businessNumber }"
           placeholder="사업자 등록번호 10자리를 입력해 주세요" />
-        <button type="button">등록</button>
+        <!-- <button type="button">등록</button> -->
         <div class="owner-upload-num">
           <p v-if="errors.businessNumber" class="error-msg owner-up">
             {{ errors.businessNumber }}

@@ -58,6 +58,24 @@ const formatDate = (dateStr) => {
     .replace(/\. /g, ".")
     .replace(/\.$/, "");
 };
+
+// 리뷰 반응
+const reviewButton = computed(() => {
+  return props.order.getReview > 0 ? "리뷰 수정" : "리뷰 등록";
+});
+
+//시간 계산
+const isOverThreeDays = computed(() => {
+  const created = new Date(props.order.createdAt);
+  const now = new Date();
+
+
+  const diff = now - created;
+  const diffDays = diff / (1000 * 60 * 60 * 24);
+
+  return diffDays > 3;
+});
+
 </script>
 
 <template>
@@ -68,11 +86,7 @@ const formatDate = (dateStr) => {
       <div class="boardLeft">
         <div class="left-box">
           <div class="imgBox">
-            <img
-              class="img"
-              :src="imgSrc"
-              @error="(e) => (e.target.src = defaultImage)"
-            />
+            <img class="img" :src="imgSrc" @error="(e) => (e.target.src = defaultImage)" />
           </div>
           <div class="textBox">
             <div>{{ props.order.storeName }}</div>
@@ -87,11 +101,7 @@ const formatDate = (dateStr) => {
           </div>
         </div>
         <div class="right-box">
-          <button
-            type="button"
-            class="btn-detail"
-            @click="router.push(`/orders/${props.order.orderId}`)"
-          >
+          <button type="button" class="btn-detail" @click="router.push(`/orders/${props.order.orderId}`)">
             주문 내역 상세
           </button>
           <div class="orderStatus">
@@ -103,11 +113,7 @@ const formatDate = (dateStr) => {
       <!-- 카드 중앙 [ 메뉴 이름, 갯수, 가격 ] -->
       <div class="boardMiddle">
         <div class="menuBox">
-          <div
-            class="menu"
-            v-for="menu in props.order.menuItems.slice(0, 3)"
-            :key="menu.id"
-          >
+          <div class="menu" v-for="menu in props.order.menuItems.slice(0, 3)" :key="menu.id">
             <div class="name">- {{ menu.menuName }}</div>
             <div class="num">{{ menu.quantity }}개</div>
             <div class="price">{{ menu.amount?.toLocaleString() }}원</div>
@@ -133,17 +139,11 @@ const formatDate = (dateStr) => {
     </div>
     <!-- 버튼 -->
     <div class="btns">
-      <button
-        type="button"
-        class="btn"
-        @click="$emit('re-order', props.order.menuItems)"
-      >
+      <button type="button" class="btn" @click="$emit('re-order', props.order.menuItems)">
         재주문하기
       </button>
-      <button
-        type="button"
-        :class="['btn', { 'btn-disabled': props.order.status !== '05' }]"
-        @click="
+      <button type="button"
+        :class="['btn', { 'btn-disabled': props.order.status !== '05' }, { 'none-click': isOverThreeDays }]" @click="
           $emit(
             'review',
             props.order.orderId,
@@ -151,23 +151,17 @@ const formatDate = (dateStr) => {
             props.order.menuItems,
             props.order.getReview
           )
-        "
-        :disabled="props.order.status !== '05'"
-      >
-        {{ props.order.getReview > 0 ? "리뷰 수정" : "리뷰 등록" }}
+          " :disabled="props.order.status !== '05' || isOverThreeDays">
+        {{ reviewButton }}
       </button>
-      <button
-        type="button"
-        :class="[
-          'btn',
-          {
-            'btn-disabled':
-              props.order.status !== '05' && props.order.status !== '06',
-          },
-        ]"
-        @click="$emit('delete-order', props.order)"
-        :disabled="props.order.status !== '05' && props.order.status !== '06'"
-      >
+      <button type="button" :class="[
+        'btn',
+        {
+          'btn-disabled':
+            props.order.status !== '05' && props.order.status !== '06',
+        },
+      ]" @click="$emit('delete-order', props.order)"
+        :disabled="props.order.status !== '05' && props.order.status !== '06'">
         내역 삭제
       </button>
     </div>
@@ -177,8 +171,7 @@ const formatDate = (dateStr) => {
 <style lang="scss" scoped>
 @font-face {
   font-family: "YFavorite";
-  src: url("https://cdn.jsdelivr.net/gh/projectnoonnu/2410-1@1.0/YOnepickTTF-Regular.woff2")
-    format("woff2");
+  src: url("https://cdn.jsdelivr.net/gh/projectnoonnu/2410-1@1.0/YOnepickTTF-Regular.woff2") format("woff2");
   font-weight: 400;
   font-display: swap;
 }
@@ -202,14 +195,17 @@ const formatDate = (dateStr) => {
       display: flex;
       justify-content: space-between;
       width: 100%;
+
       .left-box {
         display: flex;
         padding: 20px;
         gap: 10px;
       }
+
       .right-box {
         padding: 20px;
       }
+
       .imgBox {
         width: 100px;
         height: 100px;
@@ -409,6 +405,7 @@ const formatDate = (dateStr) => {
     gap: 20px;
     justify-content: flex-start;
     background-color: #fff;
+
     .btn {
       font-size: 1em;
       text-align: center;
@@ -480,31 +477,42 @@ const formatDate = (dateStr) => {
 .total-num {
   font-weight: 600;
 }
+
 .solide {
   width: 100%;
   border: 1px #f4f4f4 solid;
   margin: 20px 0px;
 }
+
 .btn-detail {
   border-radius: 10px;
 }
+
 .created {
   background-color: #fbfbfb;
   font-size: 20px;
   font-weight: 300;
   color: #888;
 }
+
 .status {
   color: #ff6666;
   text-align: end;
   font-size: 1.2em;
   margin-top: 10px;
 }
+
 .amount {
   width: 100%;
   display: flex;
   justify-content: space-between;
   align-items: center;
   padding: 0px 20px;
+}
+
+.none-click {
+  border: #888 1px solid !important;
+  color: #888 !important;
+
 }
 </style>

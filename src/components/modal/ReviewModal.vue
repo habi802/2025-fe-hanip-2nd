@@ -140,6 +140,7 @@ const sendFormData = async () => {
         console.log("이미지 뭐 들어가있니?", files.image)
         const res = await putReview(formData);
         console.log("수정용 호출!")
+        window.location.reload();
         emit('reviewSaved', res);
         return;
     }
@@ -161,7 +162,7 @@ const sendFormData = async () => {
     console.log("보내기 전에 체크하기", sandReview.value);
 
     const res = await saveReview(formData);
-
+    window.location.reload();
     emit('reviewSaved', res);
 }
 
@@ -198,7 +199,15 @@ const fileUpload = () => {
 }
 const onFileChange = (e) => {
 
-    const selectedFiles = Array.from(e.target.files)
+    const selectedFiles = Array.from(e.target.files);
+
+    const currentCount = files.image.length;
+    const newCount = selectedFiles.length;
+
+    if (currentCount + newCount > 5) {
+        const availableSlots = 5 - currentCount;
+        selectedFiles.splice(availableSlots);
+    }
 
     selectedFiles.forEach(file => {
         files.image.push({
@@ -254,6 +263,7 @@ const removeImage = (index) => {
                             <img class="cameraImg" src="/src/imgs/camera.png"></img>
                         </div>
                     </div>
+                    <div class="war">이미지는 5개 까지만 추가 가능합니다.</div>
                     <swiper :slidesPerView="2" :modules="[Navigation, Pagination, Scrollbar, A11y, Autoplay]"
                         :speed="1000" :spaceBetween="-10" :resistance="false" :resistanceRatio="0" :observer="true"
                         :observe-parents="true">
@@ -466,6 +476,12 @@ const removeImage = (index) => {
 .cameraImg {
     width: 30px;
     opacity: 30%;
+}
+
+.war {
+    margin-top: 10px;
+    color: #ccc;
+    font-size: 0.8em;
 }
 
 .delete {

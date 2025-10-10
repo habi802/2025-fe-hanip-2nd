@@ -249,6 +249,21 @@ const states = reactive({
 });
 
 
+const onReviewSaved = (res) => {
+  const reviewId = res?.data?.resultData?.id;
+  const orderId = res?.data?.resultData?.orderId;
+
+const orderIndex = state.orders.findIndex(o => o.orderId === orderId);
+if(orderIndex > -1) {
+  // 기존 객체를 복사하면서 getReview만 변경
+  state.orders[orderIndex] = {
+    ...state.orders[orderIndex],
+    getReview: reviewId
+  };
+}
+};
+
+
 </script>
 
 <template>
@@ -303,7 +318,7 @@ const states = reactive({
     </div>
 
     <ConfirmModal ref="confirmModalRef" />
-    <ReviewModal ref="reviewModal"></ReviewModal>
+    <ReviewModal ref="reviewModal" @reviewSaved="onReviewSaved"></ReviewModal>
 
     <img @click="arrow" class="arrow" src="/src/imgs/arrow.png" />
 </template>

@@ -1,12 +1,13 @@
 <script setup>
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
-import { useAccountStore } from '@/stores/account';
+import { useAccountStore, useUserInfo } from '@/stores/account';
 import { logout } from '@/services/userService';
 import LoadingModal from '@/components/modal/LoadingModal.vue';
 
 const router = useRouter();
 const account = useAccountStore();
+const userInfo = useUserInfo();
 const managerPath = import.meta.env.VITE_MANAGER_PATH;
 
 const loadingModalRef = ref(null);
@@ -18,6 +19,7 @@ const signOut = async () => {
 
     if (res !== undefined || res.status === 200) {
         account.setLoggedIn(false);
+        userInfo.dispatchUserData();
         router.push({ path: `${managerPath}/login` });
     }
 

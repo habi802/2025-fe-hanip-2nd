@@ -264,11 +264,11 @@ const checkDuplicateId = async () => {
   const loginId = state.form.loginId.trim();
   validateLoginId();
   if (errors.loginId) return;
-
-  const role = memberType.value === "owner" ? "사장" : "고객";
+  console.log(loginId)
 
   try {
-    const res = await findId({ loginId, role });
+    const res = await findId(loginId);
+    console.log("res: ", res.data.resultData)
 
     if (res.data.resultData) {
       errors.loginId = "이미 사용 중인 아이디입니다.";
@@ -1013,7 +1013,7 @@ select.invalid {
     p.success-msg {
       color: #2f57db;
       font-size: 15px;
-      font-weight: 600;
+      font-weight: 500;
       margin-top: 10px;
       user-select: none;
       transition: color 0.3s ease;

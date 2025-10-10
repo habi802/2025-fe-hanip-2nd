@@ -330,19 +330,19 @@ const cartMenu = async () => {
 
   const rawArray = toRaw(recMenu.deleteMenus);
 
-  
+
 
   const filteredMenus = recMenu.newMenus.filter(menu => {
-  const menuId = Number(menu.menuId);
+    const menuId = Number(menu.menuId);
     // 메뉴 숨김 품절처리 
-  return (
-    !rawArray.includes(menuId) &&
-    menu.isHide !== 0 &&
-    menu.isSoldOut !== 0
-  );
-});
+    return (
+      !rawArray.includes(menuId) &&
+      menu.isHide !== 0 &&
+      menu.isSoldOut !== 0
+    );
+  });
   recMenu.finalMenus = filteredMenus;
-  console.log("왜 안 사라져",recMenu.finalMenus)
+  console.log("왜 안 사라져", recMenu.finalMenus)
 
 }
 
@@ -794,7 +794,7 @@ const cartMenu = async () => {
       display: flex;
       justify-content: center;
       align-items: center;
-      gap: 40px;
+      gap: 60px;
 
       .rating,
       .likes {

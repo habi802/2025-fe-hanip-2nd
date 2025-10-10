@@ -1,13 +1,14 @@
 <script setup>
 import { reactive, onMounted, ref } from "vue";
 import { useRouter } from "vue-router";
-import { login } from "@/services/userService";
+import { kakaoLogin, login } from "@/services/userService";
 import { getStore } from "@/services/storeService";
-import { useAccountStore, useOwnerStore } from "@/stores/account";
+import { useAccountStore, useUserInfo, useOwnerStore } from "@/stores/account";
 import AlertModal from "@/components/modal/AlertModal.vue";
 
 const router = useRouter();
 const account = useAccountStore();
+const userInfo = useUserInfo();
 
 const alertModal = ref(null);
 
@@ -28,10 +29,8 @@ const store = reactive({
 const submit = async () => {
   try {
     const res = await login(state.form);
-    // console.log("응답 전체확인용:", res);
-    // console.log("res.data.resultData:", res.data.resultData);
 
-    if (res.status === 200) {
+    if (res !== undefined && res.status === 200) {
       // 서버에서 loginId 같이 내려주는지 확인 필요
       const { role, id } = res.data.resultData; // 회원 유형 고객 or 가게사장
 
@@ -49,34 +48,46 @@ const submit = async () => {
       }
 
       account.setLoggedIn(true);
+      userInfo.fetchStore();
 
-      if (role === "사장") {
-        try {
-          const ownerStore = useOwnerStore();
-          const res = await ownerStore.fetchStoreInfo();
-          const isActive = ownerStore.storeData?.isActive;
-          if (isActive === 0) {
-            router.push("/owner");
-          } else {
-            router.push("/owner/dashboard");
-          }
-        } catch (err) {
-          console.error("가게 정보 조회 실패", err);
-          router.push("/owner"); // fallback
+      if (role === '사장') {
+        const ownerStore = useOwnerStore();
+        const res = await ownerStore.fetchStoreInfo();
+        const isActive = ownerStore.storeData?.isActive;
+        if (isActive === 0) {
+          router.push("/owner");
+        } else {
+          router.push("/owner/dashboard");
         }
       } else {
-        router.push("/"); // 고객용 메인화면
+        router.push("/");
       }
-    } else if (res.status === 401) {
-      alertModal.value.open("아이디/비밀번호를 확인해주세요.");
     } else {
-      alertModal.value.open("알 수 없는 오류가 발생했습니다.");
+      alertModal.value.open("아이디/비밀번호를 확인해주세요.");
     }
   } catch (error) {
     console.error("로그인 오류:", error);
     alertModal.value.open("다시 한번 확인해주세요.");
   }
 };
+
+const kakao = () => {
+  const clientId = import.meta.env.VITE_KAKAO_CLIENT_ID;
+  const redirectUri = import.meta.env.VITE_FRONT_REDIRECT_URI;
+  window.location.href = `https://kauth.kakao.com/oauth/authorize?response_type=code&client_id=${clientId}&redirect_uri=${redirectUri}`;
+};
+
+const kakaoLoginready = async () => {
+  const params = new URLSearchParams(window.location.search);
+  const code = params.get("code");
+  if (code) {
+    const res = await kakaoLogin({ code });
+    if (res.status === 200) {
+      account.setLoggedIn(true);
+      router.push('/')
+    }
+  }
+}
 
 // 아이디 저장 (저장되긴하는데 마지막 사용자 기준으로 하는건지.. 의문)
 onMounted(() => {
@@ -85,6 +96,7 @@ onMounted(() => {
     state.form.loginId = savedId;
     state.saveId = true;
   }
+  kakaoLoginready();
 });
 </script>
 
@@ -100,59 +112,34 @@ onMounted(() => {
 
         <!-- 회원 구분 -->
         <div class="radio-group">
-          <label id="radio"
-            ><input
-              type="radio"
-              class="circle"
-              name="memberType"
-              value="고객"
-              v-model="state.form.role"
-            />
-            일반</label
-          >
-          <label
-            ><input
-              type="radio"
-              class="circle"
-              name="memberType"
-              value="사장"
-              v-model="state.form.role"
-            />
-            업주</label
-          >
+          <label id="radio"><input type="radio" class="circle" name="memberType" value="고객" v-model="state.form.role" />
+            일반</label>
+          <label><input type="radio" class="circle" name="memberType" value="사장" v-model="state.form.role" />
+            업주</label>
         </div>
 
         <div class="form-floating">
-          <input
-            type="text"
-            id="loginId"
-            placeholder="아이디 (영문, 숫자 4~16자)"
-            v-model="state.form.loginId"
-          />
+          <input type="text" id="loginId" placeholder="아이디 (영문, 숫자 4~16자)" v-model="state.form.loginId" />
           <label for="loginId"></label>
         </div>
 
         <div class="form-floating">
-          <input
-            type="password"
-            id="loginPw"
-            placeholder="비밀번호 (영문, 숫자, 특수문자 혼합 8~16자)"
-            v-model="state.form.loginPw"
-            autocomplete="off"
-          />
+          <input type="password" id="loginPw" placeholder="비밀번호 (영문, 숫자, 특수문자 혼합 8~16자)" v-model="state.form.loginPw"
+            autocomplete="off" />
           <label for="loginPw"></label>
         </div>
 
         <div class="options">
-          <label><input type="checkbox" class="circle" /> 아이디 저장</label>
+          <label><input type="checkbox" class="circle" v-model="state.saveId" /> 아이디 저장</label>
           <div class="links">
             <a class="join" @click="router.push('/join')">회원가입</a>
           </div>
         </div>
 
         <button type="submit" class="btn login-btn">로그인</button>
-        <button type="submit" class="btn naver-btn">네이버 로그인</button>
-        <button type="submit" class="btn kakao-btn">카카오 로그인</button>
+        <!-- <button type="submit" class="btn naver-btn">네이버 로그인</button> -->
+        <div class="btn kakao-btn" @click="kakao">카카오 로그인</div>
+        <div class="foot"></div>
       </form>
     </div>
   </div>
@@ -163,8 +150,7 @@ onMounted(() => {
 <style scoped lang="scss">
 @font-face {
   font-family: "BMJUA";
-  src: url("https://fastly.jsdelivr.net/gh/projectnoonnu/noonfonts_one@1.0/BMJUA.woff")
-    format("woff");
+  src: url("https://fastly.jsdelivr.net/gh/projectnoonnu/noonfonts_one@1.0/BMJUA.woff") format("woff");
   font-weight: normal;
   font-style: normal;
 }
@@ -172,8 +158,7 @@ onMounted(() => {
 @font-face {
   // 프리텐다드
   font-family: "Pretendard-Regular";
-  src: url("https://fastly.jsdelivr.net/gh/Project-Noonnu/noonfonts_2107@1.1/Pretendard-Regular.woff")
-    format("woff");
+  src: url("https://fastly.jsdelivr.net/gh/Project-Noonnu/noonfonts_2107@1.1/Pretendard-Regular.woff") format("woff");
   font-weight: 400;
   font-style: normal;
 }
@@ -373,6 +358,7 @@ onMounted(() => {
           background-color: #ffe5e5;
         }
       }
+
       .naver-btn {
         background-color: #3fc754;
         color: #fff;
@@ -381,6 +367,7 @@ onMounted(() => {
           background-color: darken(#3fc754, 5%);
         }
       }
+
       .kakao-btn {
         background-color: #ffea00;
         color: #000;
@@ -391,5 +378,9 @@ onMounted(() => {
       }
     }
   }
+}
+
+.foot {
+  margin-bottom: 200px;
 }
 </style>
