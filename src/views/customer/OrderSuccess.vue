@@ -135,40 +135,27 @@ const shuffledStores = computed(() => {
           <div class="order-box">
             <div class="store-info col-4">
               <div class="store-image">
-                <img
-                  class="storeImg"
-                  :src="storeImage"
-                  @error="(e) => (e.target.src = defaultImage)"
-                />
+                <img class="storeImg" :src="storeImage" @error="(e) => (e.target.src = defaultImage)" />
               </div>
             </div>
             <div class="order-info">
-              <div
-                v-for="(menu, idx) in state.order.menuItems"
-                :key="menu.menuId"
-              >
+              <div v-for="(menu, idx) in state.order.menuItems" :key="menu.menuId">
                 <div class="pt-3">
                   <div class="d-flex justify-content-between mb-2">
                     <div class="row">
                       <span class="item-name">{{ menu.name }}</span>
                     </div>
                     <span>{{ menu.quantity }}개</span>
-                    <span class="item-price"
-                      >{{
-                        (menu.price * menu.quantity).toLocaleString()
-                      }}원</span
-                    >
+                    <span class="item-price">{{
+                      (menu.price * menu.quantity).toLocaleString()
+                    }}원</span>
                   </div>
                 </div>
                 <template v-if="menu.options">
                   <div v-for="option in menu.options" :key="option.optionId">
                     <template v-if="option.children">
-                      <div
-                        class="item-option"
-                        v-if="option.children"
-                        v-for="(child, idx) in option.children"
-                        :key="child.optionId"
-                      >
+                      <div class="item-option" v-if="option.children" v-for="(child, idx) in option.children"
+                        :key="child.optionId">
                         <div class="item-option-comment">
                           <div class="item-option-name" v-if="idx === 0">
                             {{ option.comment }}
@@ -212,11 +199,7 @@ const shuffledStores = computed(() => {
           </div>
           <div class="progress" style="height: 8px">
             <div class="progress-bar" role="progressbar" :style="status"></div>
-            <div
-              class="progress-bar"
-              role="progressbar"
-              style="width: 100%; background-color: #ffeadd"
-            ></div>
+            <div class="progress-bar" role="progressbar" style="width: 100%; background-color: #ffeadd"></div>
           </div>
         </div>
       </div>
@@ -241,8 +224,7 @@ const shuffledStores = computed(() => {
 @font-face {
   // 프리텐다드
   font-family: "Pretendard-Regular";
-  src: url("https://fastly.jsdelivr.net/gh/Project-Noonnu/noonfonts_2107@1.1/Pretendard-Regular.woff")
-    format("woff");
+  src: url("https://fastly.jsdelivr.net/gh/Project-Noonnu/noonfonts_2107@1.1/Pretendard-Regular.woff") format("woff");
   font-weight: 400;
   font-style: normal;
 }
@@ -373,7 +355,7 @@ const shuffledStores = computed(() => {
 
 .store-name {
   font-size: 1.5em;
-  width: 170px;
+  width: 300px;
   text-align: start;
   font-weight: 400;
   margin-top: -20px;

@@ -58,24 +58,20 @@ const reviews = async () => {
   <div class="all">
     <div id="imgBigBox" class="card h-100 shadow-sm">
       <div id="imgBox" class="card-img-top">
-        <img
-          class="sImg"
-          :src="imgSrc"
-          @error="(e) => (e.target.src = defaultImage)"
-        />
+        <img class="sImg" :src="imgSrc" @error="(e) => (e.target.src = defaultImage)" />
       </div>
       <!-- <img src="" class="card-img-top" alt="음식 이미지"> -->
       <div class="card-body">
         <div class="card-top">
           <div class="card-title">{{ props.store.name }}</div>
-          <div class="score-box" >
+          <div class="score-box">
             <span class="star">★</span>
             <span class="small">
               {{ props.store.rating }} ({{ leng }})
             </span>
             <sapn class="love">♥</sapn>
             <span class="small">
-                {{ props.store.favorites }}
+              {{ props.store.favorites }}
             </span>
           </div>
         </div>
@@ -97,14 +93,15 @@ const reviews = async () => {
 <style>
 @font-face {
   font-family: "YFavorite";
-  src: url("https://cdn.jsdelivr.net/gh/projectnoonnu/2410-1@1.0/YOnepickTTF-Regular.woff2")
-    format("woff2");
+  src: url("https://cdn.jsdelivr.net/gh/projectnoonnu/2410-1@1.0/YOnepickTTF-Regular.woff2") format("woff2");
   font-weight: 400;
   font-display: swap;
 }
+
 * {
   font-family: "Pretendard-Regular";
 }
+
 #imgBox {
   display: flex;
   justify-content: center;
@@ -116,6 +113,7 @@ const reviews = async () => {
 
 .sImg {
   height: 100%;
+  width: 100%;
   border-radius: 15px;
 }
 
@@ -168,15 +166,16 @@ const reviews = async () => {
 .btn {
   width: 100px;
 }
+
 .small {
   letter-spacing: 1.5px;
   text-align: center;
 }
 
-.score-box{
-    display: flex;
-    align-items: center;
-    gap: 3px;
+.score-box {
+  display: flex;
+  align-items: center;
+  gap: 3px;
 
 }
 </style>
