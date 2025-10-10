@@ -10,10 +10,13 @@ const props = defineProps({
   store: Object,
 });
 
+
+const baseUrl = ref(import.meta.env.VITE_BASE_URL);
+
 // 가게 이미지
 const storeImage = computed(() => {
   return props.store && props.store.imagePath && props.store.imagePath !== null
-    ? `/pic/store/${props.store.id}/${props.store.imagePath}`
+    ? `${baseUrl.value}/images/store/${props.store.id}/${props.store.imagePath}`
     : defaultImage;
 });
 </script>
