@@ -10,6 +10,7 @@ import AlertModal from "../modal/AlertModal.vue";
 import CartModal from "../modal/CartModal.vue";
 import { useCartStore } from "@/stores/cartStore";
 import { getUser } from "@/services/userService";
+import AlertResolveModal from "../modal/AlertResolveModal.vue";
 
 const router = useRouter();
 const route = useRoute();
@@ -34,6 +35,7 @@ const signOut = async () => {
 };
 
 const alertModalRef = ref(null);
+const alertResolveModal = ref(null);
 
 // Pinia 장바구니 스토어 가져오기
 const cartModalRef = ref(null);
@@ -68,6 +70,18 @@ onMounted(async () => {
   const res = await getUser();
   state.user = res.data.resultData;
   console.log("유저데이터", state.user);
+  if (!state.user.address) {
+    const conf = alertResolveModal.value.showModal("주소를 추가해주세요.")
+    if (conf) {
+      router.push("/address")
+    }
+  }
+  if (!state.user.phone) {
+    const conf = alertResolveModal.value.showModal("전화번호를 추가해주세요.")
+    if (conf) {
+      router.push("/my-page")
+    }
+  }
 });
 
 //로그인 바로 적용되게
@@ -99,44 +113,26 @@ const isCartPage = computed(() => route.path.startsWith("/cart"));
 </script>
 
 <template>
-  <b-container
-    class="d-flex align-items-center justify-content-spween h-100 container"
-  >
+  <b-container class="d-flex align-items-center justify-content-spween h-100 container">
     <!-- 큰 박스 -->
     <div class="big-box">
       <!-- (왼쪽) 로고 -->
       <div>
-        <img
-          class="logo-image"
-          src="/src/imgs/hanipLogogroup.png"
-          @click="router.push({ path: '/' })"
-        />
+        <img class="logo-image" src="/src/imgs/hanipLogogroup.png" @click="router.push({ path: '/' })" />
       </div>
 
       <!-- (가운데) 주소 -->
-      <div
-        v-if="isLoggedIn"
-        class="mx-auto flex-grow-1 text-center"
-        @click="goToAddress"
-        style="cursor: pointer"
-      >
+      <div v-if="isLoggedIn" class="mx-auto flex-grow-1 text-center" @click="goToAddress" style="cursor: pointer">
         <div class="address-box">
           <img class="address-image" src="/src/imgs/weui_location-filled.png" />
           <span class="address-text ms-3">
-            <span class="login-address"
-              >{{ state.user.address }}
-              {{ state.user.addressDetail ?? "주소를 입력해주세요" }}</span
-            >
+            <span class="login-address">{{ state.user.address }}
+              {{ state.user.addressDetail ?? "주소를 입력해주세요" }}</span>
           </span>
         </div>
       </div>
 
-      <div
-        v-else
-        class="mx-auto flex-grow-1 text-center"
-        @click="goToAddress"
-        style="cursor: pointer"
-      >
+      <div v-else class="mx-auto flex-grow-1 text-center" @click="goToAddress" style="cursor: pointer">
         <img class="address-image" src="/src/imgs/weui_location-filled.png" />
         <span class="address-text ms-3">
           <span>주소를 입력해주세요</span>
@@ -150,12 +146,7 @@ const isCartPage = computed(() => route.path.startsWith("/cart"));
         <template v-if="!isLoggedIn">
           <div class="login-menu">
             <!-- 여러 개의 요소에 같은 스타일 줄 거면 id로 하지 말고 class로 할것 -->
-            <img
-              class="menu-image me-4"
-              src="/src/imgs/shoop.png"
-              @click="showModal('로그인 후 이용 가능합니다.')"
-              alt="장바구니"
-            />
+            <img class="menu-image me-4" src="/src/imgs/shoop.png" @click="showModal('로그인 후 이용 가능합니다.')" alt="장바구니" />
             <router-link class="menu-text me-3" to="/login">로그인</router-link>
             <span class="menu-text me-3">|</span>
             <router-link class="menu-text" to="/join">회원가입</router-link>
@@ -164,30 +155,15 @@ const isCartPage = computed(() => route.path.startsWith("/cart"));
 
         <!-- 로그인 시 메뉴 -->
         <template v-else>
-          <img
-            class="menu-image me-4 favorite"
-            src="/src/imgs/faivor.png"
-            @click="router.push({ path: '/favorites' })"
-            alt="찜목록"
-          />
-          <img
-            class="menu-image me-4"
-            src="/src/imgs/orders.png"
-            @click="router.push({ path: '/orders' })"
-            alt="주문내역"
-          />
-          <img
-            class="menu-image me-4"
-            src="/src/imgs/shoop.png"
-            @click="showCart"
-            alt="장바구니"
-          />
+          <img class="menu-image me-4 favorite" src="/src/imgs/faivor.png" @click="router.push({ path: '/favorites' })"
+            alt="찜목록" />
+          <img class="menu-image me-4" src="/src/imgs/orders.png" @click="router.push({ path: '/orders' })"
+            alt="주문내역" />
+          <img class="menu-image me-4" src="/src/imgs/shoop.png" @click="showCart" alt="장바구니" />
           <span class="menu-text me-3" @click="signOut">로그아웃</span>
           <span class="menu-text me-3">|</span>
           <!-- 카카오는 비밀번호 x.. 마이페이지 수정을 못함 -->
-          <span v-if="state.user.providerType !='카카오' "> 
-            <router-link class="menu-text" to="/check">마이페이지</router-link>
-          </span>
+          <router-link class="menu-text" to="/my-page">마이페이지</router-link>
         </template>
       </div>
     </div>
@@ -196,6 +172,7 @@ const isCartPage = computed(() => route.path.startsWith("/cart"));
   <!-- 모달 -->
   <AlertModal ref="alertModalRef" />
   <CartModal ref="cartModalRef" />
+  <AlertResolveModal ref="alertResolveModal" />
 </template>
 
 <style lang="scss" scoped>
