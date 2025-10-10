@@ -1,5 +1,5 @@
 <script setup>
-import { computed } from "vue";
+import { computed, ref } from "vue";
 import defaultImage from "@/imgs/owner/haniplogo_sample4.png";
 import { useRouter } from "vue-router";
 
