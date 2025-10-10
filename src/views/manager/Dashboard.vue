@@ -120,17 +120,11 @@ const currentChartData = computed(() => {
                 </b-row>
             </b-col>
 
-            <!-- 가게 관리, 고객 문의 -->
+            <!-- 가게 관리 -->
             <b-col cols="12" class="board">
                 <b-row>
-                    <!-- 가게 관리 -->
-                    <b-col cols="12" xl="6" class="mb-3">
+                    <b-col cols="12" class="mb-3">
                         <DashboardCard title="가게 관리" board="store" :table="stores" />
-                    </b-col>
-
-                    <!-- 고객 문의 -->
-                    <b-col cols="12" xl="6" class="mb-3">
-                        <DashboardCard title="고객 문의" board="contact" :table="contacts" />
                     </b-col>
                 </b-row>
             </b-col>

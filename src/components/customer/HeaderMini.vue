@@ -32,6 +32,7 @@ const signOut = async () => {
 
     if (res !== undefined && res.status === 200) {
         account.setLoggedIn(false);
+        userInfo.dispatchUserData();
         router.push({ path: "/" });
     }
 };

@@ -62,6 +62,7 @@ const state = reactive({
     newLoginPw: "",
     phone: "",
     email: "",
+    providerType: "", // 소셜로그인 확인용
   },
 });
 const confirmPw = ref("");
@@ -199,6 +200,7 @@ onMounted(async () => {
 
     if (res && res.data?.resultData) {
       Object.assign(state.form, res.data.resultData);
+      console.log("providerType:", state.form.providerType);
 
       const baseURL = import.meta.env.VITE_API_BASE_URL || "http://localhost:8080";
       const imgPath = res.data.resultData.imagePath;
@@ -229,6 +231,43 @@ onMounted(async () => {
 //  정보 수정 성공 여부
 const submitForm = async (e) => {
   e.preventDefault();
+
+  // provider가 카카오인 경우 비밀번호 확인 생략
+  if (state.form.providerType !== "로컬") {
+    try {
+      const formData = new FormData();
+      const userPutReq = {
+        name: state.form.name,
+        // 카카오 사용자는 기존 비밀번호 필요 없음
+        loginPw: null,
+        newLoginPw: null,
+        phone: `${phone1.value}-${phone2.value}-${phone3.value}`,
+        email: state.form.email,
+      };
+
+      formData.append(
+        "req",
+        new Blob([JSON.stringify(userPutReq)], { type: "application/json" })
+      );
+
+      if (selectedFile.value) {
+        formData.append("pic", selectedFile.value);
+      }
+
+      const res = await updateUser(formData);
+
+      if (res.status === 200) {
+        showModal("카카오 회원 정보가 성공적으로 수정되었습니다.");
+        router.push("/");
+      } else {
+        showModal("정보 수정에 실패했습니다.");
+      }
+    } catch (err) {
+      console.error("정보 수정 실패:", err);
+      showModal("정보 수정 중 오류가 발생했습니다.");
+    }
+    return; // 아래 일반 회원 로직은 건너뜀
+  }
 
   // 현재 비밀번호 확인 필수
   if (!state.form.loginPw) {
@@ -326,7 +365,7 @@ const isPasswordChecked = ref(false); // 비밀번호 확인 여부
 <template>
   <div class="box">
     <div>
-      <h2>정보 수정</h2>
+      <div class="title">정보 수정</div>
       <div class="solid"></div>
 
       <div class="container">
@@ -382,66 +421,68 @@ const isPasswordChecked = ref(false); // 비밀번호 확인 여부
             />/
           </div>
           <div class="sevLine"></div> -->
+          <!-- 비밀번호 입력칸 (LOCAL 전용) -->
+          <div v-if="state.form.providerType === '로컬'">
+            <!-- <div v-show="state.form.providerType === '로컬'"> -->
+            <!-- 현재 비밀번호 -->
+            <div class="form-group">
+              <label>현재 비밀번호</label>
 
-          <!-- 현재 비밀번호 -->
-          <div class="form-group">
-            <label>현재 비밀번호</label>
-
-            <input
-              type="password"
-              class="form-input"
-              v-model="state.form.loginPw"
-              placeholder="현재 비밀번호를 입력해주세요."
-              :class="{ error: errors.loginPw }"
-              @input="clearError('loginPw')"
-            />
-            <button
-              class="password"
-              type="button"
-              @click.prevent="checkCorrectPassword()"
-            >
-              <!-- <input type="password" class="form-input" v-model="state.form.loginPw" placeholder="현재 비밀번호를 입력해주세요."
+              <input
+                type="password"
+                class="form-input"
+                v-model="state.form.loginPw"
+                placeholder="현재 비밀번호를 입력해주세요."
+                :class="{ error: errors.loginPw }"
+                @input="clearError('loginPw')"
+              />
+              <button
+                class="password"
+                type="button"
+                @click.prevent="checkCorrectPassword()"
+              >
+                <!-- <input type="password" class="form-input" v-model="state.form.loginPw" placeholder="현재 비밀번호를 입력해주세요."
               :class="{ error: errors.loginPw }" @input="clearError('loginPw')" />
             <button class="password" @click.prevent="checkCorrectPassword()"> -->
 
-              비밀번호 확인
-            </button>
-            <p v-if="errors.loginPw" class="error-msg">{{ errors.loginPw }}</p>
-            <p v-else-if="checkResult" class="success-msg">{{ checkResult }}</p>
-          </div>
-          <div class="sevLine"></div>
+                비밀번호 확인
+              </button>
+              <p v-if="errors.loginPw" class="error-msg">{{ errors.loginPw }}</p>
+              <p v-else-if="checkResult" class="success-msg">{{ checkResult }}</p>
+            </div>
+            <div class="sevLine"></div>
 
-          <!-- 새 비밀번호 -->
-          <div class="form-group">
-            <label>새 비밀번호</label>
-            <input
-              type="password"
-              class="form-input"
-              v-model="confirmPw"
-              placeholder="비밀번호는 영문, 숫자, 특수문자 포함 8~16자"
-              :class="{ error: errors.confirmPw }"
-              @input="clearError('confirmPw')"
-            />
-            <p v-if="errors.confirmPw" class="error-msg">
-              {{ errors.confirmPw }}
-            </p>
+            <!-- 새 비밀번호 -->
+            <div class="form-group">
+              <label>새 비밀번호</label>
+              <input
+                type="password"
+                class="form-input"
+                v-model="confirmPw"
+                placeholder="비밀번호는 영문, 숫자, 특수문자 포함 8~16자"
+                :class="{ error: errors.confirmPw }"
+                @input="clearError('confirmPw')"
+              />
+              <p v-if="errors.confirmPw" class="error-msg">
+                {{ errors.confirmPw }}
+              </p>
+            </div>
+            <div class="sevLine"></div>
+            <!-- 새 비밀번호 확인 -->
+            <div class="form-group">
+              <label>새 비밀번호 확인</label>
+              <input
+                type="password"
+                class="form-input"
+                v-model="confirmPwCheck"
+                placeholder="새로운 비밀번호를 한번 더 입력해주세요"
+                :class="{ error: errors.confirmPw }"
+                @input="clearError('confirmPw')"
+              />
+              <p v-if="errors.confirmPw" class="error-msg">{{ errors.confirmPw }}</p>
+            </div>
+            <div class="sevLine"></div>
           </div>
-          <div class="sevLine"></div>
-
-          <!-- 새 비밀번호 확인 -->
-          <div class="form-group">
-            <label>새 비밀번호 확인</label>
-            <input
-              type="password"
-              class="form-input"
-              v-model="confirmPwCheck"
-              placeholder="새로운 비밀번호를 한번 더 입력해주세요"
-              :class="{ error: errors.confirmPw }"
-              @input="clearError('confirmPw')"
-            />
-            <p v-if="errors.confirmPw" class="error-msg">{{ errors.confirmPw }}</p>
-          </div>
-          <div class="sevLine"></div>
 
           <!-- 휴대전화 -->
           <div class="form-group phone-input-wrap">
@@ -547,21 +588,15 @@ input:focus {
 }
 
 .box {
-  // 주소 검색 박스
-  font-family: "BMJUA";
+  margin-top: -30px;
   font-size: 25px;
   letter-spacing: -1.5px;
-
-  h2 {
-    font-family: "BMJUA";
-    text-align: center;
-  }
 
   .solid {
     // 정보 수정 메인 선
     width: 1110px;
     border: 1px #000 solid;
-    margin-top: 50px;
+    margin-top: 66px;
     margin-bottom: 55px;
   }
 }
@@ -815,5 +850,9 @@ input[readonly] {
   margin-bottom: -7px;
   user-select: none;
   transition: color 0.3s ease;
+}
+.title {
+  text-align: center;
+  font-size: 1.2em;
 }
 </style>

@@ -1,25 +1,18 @@
 <script setup>
-import { onMounted, reactive, ref, computed } from "vue";
+import { onMounted,onBeforeUnmount, reactive, ref, computed,watch } from "vue";
 import { useRoute, useRouter } from "vue-router";
-import { getStore, getStoreList } from "@/services/storeService";
 import { getMenus } from "@/services/menuService";
 import { getReviewsByStoreId, getOwnerCommentList } from "@/services/reviewServices";
 import { getFavorite, addFavorite, deleteFavorite } from "@/services/favoriteService";
-import { updateQuantity, removeItem, removeCart } from "@/services/cartService";
 import { useAccountStore } from "@/stores/account";
 import Menu from "@/components/customer/Menu.vue";
 import Review from "@/components/customer/Review.vue";
-import defaultImage from '@/imgs/owner/owner-service3.png';
-import AlertModal from "@/components/modal/AlertModal.vue";
 import AlertResolveModal from "@/components/modal/AlertResolveModal.vue";
 import NoneStore from '/src/imgs/foods.png';
+import { getStoreId } from "@/services/storeService";
 
-
+//모달
 const alertResolveModal = ref(null);
-
-// 모달 창 함수
-const alertModal = ref(null);
-
 
 const route = useRoute();
 const router = useRouter();
@@ -38,15 +31,26 @@ const state = reactive({
   storeInfo: [],
   // 리뷰 총점
   reviewNum: 0,
+  reviewLeng: [],
   // 사장 코멘트 갯수
   ownerCommentNum: 0,
-  myFavorite: 0
+  myFavorite: 0  
 });
 
+onMounted(() => {
+  const storeId = route.params.id;
+  currentPage.value = 1;     
+  noMoreReviews.value = false;
+  getStoreInfo(storeId);
+  getStoreMenu(storeId);
+  loadFavorite(storeId)
+  loadReviews(storeId, true);
+  window.addEventListener('scroll', handleScroll);
+});
 
-// 장바구니 총 금액 표시하기 위한 변수
-const totalPrice = ref(0);
-
+onBeforeUnmount(() => {
+  window.removeEventListener('scroll', handleScroll);
+});
 
 
 // 지도를 보여주는 함수
@@ -88,7 +92,6 @@ const showMap = address => {
 const loadFavorite = async (id) => {
   if (!account.state.loggedIn) {
     state.store.favorite = true;
-    // loadMenus(id);
     return;
   }
   const res = await getFavorite(id);
@@ -96,72 +99,81 @@ const loadFavorite = async (id) => {
     console.log("찜 조회 성공", res.data.resultData)
     state.myFavorite = res.data.resultData.on;
   }
-
   if (res === undefined || res.data.resultStatus !== 200) {
-    alertModal.value.showModal('조회에 실패하였습니다.');
     return;
   }
-
   state.store.favorite = res.data.resultData !== null ? true : false;
-  // 조회 성공 시 가게 메뉴 조회 함수 호출
-  loadMenus(id);
 };
 
-// 가게 메뉴 조회하는 함수
-const loadMenus = async (id) => {
-
-
-  if (res === undefined) {
-    alertModal.value.showModal('조회에 실패하였습니다.');
-    return;
-  } else if (res.data.resultStatus !== 200) {
-    // alert(res.data.resultMessage);
-    alertModal.value.showModal('조회에 실패하였습니다.');
-    return;
-  }
-  state.menus = res.data.resultData;
-};
+//인피니티용
+const currentPage = ref(1);
+const reviewsPerPage = ref(3);
+const isLoading = ref(false);
+const noMoreReviews = ref(false);
 
 // 가게 리뷰 조회 함수
-const loadReviews = async (id) => {
-  const res = await getReviewsByStoreId(id, {
-    rowPerPage: 10,
+const loadReviews = async (id, isInitial = false) => {
+  isLoading.value = true;
+
+  //전체 리뷰 조회용!
+  const revieLeng = await getReviewsByStoreId(id, {
+    rowPerPage: 1000,
     page: 1,
   });
-  state.reviews = res.data.resultData;
-  console.log("가게리뷰 전체 조회", state.reviews)
+
+  state.store.revieLeng = revieLeng.data.resultData.length
+  const res = await getReviewsByStoreId(id, {
+    rowPerPage: reviewsPerPage.value,
+    page: currentPage.value,
+  });
+  if (res.status === 200) {
+    const newReviews = res.data.resultData;
+
+    if (newReviews.length === 0) {
+      noMoreReviews.value = true;
+    } else {
+      if (isInitial) {
+        state.reviews = newReviews;
+      } else {
+        state.reviews.push(...newReviews);
+      }
+      currentPage.value += 1;
+    }
+  
   // 리뷰 총점 구하기
   let ratingNumCal = 0;
-  // console.log("state.reviews: ", state.reviews);
   for (let i = 0; i < state.reviews.length; i++) {
     ratingNumCal += state.reviews[i].rating;
   }
+  
   const count = (ratingNumCal / state.reviews.length).toFixed(1)
-  // console.log("ratingNumCal", ratingNumCal);
-
   state.reviewNum = count
-  // 사장 코멘트 갯수
-  // console.log("owner", state.reviews[0].ownerComment);
+  
   let commentNum = "";
   let comLeng = 0;
+  
   for (let i = 0; i < state.reviews.length; i++) {
-
     commentNum = state.reviews[i].ownerComment
-    // console.log("commentNum", commentNum)
-    // console.log("comLeng", comLeng)
     if (typeof commentNum === "string" && commentNum !== null && commentNum !== "") {
       comLeng += 1;
-
     }
     state.ownerCommentNum = comLeng;
-  }
-  // console.log("comLeng: ", comLeng);
-
-  // 조회 성공 시 장바구니 조회 함수 호출
-
+  };
+}
+ isLoading.value = false;
 };
 
 
+//스크롤 감지
+  const handleScroll = () => {
+  const scrollTop = window.scrollY || document.documentElement.scrollTop;
+  const windowHeight = window.innerHeight;
+  const fullHeight = document.documentElement.scrollHeight;
+
+if (scrollTop + windowHeight >= fullHeight - 400 && !isLoading.value && !noMoreReviews.value) { 
+  loadReviews(route.params.id, false);
+}
+};
 
 
 // 메뉴랑 리뷰보기 v-if 설정 함수
@@ -181,16 +193,6 @@ const reviewbutton = () => {
 };
 
 
-//
-
-
-const imgSrc = computed(() => {
-  return state.store && state.store?.imagePath && state.store?.imagePath !== 'null'
-    ? `/pic/store-profile/${store.storeInfo.id}/${store.storeInfo?.imagePath}`
-    : defaultImage;
-
-})
-
 const baseUrl = ref(import.meta.env.VITE_BASE_URL);
 
 const banerImgSrc = computed(() => {
@@ -198,17 +200,6 @@ const banerImgSrc = computed(() => {
     ? `${baseUrl.value}/images/store/${store.storeInfo.id}/${store.storeInfo?.bannerPath}`
     : NoneStore;
 })
-
-
-// 더보기
-const visibleCount = ref(3);
-const visibleReview = computed(() => {
-  return state.reviews
-    .slice(0, visibleCount.value);
-});
-const loadMore = () => {
-  visibleCount.value += 5;
-};
 
 // 위로 가기
 const arrow = () => {
@@ -218,19 +209,6 @@ const arrow = () => {
   });
 };
 
-
-
-// 새로 만든 함수
-import { getStoreId } from "@/services/storeService";
-
-
-onMounted(() => {
-  const storeId = route.params.id;
-  loadReviews(storeId);
-  getStoreInfo(storeId);
-  getStoreMenu(storeId);
-  loadFavorite(storeId)
-});
 
 
 
@@ -252,26 +230,29 @@ const getStoreInfo = async (id) => {
   const res = await getStoreId(id);
   store.storeInfo = res.data.resultData;
 
+  if(store.storeInfo.isActive !=1 || store.storeInfo.isOpen !=1){
+     setTimeout(async () => {
+  const alret = await alertResolveModal.value.showModal("준비중인 가게입니다.");
+      if (alret) {
+        document.body.style.overflow = "";
+        router.push("/")
+      }
+    }, 150);
+  }
+
   if (store.storeInfo === null || store.storeInfo === undefined) {
     setTimeout(async () => {
-      const alret = await alertResolveModal.value.showModal("잘못된 접근입니다.");
-
+  const alret = await alertResolveModal.value.showModal("잘못된 접근입니다.");
       if (alret) {
+        document.body.style.overflow = "";
         router.push("/")
       }
     }, 150);
 
   }
-
-  console.log("새로 가져온 스토어 정보", store.storeInfo)
-  console.log("가게 이미지", store.storeInfo.bannerPath)
-
   const addressTest = `${store.storeInfo.address} ${store.storeInfo.addressDetail}`;
 
   showMap(addressTest);
-
-
-
 
   const openTime = store.storeInfo.openTime;
   const slideOpenTime = openTime.substring(0, 5);
@@ -284,8 +265,6 @@ const getStoreInfo = async (id) => {
   const ownerCommentList = await getOwnerCommentList(id);
   store.ownerComment = ownerCommentList.data.resultData;
 
-
-  console.log("오늘 작성된 리뷰 계산", state.reviews)
   const today = new Date();
   const todayString = today.toLocaleDateString("sv-SE");
 
@@ -294,8 +273,6 @@ const getStoreInfo = async (id) => {
     const reviewDate = r.createdAt.split(' ')[0];
     return reviewDate === todayString;
   }).length;
-
-
   store.todayReviewCount = todayReviewCount;
 }
 
@@ -336,7 +313,6 @@ const getStoreMenu = async (storeId) => {
     }, 2000);
     setTimeout(async () => {
       const alret = await alertResolveModal.value.showModal("가게의 메뉴가 없습니다.");
-
       if (alret) {
         router.push("/")
       }
@@ -346,12 +322,37 @@ const getStoreMenu = async (storeId) => {
 
 }
 
-
+//이게 가게에서 해줘야하는게 맞을지...
 const sortedMenus = computed(() => {
-  return store.menus.slice().sort((a, b) => {
-    const order = ["단품", "세트", "사이드", "음료수"]; // 원하는 순서
+  //메뉴 타입 순서대로 정렬
+  const order = ["단품", "세트", "사이드", "음료수"];
+  const sorted = store.menus.slice().sort((a, b) => {
     return order.indexOf(a.menuType) - order.indexOf(b.menuType);
   });
+
+  // 전체 하이드인 메뉴 없애기
+  const filtered = sorted
+    .map(group => {
+      return {
+        menuType: group.menuType,
+        menus: group.menus.filter(menu => menu.isHide === 1),
+      };
+    })
+    .filter(group => group.menus.length > 0);
+
+  return filtered;
+});
+// 꼭 하단에 위치.
+
+watch(sortedMenus, (newVal) => {
+  if (newVal.length === 0) {
+        setTimeout(async () => {
+  const alret = await alertResolveModal.value.showModal("판매하는 메뉴가 없습니다.");
+      if (alret) {
+        router.push("/")
+      }
+    }, 150);
+  }
 });
 
 
@@ -363,7 +364,6 @@ const sortedMenus = computed(() => {
     <img class="big-img" :src="banerImgSrc" @error="e => e.target.src = NoneStore" />
   </div>
   <div class="container">
-
     <div class="store-title-box">
       <div class="store-name">
         {{ store.storeInfo.name }}
@@ -377,7 +377,7 @@ const sortedMenus = computed(() => {
             {{ store.storeInfo.rating }}
           </span>
           <!-- 이거 수정 -->
-          <span class="text-color review-length star-num">( {{ state.reviews.length }} )</span>
+          <span class="text-color review-length star-num">( {{ state.store.revieLeng }} )</span>
           <span>
             <div class="favorite" @click="toggleFavorite(store.storeInfo.id)">{{ state.myFavorite === 1 ? "♥" : "♡"
             }}</div>
@@ -387,7 +387,6 @@ const sortedMenus = computed(() => {
           </span>
         </div>
       </div>
-
       <!-- new title bottom -->
       <div class="title-bottom-box">
         <!-- 가게 맵이 뜨는 왼쪽 박스 -->
@@ -395,7 +394,6 @@ const sortedMenus = computed(() => {
           <div id="map" class="map-box"></div>
           <span class="address-text">{{ store.storeInfo.address }} {{ store.storeInfo.addressDetail }}</span>
         </div>
-
         <div class="two-info-store">
           <!-- 중간의 가게 정보에 대한 박스 -->
           <div class="store-info">
@@ -414,7 +412,7 @@ const sortedMenus = computed(() => {
             </div>
             <div class="phone">
               <div class="text-color">전화번호</div>
-              <div>{{ store.storeInfo.businessNumber }}</div>
+              <div>{{ store.storeInfo.tel }}</div>
             </div>
             <div class="min-amount">
               <div class="text-color">최소 주문 금액</div>
@@ -444,7 +442,6 @@ const sortedMenus = computed(() => {
             </div>
           </div>
         </div>
-
         <!-- 오른쪽 가게 정보 디테일 박스 -->
         <div class="three-info-detail">
           <div class="store-info-detail">
@@ -455,8 +452,7 @@ const sortedMenus = computed(() => {
               <hr>
               </hr>
               <div class="statistics-info">
-
-                <div> 전체 리뷰 수 {{ state.reviews.length }}</div>
+                <div> 전체 리뷰 수 {{ state.store.revieLeng }}</div>
                 <div>찜 {{ store.storeInfo.favorites }}
                 </div>
               </div>
@@ -470,10 +466,8 @@ const sortedMenus = computed(() => {
               </div>
             </div>
           </div>
-
         </div>
       </div>
-
     </div>
 
 
@@ -485,20 +479,14 @@ const sortedMenus = computed(() => {
           <div :style="{ color: menubtn ? '#ff6666' : '#CCCCCC' }" class="menu-title rounded pt-2 ps-3">
             <h3 @click="menubutton" class="mb-1">메뉴보기</h3>
           </div>
-
           <!-- 리뷰보기 버튼 -->
           <div :style="{ color: reviewbtn ? '#ff6666' : '#CCCCCC' }" class="review-title pt-2 ps-3">
             <h3 @click="reviewbutton" class="mb-1">리뷰보기</h3>
           </div>
         </div>
-
         <!-- 중앙 정렬용 div -->
         <div class="bigBox">
           <div class="detailBox">
-
-
-
-
             <div v-if="menubtn" class="pt-2 mb-3">
               <div v-for="item in sortedMenus" :key="item.id">
                 <div class="menu-division">
@@ -509,17 +497,9 @@ const sortedMenus = computed(() => {
                 </div>
               </div>
             </div>
-            <!-- <div v-else class="d-flex mt-5 justify-content-center align-items-center w-100"
-              style="font-size: 40px; flex-direction: column;"> 등록된 메뉴가 없습니다.
-              <img src="/src/imgs/owner/owner-service5.png" alt="메뉴없엉">
-            </div> -->
-
             <!-- 리뷰보기 리스트 -->
-
-
             <div>
               <div v-if="reviewbtn" class="pt-2 mb-3">
-
                 <!-- 총 가게 평점 -->
                 <div class="review-point">
                   <div class="review-box">
@@ -530,12 +510,8 @@ const sortedMenus = computed(() => {
                           v-if="store.storeInfo.rating && store.storeInfo.rating > 0">
                           <span class="review-star">★</span>
                         </span>
-                        <span class="star" v-else>
-                          <img class="starImg" src="/src/imgs/starNull.png" />
-                          <img class="starImg" src="/src/imgs/starNull.png" />
-                          <img class="starImg" src="/src/imgs/starNull.png" />
-                          <img class="starImg" src="/src/imgs/starNull.png" />
-                          <img class="starImg" src="/src/imgs/starNull.png" />
+                        <span v-else>
+                          <span class="no-star">★★★★★</span>
                         </span>
                         <div class="review-num ">{{ isNaN(store.storeInfo.rating) ? 0 : store.storeInfo.rating }}</div>
                       </div>
@@ -562,19 +538,13 @@ const sortedMenus = computed(() => {
                 </div>
                 <!-- 리뷰 리스트 조회 -->
                 <div v-if="state.reviews.length > 0">
-                  <div v-for="item in visibleReview" :key="item.id">
+                  <div v-for="item in state.reviews" :key="item.id">
                     <Review :item="item" />
                   </div>
                 </div>
                 <div v-else class="d-flex mt-5 justify-content-center align-items-center w-100"
                   style="font-size: 40px; flex-direction: column;"> 등록된 리뷰가 없습니다.
                   <img src="/src/imgs/owner/owner-service5.png" alt="리뷰없엉">
-                </div>
-                <div class="d-flex justify-content-center">
-                  <button v-if="visibleReview.length > 0 && visibleCount < state.reviews.length" @click="loadMore"
-                    class="btn btn-secondary btn-review">
-                    더보기
-                  </button>
                 </div>
               </div>
             </div>
@@ -587,7 +557,6 @@ const sortedMenus = computed(() => {
 
 
   <!--  공용 모달창 -->
-  <alert-modal ref="alertModal"></alert-modal>
   <alertResolveModal ref="alertResolveModal"></alertResolveModal>
 
 </template>
@@ -811,7 +780,12 @@ const sortedMenus = computed(() => {
   font-family: "BMJUA";
   font-size: 30px;
   color: #FAC729;
-
+}
+.no-star{
+    font-family: "BMJUA";
+    font-size: 1.5em;
+  color: #ccc;
+  
 }
 
 .left-box {
@@ -1037,9 +1011,9 @@ hr {
 }
 
 .division-text {
-  font-family: "BMJUA";
   color: #FF6666;
   font-size: 1.2em;
+  font-weight: 5g00;
 }
 
 .count-num {

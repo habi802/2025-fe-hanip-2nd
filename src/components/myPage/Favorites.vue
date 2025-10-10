@@ -2,7 +2,11 @@
 import { useAccountStore } from "@/stores/account";
 import { useFavoriteStore } from "@/stores/favoriteStore";
 import { ref, onMounted, reactive, computed } from "vue";
-import { getFavoriteList, addFavorite, deleteFavorite } from "@/services/favoriteService";
+import {
+  getFavoriteList,
+  addFavorite,
+  deleteFavorite,
+} from "@/services/favoriteService";
 import { useRoute, useRouter } from "vue-router";
 import { watch } from "vue";
 
@@ -27,7 +31,9 @@ const fetchFavorites = async () => {
   const res = await getFavoriteList();
 
   if (res === undefined || res.data.resultStatus !== 200) {
-    const modal = new bootstrap.Modal(document.getElementById("favorite-error"));
+    const modal = new bootstrap.Modal(
+      document.getElementById("favorite-error")
+    );
     modal.show();
     return;
   }
@@ -40,7 +46,7 @@ const fetchFavorites = async () => {
   const favoriteIds = state.favorites.map((favorite) => favorite.storeId);
   favoriteStore.setFavorites(favoriteIds);
 
-  console.log("이거 뭐니", state.favorites)
+  console.log("이거 뭐니", state.favorites);
 };
 
 // 찜 목록 추가/삭제 함수
@@ -60,7 +66,9 @@ const toggleFavorite = async (store) => {
     }
 
     store.favorite = !store.favorite;
-    store.favorites = store.favorite ? store.favorites + 1 : store.favorites - 1;
+    store.favorites = store.favorite
+      ? store.favorites + 1
+      : store.favorites - 1;
 
     // Pinia store에도 업데이트
     favoriteStore.toggleFavorite(storeId);
@@ -121,12 +129,16 @@ const toStore = (id) => {
         </div>
       </div>
 
-      <div v-if="state.favorites.length > 0">
+      <div class="for-box" v-if="state.favorites.length > 0">
         <div class="for">
           <div class="all" v-for="store in visibleCards" :key="store.storeId">
             <div id="imgBigBox" class="card h-100 shadow-sm">
               <div id="imgBox" class="card-img-top">
-                <img class="sImg" :src="getImgSrc(store)" @error="(e) => (e.target.src = defaultImage)" />
+                <img
+                  class="sImg"
+                  :src="getImgSrc(store)"
+                  @error="(e) => (e.target.src = defaultImage)"
+                />
               </div>
               <div class="card-body">
                 <h6 class="card-title">{{ store.name }}</h6>
@@ -151,8 +163,13 @@ const toStore = (id) => {
                 </div>
                 <p class="mb-1 text-muted small">배달비 0원 ~ 3000원</p>
                 <p class="mb-2 text-muted small">최소 주문 금액 10,000원</p>
-                <div class="d-flex justify-content-center align-items-center btn-box">
-                  <button @click="toStore(store.storeId)" class="btn btn-outline-danger btn-sm">
+                <div
+                  class="d-flex justify-content-center align-items-center btn-box"
+                >
+                  <button
+                    @click="toStore(store.storeId)"
+                    class="btn btn-outline-danger btn-sm"
+                  >
                     자세히보기
                   </button>
                 </div>
@@ -162,7 +179,11 @@ const toStore = (id) => {
         </div>
 
         <div class="btnBox" v-if="state.favorites.length > 0">
-          <div id="btnB" v-if="visibleCount < state.favorites.length" @click="showMore">
+          <div
+            id="btnB"
+            v-if="visibleCount < state.favorites.length"
+            @click="showMore"
+          >
             더보기
           </div>
         </div>
@@ -171,9 +192,6 @@ const toStore = (id) => {
       <div v-else>
         <div class="container">
           <div class="text-no">찜한 가게가 없습니다.</div>
-          <div class="img-box">
-            <img src="/src/imgs/owner/owner-service2.png" />
-          </div>
         </div>
       </div>
     </div>
@@ -182,8 +200,14 @@ const toStore = (id) => {
   <img @click="arrow" class="arrow" src="/src/imgs/arrow.png" />
 
   <!-- 조회 실패 -->
-  <div class="modal fade" id="favorite-error" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
-    aria-hidden="true">
+  <div
+    class="modal fade"
+    id="favorite-error"
+    tabindex="-1"
+    role="dialog"
+    aria-labelledby="exampleModalLabel"
+    aria-hidden="true"
+  >
     <div class="modal-dialog" role="document">
       <div class="modal-content">
         <div class="modal-header">
@@ -198,7 +222,14 @@ const toStore = (id) => {
   </div>
 
   <!-- 찜 실패 -->
-  <div class="modal fade" id="faiF" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div
+    class="modal fade"
+    id="faiF"
+    tabindex="-1"
+    role="dialog"
+    aria-labelledby="exampleModalLabel"
+    aria-hidden="true"
+  >
     <div class="modal-dialog" role="document">
       <div class="modal-content">
         <div class="modal-header">
@@ -216,14 +247,16 @@ const toStore = (id) => {
 <style lang="scss" scoped>
 @font-face {
   font-family: "BMJUA";
-  src: url("https://fastly.jsdelivr.net/gh/projectnoonnu/noonfonts_one@1.0/BMJUA.woff") format("woff");
+  src: url("https://fastly.jsdelivr.net/gh/projectnoonnu/noonfonts_one@1.0/BMJUA.woff")
+    format("woff");
   font-weight: 600;
   font-style: normal;
 }
 
 @font-face {
-  font-family: 'YFavorite';
-  src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/2410-1@1.0/YOnepickTTF-Regular.woff2') format('woff2');
+  font-family: "YFavorite";
+  src: url("https://cdn.jsdelivr.net/gh/projectnoonnu/2410-1@1.0/YOnepickTTF-Regular.woff2")
+    format("woff2");
   font-weight: 400;
   font-display: swap;
 }
@@ -244,22 +277,27 @@ const toStore = (id) => {
   font-family: "BMJUA";
   font-size: 1.4em;
   letter-spacing: -1.5px;
-  margin-top: 90px;
+  margin-top: 40px;
   margin-bottom: 120px;
   width: 1470px;
 
   .solid {
-    width: 1470px;
+    width: 1144px;
     border: 1px #000 solid;
-    margin-bottom: 70px;
+    margin-bottom: 35px;
   }
 }
 
+.for-box {
+  display: flex;
+  justify-content: center;
+}
 .for {
+  width: 78%;
   display: flex;
   flex-wrap: wrap;
   justify-content: flex-start;
-  gap: 50px 10px;
+  gap: 30px 32px;
   margin-bottom: 5rem;
 }
 
@@ -298,8 +336,9 @@ const toStore = (id) => {
 }
 
 .small-text {
+  font-family: "Pretendard-Regular";
   font-size: 0.9em;
-
+  letter-spacing: 1px;
 }
 
 .btn {
@@ -317,11 +356,11 @@ const toStore = (id) => {
   margin-right: 5px;
   font-family: "BMJUA";
   font-size: 1.5em;
-  color: #FAC729;
+  color: #fac729;
 }
 
 .love {
-  font-family: 'YFavorite';
+  font-family: "YFavorite";
   font-size: 1.2em;
   color: red;
   width: 20px;
@@ -345,30 +384,32 @@ const toStore = (id) => {
   border: none;
   background-color: #ff6666;
   color: #fff;
-
 }
 
 .arrow {
   position: sticky;
-  width: 3.8%;
+  width: 2.8%;
   bottom: 100px;
   left: 93%;
   z-index: 999;
   margin-bottom: 100px;
-}
 
+  &:hover {
+    opacity: 80%;
+  }
+}
 .text-no {
   text-align: center;
-  font-size: 30px;
+  font-size: 23px;
   margin-top: 90px;
   color: #5f5f5f;
   margin-bottom: 20px;
 }
 
 .text-top {
-  font-size: 25px;
+  font-size: 28px;
   text-align: center;
-  margin-bottom: 50px;
+  margin-bottom: 69px;
 }
 
 .score-box {

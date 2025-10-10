@@ -10,7 +10,7 @@ import LoadingModal from '@/components/modal/LoadingModal.vue';
 
 const router = useRouter();
 const account = useAccountStore();
-const user = useUserInfo();
+const userInfo = useUserInfo();
 
 const managerPath = import.meta.env.VITE_MANAGER_PATH;
 
@@ -37,18 +37,18 @@ const submit = async () => {
     const res = await managerLogin(state.form);
     if (res !== undefined && res.status === 200) {
         account.setLoggedIn(true);
-        user.fetchStore();
-        router.push({ path: managerPath });
+        userInfo.fetchStore();
+        
+        const role = res.data.resultData.role;
+        if (role === '관리자') {
+            router.push({ path: managerPath });
+        } else {
+            router.push({ path: '/' });
+        }
     }
 
     loadingModalRef.value.hide();
 };
-
-onMounted(() => {
-    if (account.state.loggedIn && user.state.userData.role === '관리자') {
-        router.push({ path: managerPath });
-    }
-});
 </script>
 
 <template>

@@ -140,12 +140,13 @@ const router = createRouter({
     },
     {
       path: "/owner/delivery",
+      name: "owner-delivery",
       component: () => import("@/views/owner/Delivery.vue"),
       meta: { layout: OwnerLayout },
     },
     {
       path: "/owner/donations",
-      name: "owner-donations",
+      name: "owner-stats",
       component: () => import("@/views/owner/Stats.vue"),
       meta: { layout: OwnerLayout },
     },
@@ -209,15 +210,15 @@ const router = createRouter({
       meta: { layout: ManagerLayout }
     },
     {
-      path: "/hanip-manager/review",
-      name: "manager-review",
-      component: () => import("@/views/manager/Review.vue"),
-      meta: { layout: ManagerLayout }
-    },
-    {
       path: "/hanip-manager/order",
       name: "manager-order",
       component: () => import("@/views/manager/Order.vue"),
+      meta: { layout: ManagerLayout }
+    },
+    {
+      path: "/hanip-manager/review",
+      name: "manager-review",
+      component: () => import("@/views/manager/Review.vue"),
       meta: { layout: ManagerLayout }
     },
     {
@@ -242,26 +243,84 @@ const router = createRouter({
   ],
 });
 
-const managerPath = import.meta.env.VITE_MANAGER_PATH;
-const managerPathList = [`${managerPath}`, `${managerPath}/user`, `${managerPath}/store`, `${managerPath}/order`, `${managerPath}/review`, `${managerPath}/recommand`, `${managerPath}/stats`];
-const managerLoginPath = [`${managerPath}/login`];
+const customerPathList = ['address', 'check', 'my-page', 'cart', 'order', 'order-success', 'orders', 'order-detail', 'favorite', 'order-test'];
+const ownerPathList = ['owner', 'owner-dashboard', 'owner-check', 'owner-status', 'owner-store', 'owner-menu', 'owner-order', 'owner-review', 'owner-stats', 'owner-delivery', 'owner-customer', 'owner-coupons', 'owner-ads'];
+const managerPathList = ['manager-dashboard', 'manager-user', 'manager-store', 'manager-order', 'manager-review', 'manager-recommand', 'manager-stats'];
+const loginPath = ['login', 'join', 'manager-login'];
 
-router.beforeEach((to, from) => {
+router.beforeEach(async (to, from) => {
+  const account = useAccountStore();
+  const userInfo = useUserInfo();
+
+  if (account.state.loggedIn && userInfo.state.userId === 0) {
+    // 로그인 중에 페이지가 먼저 이동하게 되어버려 페이지를 잘못 이동하는 경우 생김
+    // 그래서 유저 정보가 들어올 때까지 대기
+    await userInfo.fetchStore();
+  }
+
   if (!router.hasRoute(to.name)) {
     // 라우터에 등록하지 않은 주소(없는 페이지)로 이동하려고 하는 경우
-    return { path: '/' };
+    if (account.state.loggedIn) {
+      if (userInfo.state.userData.role === '관리자') {
+        return { path: '/hanip-manager' };
+      } else if (userInfo.state.userData.role === '사장') {
+        return { path: '/owner' };
+      } else {
+        return { path: '/' };
+      }
+    } else {
+      return { path: '/' };
+    }
   }
 
-  const account = useAccountStore();
-  const user = useUserInfo();
-  if (managerLoginPath.includes(to.path) && (account.state.loggedIn && user.state.userData.role !== '관리자')) {
-    // 관리자가 아닌 계정으로 관리자 로그인 페이지로 이동하려고 하는 경우
-    return { path: '/' };
+  if (customerPathList.includes(to.name) && (!account.state.loggedIn || account.state.loggedIn && userInfo.state.userData.role !== '고객')) {
+    // 로그인 상태가 아니거나, 고객이 아닌 계정으로 고객 정보가 필요한 페이지로 이동하려고 하는 경우
+    if (account.state.loggedIn) {
+      if (userInfo.state.userData.role === '관리자') {
+        return { path: '/hanip-manager' };
+      } else {
+        return { path: '/owner' };
+      }
+    } else {
+      return { path: '/' };
+    }
   }
 
-  if (managerPathList.includes(to.path) && (!account.state.loggedIn || (account.state.loggedIn && user.state.userData.role !== '관리자'))) {
+  if (ownerPathList.includes(to.name) && (!account.state.loggedIn || account.state.loggedIn && userInfo.state.userData.role !== '사장')) {
+    // 로그인 상태가 아니거나, 사장이 아닌 계정으로 로그인한 상태로 사장 페이지로 이동하려고 하는 경우
+    if (account.state.loggedIn) {
+      if (userInfo.state.userData.role === '관리자') {
+        return { path: '/hanip-manager' };
+      } else {
+        return { path: '/' };
+      }
+    } else {
+      return { path: '/' };
+    }
+  }
+
+  if (loginPath.includes(to.name) && account.state.loggedIn) {
+    // 로그인한 상태에서 로그인 페이지, 관리자 로그인 페이지, 회원 가입 페이지로 이동하려고 하는 경우
+    if (userInfo.state.userData.role === '관리자') {
+      return { path: '/hanip-manager' };
+    } else if (userInfo.state.userData.role === '사장') {
+      return { path: '/owner' };
+    } else {
+      return { path: '/' };
+    }
+  }
+
+  if (managerPathList.includes(to.name) && (!account.state.loggedIn || (account.state.loggedIn && userInfo.state.userData.role !== '관리자'))) {
     // 로그인 상태가 아니거나, 관리자가 아닌 계정으로 로그인한 상태로 관리자 페이지로 이동하려고 하는 경우
-    return { path: '/' };
+    if (account.state.loggedIn) {
+      if (userInfo.state.userData.role === '사장') {
+        return { path: '/owner' };
+      } else {
+        return { path: '/' };
+      }
+    } else {
+      return { path: '/' };
+    }
   }
 });
 

@@ -51,7 +51,7 @@ const baseUrl = ref(import.meta.env.VITE_BASE_URL);
 
 
 const reviewSrcList = computed(() => {
-  if (!props.item?.pic || props.item.pic.length === 0) return [defaultImage];
+  if (!props.item?.pic || props.item.pic.length === 0) return [];
 
   return props.item.pic.map(fileName => `${baseUrl.value}/images/Review/${props.item.id}/${fileName}`);
 });
@@ -64,7 +64,6 @@ const imgSrc = computed(() => {
     : defaultImage;
 
 })
-
 
 </script>
 
@@ -80,74 +79,41 @@ const imgSrc = computed(() => {
           <div class="user-name"> {{ props.item.userName }}</div>
           <div class="date"> {{ timeAgo }}</div>
         </div>
-
         <div class="info-bottom">
-
-          <span class="star" v-for="n in Math.floor(props.item.rating || 0)" :key="n">★</span>
+          <div v-if="props.item.rating">
+            <span class="star" v-for="n in Math.floor(props.item.rating || 0)" :key="n">★</span>
+          </div>
+          <div v-else>
+            <span class="no-star">★★★★★</span>
+          </div>
           <span class="star-num">{{ props.item.rating || 0 }}</span>
         </div>
       </div>
     </div>
-
-
     <!-- 이미지  -->
     <div class="box-body-img-box">
-
-      <!-- <swiper :slides-per-view="4" :modules="[Navigation, Pagination, Scrollbar, A11y, Autoplay]" :speed="1000"
-        :space-between="230" :resistance="false" :resistance-ratio="0" :allowSlidePrev="false">
-        <swiper-slide>
-          <div class="review-image border">
-            <img class="reviewImg" :src="reviewSrc" @error="e => e.target.src = defaultImage" />
-          </div>
-        </swiper-slide>
-        <swiper-slide>
-          <div class="review-image border">
-            <img class="reviewImg" :src="reviewSrc" @error="e => e.target.src = defaultImage" />
-          </div>
-        </swiper-slide>
-        <swiper-slide>
-          <div class="review-image border">
-            <img class="reviewImg" :src="reviewSrc" @error="e => e.target.src = defaultImage" />
-          </div>
-        </swiper-slide>
-        <swiper-slide>
-          <div class="review-image border">
-            <img class="reviewImg" :src="reviewSrc" @error="e => e.target.src = defaultImage" />
-          </div>
-        </swiper-slide>
-        <swiper-slide>
-          <div class="review-image border">
-            <img class="reviewImg" :src="reviewSrc" @error="e => e.target.src = defaultImage" />
-          </div>
-        </swiper-slide>
-      </swiper> -->
-
-      <swiper :slides-per-view="3" :modules="[Navigation, Pagination, Scrollbar, A11y, Autoplay]" :speed="1000"
+      <swiper 
+      v-if="reviewSrcList.length > 0"
+      :slides-per-view="3" :modules="[Navigation, Pagination, Scrollbar, A11y, Autoplay]" :speed="1000"
         :space-between="10" :resistance="false" :resistance-ratio="0">
-        <swiper-slide v-for="(src, index) in reviewSrcList" :key="index">
+        <swiper-slide v-for="(src, index) in reviewSrcList " :key="index">
           <div class="review-image border">
             <img class="reviewImg" :src="src" @error="e => e.target.src = defaultImage" alt="리뷰 이미지" />
           </div>
         </swiper-slide>
       </swiper>
-
     </div>
-
-
     <!-- 메뉴 이름들 -->
     <div class="box-body-menu-box">
       <div class="menu-border">
         <span class="menu-name" v-for="value in props.item.menuName" :key="value.id"> {{ value }} </span>
       </div>
     </div>
-
     <div class="customer-comment-box">
       <div class="customer-comment">
         <div class="u-box">{{ props.item.comment }}</div>
       </div>
-
     </div>
-
     <div v-if="props.item.ownerComment" class="owner">
       <hr class="owner-solid">
       </hr>
@@ -158,13 +124,8 @@ const imgSrc = computed(() => {
             {{ props.item.ownerComment }}
           </div>
         </div>
-
-
       </div>
     </div>
-
-
-
   </div>
 </template>
 
@@ -229,6 +190,12 @@ const imgSrc = computed(() => {
   font-family: "BMJUA";
   font-size: 30px;
   color: #FAC729;
+  margin-top: -10px;
+}
+.no-star{
+    font-family: "BMJUA";
+  font-size: 30px;
+  color: #eee;
   margin-top: -10px;
 }
 

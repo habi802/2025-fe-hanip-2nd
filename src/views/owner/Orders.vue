@@ -13,6 +13,7 @@ import OrderStatus from "@/components/owner/orderInfo/OrderStatus.vue";
 import OrderedMenu from "@/components/owner/orderInfo/OrderedMenu.vue";
 import PaymentDetails from "@/components/owner/orderInfo/PaymentDetails.vue";
 
+const owner = useOwnerStore();
 const orderStore = useOrderStore();
 const selectedOrder = ref(null);
 
@@ -38,7 +39,7 @@ const removeAlert = (id) => {
 };
 
 onMounted(async () => {
-  data.store_id = storeId?.value;
+  data.store_id = storeId;
   fetchOrders(storeId);
 });
 
@@ -96,7 +97,7 @@ const statusText = computed(() => {
 });
 
 // 가게 아이디
-const storeId = inject("storeId", "");
+const storeId = owner.state.storeData.id;
 
 // 날짜 조회
 const selectedLabel = ref("");
@@ -155,7 +156,7 @@ const selectRange = async (range) => {
       break;
   }
 
-  data.store_id = storeId?.value;
+  data.store_id = storeId;
   data.start_date = start ? formatDate(start) : null;
   data.end_date = end ? formatDate(end) : null;
 
