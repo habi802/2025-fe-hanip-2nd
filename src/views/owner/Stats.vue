@@ -3,7 +3,6 @@ import {ref , reactive,  onMounted , computed,watch } from 'vue';
 import ChartCard from '@/components/owner/ChartCard.vue';
 import TotalCard from '@/components/owner/TotalCard.vue';
 import { useOwnerStore } from '@/stores/account';
-import { useOrderStore } from '@/stores/orderStore';
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
 import "dayjs/locale/ko";
@@ -64,12 +63,14 @@ const fetchStatus = async (start , end) => {
 const chartForm = reactive({
     title: "주문추이",
     label: [],
-    data: []
+    data: [],
+    unit:"건"
   });
   const chartForm2 = reactive({
     title: "매출추이",
     label: [],
-    data: []
+    data: [],
+    unit:"만원"
   });
 
 
@@ -85,7 +86,7 @@ const handleDateUpdate = ({ selectedChartOption, startDate, endDate }) => {
   selectedDate.selectedChartOption = selectedChartOption
   selectedDate.startDate = startDate;
   selectedDate.endDate = endDate;
-  
+  let label = null;
   // 선택된 날짜 기준으로 서버 호출
   fetchStatus(startDate, endDate).then(()=>{
 
@@ -97,28 +98,38 @@ const handleDateUpdate = ({ selectedChartOption, startDate, endDate }) => {
 
     switch(selectedChartOption){
     case "일간":
-    chartForm.label = Array.from({ length: 24 }, (_, i) => dayjs().hour(i).format("H시"));
-
+    label = Array.from({ length: 24 }, (_, i) => dayjs().hour(i).format("H시"));
+    chartForm.label = label
+    chartForm2.label = label
+    
+    const hourlyCounts = Array.from({ length: 24 }, () => 0);
     const hourlyAmounts = Array.from({ length: 24 }, () => 0);
+
     data.value.forEach( order => {
     const hour = dayjs(order.createdAt).hour(); // createdAt에서 시간 추출 (0~23)
+    hourlyCounts[hour] += 1;          // 주문건수
     hourlyAmounts[hour] += order.amount;         // 해당 시간대 amount 합산
     });
-    chartForm.data = hourlyAmounts;
 
+    chartForm.data = hourlyCounts;
+    chartForm2.data = hourlyAmounts;
     break;
   
     case "주간":
-    chartForm.label = ["일","월", "화", "수", "목", "금", "토"];
+    label = ["일","월", "화", "수", "목", "금", "토"];
+    chartForm.label = label
+    chartForm2.label = label
+
+    const weekCounts = Array(7).fill(0);
     const weekAmounts = Array(7).fill(0);
     // 각 주문 amount를 요일 인덱스에 더하기
     data.value.forEach(order => {
       const weekday = dayjs(order.createdAt).day(); // 0: 일, 1: 월, ..., 6: 토
+      weekCounts[weekday] += 1;
       weekAmounts[weekday] += order.amount;
     });
-    chartForm.data = weekAmounts;
-    console.log(weekAmounts);
-
+    chartForm.data = weekCounts;
+    chartForm2.data = weekAmounts;
 
     break;
   
@@ -131,16 +142,10 @@ const handleDateUpdate = ({ selectedChartOption, startDate, endDate }) => {
     const lastDate = endOfMonth.date();        // 마지막 날짜
     const totalWeeks = Math.ceil((lastDate + startWeekDay) / 7); // 최대 주 수
 
-    // 주간 amount 배열 초기화
-    const monthAmounts = Array(totalWeeks).fill(0);
-
-    filteredData.forEach(order => {
-      const dayOfMonth = dayjs(order.createdAt).date();
-      const weekIndex = Math.floor((dayOfMonth + startWeekDay - 1) / 7);
-      monthAmounts[weekIndex] += order.amount;
-    });
-
-    chartForm.label = Array.from({ length: totalWeeks }, (_, i) => `${i + 1}주`);
+    
+    label = Array.from({ length: totalWeeks }, (_, i) => `${i + 1}주`);
+    chartForm.label = label
+    chartForm2.label = label
 
     // // ref/ reactive 쓰고 있다면 data.value.forEach로 변경
     // data.value.forEach(order => {
@@ -149,15 +154,41 @@ const handleDateUpdate = ({ selectedChartOption, startDate, endDate }) => {
     //   const weekIndex = Math.floor((dayOfMonth + startWeekDay - 1) / 7);
     //   monthAmounts[weekIndex] += order.amount;
     // });
+    
+    
+    // 주간 amount 배열 초기화
+    const monthCounts =  Array(totalWeeks).fill(0);
+    const monthAmounts = Array(totalWeeks).fill(0);
 
-    console.log(monthAmounts);
-    chartForm.data = monthAmounts;
+    filteredData.forEach(order => {
+      const dayOfMonth = dayjs(order.createdAt).date();
+      const weekIndex = Math.floor((dayOfMonth + startWeekDay - 1) / 7);
+      monthCounts[weekIndex] += 1;
+      monthAmounts[weekIndex] += order.amount;
+    });
+
+    chartForm.data = monthCounts;
+    chartForm2.data = monthAmounts;
 
     break;
   
     case "연간":
-    chartForm.label = Array.from({ length: 12 }, (_, i) => dayjs().month(i).format("M월"));
-    
+    label = Array.from({ length: 12 }, (_, i) => dayjs().month(i).format("M월"));
+    chartForm.label = label
+    chartForm2.label = label
+
+    const yearCounts = Array(12).fill(0);
+    const yearAmounts = Array(12).fill(0);
+
+    filteredData.forEach(order => {
+      const monthIndex = dayjs(order.createdAt).month(); // 0~11
+      yearCounts[monthIndex] += 1;
+      yearAmounts[monthIndex] += order.amount;
+    });
+
+    chartForm.data = yearCounts;
+    chartForm2.data = yearAmounts;
+
     break;
     
   }
@@ -221,7 +252,7 @@ onMounted(async () => {
   
   <div class="wrap">
     <!-- 조회기간 설정 (기본 한달) -->
-     <StatsDateFilter @update-date="handleDateUpdate" ></StatsDateFilter>
+      <StatsDateFilter @update-date="handleDateUpdate" ></StatsDateFilter>
     <!-- 조회기간설정카드 끝-->
 
     <div class="total-wrap">
@@ -229,8 +260,8 @@ onMounted(async () => {
     </div><!--total-wrap 끝 -->
 
     <div class="chart-wrap">
-      <ChartCard class="white-card" :title=chartForm.title labelY="y축범례" type="bar" :chart-data="chartForm" />
-      <ChartCard class="white-card" :title=chartForm2.title labelY="y축범례" type="line" :chart-data="chartForm" />
+      <ChartCard class="white-card" :title=chartForm.title labelY="주문추이" type="bar" :chart-data="chartForm" :unit="chartForm.unit"/>
+      <ChartCard class="white-card" :title=chartForm2.title labelY="매출추이" type="line" :chart-data="chartForm2" :unit="chartForm2.unit" />
       <!-- <ChartCard class="white-card" title="주문 추이" labelY="y축범례" type="bar" :chart-data="currentChartData" />
       <ChartCard class="white-card" title="매출 추이" labelY="y축범례" type="line" :chart-data="currentChartData" /> -->
     </div>
@@ -240,25 +271,22 @@ onMounted(async () => {
 
 <style scoped lang="scss">
 .wrap{
-width: 90%;
+width: 95%;
 display: flex;
 flex-direction: column;
-justify-content: left;
 gap: 20px;
 
 .total-wrap{
   width: 100%;
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  display: flex;
   gap: 15px;
   align-items: center;
-  justify-content: center;
 }
 
 .chart-wrap{
-  display: grid;
-  grid-template-columns: repeat(2, 1.5fr);
-  gap: 20px;
+  width: 100%;
+  display: flex;
+  gap: 15px;
 }
   
 }//wrap

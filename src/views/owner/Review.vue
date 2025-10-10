@@ -92,28 +92,25 @@ const StarIcon = {
             <div>
                 <!-- 전체 토탈 카드 -->
                 <div class="total-wrap">
-                    <div class="total-box">
-                        <div>
-                            <span>{{ totalReviewCount || 0 }} </span>
-                            <span>전체 리뷰 수</span>
-                        </div>
+                    <div class="white-card total-box">
+                        <span>전체 리뷰 수</span>
+                        <span>{{ totalReviewCount || 0 }} </span>
                     </div>
                     
-                    <div class="total-box">
-                        <div>
-                            <span>{{avgReview || 0}} </span>
-                            <span>평균 별점</span>
-                        </div>
+                    <div class="white-card total-box">
+                        <span>평균 별점</span>
+                        <span>{{avgReview || 0}} </span>
                     </div>
                 </div>
             </div>
             
-            <div class="review-header">
-                <!-- 조회기간설정 카드 :추후 구현 -->
-            </div>
+            <!-- 조회기간설정 카드 :추후 구현 -->
+
 
             <!-- 리뷰카드  -->
-            <ReviewCard v-if="reviews.length"  :key="params.page"  :reviews="reviews" />
+            <div class="review-wrap">
+                <ReviewCard v-if="reviews.length"  :key="params.page"  :reviews="reviews" />
+            </div>
         </div>
 
         <b-pagination v-model="params.page" :total-rows="row" :per-page="params.rowPerPage" aria-controls="my-table"></b-pagination>
@@ -128,45 +125,26 @@ const StarIcon = {
 
 </template>
 <style lang="scss" scoped>
-.owner-title1 {
-  font-size: 30px;
-  font-weight: bold;
-  padding-bottom: 2px;
-}
-
-.owner-title2 {
-  color: #686868;
-}
-
 .wrap{
-    background-color: #e8e8e8;
-    font-family: 'Pretendard', sans-serif;
-    width: 1500px;
-    transform: translateX(13px);
-    padding-bottom: 70px;
+    width: 95%;
+
     .total-wrap{
         display: flex;
-        gap : 50px;
-        margin-top: 15px;
-        margin-bottom: -65px;
-        .circle{
-            background-color: #ff6666;
-            border-radius: 100%;
-            width: 85px;
-            height: 85px;
-            margin-left: 65px;
-            margin-right: 30px; 
-        }
+        gap : 20px;
+        margin-bottom: 20px;
         .total-box{
-            align-items: center;
-            background-color: #fff;
-            border-radius: 15px;
-            box-shadow: 2px 2px 5px 1px  #c6c6c6;
+            width: 280px;
+            height: 90px;
             display: flex;
-            height: 137px;
-            width: 337px;
-            :last-child{ display: block; }
-            span:nth-of-type(1){
+            align-items: center;
+            justify-content: space-around;
+
+            :last-child{
+                display: flex;
+                gap: 20px ;
+                align-items: center;
+            }
+            span:nth-of-type(2){
                 line-height: 1;
                 font-size: 40px;
                 font-weight: 800;
@@ -174,72 +152,11 @@ const StarIcon = {
         }
     }
 
-    .review-header{
-        display: flex;
-        justify-content: flex-end;
-        margin-bottom: 10px;
-        margin-right: 45px;
-    }
-
-    .date-filter{
-        background-color: #fff;
-        border-radius: 15px;
-        box-shadow: 2px 2px 5px 1px  #c6c6c6;
-        display: flex;
-        align-items: center;
-        justify-content: space-around;
-        width: 295px;
-        height: 75px;
-        padding: 15px 15px;
-
-        div{
-            span{
-                display: block;
-                margin-right: 10px;
-                line-height: 1.5;
-            }
-        }
-        img:last-child{
-            width: 24px;
-            height: 24px;
-        }
+    .review-wrap{
+        min-height: 75vh;
     }
 }
 
-.date-filter {
-  position: relative;
-
-  .date-picker-popup {
-    position: absolute;
-    width: 100%;
-    top: 93%;
-    right: 0;
-    z-index: 10;
-    background: #fff;
-    padding: 15px;
-    margin-top: 8px;
-    border-radius: 15px;
-    box-shadow: 2px 2px 5px #ccc;
-    display: flex;
-    gap: 10px;
-    justify-content: center;
-    width: max-content;
-
-    label {
-      display: flex;
-      flex-direction: column;
-      font-size: 13px;
-    }
-
-    input[type="date"] {
-      padding: 5px;
-      border: 1px solid #ccc;
-      border-radius: 6px;
-    }
-  }
-
-
-}
 
 
 </style>
