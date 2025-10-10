@@ -130,7 +130,7 @@ onMounted(() => {
         </div>
 
         <div class="options">
-          <label><input type="checkbox" class="circle" /> 아이디 저장</label>
+          <label><input type="checkbox" class="circle" v-model="state.saveId" /> 아이디 저장</label>
           <div class="links">
             <a class="join" @click="router.push('/join')">회원가입</a>
           </div>

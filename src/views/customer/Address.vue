@@ -203,11 +203,11 @@ onMounted(async () => {
 
 <style lang="scss" scoped>
 @font-face {
-    font-family: "Pretendard-Regular";
-    src: url("https://fastly.jsdelivr.net/gh/Project-Noonnu/noonfonts_2107@1.1/Pretendard-Regular.woff")
-        format("woff");
-    font-weight: 400;
-    font-style: normal;
+  font-family: "Pretendard-Regular";
+  src: url("https://fastly.jsdelivr.net/gh/Project-Noonnu/noonfonts_2107@1.1/Pretendard-Regular.woff")
+    format("woff");
+  font-weight: 400;
+  font-style: normal;
 }
 .container{
   display: flex;
@@ -216,7 +216,7 @@ onMounted(async () => {
   max-width: 1168px;
 }
 .add-title {
-    font-family: "Pretendard-Regular";
+  font-family: "Pretendard-Regular";
   text-align: center;
   font-size: 30px;
   font-weight: 400;
@@ -258,7 +258,7 @@ onMounted(async () => {
     transition: background-color 0.3s ease, transform 0.1s ease;
     &:hover {
       background-color: darken(#ff6666, 5%);
-      transform: translateY(-1px); 
+      transform: translateY(-1px);
     }
   }
 }
