@@ -48,7 +48,7 @@ const props = defineProps({
 
 const previewImage = ref(defaultImage);
 
-const baseUrl = ref(import.meta.env.VITE_PIC_URL);
+const baseUrl = ref(import.meta.env.VITE_BASE_URL);
 
 
 const reviewSrcList = computed(() => {
