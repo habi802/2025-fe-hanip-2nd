@@ -46,6 +46,6 @@ export const updateUser = args => {
     return axios.put(`${path}`, args).catch(e => e.response);
 }
 
-export const kakaoLogin = ({code})=>{
-    return axios.post('/kakao-login/login',{code}).catch(e => e.response);
+export const kakaoLogin = ({ code }) => {
+    return axios.post('/kakao-login/login', { code }).catch(e => e.response);
 }

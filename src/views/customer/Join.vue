@@ -1013,7 +1013,7 @@ select.invalid {
     p.success-msg {
       color: #2f57db;
       font-size: 15px;
-      font-weight: 600;
+      font-weight: 500;
       margin-top: 10px;
       user-select: none;
       transition: color 0.3s ease;
