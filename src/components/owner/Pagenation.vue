@@ -1,11 +1,7 @@
 <script>
+// 페이지네이션, 현재 사용 x (부트스트랩으로 사용)
 import { computed, ref, reactive, onMounted, inject,watch } from "vue";
-import { useOwnerStore, useUserInfo } from "@/stores/account";
-import { useReviewStore } from "@/stores/review";
-import defaultUserProfile from "@/imgs/owner/user_profile.jpg";
-import OwnerReviewModal from "../modal/OwnerReviewModal.vue";
 
-//---------- 페이지네이션 ------------
 
 // 페이지네이션 관련
 const currentPage = ref(1); // 현재 페이지

@@ -9,9 +9,6 @@ import { getReviewsByStoreId } from '@/services/reviewServices';
 //가게정보가져오기 
 const ownerStore = useOwnerStore();
 
-// 리뷰 데이터 가져오기
-// const reviewStore = useReviewStore();
-
 const params = reactive({
     page : 1,
     rowPerPage : 6
@@ -31,9 +28,10 @@ const fetchReviews = async () => {
     }
 };
 
-//페이지네이션 total-lows
-const row = 100;
+//페이지네이션 total-lows 
+const row = 100; //TODO: 추후 be에서 전체리뷰개수 불러오기
 
+// 감시: 페이지네이션 값 변경 시 be자료호출
 watch(() => [params.page, params.rowPerPage], fetchReviews, { immediate: true });
 
 
@@ -65,61 +63,70 @@ onMounted(()=> {
     fetchReviews();
 })
 
+
+//리뷰별표시
+// const averageScore = computed(() => {
+//   const reviews = reviewStore.reviews;
+//   if (!reviews || reviews.length === 0) return 0;
+//   const total = reviews.reduce((sum, review) => sum + review.rating, 0);
+//   return (total / reviews.length).toFixed(1);
+// });
+// console.log("별점평균 : ", averageScore);
+// const ratingToPercent = computed(() => averageScore.value * 20); // 4.5 -> 90%
+
+// 별 아이콘 컴포넌트 정의
+const StarIcon = {
+  template: `
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg" class="star-icon">
+        <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/>
+    </svg>
+    `,
+};
+
+
 </script>
 
 <template>
-
-    <div class="wrap" > 
-        <div>
-            <!-- 전체 토탈 카드 -->
-            <div class="total-wrap">
-                <div class="total-box">
-                    <div>
-                        <span>{{ totalReviewCount || 0 }} </span>
-                        <span>전체 리뷰 수</span>
+    <template v-if="reviews && reviews.length > 0">
+        <div class="wrap" > 
+            <div>
+                <!-- 전체 토탈 카드 -->
+                <div class="total-wrap">
+                    <div class="total-box">
+                        <div>
+                            <span>{{ totalReviewCount || 0 }} </span>
+                            <span>전체 리뷰 수</span>
+                        </div>
                     </div>
-                </div>
-                
-                <div class="total-box">
-                    <div>
-                        <span>{{avgReview || 0}} </span>
-                        <span>평균 별점</span>
+                    
+                    <div class="total-box">
+                        <div>
+                            <span>{{avgReview || 0}} </span>
+                            <span>평균 별점</span>
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
-        
-        <div class="review-header">
-            <!-- 조회기간설정 카드 -->
-            <div class="date-filter">
-                <img src="/src/imgs/owner/Icon_조회기간설정.svg" alt="캘린더아이콘" title="캘린더아이콘">
-                <div>
-                    <span style="font-size: 20px;">조회 기간 설정</span>
-                    <span style="font-size: 13px; color: #838383; font-weight: 200;">2025.07.01 ~ 2025.08.01</span>
-                </div>
-                <img src="/src/imgs/owner/Icon_목록단추.svg" alt="목록단추" title="달력 열기" style="cursor: pointer;" @click="toggleDatePicker" />
-                
-                <!-- 달력 영역 -->
-                <div v-if="showDatePicker" class="date-picker-popup">
-                    <label>
-                        시작일 <input type="date" v-model="startDate" />
-                    </label>
-                    <label>
-                        종료일 <input type="date" v-model="endDate" />
-                    </label>
-                </div>
+            
+            <div class="review-header">
+                <!-- 조회기간설정 카드 :추후 구현 -->
             </div>
+
+            <!-- 리뷰카드  -->
+            <ReviewCard v-if="reviews.length"  :key="params.page"  :reviews="reviews" />
         </div>
 
-        <!-- 리뷰카드  -->
-        <ReviewCard v-if="reviews.length"  :key="params.page"  :reviews="reviews" />
-    </div>
+        <b-pagination v-model="params.page" :total-rows="row" :per-page="params.rowPerPage" aria-controls="my-table"></b-pagination>
+    </template>
 
-    <b-pagination v-model="params.page" :total-rows="row" :per-page="params.rowPerPage" aria-controls="my-table"></b-pagination>
 
+    <template v-else >
+        <div style="height: 100%; display:flex; justify-content:center; align-items:center">
+        등록된 리뷰가 없습니다.
+        </div>
+    </template>
 
 </template>
-
 <style lang="scss" scoped>
 .owner-title1 {
   font-size: 30px;
@@ -233,5 +240,6 @@ onMounted(()=> {
 
 
 }
+
 
 </style>

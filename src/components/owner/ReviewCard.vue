@@ -1,7 +1,6 @@
 <script setup>
 import { computed, ref, reactive, onMounted, inject,watch } from "vue";
 import { useOwnerStore, useUserInfo } from "@/stores/account";
-import { useReviewStore } from "@/stores/review";
 import defaultUserProfile from "@/imgs/owner/user_profile.jpg";
 import OwnerReviewModal from "../modal/OwnerReviewModal.vue";
 
@@ -24,126 +23,82 @@ console.log( "프롭" , props.reviews )
 watch(() => props.reviews,  (newVal) => { console.log("프롭 변경됨:", newVal) },  { immediate: true });
 
 
-// 더보기
-// const visibleCount = ref(6);
-// const visibleReview = computed(() => {
-//   return reviewStore.reviews.slice(0, visibleCount.value);
-// });
-// const loadMore = () => {
-//   visibleCount.value += 6;
-// };
+//----------사장 댓글 다는 부분------------
+// 모달
+const ownerReviewModalRef = ref(null);
 
+// 모달 입력값 (v-model로 연결됨)
+const replyComment = ref("");
 
+// 선택된 리뷰 저장용
+const selectedReview = ref(null);
 
+//댓글 상태
+const ownerComment = ref("");
 
-onMounted(async () => {
+// 모달 열림 상태
+const isModalOpen = ref(false);
 
-
-  // if (storeId.value) {
-  //   // 리뷰 데이터를 가져오는 메서드 호출
-  //   await reviewStore.fetchReviews(storeId.value);
-  //   console.log("리뷰 데이터 구조:", reviewStore.reviews);
-  // } else {
-  //   console.error("스토어 아이디가 없습니다.");
-  // }
+//-댓글 달 모달창-
+const addReviewModal = ref(null);
+const newdReview = reactive({
+  comment: "",
 });
 
-//리뷰별표시
-// const averageScore = computed(() => {
-//   const reviews = reviewStore.reviews;
-//   if (!reviews || reviews.length === 0) return 0;
-//   const total = reviews.reduce((sum, review) => sum + review.rating, 0);
-//   return (total / reviews.length).toFixed(1);
-// });
-// console.log("별점평균 : ", averageScore);
-// const ratingToPercent = computed(() => averageScore.value * 20); // 4.5 -> 90%
+// 모달 열기
+const openAddReviewModal = (review) => {
+  selectedReview.value = review;
+  ownerComment.value = review.ownerComment || "";
+  const modal = new bootstrap.Modal(addReviewModal.value);
+  modal.show();
+};
 
-// // 별 아이콘 컴포넌트 정의
-// const StarIcon = {
-//   template: `
-//     <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg" class="star-icon">
-//         <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/>
-//     </svg>
-//     `,
-// };
+// 모달 닫기
+const handleClose = () => {
+  selectedReview.value = null;
+  replyComment.value = "";
+  isModalOpen.value = false; // 모달 닫기
+};
 
+// 모달에서 submit 처리
+const handleSubmit = async () => {
+  if (!selectedReview.value) return;
+  try {
+    await reviewStore.saveOwnerComment({
+      reviewId: selectedReview.value.id,
+      ownerComment: replyComment.value,
+    });
+    selectedReview.value.ownerComment = replyComment.value;
+    alert("댓글이 등록되었습니다.");
+  } catch (e) {
+    console.error("댓글 저장 실패", e);
+  }
+};
 
-// //----------사장 댓글 다는 부분------------
-// // 모달
-// const ownerReviewModalRef = ref(null);
+const submitReview = async () => {
+  if (!selectedReview.value) return;
 
-// // 모달 입력값 (v-model로 연결됨)
-// const replyComment = ref("");
+  const payload = {
+    reviewId: selectedReview.value.id,
+    ownerComment: ownerComment.value,
+  };
 
-// // 선택된 리뷰 저장용
-// const selectedReview = ref(null);
+  try {
+    await reviewStore.saveOwnerComment(payload);
+    selectedReview.value.ownerComment = ownerComment.value;
+  } catch (e) {
+    console.error("댓글 저장 실패", e);
+  }
+};
 
-// //댓글 상태
-// const ownerComment = ref("");
-
-// // 모달 열림 상태
-// const isModalOpen = ref(false);
-
-// //-댓글 달 모달창-
-// const addReviewModal = ref(null);
-// const newdReview = reactive({
-//   comment: "",
-// });
-
-// // 모달 열기
-// const openAddReviewModal = (review) => {
-//   selectedReview.value = review;
-//   ownerComment.value = review.ownerComment || "";
-//   const modal = new bootstrap.Modal(addReviewModal.value);
-//   modal.show();
-// };
-
-// // 모달 닫기
-// const handleClose = () => {
-//   selectedReview.value = null;
-//   replyComment.value = "";
-//   isModalOpen.value = false; // 모달 닫기
-// };
-
-// // 모달에서 submit 처리
-// const handleSubmit = async () => {
-//   if (!selectedReview.value) return;
-//   try {
-//     await reviewStore.saveOwnerComment({
-//       reviewId: selectedReview.value.id,
-//       ownerComment: replyComment.value,
-//     });
-//     selectedReview.value.ownerComment = replyComment.value;
-//     alert("댓글이 등록되었습니다.");
-//   } catch (e) {
-//     console.error("댓글 저장 실패", e);
-//   }
-// };
-
-// const submitReview = async () => {
-//   if (!selectedReview.value) return;
-
-//   const payload = {
-//     reviewId: selectedReview.value.id,
-//     ownerComment: ownerComment.value,
-//   };
-
-//   try {
-//     await reviewStore.saveOwnerComment(payload);
-//     selectedReview.value.ownerComment = ownerComment.value;
-//   } catch (e) {
-//     console.error("댓글 저장 실패", e);
-//   }
-// };
-
-// // 유저 프로필 없을 시 대체 이미지 나타내기
-// const imgSrc = computed(() => {
-//   return reviewStore.reviews &&
-//     reviewStore.reviews.imagePath &&
-//     reviewStore.reviews.imagePath !== "null"
-//     ? `/pic/store-profile/${reviewStore.reviews.id}/${reviewStore.reviews.imagePath}`
-//     : defaultUserProfile;
-// });
+// 유저 프로필 없을 시 대체 이미지 나타내기
+const imgSrc = computed(() => {
+  return props.reviews &&
+    props.reviews.imagePath &&
+    props.reviews.imagePath !== "null"
+    ? `/pic/store-profile/${props.reviews.id}/${props.reviews.imagePath}`
+    : defaultUserProfile;
+});
 
 // // 유저 프로필 경로
 // const img = "`/pic/user-profile/${review.id}/${review.imagePath}`";
@@ -163,19 +118,22 @@ const formatDateTime = (isoStr) => {
 
 <template>
   <!-- 리뷰카드  -->
-  <div v-if="reviews?.length > 0" class="review-box-wrap">
+  <div v-if="reviews?.length > 0" class="review-wrap">
     <div class="review-box shadow" v-for="reviews in props.reviews" :key="reviews.id">
-      <div class="profile">
-        <div class="profile-circle">
-          <img :src="imgSrc" @error="(e) => (e.target.src = defaultUserProfile)" alt="프로필" />
-        </div>
-        <div class="profile-username">
-          <span> {{ reviews.userName ||  "-" }} </span>
-          <span> {{ formatDateTime(reviews.createdAt) ||  "-" }} </span>
+      <div class="review-header">
+        <div class="profile">
+          <div class="profile-circle">
+            <img :src="imgSrc" @error="(e) => (e.target.src = defaultUserProfile)" alt="프로필" />
+          </div>
+          <div class="profile-username">
+            <span> {{ reviews.userName ||  "-" }} </span>
+            <span> {{ formatDateTime(reviews.createdAt) ||  "-" }} </span>
+          </div>
         </div>
         <div class="orderMenu">
           <!-- 메뉴 연동하기 -->
           <span> {{ reviews.menuName[1] ||  "-" }} </span>
+          <br></br>
           <span v-if="reviews.menuName.length > 1"> 외 {{ reviews.menuName.length - 1 }} 건 </span>
         </div>
       </div>
@@ -221,7 +179,7 @@ const formatDateTime = (isoStr) => {
         </div>
       </div>
       <div class="btn-wrap">
-        <button  class="btn btn-comment" @click=" () => { selectedReview = review; replyComment = review.ownerComment || ''; isModalOpen = true; } ">
+        <button  class="btn btn-comment" @click=" () => { selectedReview = reviews; replyComment = reviews.ownerComment || ''; isModalOpen = true; } ">
           댓글 작성
         </button>
       </div>
@@ -243,9 +201,7 @@ const formatDateTime = (isoStr) => {
 </template>
 
 <style lang="scss" scoped>
-body, html, .wrap {
-  min-height: 100vh; /* 항상 화면 크기 이상 */
-}
+
 // 버튼
 .btn-review {
   width: 400px;
@@ -255,226 +211,149 @@ body, html, .wrap {
   cursor: pointer;
 }
 
-.owner-title1 {
-  font-size: 30px;
-  font-weight: bold;
-  padding-bottom: 2px;
-}
-
-.owner-title2 {
-  color: #686868;
-}
-
-.wrap {
+.review-header {
   display: flex;
-  background-color: #e8e8e8;
-  font-family: "Pretendard", sans-serif;
-  max-width: 1500px;
-  min-height: 100vh;
-  width: 100%;
-  transform: translateX(13px);
-  padding-bottom: 120px;
+  // justify-content: space-between;
+  margin-bottom: 10px;
+}
 
-  .total-wrap {
+// 리뷰 카드 여백조절
+.review-wrap {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+
+  // 리뷰 카드
+  .review-box {
     display: flex;
-    gap: 50px;
-    margin-top: 15px;
-    margin-bottom: 40px;
-    .circle {
-      background-color: #ff6666;
-      border-radius: 100%;
-      width: 85px;
-      height: 85px;
-      margin-left: 65px;
-      margin-right: 30px;
-    }
-    .total-box {
-      align-items: center;
-      background-color: #fff;
-      border-radius: 15px;
-      box-shadow: 2px 2px 5px 1px #c6c6c6;
-      display: flex;
-      height: 137px;
-      width: 337px;
-      :last-child {
-        display: block;
-      }
-      span:nth-of-type(1) {
-        line-height: 1;
-        font-size: 40px;
-        font-weight: 800;
-      }
-    }
-  }
-
-  .review-header {
-    display: flex;
-    // justify-content: space-between;
-    margin-bottom: 10px;
-  }
-
-  .date-filter {
+    flex-direction: column;
+    justify-content: space-between;
     background-color: #fff;
     border-radius: 15px;
-    box-shadow: 2px 2px 5px 1px #c6c6c6;
-    display: flex;
-    align-items: center;
-    justify-content: space-around;
-    width: 295px;
-    height: 75px;
-    padding: 15px 15px;
-    div {
-      span {
-        display: block;
-        margin-right: 10px;
-        line-height: 1.5;
-      }
-    }
-    img:last-child {
-      width: 24px;
-      height: 24px;
-    }
-  }
-  // 리뷰 카드 여백조절
-  .review-box-wrap {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    padding-top: 15px;
-    gap: 25px;
-    // 리뷰 카드
-    .review-box {
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-      background-color: #fff;
-      border-radius: 15px;
-      padding: 30px 40px;
-      font-size: 14px;
-      width: 100%;
-      max-width: 470px;
-      .profile {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        margin-bottom: 2px;
-
-        .profile-circle {
-          background-color: #a3a3a3;
-          border-radius: 100%;
-          width: 48px;
-          height: 48px;
-        }
-        .profile-username {
-          margin-right: 45px;
-        }
-        .profile-circle img {
-          width: 100%;
-          height: 100%;
-          object-fit: cover;
-          border-radius: 50%;
-        }
-        div:nth-of-type(2) {
-          margin-left: 20px;
-        }
-        div:nth-of-type(2) > span {
-          display: block;
-          align-items: center;
-        }
-        span:nth-of-type(1) {
-          font-size: 24px;
-        }
-        span:nth-of-type(2) {
-          font-size: 15px;
-          color: #a3a3a3;
-        }
-      }
-
-      .comment-wrap {
-        div {
-          display: flex;
-          span {
-            margin-right: 20px;
-          }
-        }
-        span {
-          font-weight: 700;
-          color: #ff6666;
-        }
-      }
-      p {
-        font-size: 14px;
-        color: #333;
-        line-height: 1.4;
-        display: -webkit-box;
-        -webkit-line-clamp: 2; // 두 줄로 제한
-        -webkit-box-orient: vertical; // 수직 방향 설정
-        overflow: hidden;
-        text-overflow: ellipsis;
-        word-break: break-word; // 긴 단어도 줄바꿈되게
-        max-width: 100%; // 너비 제한
-      }
-
-      .btn-wrap {
-        display: flex;
-        justify-content: flex-end;
-        margin-top: 20px;
-        width: 100%;
-      }
-      .btn {
-        border-radius: 15px;
-        border: #ff6666 1px solid;
-        color: #ff6666;
-        height: 50px;
-        max-width: 150px;
-        width: 100%;
-      }
-      .btn:hover {
-        background-color: #ff6666;
-        color: #fff;
-      }
-    }
-  }
-
-  .review-score {
-    display: flex;
-    align-items: center; /* 수직 정렬 가운데로 */
-    gap: 8px; /* 별과 숫자 간격 */
-  }
-
-  .star-ratings {
-    position: relative;
-    display: inline-block;
-    width: 120px; /* 너비를 고정하면 퍼센트 연산이 더 정확 */
-    height: 24px;
-  }
-
-  .star-ratings-base,
-  .star-ratings-fill {
-    position: absolute;
-    top: 0;
-    left: 0;
-    display: flex;
+    padding: 30px 40px;
     width: 100%;
-    height: 100%;
-  }
+    min-height: 300px;
+    .review-header{
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 20px;
+    }
+    .profile {
+      display: flex;
 
-  .star-ratings-base {
-    color: #dcdcdc;
-    z-index: 0;
-  }
+      .profile-circle {
+        background-color: #a3a3a3;
+        border-radius: 100%;
+        width: 48px;
+        height: 48px;
+        box-shadow: 5px 5px 20px #ccc;
+      }
+      .profile-circle img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        border-radius: 50%;
+      }
+      .profile-username > span {
+        display: block;
+        align-items: center;
+        padding-left: 15px;
+      }
+      .orderMenu{
+        padding-left: 150px;
+      }
 
-  .star-ratings-fill {
-    color: gold;
-    overflow: hidden;
-    z-index: 1;
-  }
+      .profile-username > span:nth-of-type(2) , .orderMenu > span:nth-of-type(2)  {
+        color: #a3a3a3;
+      }
+    }
 
-  .star-icon {
-    width: 24px;
-    height: 24px;
-    flex-shrink: 0;
+    .comment-wrap {
+      div {
+        display: flex;
+        span {
+          margin-right: 20px;
+        }
+      }
+      span {
+        font-weight: 700;
+        color: #ff6666;
+      }
+    }
+    p {
+      font-size: 14px;
+      color: #333;
+      line-height: 1.4;
+      display: -webkit-box;
+      -webkit-line-clamp: 2; // 두 줄로 제한
+      -webkit-box-orient: vertical; // 수직 방향 설정
+      overflow: hidden;
+      text-overflow: ellipsis;
+      word-break: break-word; // 긴 단어도 줄바꿈되게
+      max-width: 100%; // 너비 제한
+    }
+
+    .btn-wrap {
+      display: flex;
+      justify-content: flex-end;
+      width: 100%;
+    }
+    .btn {
+      border-radius: 15px;
+      border: #ff6666 1px solid;
+      color: #ff6666;
+      height: 50px;
+      max-width: 150px;
+      width: 100%;
+    }
+    .btn:hover {
+      background-color: #ff6666;
+      color: #fff;
+    }
   }
 }
+
+.review-score {
+  display: flex;
+  align-items: center; /* 수직 정렬 가운데로 */
+  gap: 8px; /* 별과 숫자 간격 */
+}
+
+.star-ratings {
+  position: relative;
+  display: inline-block;
+  width: 120px; /* 너비를 고정하면 퍼센트 연산이 더 정확 */
+  height: 24px;
+}
+
+.star-ratings-base,
+.star-ratings-fill {
+  position: absolute;
+  top: 0;
+  left: 0;
+  display: flex;
+  width: 100%;
+  height: 100%;
+}
+
+.star-ratings-base {
+  color: #dcdcdc;
+  z-index: 0;
+}
+
+.star-ratings-fill {
+  color: gold;
+  overflow: hidden;
+  z-index: 1;
+}
+
+.star-icon {
+  width: 24px;
+  height: 24px;
+  flex-shrink: 0;
+}
+
 
 .date-filter {
   position: relative;
