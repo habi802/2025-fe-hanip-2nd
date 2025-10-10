@@ -59,10 +59,14 @@ const reviewSrcList = computed(() => {
 
 //유저 이미지
 const imgSrc = computed(() => {
-  return props.item?.userId !== 'null'
-    ? `${baseUrl.value}/images/user/${props.item.userId}/${props.item.userPic}`
-    : defaultImage;
-
+  const userPic = props.item?.userPic
+  if (userPic?.startsWith('http')) {
+    return userPic.replace('http://', 'https://') 
+  }
+  if (props.item?.userId && userPic) {
+    return `${baseUrl.value}/images/user/${props.item.userId}/${userPic}`
+  }
+  return defaultImage
 })
 
 </script>
@@ -92,11 +96,10 @@ const imgSrc = computed(() => {
     </div>
     <!-- 이미지  -->
     <div class="box-body-img-box">
-      <swiper 
-      v-if="reviewSrcList.length > 0"
-      :slides-per-view="3" :modules="[Navigation, Pagination, Scrollbar, A11y, Autoplay]" :speed="1000"
-        :space-between="10" :resistance="false" :resistance-ratio="0">
-        <swiper-slide v-for="(src, index) in reviewSrcList " :key="index">
+      <swiper v-if="reviewSrcList.length > 0" :slides-per-view="3"
+        :modules="[Navigation, Pagination, Scrollbar, A11y, Autoplay]" :speed="1000" :space-between="10"
+        :resistance="false" :resistance-ratio="0">
+        <swiper-slide v-for="(src, index) in reviewSrcList" :key="index">
           <div class="review-image border">
             <img class="reviewImg" :src="src" @error="e => e.target.src = defaultImage" alt="리뷰 이미지" />
           </div>
@@ -192,8 +195,9 @@ const imgSrc = computed(() => {
   color: #FAC729;
   margin-top: -10px;
 }
-.no-star{
-    font-family: "BMJUA";
+
+.no-star {
+  font-family: "BMJUA";
   font-size: 30px;
   color: #eee;
   margin-top: -10px;
