@@ -1,7 +1,7 @@
 <script setup>
 import { reactive, onMounted, ref } from "vue";
 import { useRouter } from "vue-router";
-import { kakaoLogin, login} from "@/services/userService";
+import { kakaoLogin, login } from "@/services/userService";
 import { getStore } from "@/services/storeService";
 import { useAccountStore, useUserInfo, useOwnerStore } from "@/stores/account";
 import AlertModal from "@/components/modal/AlertModal.vue";
@@ -73,20 +73,20 @@ const submit = async () => {
 
 const kakao = () => {
   const clientId = import.meta.env.VITE_KAKAO_CLIENT_ID;
-  const redirectUri = import.meta.env.VITE_FRONT_REDIRECT_URI; 
+  const redirectUri = import.meta.env.VITE_FRONT_REDIRECT_URI;
   window.location.href = `https://kauth.kakao.com/oauth/authorize?response_type=code&client_id=${clientId}&redirect_uri=${redirectUri}`;
 };
 
-const kakaoLoginready = async() =>{
-      const params = new URLSearchParams(window.location.search);
-      const code = params.get("code");
-            if (code) {
-          const res = await kakaoLogin({code});
-          if(res != null){
-            account.setLoggedIn(true);
-            router.push('/')
-          }
-      }
+const kakaoLoginready = async () => {
+  const params = new URLSearchParams(window.location.search);
+  const code = params.get("code");
+  if (code) {
+    const res = await kakaoLogin({ code });
+    if (res.status === 200) {
+      account.setLoggedIn(true);
+      router.push('/')
+    }
+  }
 }
 
 // 아이디 저장 (저장되긴하는데 마지막 사용자 기준으로 하는건지.. 의문)
@@ -112,46 +112,20 @@ onMounted(() => {
 
         <!-- 회원 구분 -->
         <div class="radio-group">
-          <label id="radio"
-            ><input
-              type="radio"
-              class="circle"
-              name="memberType"
-              value="고객"
-              v-model="state.form.role"
-            />
-            일반</label
-          >
-          <label
-            ><input
-              type="radio"
-              class="circle"
-              name="memberType"
-              value="사장"
-              v-model="state.form.role"
-            />
-            업주</label
-          >
+          <label id="radio"><input type="radio" class="circle" name="memberType" value="고객" v-model="state.form.role" />
+            일반</label>
+          <label><input type="radio" class="circle" name="memberType" value="사장" v-model="state.form.role" />
+            업주</label>
         </div>
 
         <div class="form-floating">
-          <input
-            type="text"
-            id="loginId"
-            placeholder="아이디 (영문, 숫자 4~16자)"
-            v-model="state.form.loginId"
-          />
+          <input type="text" id="loginId" placeholder="아이디 (영문, 숫자 4~16자)" v-model="state.form.loginId" />
           <label for="loginId"></label>
         </div>
 
         <div class="form-floating">
-          <input
-            type="password"
-            id="loginPw"
-            placeholder="비밀번호 (영문, 숫자, 특수문자 혼합 8~16자)"
-            v-model="state.form.loginPw"
-            autocomplete="off"
-          />
+          <input type="password" id="loginPw" placeholder="비밀번호 (영문, 숫자, 특수문자 혼합 8~16자)" v-model="state.form.loginPw"
+            autocomplete="off" />
           <label for="loginPw"></label>
         </div>
 
@@ -176,8 +150,7 @@ onMounted(() => {
 <style scoped lang="scss">
 @font-face {
   font-family: "BMJUA";
-  src: url("https://fastly.jsdelivr.net/gh/projectnoonnu/noonfonts_one@1.0/BMJUA.woff")
-    format("woff");
+  src: url("https://fastly.jsdelivr.net/gh/projectnoonnu/noonfonts_one@1.0/BMJUA.woff") format("woff");
   font-weight: normal;
   font-style: normal;
 }
@@ -185,8 +158,7 @@ onMounted(() => {
 @font-face {
   // 프리텐다드
   font-family: "Pretendard-Regular";
-  src: url("https://fastly.jsdelivr.net/gh/Project-Noonnu/noonfonts_2107@1.1/Pretendard-Regular.woff")
-    format("woff");
+  src: url("https://fastly.jsdelivr.net/gh/Project-Noonnu/noonfonts_2107@1.1/Pretendard-Regular.woff") format("woff");
   font-weight: 400;
   font-style: normal;
 }
@@ -386,6 +358,7 @@ onMounted(() => {
           background-color: #ffe5e5;
         }
       }
+
       .naver-btn {
         background-color: #3fc754;
         color: #fff;
@@ -394,6 +367,7 @@ onMounted(() => {
           background-color: darken(#3fc754, 5%);
         }
       }
+
       .kakao-btn {
         background-color: #ffea00;
         color: #000;
@@ -405,7 +379,8 @@ onMounted(() => {
     }
   }
 }
-.foot{
+
+.foot {
   margin-bottom: 200px;
 }
 </style>
