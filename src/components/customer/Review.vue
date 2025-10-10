@@ -47,6 +47,7 @@ const props = defineProps({
 // const reviewImg = `/pic/menu-profile/${props.item.id}/${props.item?.imagePath}`
 
 const previewImage = ref(defaultImage);
+
 const baseUrl = ref(import.meta.env.VITE_BASE_URL);
 
 
