@@ -83,7 +83,7 @@
 
   .container {
     // 푸터 컨텐츠 래퍼 (가운데 정렬)
-    flex-direction: row-reverse; 
+    flex-direction: row-reverse;
     position: relative;
     display: flex;
     align-items: flex-start;
@@ -185,123 +185,120 @@
   }
 
   @media (max-width: 1480px) {
-  .container {
-    gap: 40px; 
-    padding: 20px 0;
-    justify-content: center;
-    flex-direction: row-reverse;
-  }
+    .container {
+      gap: 40px;
+      padding: 20px 0;
+      justify-content: center;
+      flex-direction: row-reverse;
+    }
 
-  .footer-menus {
-    gap: 20px; /* 메뉴들 간의 간격을 줄입니다 */
-    margin-right: 0; /* 오른쪽 여백 제거 */
-  }
+    .footer-menus {
+      gap: 20px; /* 메뉴들 간의 간격을 줄입니다 */
+      margin-right: 0; /* 오른쪽 여백 제거 */
+    }
 
-  .footer-info {
-    gap: 30px; /* 회사 정보 간격 줄이기 */
-    align-items: flex-start;
-    justify-content: flex-start;
-    margin-right: -30px;
-  }
+    .footer-info {
+      gap: 30px; /* 회사 정보 간격 줄이기 */
+      align-items: flex-start;
+      justify-content: flex-start;
+      margin-right: -30px;
+    }
 
-  .footer-divider {
+    .footer-divider {
       display: none; // 구분선 숨김
     }
 
-  .footer-logo {
-    margin: 0;
-    text-align: center;
-    padding: 0; /* 로고 영역 패딩 제거 */
-  }
+    .footer-logo {
+      margin: 0;
+      text-align: center;
+      padding: 0; /* 로고 영역 패딩 제거 */
+    }
 
-  .footer-column {
-    margin: 0;
-    padding: 0; /* 각 컬럼 내부 여백을 줄입니다 */
-    text-align: left; /* 컬럼 제목 및 항목들 왼쪽 정렬 유지 */
-  }
+    .footer-column {
+      margin: 0;
+      padding: 0; /* 각 컬럼 내부 여백을 줄입니다 */
+      text-align: left; /* 컬럼 제목 및 항목들 왼쪽 정렬 유지 */
+    }
 
-  .company-details {
-    margin-right: 0; /* 회사 정보의 오른쪽 여백 제거 */
-  }
+    .company-details {
+      margin-right: 0; /* 회사 정보의 오른쪽 여백 제거 */
+    }
 
-  .customer-service {
-    margin-right: 0; /* 고객 서비스의 오른쪽 여백 제거 */
-  }
+    .customer-service {
+      margin-right: 0; /* 고객 서비스의 오른쪽 여백 제거 */
+    }
 
-  /* 고객센터 링크의 여백도 줄이기 */
-  .footer-link {
-    margin-top: 0;
-    padding: 0;
-  }
-}
-
-  @media (max-width: 950px) {
-  .container {
-    gap: 40px;
-    flex-direction: row-reverse; 
-    justify-content: center;
-    div {
-      margin-top: -15px;
+    /* 고객센터 링크의 여백도 줄이기 */
+    .footer-link {
+      margin-top: 0;
+      padding: 0;
     }
   }
 
-  .footer-menus {
-    flex-direction: column;
-    gap: 30px;
-    margin-top: -50;
+  @media (max-width: 950px) {
+    .container {
+      gap: 40px;
+      flex-direction: row-reverse;
+      justify-content: center;
+      div {
+        margin-top: -15px;
+      }
+    }
+
+    .footer-menus {
+      flex-direction: column;
+      gap: 30px;
+      margin-top: -50;
+    }
+
+    .footer-info {
+      flex-direction: column;
+      gap: 40px;
+      align-items: flex-start;
+      justify-content: flex-start;
+    }
+
+    .footer-divider {
+      display: none; /* 구분선 숨김 */
+    }
+
+    /* 이미지를 왼쪽으로 배치 */
+    .footer-logo {
+      margin: 0;
+      position: relative;
+      left: 0; /* 왼쪽 정렬 */
+      text-align: left;
+    }
+
+    .footer-column {
+      margin: 0;
+      text-align: left; /* 왼쪽 정렬 */
+    }
+
+    .company-details {
+      margin-right: 0;
+    }
   }
 
-  .footer-info {
-    flex-direction: column;
-    gap: 40px;
-    align-items: flex-start;
-    justify-content: flex-start;
-  }
+  @media (max-width: 480px) {
+    .footer {
+      padding: 1.5rem 0.5rem;
+      font-size: 0.7rem;
+    }
+    div {
+      display: none;
+    }
+    .footer-logo img {
+      height: 100px;
+      display: block; /* 이미지를 보이도록 설정 */
+      margin: 0 auto; /* 이미지 중앙 정렬 */
+    }
 
-  .footer-divider {
-    display: none; /* 구분선 숨김 */
+    .footer-bottom {
+      font-size: 0.7rem;
+      text-align: center; /* 카피라이트 텍스트 중앙 정렬 */
+      margin-left: 0;
+    }
   }
-
-  /* 이미지를 왼쪽으로 배치 */
-  .footer-logo {
-    margin: 0;
-    position: relative;
-    left: 0; /* 왼쪽 정렬 */
-    text-align: left;
-  }
-
-  .footer-column {
-    margin: 0;
-    text-align: left; /* 왼쪽 정렬 */
-  }
-
-  .company-details {
-    margin-right: 0;
-  }
-}
-
-@media (max-width: 480px) {
-  .footer {
-    padding: 1.5rem 0.5rem;
-    font-size: 0.7rem;
-  }
-
-  
-  div {
-    display: none;
-  }
-  .footer-logo img {
-    height: 100px;
-    display: block; /* 이미지를 보이도록 설정 */
-    margin: 0 auto; /* 이미지 중앙 정렬 */
-  }
-
-  .footer-bottom {
-    font-size: 0.7rem;
-    text-align: center; /* 카피라이트 텍스트 중앙 정렬 */
-    margin-left: 0;
-  }
-}
-
 }
 </style>

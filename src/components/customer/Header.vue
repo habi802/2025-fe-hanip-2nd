@@ -71,7 +71,7 @@ onMounted(async () => {
   state.user = res.data.resultData;
   console.log("유저데이터", state.user);
   if (!state.user.address) {
-    const conf = alertResolveModal.value.showModal("주소를 추가해주세요.")
+    const conf = alertResolveModal.value.showModal("주소를 추가하고 기본 주소로 설정해주세요")
     if (conf) {
       router.push("/address")
     }
