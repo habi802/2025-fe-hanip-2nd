@@ -48,7 +48,7 @@ const props = defineProps({
 
 const previewImage = ref(defaultImage);
 
-const baseUrl = ref(import.meta.env.VITE_BASE_URL);
+const baseUrl = ref(import.meta.env.VITE_PIC_URL);
 
 
 const reviewSrcList = computed(() => {
@@ -62,7 +62,7 @@ const reviewSrcList = computed(() => {
 const imgSrc = computed(() => {
   const userPic = props.item?.userPic
   if (userPic?.startsWith('http')) {
-    return userPic.replace('http://', 'https://') 
+    return userPic.replace('http://', 'https://')
   }
   if (props.item?.userId && userPic) {
     return `${baseUrl.value}/images/user/${props.item.userId}/${userPic}`
