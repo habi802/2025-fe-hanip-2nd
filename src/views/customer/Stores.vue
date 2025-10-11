@@ -30,6 +30,7 @@ const state = reactive({
     page: 1,
     size: 8,
   },
+  currentPage: 1
 });
 
 // 가게 조회
@@ -38,6 +39,7 @@ const getStore = async () => {
 
   if (res !== undefined && res.status === 200) {
     state.stores = res.data.resultData;
+    console.log('stores:', state.stores);
   }
 };
 
@@ -99,8 +101,9 @@ const sortStore = (column) => {
 };
 
 // 페이지 이동
-const changePage = (page) => {
-  state.form.page = page;
+const changePage = page => {
+  state.currentPage = page;
+  state.form.page = 1 + state.form.size * (page - 1);
   getStore();
 };
 
@@ -404,7 +407,7 @@ const arrow = () => {
   <b-pagination
     v-if="state.stores[0]?.totalRow > 0"
     align="center"
-    v-model="state.form.page"
+    v-model="state.currentPage"
     :per-page="state.size"
     :total-rows="state.stores[0]?.totalRow"
     @update:model-value="changePage"
