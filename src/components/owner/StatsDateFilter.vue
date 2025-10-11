@@ -96,27 +96,82 @@ onMounted(async () => {
 
 
 
-  // 임시보관용ㅎㅎ;
-  // <div>
-  //   <div class="date-filter">
-  //     <img src="/src/imgs/owner/Icon_조회기간설정.svg" alt="캘린더아이콘" title="캘린더아이콘">
-  //     <div>
-  //         <span style="font-size: 20px;">조회 기간 설정</span>
-  //         <span style="font-size: 13px; color: #838383; font-weight: 200;">2025.07.01 ~ 2025.08.01</span>
-  //     </div>
-  //     <img src="/src/imgs/owner/Icon_목록단추.svg" alt="목록단추" title="달력 열기" style="cursor: pointer;" @click="toggleDatePicker" />
-      
-  //     <!-- 달력 영역 -->
-  //     <div v-if="showDatePicker" class="date-picker-popup">
-  //         <label>
-  //             시작일 <input type="date" v-model="startDate" />
-  //         </label>
-  //         <label>
-  //             종료일 <input type="date" v-model="endDate" />
-  //         </label>
-  //     </div>
-  //   </div>
-  // </div>
+// 임시보관용ㅎㅎ;
+// <div>
+//   <div class="date-filter">
+//     <img src="/src/imgs/owner/Icon_조회기간설정.svg" alt="캘린더아이콘" title="캘린더아이콘">
+//     <div>
+//         <span style="font-size: 20px;">조회 기간 설정</span>
+//         <span style="font-size: 13px; color: #838383; font-weight: 200;">2025.07.01 ~ 2025.08.01</span>
+//     </div>
+//     <img src="/src/imgs/owner/Icon_목록단추.svg" alt="목록단추" title="달력 열기" style="cursor: pointer;" @click="toggleDatePicker" />
+    
+//     <!-- 달력 영역 -->
+//     <div v-if="showDatePicker" class="date-picker-popup">
+//         <label>
+//             시작일 <input type="date" v-model="startDate" />
+//         </label>
+//         <label>
+//             종료일 <input type="date" v-model="endDate" />
+//         </label>
+//     </div>
+//   </div>
+// </div>
+//   .date-filter {
+//   position: relative;
+
+//   .date-picker-popup {
+//     position: absolute;
+//     width: 100%;
+//     top: 93%;
+//     right: 0;
+//     z-index: 10;
+//     background: #fff;
+//     padding: 15px;
+//     margin-top: 8px;
+//     border-radius: 15px;
+//     box-shadow: 2px 2px 5px #ccc;
+//     display: flex;
+//     gap: 10px;
+//     justify-content: center;
+//     width: max-content;
+
+//     label {
+//       display: flex;
+//       flex-direction: column;
+//       font-size: 13px;
+//     }
+
+//     input[type="date"] {
+//       padding: 5px;
+//       border: 1px solid #ccc;
+//       border-radius: 6px;
+//     }
+//   }
+// }
+// .date-filter{
+//   background-color: #fff;
+//   border-radius: 15px;
+//   box-shadow: 2px 2px 5px 1px  #c6c6c6;
+//   display: flex;
+//   align-items: center;
+//   justify-content: space-around;
+//   width: 295px;
+//   height: 75px;
+//   padding: 15px 15px;
+//   div{
+//       span{
+//           display: block;
+//           margin-right: 10px;
+//           line-height: 1.5;
+//       }
+//   }
+//   img:last-child{
+//       width: 24px;
+//       height: 24px;
+//   }
+// }
+
 
 </script>
 
