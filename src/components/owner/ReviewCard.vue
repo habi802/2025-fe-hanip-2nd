@@ -3,6 +3,7 @@ import { computed, ref, reactive, onMounted, inject,watch } from "vue";
 import { useOwnerStore, useUserInfo } from "@/stores/account";
 import defaultUserProfile from "@/imgs/owner/user_profile.jpg";
 import OwnerReviewModal from "../modal/OwnerReviewModal.vue";
+import { postOwnerComment } from "@/services/reviewServices";
 
 //유저정보 가져오기
 const userInfo = useUserInfo();
@@ -63,11 +64,13 @@ const handleClose = () => {
 // 모달에서 submit 처리
 const handleSubmit = async () => {
   if (!selectedReview.value) return;
+
   try {
-    await reviewStore.saveOwnerComment({
-      reviewId: selectedReview.value.id,
-      ownerComment: replyComment.value,
-    });
+    await postOwnerComment(selectedReview.value.id,replyComment.value)
+    // await reviewStore.saveOwnerComment({
+    //   reviewId: selectedReview.value.id,
+    //   ownerComment: replyComment.value,
+    // });
     selectedReview.value.ownerComment = replyComment.value;
     alert("댓글이 등록되었습니다.");
   } catch (e) {
@@ -77,7 +80,6 @@ const handleSubmit = async () => {
 
 const submitReview = async () => {
   if (!selectedReview.value) return;
-
   const payload = {
     reviewId: selectedReview.value.id,
     ownerComment: ownerComment.value,

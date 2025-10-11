@@ -108,7 +108,7 @@ watch(
         <div class="sideNav p-3" style="width: 345px; flex-shrink: 0">
             <div class="text-center mb-5">
                 <img :style="{ width: '220px', }" src="/src/imgs/haniplogo3.png" alt="logo" />
-                <div style="font-size: 40px; font-weight: 100; font-family: Pretendard, serif;">
+                <div class = "store-name">
                     {{ owner.state.storeData.name }}
                 </div>
                 <!-- 유저정보 -->
@@ -198,7 +198,14 @@ watch(
     width: 100%;
     height: 100%; // 부모 높이 꽉 차게
 }
-
+.store-name{
+    font-size: 40px;
+    font-weight: 100;
+    font-family: Pretendard, serif;
+    width: 310px;
+    word-break: keep-all;
+    overflow-wrap: break-word;
+}
 .icon {
     width: 60px;
     height: 50px;
