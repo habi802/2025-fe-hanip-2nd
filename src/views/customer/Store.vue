@@ -122,6 +122,21 @@ const loadReviews = async (id, isInitial = false) => {
   });
 
   state.store.revieLeng = revieLeng.data.resultData.length
+  store.reviewAll = revieLeng.data.resultData;
+    const today = new Date();
+  const todayString = today.toLocaleDateString("sv-SE");
+
+  // 오늘 작성한 리뷰 개수 계산
+  const todayReviewCount = store.reviewAll.filter(r => {
+    const reviewDate = r.createdAt.split(' ')[0];
+    return reviewDate === todayString;
+  }).length;
+  store.todayReviewCount = todayReviewCount;
+
+  console.log(store.todayReviewCount, "오늘리뷰수")
+  console.log(state.store.revieLeng, "리뷰수")
+
+
   const res = await getReviewsByStoreId(id, {
     rowPerPage: reviewsPerPage.value,
     page: currentPage.value,
@@ -221,7 +236,8 @@ const store = reactive({
   closeTime: null,
   ownerComment: [],
   todayReviewCount: 0,
-  myFavorite: 0
+  myFavorite: 0,
+  reviewAll:[]
 })
 
 // 가게 정보 조회
@@ -264,16 +280,6 @@ const getStoreInfo = async (id) => {
 
   const ownerCommentList = await getOwnerCommentList(id);
   store.ownerComment = ownerCommentList.data.resultData;
-
-  const today = new Date();
-  const todayString = today.toLocaleDateString("sv-SE");
-
-  // 오늘 작성한 리뷰 개수 계산
-  const todayReviewCount = state.reviews.filter(r => {
-    const reviewDate = r.createdAt.split(' ')[0];
-    return reviewDate === todayString;
-  }).length;
-  store.todayReviewCount = todayReviewCount;
 }
 
 
@@ -521,7 +527,7 @@ watch(sortedMenus, (newVal) => {
                           <span>
                             총 리뷰 수
                           </span>
-                          <span class="count-num"> {{ state.reviews.length }}개</span>
+                          <span class="count-num"> {{ state.store.revieLeng ?? 0 }}개</span>
                         </div>
                         <!-- 하드코딩 -->
                         <div>
