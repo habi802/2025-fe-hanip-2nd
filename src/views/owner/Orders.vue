@@ -39,18 +39,18 @@ const removeAlert = (id) => {
 };
 
 onMounted(async () => {
-  data.store_id = storeId;
-  fetchOrders(storeId);
+  await fetchOrders();
 });
 
 const fetchOrders = async () => {
+  console.log("storeId: ", data.store_id);
   const res = await getOrderByDate(data);
   if (res.status !== 200) {
     showAlert("데이터 조회에 실패하였습니다.");
     return;
   }
   orderStore.orders = res.data.resultData;
-  console.log("데이타: ", res.data.resultData)
+  console.log("데이타: ", res.data.resultData);
 };
 
 // 페이징
@@ -109,7 +109,7 @@ const formatDate = (date) => {
 };
 
 const data = reactive({
-  store_id: "",
+  store_id: storeId,
   start_date: null,
   end_date: null,
   page: 1,
@@ -127,7 +127,7 @@ const handleSearch = async () => {
 const selectRange = async (range) => {
   let start;
   let end = new Date(); // 오늘 날짜
-  
+
   switch (range) {
     case "1d":
       selectedLabel.value = "오늘";
@@ -160,7 +160,7 @@ const selectRange = async (range) => {
   data.start_date = start ? formatDate(start) : null;
   data.end_date = end ? formatDate(end) : null;
 
-  console.log("Data: ",data)
+  console.log("Data: ", data);
   const res = await getOrderByDate(data);
   console.log("res.data.resultData: ", res.data.resultData);
   if (res.status !== 200) {
@@ -274,15 +274,17 @@ const selectRange = async (range) => {
         <!-- 주문 리스트 -->
         <div v-if="orderStore.isLoading" class="loading"></div>
         <div
-        class="empty-text mt-5 text-center d-flex flex-column"
-        style="min-height: 260px"
-        v-else-if="orderStore.orders.length === 0">
-          <img 
-          src="@/imgs/owner/owner-service7.png" 
-          alt="빈 상태 이미지" 
-          class="empty-img"/>
+          class="empty-text mt-5 text-center d-flex flex-column"
+          style="min-height: 260px"
+          v-else-if="orderStore.orders.length === 0"
+        >
+          <img
+            src="@/imgs/owner/owner-service7.png"
+            alt="빈 상태 이미지"
+            class="empty-img"
+          />
           <br />
-          <div> 주문이 없습니다. </div>
+          <div>주문이 없습니다.</div>
         </div>
 
         <!-- 주문 없음 -->
@@ -555,9 +557,9 @@ const selectRange = async (range) => {
   opacity: 0.6;
 }
 
-.empty-text { 
-  font-size: 20px;   
-  font-weight: 500; 
-  color: #9c9c9c;    
+.empty-text {
+  font-size: 20px;
+  font-weight: 500;
+  color: #9c9c9c;
 }
 </style>
