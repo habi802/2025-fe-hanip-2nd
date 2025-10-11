@@ -63,3 +63,9 @@ export const getReviewOne = (orderId) => {
 export const getOwnerCommentList = (storeId)=>{
   return axios.get(`${path}/owner/comment/${storeId}`).catch((e)=> e.response);
 }
+
+
+//사장 답글 입력
+export const postOwnerComment = (reviewId,ownerComment) =>{
+  axios.post(`${path}/store-owner-review/${reviewId}`, { ownerComment: ownerComment}).catch((e)=>e.response);
+}
