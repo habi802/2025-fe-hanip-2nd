@@ -63,6 +63,12 @@ const { userAddr } = storeToRefs(userInfo);
 
 // 유저 정보 불러오기 비동기 실행
 onMounted(async () => {
+  window.addEventListener("address-changed", async () => {
+    const res = await getUser();
+    state.user = res.data.resultData;
+
+
+  })
   if (account.state.loggedIn) {
     userInfo.fetchStore();
   }
