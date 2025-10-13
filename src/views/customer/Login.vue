@@ -1,7 +1,7 @@
 <script setup>
 import { reactive, onMounted, ref } from "vue";
 import { useRouter } from "vue-router";
-import { kakaoLogin, login } from "@/services/userService";
+import { kakaoLogin, login, naverLogin, naverGetToken } from "@/services/userService";
 import { getStore } from "@/services/storeService";
 import { useAccountStore, useUserInfo, useOwnerStore } from "@/stores/account";
 import AlertModal from "@/components/modal/AlertModal.vue";
@@ -89,6 +89,34 @@ const kakaoLoginready = async () => {
   }
 }
 
+const naver = () => {
+  const state = import.meta.env.VITE_STATE;
+  const encodedState = encodeURIComponent(state);
+  const clientId = import.meta.env.VITE_NAVER_CLIENT_ID;
+  const reU = import.meta.env.VITE_REDIRECT_URI;
+
+  window.location.href = `https://nid.naver.com/oauth2.0/authorize?response_type=code&client_id=${clientId}&state=${encodedState}&redirect_uri=${reU}`;
+}
+
+const naverToken = async () => {
+  const params = new URLSearchParams(window.location.search);
+  const code = params.get("code");
+  const state = params.get("state");
+
+  if (code != null && state != null) {
+    const res = await naverLogin({ code, state });
+    if (res.status === 200) {
+      const token = res.data.resultData.access_token;
+      const info = await naverGetToken({ token });
+      if (info.status === 200) {
+        account.setLoggedIn(true);
+        router.push('/')
+      }
+    }
+  }
+
+}
+
 // 아이디 저장 (저장되긴하는데 마지막 사용자 기준으로 하는건지.. 의문)
 onMounted(() => {
   const savedId = localStorage.getItem("savedLoginId");
@@ -97,6 +125,7 @@ onMounted(() => {
     state.saveId = true;
   }
   kakaoLoginready();
+  naverToken();
 });
 </script>
 
@@ -137,7 +166,7 @@ onMounted(() => {
         </div>
 
         <button type="submit" class="btn login-btn">로그인</button>
-        <!-- <button type="submit" class="btn naver-btn">네이버 로그인</button> -->
+        <div class="btn naver-btn" @click="naver">네이버 로그인</div>
         <div class="btn kakao-btn" @click="kakao">카카오 로그인</div>
         <div class="foot"></div>
       </form>
