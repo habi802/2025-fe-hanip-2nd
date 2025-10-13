@@ -34,13 +34,7 @@ const randomThreeStores = computed(() => {
   return shuffle(state.random).slice(0, 12);
 });
 onMounted(async () => {
-  // for (let i = 0; i < store.length; i++) {
-  //   const res = await getStoreList(store[i]);
-  //   state.form.push(...res.data.resultData);
-  // }
-  // console.log("res: ", state.form);
   randomList();
-  // console.log(state.random);
 });
 </script>
 1:55

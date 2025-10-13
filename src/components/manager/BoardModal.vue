@@ -1,5 +1,7 @@
 <script setup>
 import { computed, defineExpose, ref } from 'vue';
+import defaultImage from "@/imgs/owner/owner-service2.png";
+import bannerDefaultImage from "@/imgs/owner/owner-service5.png";
 
 const props = defineProps({
     title: String,
@@ -31,10 +33,19 @@ const setItemStatus = (id, status, newStatus) => {
         emit('set-item-status', { id, isHide: status, newIsHide: newStatus });
     }
 };
+
+const baseUrl = import.meta.env.VITE_BASE_URL;
+
+// 이미지 표시
+const showImage = (title, id, image) => {
+    return image !== undefined && image !== null && image !== ''
+        ? `${baseUrl}/images/${title}/${id}/${image}`
+        : defaultImage;
+};
 </script>
 
 <template>
-    <b-modal v-model="show" :title="`${props.title === 'store' ? '가게' : (props.title === 'order' ? '주문' : '리뷰')} 정보`" size="lg" hide-footer centered>
+    <b-modal v-model="show" :title="`${props.title === 'store' ? '가게' : (props.title === 'order' ? '주문' : '리뷰')} 정보`" size="lg" hide-footer centered scrollable @shown="onModalShown">
         <b-card class="border-0" body-class="pt-0">
             <!-- 가게 상세 조회 -->
             <template v-if="props.title === 'store'">
@@ -53,15 +64,49 @@ const setItemStatus = (id, status, newStatus) => {
                     <b-col cols="9">{{ isExistItem ? props.item.businessNumber : '' }}</b-col>
                 </b-row>
                 <b-row>
+                    <b-col cols="3"><strong>소재지</strong></b-col>
+                    <b-col cols="9">{{ isExistItem ? props.item.address : '' }}</b-col>
+                </b-row>
+                <b-row>
                     <b-col cols="3"><strong>카테고리</strong></b-col>
                     <b-col cols="9">{{ isExistItem ? props.item.categories.join(', ') : '' }}</b-col>
                 </b-row>
 
                 <b-row>
-                    <b-col cols="12"><strong>가게 이미지</strong></b-col>
+                    <b-col cols="6"><strong>가게 이미지</strong></b-col>
+                    <b-col cols="6"><strong>사업자 등록증</strong></b-col>
                 </b-row>
                 <b-row>
-                    <b-col cols="12" class="content">{{ isExistItem ? '가게 이미지' : '' }}</b-col>
+                    <b-col cols="6" class="content">
+                        <template v-if="isExistItem">
+                            <div class="d-flex justify-content-center align-items-center">
+                                <img :src="showImage('store', props.item.storeId, props.item.imagePath)" @error="e => e.target.src = defaultImage"
+                                    class="image" :alt="`${props.item.name}의 가게 이미지`" />
+                            </div>
+                        </template>
+                    </b-col>
+                    <b-col cols="6" class="content">
+                        <template v-if="isExistItem">
+                            <div class="d-flex justify-content-center align-items-center">
+                                <img :src="showImage('user', props.item.userId, props.item.licensePath)" @error="e => e.target.src = defaultImage"
+                                    class="image" :alt="`${props.item.name}의 사업자 등록증 이미지`" />
+                            </div>
+                        </template>
+                    </b-col>
+                </b-row>
+
+                <b-row>
+                    <b-col cols="12"><strong>가게 배너 이미지</strong></b-col>
+                </b-row>
+                <b-row>
+                    <b-col cols="12" class="content">
+                        <template v-if="isExistItem">
+                            <div class="d-flex justify-content-center align-items-center">
+                                <img :src="showImage('store', props.item.storeId, props.item.bannerPath)" @error="e => e.target.src = bannerDefaultImage"
+                                    class="banner-image" :alt="`${props.item.name}의 가게 배너 이미지`" />
+                            </div>
+                        </template>
+                    </b-col>
                 </b-row>
 
                 <b-row>
@@ -94,14 +139,18 @@ const setItemStatus = (id, status, newStatus) => {
                 </b-row>
                 <b-row>
                     <b-col cols="3"><strong>배달료</strong></b-col>
-                    <b-col cols="9">{{ isExistItem ? `${props.item.minDeliveryFee.toLocaleString()} ~ ${props.item.maxDeliveryFee.toLocaleString()}원` : '' }}</b-col>
+                    <b-col cols="9">{{ isExistItem
+                        ? ((props.item.minDeliveryFee === undefined || props.item.minDeliveryFee === 0) && (props.item.maxDeliveryFee === undefined || props.item.maxDeliveryFee === 0) ? '0원' : `${props.item.minDeliveryFee.toLocaleString()} ~ ${props.item.maxDeliveryFee.toLocaleString()}원`)
+                        : '' }}</b-col>
                 </b-row>
 
                 <b-row>
                     <b-col cols="12"><strong>메뉴</strong></b-col>
                 </b-row>
                 <b-row>
-                    <b-col cols="12" class="content">{{ isExistItem ? '가게 메뉴' : '' }}</b-col>
+                    <b-col cols="12" class="content">
+
+                    </b-col>
                 </b-row>
 
                 <b-row>
@@ -136,7 +185,9 @@ const setItemStatus = (id, status, newStatus) => {
                     <b-col cols="12"><strong>메뉴</strong></b-col>
                 </b-row>
                 <b-row>
-                    <b-col cols="12" class="content">{{ isExistItem ? '주문 메뉴' : '' }}</b-col>
+                    <b-col cols="12" class="content">
+
+                    </b-col>
                 </b-row>
 
                 <b-row>
@@ -181,7 +232,9 @@ const setItemStatus = (id, status, newStatus) => {
                     <b-col cols="12"><strong>이미지</strong></b-col>
                 </b-row>
                 <b-row>
-                    <b-col cols="12" class="content">{{ isExistItem ? '리뷰 이미지' : '' }}</b-col>
+                    <b-col cols="12" class="content">
+
+                    </b-col>
                 </b-row>
 
                 <b-row>
@@ -228,6 +281,14 @@ const setItemStatus = (id, status, newStatus) => {
 
 .content {
     min-height: 180px;
+
+    .image {
+        width: 80%;
+    }
+
+    .banner-image {
+        width: 50%;
+    }
 }
 
 /* 결제 수단 스타일 */

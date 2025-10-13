@@ -86,13 +86,15 @@ const getPayment = computed(() => {
                                             <span class="item-name">{{ menu.name }}</span>
                                         </div>
                                         <span>{{ menu.quantity }}개</span>
-                                        <span class="item-price">{{ (menu.price * menu.quantity).toLocaleString() }}원</span>
+                                        <span class="item-price">{{ (menu.price * menu.quantity).toLocaleString()
+                                            }}원</span>
                                     </div>
                                 </div>
                                 <template v-if="menu.options">
                                     <div v-for="option in menu.options" :key="option.optionId">
                                         <template v-if="option.children">
-                                            <div class="item-option" v-if="option.children" v-for="(child, idx) in option.children" :key="child.optionId">
+                                            <div class="item-option" v-if="option.children"
+                                                v-for="(child, idx) in option.children" :key="child.optionId">
                                                 <div class="item-option-comment">
                                                     <span v-if="idx === 0">{{ option.comment }}</span>
                                                 </div>
@@ -107,7 +109,7 @@ const getPayment = computed(() => {
                                     </div>
                                 </template>
                             </div>
-                            
+
                             <!-- <div class="text-delivery">
                                 <span>배달료</span>
                                 <span>2,000원</span>
@@ -126,15 +128,16 @@ const getPayment = computed(() => {
                 <h4 class="mb-3">주문 처리 현황</h4>
                 <div class="border rounded p-5">
                     <div class="d-flex justify-content-between mb-2">
-                        <div class="flex-fill">결제준비</div>
-                        <div class="flex-fill">결제완료</div>
-                        <div class="flex-fill">음식준비중</div>
-                        <div class="flex-fill">배달중</div>
-                        <div class="flex-fill">배달완료</div>
+                        <div>결제준비</div>
+                        <div>결제완료</div>
+                        <div>음식준비중</div>
+                        <div>배달중</div>
+                        <div>배달완료</div>
                     </div>
                     <div class="progress" style="height: 8px">
                         <div class="progress-bar" role="progressbar" :style="status"></div>
-                        <div class="progress-bar" role="progressbar" style="width: 100%; background-color: #FFEADD"></div>
+                        <div class="progress-bar" role="progressbar" style="width: 100%; background-color: #FFEADD">
+                        </div>
                     </div>
                 </div>
             </div>
@@ -151,7 +154,7 @@ const getPayment = computed(() => {
                 <div class="border rounded p-5">
                     <div class="row mb-3">
                         <div class="col-3 text-muted">결제일시</div>
-                        <div class="col">{{ state.order.payment !== 'NONE' ? '2025년 9월 21일 19:34:00' : '-' }}</div>
+                        <div class="col">{{ state.order.createdAt }}</div>
                     </div>
                     <div class="row mb-3">
                         <div class="col-3 text-muted">결제 수단</div>
@@ -159,7 +162,9 @@ const getPayment = computed(() => {
                     </div>
                     <div class="row">
                         <div class="col-3 text-muted">결제 금액</div>
-                        <div class="col">{{ state.order.payment !== 'NONE' ? state.order.amount?.toLocaleString() + '원' : '-' }}</div>
+                        <div class="col">{{ state.order.payment !== 'NONE' ? state.order.amount?.toLocaleString() + '원'
+                            : '-' }}
+                        </div>
                     </div>
                 </div>
             </div>

@@ -134,11 +134,7 @@ const toStore = (id) => {
           <div class="all" v-for="store in visibleCards" :key="store.storeId">
             <div id="imgBigBox" class="card h-100 shadow-sm">
               <div id="imgBox" class="card-img-top">
-                <img
-                  class="sImg"
-                  :src="getImgSrc(store)"
-                  @error="(e) => (e.target.src = defaultImage)"
-                />
+                <img class="sImg" :src="getImgSrc(store)" @error="(e) => (e.target.src = defaultImage)" />
               </div>
               <div class="card-body">
                 <h6 class="card-title">{{ store.name }}</h6>
@@ -148,7 +144,7 @@ const toStore = (id) => {
                     <span class="small-text">
                       {{ store.rating }}
                     </span>
-                    <span class="love" @click="toggleFavorite(store)">♥</span>
+                    <span class="love">♥</span>
                     <span class="small-text">
                       {{ store.favorites }}
                     </span>
@@ -157,19 +153,14 @@ const toStore = (id) => {
                 <div v-else>
                   <img class="star" :src="ratingImage" />
                   <span class="small">
-                    <span class="love" @click="toggleFavorite(store)">♥</span>
+                    <span class="love">♥</span>
                     {{ store.favorites }}
                   </span>
                 </div>
                 <p class="mb-1 text-muted small">배달비 0원 ~ 3000원</p>
                 <p class="mb-2 text-muted small">최소 주문 금액 10,000원</p>
-                <div
-                  class="d-flex justify-content-center align-items-center btn-box"
-                >
-                  <button
-                    @click="toStore(store.storeId)"
-                    class="btn btn-outline-danger btn-sm"
-                  >
+                <div class="d-flex justify-content-center align-items-center btn-box">
+                  <button @click="toStore(store.storeId)" class="btn btn-outline-danger btn-sm">
                     자세히보기
                   </button>
                 </div>
@@ -179,11 +170,7 @@ const toStore = (id) => {
         </div>
 
         <div class="btnBox" v-if="state.favorites.length > 0">
-          <div
-            id="btnB"
-            v-if="visibleCount < state.favorites.length"
-            @click="showMore"
-          >
+          <div id="btnB" v-if="visibleCount < state.favorites.length" @click="showMore">
             더보기
           </div>
         </div>
@@ -200,14 +187,8 @@ const toStore = (id) => {
   <img @click="arrow" class="arrow" src="/src/imgs/arrow.png" />
 
   <!-- 조회 실패 -->
-  <div
-    class="modal fade"
-    id="favorite-error"
-    tabindex="-1"
-    role="dialog"
-    aria-labelledby="exampleModalLabel"
-    aria-hidden="true"
-  >
+  <div class="modal fade" id="favorite-error" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+    aria-hidden="true">
     <div class="modal-dialog" role="document">
       <div class="modal-content">
         <div class="modal-header">
@@ -222,14 +203,7 @@ const toStore = (id) => {
   </div>
 
   <!-- 찜 실패 -->
-  <div
-    class="modal fade"
-    id="faiF"
-    tabindex="-1"
-    role="dialog"
-    aria-labelledby="exampleModalLabel"
-    aria-hidden="true"
-  >
+  <div class="modal fade" id="faiF" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
     <div class="modal-dialog" role="document">
       <div class="modal-content">
         <div class="modal-header">
@@ -247,16 +221,14 @@ const toStore = (id) => {
 <style lang="scss" scoped>
 @font-face {
   font-family: "BMJUA";
-  src: url("https://fastly.jsdelivr.net/gh/projectnoonnu/noonfonts_one@1.0/BMJUA.woff")
-    format("woff");
+  src: url("https://fastly.jsdelivr.net/gh/projectnoonnu/noonfonts_one@1.0/BMJUA.woff") format("woff");
   font-weight: 600;
   font-style: normal;
 }
 
 @font-face {
   font-family: "YFavorite";
-  src: url("https://cdn.jsdelivr.net/gh/projectnoonnu/2410-1@1.0/YOnepickTTF-Regular.woff2")
-    format("woff2");
+  src: url("https://cdn.jsdelivr.net/gh/projectnoonnu/2410-1@1.0/YOnepickTTF-Regular.woff2") format("woff2");
   font-weight: 400;
   font-display: swap;
 }
@@ -292,6 +264,7 @@ const toStore = (id) => {
   display: flex;
   justify-content: center;
 }
+
 .for {
   width: 78%;
   display: flex;
@@ -365,7 +338,6 @@ const toStore = (id) => {
   color: red;
   width: 20px;
   margin-bottom: 2px;
-  cursor: pointer;
 }
 
 .btnBox {
@@ -398,6 +370,7 @@ const toStore = (id) => {
     opacity: 80%;
   }
 }
+
 .text-no {
   text-align: center;
   font-size: 23px;
