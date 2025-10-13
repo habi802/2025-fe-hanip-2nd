@@ -1,5 +1,5 @@
 <script setup>
-import { reactive, ref } from 'vue';
+import { reactive, ref, watch, onMounted } from 'vue';
 import { useOwnerStore } from '@/stores/account';
 import { modify } from '@/services/storeService';
 import StoreStatusStaticInfo from '@/components/owner/StoreStatusStaticInfo.vue';
@@ -57,6 +57,11 @@ const selected = ref('control');
 
 // 가게 정보 저장
 const updateStore = async () => {
+  const cats = state.form.static.categories;
+  if(!cats || cats.length === 0) {
+    showAlert("최소 하나의 카테고리는 선택하셔야 합니다.",)
+    return;
+  }
     console.log("state.form", state.form);
 
     const formData = new FormData();
@@ -85,10 +90,39 @@ const updateStore = async () => {
 
     const res = await modify(formData);
     if (res !== undefined && res.status === 200) {
-        showAlert("정상적으로 수정되었습니다.", "alert-success")
-        console.log('수정 완료');
+      console.log("data: ", owner.state.storeData)
+      showAlert("정상적으로 수정되었습니다.", "alert-success")
+      console.log('수정 완료');
     }
 };
+
+const hydrateFormFromStore = () => {
+  const data = owner.state.storeData ?? {};
+  state.form.dynamic = data
+
+  const [t1='', t2='', t3=''] = (data.tel ?? '').split('-');
+  state.form.static = {
+    tel1: t1,
+    tel2: t2,
+    tel3: t3,
+    imagePath: data.imagePath,
+    bannerPath: data.bannerPath,
+    comment: data.comment,
+    categories: data.categories ?? data.storeCategory,
+  };
+}
+
+watch(
+  () => owner.state.storeData,
+  () => hydrateFormFromStore(),
+  { immediate: true } // deep 제거
+);
+
+watch(selected, (val) => {
+  if (val === 'basic') {
+    hydrateFormFromStore();
+  }
+});
 </script>
 
 <template>
@@ -130,8 +164,8 @@ const updateStore = async () => {
         </div>
 
         <div class="white-card">
-            <StoreStatusControl v-if="selected === 'control'" :form="state.form.dynamic" @update-form="val => state.form.dynamic = val" />
-            <StoreStatusStaticInfo v-if="selected === 'basic'"  :is-active="owner.state.storeData.isActive" :form="state.form.static" @update-form="val => state.form.static = val" />
+            <StoreStatusControl v-if="selected === 'control'" :form="state.form.dynamic" @update-form="val => Object.assign(state.form.dynamic, val)" />
+            <StoreStatusStaticInfo v-if="selected === 'basic'"  :is-active="owner.state.storeData.isActive" :form="state.form.static" @update-form="val => Object.assign(state.form.static, val)" />
             <div class="btn-wrap">
                 <span>** 가게 정보 수정 시 내용을 꼭 확인해주세요.** </span>
                 <div class="button-row">
