@@ -154,7 +154,7 @@ const getPayment = computed(() => {
                 <div class="border rounded p-5">
                     <div class="row mb-3">
                         <div class="col-3 text-muted">결제일시</div>
-                        <div class="col">{{ state.order.payment !== 'NONE' ? '2025년 9월 21일 19:34:00' : '-' }}</div>
+                        <div class="col">{{ state.order.createdAt }}</div>
                     </div>
                     <div class="row mb-3">
                         <div class="col-3 text-muted">결제 수단</div>
