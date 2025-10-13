@@ -4,13 +4,20 @@ import '@/assets/manager/manager.css'
 import StatsCard from '@/components/manager/StatsCard.vue';
 import ChartCard from '@/components/manager/ChartCard.vue';
 import DashboardCard from '@/components/manager/DashboardCard.vue';
-import { computed, onMounted, onUnmounted, ref } from 'vue';
-import { getTodayActorStats, getTodayActionStats } from '@/services/managerService';
+import { onMounted, onUnmounted, reactive, ref } from 'vue';
+import { getTodayActorStats, getTodayActionStats, getUserStats, getStoreStats, getOrderStats, getAmountStats } from '@/services/managerService';
 
 const todayUsers = ref(0);
 const todayStores = ref(0);
 const todayOrders = ref(0);
 const todayAmount = ref(0);
+
+const state = reactive({
+    chartData: {
+        label: ['2025-01', '2025-02', '2025-03'],
+        data: [0, 0, 0],
+    },
+});
 
 // 각종 통계 조회
 const getStats = async () => {
@@ -25,33 +32,41 @@ const getStats = async () => {
         todayOrders.value = actionRes.data.resultData[0];
         todayAmount.value = actionRes.data.resultData[1];
     }
+
+    getMonthStats();
+};
+
+// 월별 차트 조회
+const getMonthStats = async () => {
+    const today = new Date();
+    let res;
+
+    switch (selectedChartOption.value) {
+        case '월별 가입자 수':
+            res = await getUserStats({ type: 'MONTH', date: today.toISOString().slice(0, 7) });
+            break;
+        case '월별 가게 등록 수':
+            res = await getStoreStats({ type: 'MONTH', date: today.toISOString().slice(0, 7) });
+            break;
+        case '월별 주문 건 수':
+            res = await getOrderStats({ type: 'MONTH', date: today.toISOString().slice(0, 7) });
+            break;
+        case '월별 매출액':
+            res = await getAmountStats({ type: 'MONTH', date: today.toISOString().slice(0, 7) });
+            break;
+    }
+
+    if (res !== undefined && res.status === 200) {
+        res.data.resultData.forEach((data, idx) => {
+            state.chartData.label[idx] = data.period;
+            state.chartData.data[idx] = data.total || data.totalAmount;
+        });
+    }
 };
 
 // 월별 차트 select 관련 변수
-const chartOptions = ['월별 가입자 수', '월별 가게 등록 수', '월별 고객 문의 수'];
+const chartOptions = ['월별 가입자 수', '월별 가게 등록 수', '월별 주문 건 수', '월별 매출액'];
 const selectedChartOption = ref(chartOptions[0]);
-
-// 차트에 들어갈 값 전달을 위해 임의로 만든 객체
-const chartData = [
-    {
-        label: ['2025년 6월', '2025년 7월', '2025년 8월'],
-        data: [47, 98, 250],
-    },
-    {
-        label: ['2025년 6월', '2025년 7월', '2025년 8월'],
-        data: [32, 63, 194],
-    },
-    {
-        label: ['2025년 6월', '2025년 7월', '2025년 8월'],
-        data: [78, 185, 302],
-    },
-];
-
-// select 값에 따라 현재 차트 데이터 계산
-const currentChartData = computed(() => {
-    const index = chartOptions.indexOf(selectedChartOption.value);
-    return chartData[index];
-});
 
 // 가게 관리, 고객 문의 테이블에 들어갈 값 전달을 위해 임의로 만든 객체
 const stores = {
@@ -120,12 +135,12 @@ onUnmounted(() => {
             <b-col cols="12" class="chart">
                 <b-row>
                     <b-col cols="12" class="text-end mb-3">
-                        <b-form-select size="sm" class="w-auto d-inline-block" :options="chartOptions" v-model="selectedChartOption"></b-form-select>
+                        <b-form-select size="sm" class="w-auto d-inline-block" :options="chartOptions" v-model="selectedChartOption" @update:model-value="getMonthStats"></b-form-select>
                     </b-col>
 
                     <b-col cols="12" class="text-end mb-3">
                         <div class="card" style="height: 375px;">
-                            <ChartCard :title="selectedChartOption" :chart-data="currentChartData" />
+                            <ChartCard :title="selectedChartOption" :chart-data="state.chartData" />
                         </div>
                     </b-col>
                 </b-row>
