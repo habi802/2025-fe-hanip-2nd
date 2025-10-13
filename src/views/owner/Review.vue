@@ -4,7 +4,9 @@ import { useOwnerStore, useUserInfo } from '@/stores/account'
 import { useReviewStore } from '@/stores/review';
 import defaultUserProfile from "@/imgs/owner/user_profile.jpg"
 import ReviewCard from '@/components/owner/ReviewCard.vue';
-import { getReviewsByStoreId } from '@/services/reviewServices';
+import { getReviewsByStoreId  } from '@/services/reviewServices.js';
+import { getReviewsAllByStoreId2 } from '@/services/reviewServices.js';
+import ReviewDateFilter from '@/components/owner/ReviewDateFilter.vue';
 
 //가게정보가져오기 
 const ownerStore = useOwnerStore();
@@ -15,54 +17,43 @@ const params = reactive({
 })
 
 const reviews = ref([])
+const allReview = ref([])
 const fetchReviews = async () => {
-    try {
+    try {        
+        const allReviewRes = await getReviewsAllByStoreId2(ownerStore.state.storeId);
+        allReview.value = allReviewRes.data.resultData
+        console.log("전체리뷰", allReview)
+        
         const prams = { rowPerPage: 300, page: 1, };
         const response = await getReviewsByStoreId(ownerStore.state.storeId, params);
-        // const ScoreResponse = await getReviewScoreByStoreId(ownerStore.state.storeId, prams )
         reviews.value = response.data.resultData;
         console.log("통신결과:", reviews.value);
-        //console.log("별점결과 :", ScoreResponse);
+
     } catch (error) {
         console.error("리뷰 조회 에러:", error);
     }
 };
 
 //페이지네이션 total-lows 
-const row = 100; //TODO: 추후 be에서 전체리뷰개수 불러오기
+const row = computed(()=> allReview.value.length || 1 ) ;
 
 // 감시: 페이지네이션 값 변경 시 be자료호출
 watch(() => [params.page, params.rowPerPage], fetchReviews, { immediate: true });
 
 
-onMounted(async () => {
-
-    if (storeId.value) {
-    // 리뷰 데이터를 가져오는 메서드 호출
-    await reviewStore.fetchReviews(storeId.value);
-    console.log("리뷰 데이터 구조:", reviewStore.reviews);
-    } else {
-    console.error('스토어 아이디가 없습니다.');
-    }
-
-});
+// onMounted(async () => {
+//     if (storeId.value) {
+//     // 리뷰 데이터를 가져오는 메서드 호출
+//     await reviewStore.fetchReviews(storeId.value);
+//     console.log("리뷰 데이터 구조:", reviewStore.reviews);
+//     } else {
+//     console.error('스토어 아이디가 없습니다.');
+//     }
+// });
 
 
 // 전체 리뷰 수
-const totalReviewCount = computed(() => reviews.length);
-
-// 평균 리뷰 별점
-// const avgReview = computed(() => {
-// if (!reviewStore.reviews.length) return 0;
-
-// const sum = reviewStore.reviews.reduce((acc, review) => acc + review.rating, 0);
-// return (sum / reviewStore.reviews.length).toFixed(1);
-// });
-
-onMounted(()=> {
-    fetchReviews();
-})
-
+const totalReviewCount = computed(() => allReview.value.length);
 
 //리뷰별표시
 // const averageScore = computed(() => {
@@ -73,6 +64,21 @@ onMounted(()=> {
 // });
 // console.log("별점평균 : ", averageScore);
 // const ratingToPercent = computed(() => averageScore.value * 20); // 4.5 -> 90%
+
+// 평균 리뷰 별점
+const avgReview = computed(() => {
+if (!allReview.value.length) return 0;
+
+const sum = allReview.value.reduce((acc, review) => acc + review.rating, 0);
+return (sum / allReview.value.length).toFixed(1);
+});
+
+onMounted(async()=> {
+    fetchReviews();
+
+})
+
+
 
 // 별 아이콘 컴포넌트 정의
 const StarIcon = {
@@ -89,24 +95,19 @@ const StarIcon = {
 <template>
     <template v-if="reviews && reviews.length > 0">
         <div class="wrap" > 
-            <div>
+                <!-- 조회기간설정 카드 :추후 구현 -->
+                <ReviewDateFilter></ReviewDateFilter>
                 <!-- 전체 토탈 카드 -->
                 <div class="total-wrap">
                     <div class="white-card total-box">
                         <span>전체 리뷰 수</span>
                         <span>{{ totalReviewCount || 0 }} </span>
                     </div>
-                    
                     <div class="white-card total-box">
                         <span>평균 별점</span>
                         <span>{{avgReview || 0}} </span>
                     </div>
                 </div>
-            </div>
-            
-            <!-- 조회기간설정 카드 :추후 구현 -->
-
-
             <!-- 리뷰카드  -->
             <div class="review-wrap">
                 <ReviewCard v-if="reviews.length"  :key="params.page"  :reviews="reviews" />
@@ -115,7 +116,6 @@ const StarIcon = {
 
         <b-pagination v-model="params.page" :total-rows="row" :per-page="params.rowPerPage" aria-controls="my-table"></b-pagination>
     </template>
-
 
     <template v-else >
         <div style="height: 100%; display:flex; justify-content:center; align-items:center">
@@ -127,6 +127,9 @@ const StarIcon = {
 <style lang="scss" scoped>
 .wrap{
     width: 95%;
+    display: flex;
+    flex-direction: column;
+    gap : 20px;
 
     .total-wrap{
         display: flex;
