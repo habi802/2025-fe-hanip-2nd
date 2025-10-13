@@ -16,6 +16,25 @@ const params = reactive({
     rowPerPage : 6
 })
 
+
+// 날짜 필터 상태
+const selectedDate = reactive({
+  startDate: null,
+  endDate: null,
+  selectedChartOption: null
+});
+
+// 날짜필터에서 emit 받은 값 반영
+const handleDateUpdate = (payload) => {
+  selectedDate.selectedChartOption = payload.selectedChartOption;
+  selectedDate.startDate = payload.startDate;
+  selectedDate.endDate = payload.endDate;
+  console.log("날짜 필터 변경 감지:", payload);
+
+  fetchReviews(); //날짜 바뀌면 자동 갱신
+};
+
+
 const reviews = ref([])
 const allReview = ref([])
 const fetchReviews = async () => {
@@ -24,10 +43,22 @@ const fetchReviews = async () => {
         allReview.value = allReviewRes.data.resultData
         console.log("전체리뷰", allReview)
         
-        const prams = { rowPerPage: 300, page: 1, };
-        const response = await getReviewsByStoreId(ownerStore.state.storeId, params);
+        // 파라미터 동적 생성
+        const queryParams = {
+            page: params.page,
+            rowPerPage: params.rowPerPage,
+        };
+
+        //날짜 필터 선택된 경우만 추가
+        if (selectedDate.startDate && selectedDate.endDate) {
+        queryParams.startDate = selectedDate.startDate;
+        queryParams.endDate = selectedDate.endDate;
+        }
+
+        //백엔드 통신
+        const response = await getReviewsByStoreId(ownerStore.state.storeId, queryParams);
         reviews.value = response.data.resultData;
-        console.log("통신결과:", reviews.value);
+        console.log("리뷰 통신 결과:", reviews.value);
 
     } catch (error) {
         console.error("리뷰 조회 에러:", error);
@@ -41,29 +72,8 @@ const row = computed(()=> allReview.value.length || 1 ) ;
 watch(() => [params.page, params.rowPerPage], fetchReviews, { immediate: true });
 
 
-// onMounted(async () => {
-//     if (storeId.value) {
-//     // 리뷰 데이터를 가져오는 메서드 호출
-//     await reviewStore.fetchReviews(storeId.value);
-//     console.log("리뷰 데이터 구조:", reviewStore.reviews);
-//     } else {
-//     console.error('스토어 아이디가 없습니다.');
-//     }
-// });
-
-
 // 전체 리뷰 수
 const totalReviewCount = computed(() => allReview.value.length);
-
-//리뷰별표시
-// const averageScore = computed(() => {
-//   const reviews = reviewStore.reviews;
-//   if (!reviews || reviews.length === 0) return 0;
-//   const total = reviews.reduce((sum, review) => sum + review.rating, 0);
-//   return (total / reviews.length).toFixed(1);
-// });
-// console.log("별점평균 : ", averageScore);
-// const ratingToPercent = computed(() => averageScore.value * 20); // 4.5 -> 90%
 
 // 평균 리뷰 별점
 const avgReview = computed(() => {
@@ -75,28 +85,27 @@ return (sum / allReview.value.length).toFixed(1);
 
 onMounted(async()=> {
     fetchReviews();
-
 })
 
 
 
 // 별 아이콘 컴포넌트 정의
-const StarIcon = {
-  template: `
-    <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg" class="star-icon">
-        <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/>
-    </svg>
-    `,
-};
+// const StarIcon = {
+//   template: `
+//     <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg" class="star-icon">
+//         <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/>
+//     </svg>
+//     `,
+// };
 
 
 </script>
 
 <template>
-    <template v-if="reviews && reviews.length > 0">
+    <template v-if="totalReviewCount > 0">
         <div class="wrap" > 
                 <!-- 조회기간설정 카드 :추후 구현 -->
-                <ReviewDateFilter></ReviewDateFilter>
+                <ReviewDateFilter @update-date="handleDateUpdate"></ReviewDateFilter>
                 <!-- 전체 토탈 카드 -->
                 <div class="total-wrap">
                     <div class="white-card total-box">
@@ -109,8 +118,11 @@ const StarIcon = {
                     </div>
                 </div>
             <!-- 리뷰카드  -->
-            <div class="review-wrap">
-                <ReviewCard v-if="reviews.length"  :key="params.page"  :reviews="reviews" />
+            <div class="review-wrap" v-if="reviews && reviews.length > 0" >
+                <ReviewCard  v-if="reviews && reviews.length > 0" :key="params.page"  :reviews="reviews" />
+            </div>
+            <div v-else style="height: 600px; display:flex; justify-content:center; align-items:center">
+                등록된 리뷰가 없습니다.
             </div>
         </div>
 
@@ -122,8 +134,8 @@ const StarIcon = {
         등록된 리뷰가 없습니다.
         </div>
     </template>
-
 </template>
+
 <style lang="scss" scoped>
 .wrap{
     width: 95%;
