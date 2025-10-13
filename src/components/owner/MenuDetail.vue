@@ -9,9 +9,8 @@ const props = defineProps({
 
 const emit = defineEmits(["saved", "deleted", "hide", "soldOut"]);
 
-onMounted(async () => {
-  console.log("menuId:", props.menu.menuId, "// 메뉴 정보: ", props.menu);
-  console.log("imgSrc:", imgSrc.value);
+onMounted(() => {
+  console.log("menuId:", props.menu?.menuId, "// 메뉴 정보: ", props.menu);
 });
 
 // 폼 상태
@@ -65,10 +64,11 @@ watch(
     price.value = Number(m.price ?? 0);
     desc.value = m.comment ?? "";
     category.value = m.menuType ?? "단품";
+
     const toValues = (node) => {
       if (Array.isArray(node.children) && node.children.length) {
         return node.children.map((c) => ({
-          id: c.optionId ?? nullm,
+          id: c.optionId ?? null,
           opt: c.comment ?? c.name ?? "",
           extra: Number(c.price ?? 0),
         }));
@@ -80,12 +80,14 @@ watch(
         },
       ];
     };
+
     options.value = (m.options ?? []).map((g) => ({
       id: g.optionId ?? null,
       category: g.isRequired === 1 ? "필수" : "선택",
       name: g.comment ?? g.name ?? "",
       values: toValues(g),
     }));
+
     previewImage.value = "";
     selectedFile.value = null;
   },
@@ -133,10 +135,7 @@ const save = () => {
     })),
   };
   emit("saved", payload, selectedFile.value);
-
-  if (props.mode === "create") {
-    resetForm();
-  }
+  if (props.mode === "create") resetForm();
 };
 
 // 메뉴 삭제
@@ -144,34 +143,52 @@ const remove = () => {
   if (props.menu?.menuId) emit("deleted", props.menu.menuId);
 };
 
-// 메뉴 숨김
-const isHide = ref(props.menu?.isHide ?? 0);
-const toggleHide = () => {
-  const payload = {
-    menuId: props.menu?.menuId,
-    isHide: props.menu?.isHide
-  }
-  console.log("토글 요청 payload:", payload)
-  emit("hide", payload);
-}
+// 토글
+const isHideModel = computed({
+  get: () => (props.menu?.isHide ?? 0) === 1,
+  set: (val) =>
+    emit("hide", { menuId: props.menu?.menuId, isHide: val ? 1 : 0 }),
+});
 
-// 메뉴 품절
-const isSoldOut = ref(props.menu?.isSoldOut ?? 0);
-const toggleSoldOut = () => {
-  const payload = {
-    menuId: props.menu?.menuId,
-    isSoldOut: props.menu?.isSoldOut
-  }
-  console.log("토글 요청 payload:", payload)
-  emit("soldOut", payload);
-}
+const isSoldOutModel = computed({
+  get: () => (props.menu?.isSoldOut ?? 0) === 1,
+  set: (val) =>
+    emit("soldOut", { menuId: props.menu?.menuId, isSoldOut: val ? 1 : 0 }),
+});
+
+// 금액 변환
+const fmt = new Intl.NumberFormat("ko-KR");
+const uncomma = (s) => Number(String(s ?? "").replace(/[^\d]/g, "") || 0);
+const comma = (n) => (Number.isNaN(n) ? "" : fmt.format(n));
+
+const onPriceInput = (e) => {
+  const el = e?.target;
+  const raw = el?.value ?? "";
+  const num = uncomma(raw);
+  price.value = num;
+  if (el) el.value = comma(num);
+};
+
+const onExtraInput = (groupIdx, valIdx, e) => {
+  const el = e?.target;
+  const raw = el?.value ?? "";
+  const num = uncomma(raw);
+  options.value[groupIdx].values[valIdx].extra = num;
+  if (el) el.value = comma(num);
+};
+
+const extraDisplay = (groupIdx, valIdx) =>
+  comma(options.value[groupIdx].values[valIdx].extra ?? 0);
+const priceDisplay = computed(() => comma(price.value));
 </script>
 
 <template>
-  <div class="menu-detail container-fluid py-3">
+  <div class="menu-detail container-fluid py-3" :key="props.menu?.menuId">
     <!-- 헤더 -->
     <div class="text-center mb-4">
-      <h4 class="fw-bold">{{ mode === "edit" ? "메뉴수정" : "메뉴등록" }}</h4>
+      <h4 class="fw-bold">
+        {{ props.mode === "edit" ? "메뉴수정" : "메뉴등록" }}
+      </h4>
     </div>
 
     <!-- 상단: 이미지 + 입력 폼 -->
@@ -206,9 +223,10 @@ const toggleSoldOut = () => {
           <label class="form-label col-3">가격</label>
           <div class="input-group">
             <input
-              v-model.number="price"
-              type="number"
-              min="0"
+              type="text"
+              inputmode="numeric"
+              :value="priceDisplay"
+              @input="onPriceInput"
               class="form-control"
             />
             <span class="input-group-text">원</span>
@@ -292,11 +310,12 @@ const toggleSoldOut = () => {
                 </td>
                 <td>
                   <input
-                    v-model.number="opt.extra"
-                    type="number"
+                    type="text"
+                    inputmode="numeric"
+                    :value="extraDisplay(idx, i)"
+                    @input="onExtraInput(idx, i, $event)"
                     class="form-control form-control-sm"
                     placeholder="0"
-                    min="0"
                   />
                 </td>
                 <td>
@@ -321,64 +340,51 @@ const toggleSoldOut = () => {
       </div>
     </div>
 
-    <!-- 버튼 -->
-<div class="d-flex justify-content-between align-items-center mt-4">
-  <!-- 왼쪽: 숨김 버튼 -->
-  <div>
-    <button 
-      v-if="mode === 'edit'"
-      class="btn-icon" 
-      @click="toggleHide"
-      :title="!props.menu?.isHide ? '숨김 해제' : '숨김 처리'"
-      >
-      <img
-        v-if="!props.menu?.isHide"
-        src="@/imgs/owner/hide.png"
-        alt="숨김"
-        class="icon-img"
-      />
-      <img
-        v-else
-        src="@/imgs/owner/show.png"
-        alt="보임"
-        class="icon-img"
-      />
-    </button>
-    <button 
-      v-if="mode === 'edit'"
-      class="btn-icon" 
-      @click="toggleSoldOut"
-      :title="!props.menu?.isSoldOut ? '품절 해제' : '품절 처리'"
-      >
-      <img
-        v-if="!props.menu?.isSoldOut"
-        src="@/imgs/owner/soldout.png"
-        alt="품절됨"
-        class="icon-img"
-      />
-      <img
-        v-else
-        src="@/imgs/owner/sold.png"
-        alt="판매 가능"
-        class="icon-img"
-      />
-    </button>
-  </div>
+    <!-- 하단: 토글 + 저장/삭제 -->
+    <div class="d-flex justify-content-between align-items-center mt-4">
+      <!-- 왼쪽: 숨김/품절 토글 -->
+      <div class="d-flex align-items-center gap-4">
+        <div class="form-check form-switch m-0">
+          <input
+            id="toggleHide"
+            class="form-check-input toggle-pink"
+            type="checkbox"
+            v-model="isHideModel"
+            :disabled="props.mode !== 'edit'"
+          />
+          <label class="form-check-label ms-2" for="toggleHide">
+            {{ !isHideModel ? "숨김" : "보임" }}
+          </label>
+        </div>
 
-  <!-- 오른쪽: 삭제 + 수정/등록 버튼 -->
-  <div class="d-flex gap-2">
-    <button
-      v-if="mode === 'edit'"
-      class="btn btn-outline-danger"
-      @click="remove"
-    >
-      삭제
-    </button>
-    <button class="owner-btn-white" @click="save">
-      {{ mode === "edit" ? "수정완료" : "등록완료" }}
-    </button>
-  </div>
-</div>
+        <div class="form-check form-switch m-0">
+          <input
+            id="toggleSoldOut"
+            class="form-check-input toggle-pink"
+            type="checkbox"
+            v-model="isSoldOutModel"
+            :disabled="props.mode !== 'edit'"
+          />
+          <label class="form-check-label ms-2" for="toggleSoldOut">
+            {{ !isSoldOutModel ? "품절" : "판매중" }}
+          </label>
+        </div>
+      </div>
+
+      <!-- 오른쪽: 삭제 + 수정/등록 버튼 -->
+      <div class="d-flex gap-2">
+        <button
+          v-if="props.mode === 'edit'"
+          class="btn btn-outline-danger"
+          @click="remove"
+        >
+          삭제
+        </button>
+        <button class="owner-btn-white" @click="save">
+          {{ props.mode === "edit" ? "수정완료" : "등록완료" }}
+        </button>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -408,16 +414,24 @@ const toggleSoldOut = () => {
   background: #fafafa;
 }
 
-.btn-icon {
-  background: none;
-  border: none;
-  padding: 0;
+:deep(.form-switch .form-check-input.toggle-pink) {
+  width: 3rem; /* 토글 길이 */
+  height: 1.6rem; /* 토글 높이 */
+  border-color: #ced4da;
+  background-color: #adb5bd; /* OFF 트랙 기본색 */
   cursor: pointer;
+  transition: background-color 0.15s ease, border-color 0.15s ease,
+    box-shadow 0.15s ease, opacity 0.15s ease;
 }
-
-.icon-img {
-  width: 50px; 
-  height: 50px;
-  display: inline-block;
+:deep(.form-switch .form-check-input.toggle-pink:checked) {
+  background-color: #ff6b6b; /* 포인트 컬러 */
+  border-color: #ff6b6b;
+}
+:deep(.form-switch .form-check-input.toggle-pink:focus) {
+  box-shadow: 0 0 0 0.25rem rgba(255, 107, 107, 0.25);
+}
+:deep(.form-switch .form-check-input.toggle-pink:disabled) {
+  opacity: 0.55;
+  cursor: not-allowed;
 }
 </style>

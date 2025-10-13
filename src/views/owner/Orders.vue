@@ -302,12 +302,16 @@ const selectRange = async (range) => {
       <!--order-list 끝-->
 
       <!-- 페이지네이션 -->
-      <div class="pagenation">
-        <button @click="changePage(data.page - 1)" :disabled="data.page <= 1">
+      <div class="pagination-min">
+        <button
+          class="pg-btn"
+          @click="changePage(data.page - 1)"
+          :disabled="data.page <= 1"
+        >
           이전
         </button>
-        <span> {{ data.page }} </span>
-        <button @click="changePage(data.page + 1)">다음</button>
+        <span class="pg-badge">{{ data.page }}</span>
+        <button class="pg-btn" @click="changePage(data.page + 1)">다음</button>
       </div>
       <!--pagenation 끝-->
     </div>
@@ -561,5 +565,54 @@ const selectRange = async (range) => {
   font-size: 20px;
   font-weight: 500;
   color: #9c9c9c;
+}
+
+.pagination-min {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+}
+
+.pg-btn {
+  height: 32px;
+  padding: 0 12px;
+  border: 1px solid #ddd;
+  border-radius: 999px;
+  background: #fff;
+  color: #333;
+  font-size: 15px;
+  line-height: 1;
+  cursor: pointer;
+  transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+
+  &:hover {
+    background: #fafafa;
+  }
+  &:active {
+    background: #f2f2f2;
+  }
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+  &:focus-visible {
+    outline: 2px solid rgba(255, 107, 107, 0.3);
+    outline-offset: 2px;
+  }
+}
+
+.pg-badge {
+  min-width: 50px;
+  height: 28px;
+  padding: 0 8px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  background: #ff6b6b;
+  color: #fff;
+  font-weight: 700;
+  font-size: 13px;
 }
 </style>
