@@ -2,6 +2,7 @@
 import '@/assets/manager/manager.css'
 import "flatpickr/dist/flatpickr.css";
 import { Korean } from "flatpickr/dist/l10n/ko.js";
+import "flatpickr/dist/plugins/monthSelect/style.css";
 
 import { reactive, ref, computed, onMounted, watch } from 'vue';
 import { getUserStats, getStoreStats, getOrderStats, getAmountStats } from '@/services/managerService';
@@ -44,7 +45,7 @@ const datePickerConfig = computed(() => {
         case 'YEAR':
             return {
                 locale: Korean,
-                plugins: [new monthSelectPlugin({ shorthand: true, dateFormat: 'Y', altFormat: 'Y년' })]
+                plugins: [new monthSelectPlugin({ shorthand: true, dateFormat: 'Y', altFormat: 'Y년' })],
             };
         case 'MONTH':
             return {
@@ -84,7 +85,6 @@ const getStats = async () => {
 
     const userStatsRes = await getUserStats(state.form);
     if (userStatsRes !== undefined || userStatsRes.status === 200) {
-        console.log(userStatsRes.data.resultData);
         userStatsRes.data.resultData.forEach((data, idx) => {
             state.stats.user.label[idx] = data.period;
             state.stats.user.data[idx] = data.total;
