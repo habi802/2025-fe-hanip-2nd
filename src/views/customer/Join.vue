@@ -1,10 +1,16 @@
 <script setup>
 import { reactive, ref, watch, nextTick } from "vue";
 import { useRouter } from "vue-router";
-import { join, findId } from "@/services/userService.js";
+import { join, findId, login } from "@/services/userService.js";
 import CustomerForm from "@/components/join/CustomerForm.vue";
 import OwnerForm from "@/components/join/OwnerForm.vue";
 import axios from "axios";
+
+import { useAccountStore, useUserInfo, useOwnerStore } from "@/stores/account";
+
+const account = useAccountStore();
+const userInfo = useUserInfo();
+const ownerStore = useOwnerStore();
 
 const router = useRouter();
 const memberType = ref("customer"); // 회원 구분 상태
@@ -526,19 +532,19 @@ const categoryLabels = state.owner.category
 const submit = async () => {
   console.log("제출 직전 state.owner:", JSON.stringify(state.owner));
 
-  // 아이디 중복 체크 필수
+  // 1️⃣ 아이디 중복 체크 필수
   if (!isIdChecked.value) {
     showModal("아이디 중복 검사를 해주세요.");
     return;
   }
 
-  // 유효성 검사
+  // 2️⃣ 전체 유효성 검사
   if (!validateForm()) {
     showModal("입력값을 다시 확인해주세요.");
     return;
   }
 
-  // openDate 형식 체크
+  // 3️⃣ 개업일 형식 체크 (업주만)
   const openDateRegex = /^\d{4}-\d{2}-\d{2}$/;
   if (memberType.value === "owner" && !openDateRegex.test(state.owner.openDate)) {
     showModal("개업일을 YYYY-MM-DD 형식으로 입력해주세요.");
@@ -546,8 +552,8 @@ const submit = async () => {
   }
 
   try {
+    //  FormData 생성
     const formData = new FormData();
-
     // 공통 유저 정보 JSON Blob
     const userPayload = {
       id: 0,
@@ -579,7 +585,7 @@ const submit = async () => {
               tel: `${state.owner.storePhone1}-${state.owner.storePhone2}-${state.owner.storePhone3}`,
               businessNumber: state.owner.businessNumber,
               openDate: state.owner.openDate,
-              enumStoreCategory: categoryLabels,
+              enumStoreCategory: categoryLabels, // Enum 배열 그대로 전송
               comment: state.owner.comment ?? "",
               licensePath: state.owner.licensePath?.trim()
                 ? state.owner.licensePath
@@ -602,7 +608,7 @@ const submit = async () => {
       formData.append("pic", state.profilePic);
     }
 
-    // 회원가입 요청
+    // Axios POST 요청
     const res = await axios.post("/user/join", formData, {
       headers: { "Content-Type": "multipart/form-data" },
     });
@@ -610,7 +616,7 @@ const submit = async () => {
     if (res.status === 200) {
       showModal("회원가입 완료!");
 
-      // ✅ 회원가입 후 자동 로그인
+      // 9️⃣ 자동 로그인
       try {
         const loginRes = await login({
           loginId: state.form.loginId,
@@ -618,20 +624,19 @@ const submit = async () => {
           role: memberType.value === "owner" ? "사장" : "고객",
         });
 
-        if (loginRes.status === 200) {
+        if (loginRes.status === 200 && loginRes.data.resultData) {
           const { id, role } = loginRes.data.resultData;
 
-          // 로컬 스토리지 저장
+          // 10️⃣ 로컬 스토리지 저장
           localStorage.setItem("id", id);
           localStorage.setItem("accessToken", loginRes.data.accessToken);
           localStorage.setItem("refreshToken", loginRes.data.refreshToken);
 
+          // 11️⃣ Pinia 상태 업데이트
           account.setLoggedIn(true);
-          userInfo.fetchStore();
+          await userInfo.fetchUserData(); // 유저 정보 fetch
 
-          // 사장/고객 이동 처리
           if (role === "사장") {
-            const ownerStore = useOwnerStore();
             await ownerStore.fetchStoreInfo();
             if (ownerStore.storeData?.isActive === 0) {
               router.push("/owner");
@@ -642,7 +647,6 @@ const submit = async () => {
             router.push("/");
           }
         } else {
-          // 자동 로그인 실패 시 로그인 페이지
           router.push("/login");
         }
       } catch (err) {
@@ -653,11 +657,10 @@ const submit = async () => {
       showModal(res.data?.message || "회원가입 실패: 입력 정보를 확인해주세요.");
     }
   } catch (err) {
-    console.error("❌ 회원가입 중 오류:", err);
+    console.error(" 회원가입 중 오류:", err);
     showModal("사업자 등록증과 가게 상호명 및 카테고리는 필수입니다.");
   }
 };
-
 
 // 약관 설명 텍스트 (마지막에 내용 다 넣기)
 const termsText = {

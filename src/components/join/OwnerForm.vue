@@ -197,17 +197,17 @@ function triggerFileInput() {
 
 // 카테고리 목록 (필요에 따라 추가/수정 가능)
 const categories = [
-  { value: "한식", label: "KOREAN" },
-  { value: "중식", label: "CHINESE" },
-  { value: "일식", label: "JAPANESE" },
-  { value: "양식", label: "WESTERN" },
-  { value: "디저트", label: "DESSERT" },
-  { value: "분식", label: "SNACK" },
-  { value: "패스트푸드", label: "FAST" },
-  { value: "아시안", label: "ASIAN" },
-  { value: "치킨", label: "CHICKEN" },
-  { value: "피자", label: "PIZZA" },
-  { value: "야식", label: "NIGHT" },
+  { value: "한식", label: "한식" },
+  { value: "중식", label: "중식" },
+  { value: "일식", label: "일식" },
+  { value: "양식", label: "양식" },
+  { value: "디저트", label: "디저트" },
+  { value: "분식", label: "분식" },
+  { value: "패스트푸드", label: "패스트푸드" },
+  { value: "아시안", label: "아시안" },
+  { value: "치킨", label: "치킨" },
+  { value: "피자", label: "피자" },
+  { value: "야식", label: "야식" },
 ];
 
 // 셀렉트에서 카테고리 선택
