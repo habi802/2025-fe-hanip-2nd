@@ -2,15 +2,14 @@
 import { onMounted, ref } from "vue";
 import { getOrderDelivery , patchDeliveryCompleted } from "@/services/riderService";
 
-const order = ref({})
-onMounted(async ()=>{
-
+const order = ref({});
+onMounted(async () => {
   await fetchOrders();
 
   try {
     const res = await getOrderDelivery();
     order.value = res.data.resultData ?? {}; // 안전하게 데이터 할당
-    console.log("order:", order.value);
+    //console.log("order:", order.value);
   } catch (e) {
     console.error("주문 정보 로드 실패:", e);
   }
@@ -22,7 +21,7 @@ const fetchOrders = async() => {
   try {
     const res = await getOrderDelivery();
     order.value = res.data.resultData ?? {};
-    console.log("로드된 주문: ", order.value);
+    //console.log("로드된 주문: ", order.value);
 
     // 새로운 주문이 로드되면 isCallAccepted는 false여야 다음 콜 수락이 가능함
     isCallAccepted.value = false;
@@ -41,7 +40,6 @@ const fetchOrders = async() => {
     isDeliveryCompleted.value = false;
   }
 }
-
 
 //콜 수락 버튼
 const isCallAccepted = ref(false);
@@ -91,13 +89,7 @@ const handleCompleteDelivery = async () => {
       console.log("대기 화면으로 전환 완료!");
     }, 1000); // 1초 후 초기화
   }
-  
-
-
 };
-
-
-
 </script>
 
 <template>
@@ -150,10 +142,7 @@ const handleCompleteDelivery = async () => {
       <!-- 배달 완료 시 보여줄 메시지 -->
       <div v-if="isDeliveryCompleted" style="font-size: 30px;"> 배달 완료! 다음 주문을 기다리는 중...</div>
     </footer>
-
   </div>
-
-  
 </template>
 
 <style scoped>
