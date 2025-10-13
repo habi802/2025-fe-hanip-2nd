@@ -17,6 +17,26 @@ const state = reactive({
         label: ['2025-01', '2025-02', '2025-03'],
         data: [0, 0, 0],
     },
+    stores: [
+        {
+            0: '재원이 두마리 치킨',
+            1: '부산광역시 기장군 철마면 철마천로 190',
+            2: '2025-08-27',
+            3: 0
+        },
+        {
+            0: '숙다방',
+            1: '경상북도 구미시 구미대로24길 4',
+            2: '2025-08-25',
+            3: 0
+        },
+        {
+            0: '홍플러스',
+            1: '경기도 화성시 팔탄면 버들로 1337-8',
+            2: '2025-08-24',
+            3: 1
+        }
+    ]
 });
 
 // 각종 통계 조회
@@ -35,6 +55,10 @@ const getStats = async () => {
 
     getMonthStats();
 };
+
+// 월별 차트 select 관련 변수
+const chartOptions = ['월별 가입자 수', '월별 가게 등록 수', '월별 주문 건 수', '월별 매출액'];
+const selectedChartOption = ref(chartOptions[0]);
 
 // 월별 차트 조회
 const getMonthStats = async () => {
@@ -64,36 +88,6 @@ const getMonthStats = async () => {
     }
 };
 
-// 월별 차트 select 관련 변수
-const chartOptions = ['월별 가입자 수', '월별 가게 등록 수', '월별 주문 건 수', '월별 매출액'];
-const selectedChartOption = ref(chartOptions[0]);
-
-// 가게 관리, 고객 문의 테이블에 들어갈 값 전달을 위해 임의로 만든 객체
-const stores = {
-    name: '가게 관리',
-    title: ['상호명', '소재지', '개업연월일', '상태'],
-    data: [
-        {
-            0: '재원이 두마리 치킨',
-            1: '부산광역시 기장군 철마면 철마천로 190',
-            2: '2025-08-27',
-            3: 0
-        },
-        {
-            0: '숙다방',
-            1: '경상북도 구미시 구미대로24길 4',
-            2: '2025-08-25',
-            3: 0
-        },
-        {
-            0: '홍플러스',
-            1: '경기도 화성시 팔탄면 버들로 1337-8',
-            2: '2025-08-24',
-            3: 1
-        }
-    ]
-};
-
 let interval;
 
 onMounted(() => {
@@ -107,7 +101,7 @@ onMounted(() => {
 
 onUnmounted(() => {
     clearInterval(interval);
-})
+});
 </script>
 
 <template>
@@ -150,7 +144,7 @@ onUnmounted(() => {
             <b-col cols="12" class="board">
                 <b-row>
                     <b-col cols="12" class="mb-3">
-                        <DashboardCard title="가게 관리" board="store" :table="stores" />
+                        <DashboardCard title="가게 관리" board="store" :table="state.stores" />
                     </b-col>
                 </b-row>
             </b-col>
