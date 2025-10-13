@@ -27,7 +27,16 @@ H A N I P 은 앱 설치 없이 웹에서 바로 접속해 주문할 수 있고,
 - 🍳 메뉴 등록, 수정 및 삭제
 - 💬 리뷰 조회 / 리뷰 코멘트 등록, 및 삭제
 
+### 👨🏻‍💼 관리자
+
+- 👨🏼‍🤝‍👨🏼 회원 관리
+- 🔍 가게 승인 관리
+- 🎫 결제/주문 관리
+- ⭐ 리뷰 관리
+- 📊 한입 사이트 통계 조회
+
 ### 🙍🏻‍♂️ 배달원
+
 - ⏰ 음식 픽업 / 배달
 
 ## 👥 참여 인원
@@ -70,7 +79,7 @@ H A N I P 은 앱 설치 없이 웹에서 바로 접속해 주문할 수 있고,
     </tr>
     <tr style="background-color:#e8f5e9">
       <td>지도 API</td>
-      <td>네이버 지도 API</td>
+      <td>Naver Map API</td>
     </tr>
     <tr style="background-color:#f1f8e9">
       <td>라이브러리</td>
@@ -99,7 +108,7 @@ H A N I P 은 앱 설치 없이 웹에서 바로 접속해 주문할 수 있고,
     </tr>
     <tr style="background-color:#e3f2fd">
       <td>API 연동</td>
-      <td>네이버 페이, 네이버 소셜 로그인, 카카오 페이, 카카오 소셜 로그인, SSE</td>
+      <td>Naver Pay, Naver Social Login, Kakao Pay, Kakao Social Login, SSE</td>
     </tr>
     <tr style="background-color:#bbdefb">
       <td>개발 툴</td>
