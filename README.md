@@ -78,12 +78,12 @@ H A N I P 은 앱 설치 없이 웹에서 바로 접속해 주문할 수 있고,
       <td>Axios</td>
     </tr>
     <tr style="background-color:#e8f5e9">
-      <td>지도 API</td>
+      <td>API 연동</td>
       <td>Naver Map API</td>
     </tr>
     <tr style="background-color:#f1f8e9">
       <td>라이브러리</td>
-      <td>Swiper, Day.js, Chart.js</td>
+      <td>Swiper, Day.js, Chart.js, Axios</td>
     </tr>
     <tr style="background-color:#e8f5e9">
       <td>개발 툴</td>
