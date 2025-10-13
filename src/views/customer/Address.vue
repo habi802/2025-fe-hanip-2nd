@@ -12,6 +12,7 @@ import AddressCard from "@/components/customer/address/AddressCard.vue";
 import EditAddress from "@/components/customer/address/EditAddress.vue";
 import AlertModal from "@/components/modal/AlertModal.vue";
 import ConfirmModal from "@/components/modal/ConfirmModal.vue";
+import { useUserInfo } from "@/stores/account";
 
 const defaultForm = {
   id: 0,
@@ -26,6 +27,8 @@ const state = reactive({
   mode: "add",
   addresses: [],
 });
+
+const userInfo = useUserInfo();
 
 // 주소 추가 및 수정
 const saveAddress = async (data) => {
@@ -94,6 +97,7 @@ const setMainAddress = async (id) => {
 
       return a.id - b.id;
     });
+    window.dispatchEvent(new CustomEvent("address-changed"));
   }
 };
 

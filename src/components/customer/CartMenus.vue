@@ -90,7 +90,7 @@ const firstItem = reactive({
                 </div>
                 <div class="container">
                     <div class="menu-box">
-                        <h5>{{ props.item.name }}</h5>
+                        <div class="menu-name">{{ props.item.name }}</div>
                         <!-- <p class="comment">{{ props.item.comment }}</p> -->
                         <div class="bottom-box">
                             <span>{{ props.item.price.toLocaleString() }}원</span>
@@ -171,5 +171,9 @@ const firstItem = reactive({
 
 .soldOut {
     display: none;
+}
+
+.menu-name {
+    font-size: 0.8em;
 }
 </style>
