@@ -58,7 +58,7 @@ const rowClicked = item => {
 </script>
 
 <template>
-    <b-table :items="props.items" :fields="computedFields" @row-clicked="rowClicked" show-empty bordered hover>
+    <b-table :items="props.items" :fields="computedFields" @row-clicked="rowClicked" responsive show-empty bordered hover>
         <template #empty>
             <div class="text-center py-3">데이터가 없습니다.</div>
         </template>

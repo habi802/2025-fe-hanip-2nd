@@ -3,7 +3,7 @@ import '@/assets/manager/manager.css';
 import "flatpickr/dist/flatpickr.css";
 import { Korean } from "flatpickr/dist/l10n/ko.js";
 
-import { onMounted, reactive, ref } from 'vue';
+import { computed, onMounted, reactive, ref } from 'vue';
 import { getStoreList, getStore, patchIsActive } from '@/services/managerService';
 import { usePaginationStore } from '@/stores/pagination';
 import FlatPickr from "vue-flatpickr-component";
@@ -174,7 +174,7 @@ const fields = [
     { key: 'name', label: '상호명' },
     { key: 'ownerName', label: '대표자명' },
     { key: 'businessNumber', label: '사업자 등록번호' },
-    { key: 'address', label: '주소' },
+    { key: 'address', label: '소재지' },
     { key: 'openDate', label: '개업연월일' },
     { key: 'tel', label: '전화번호' },
     { key: 'isActive', label: '영업 승인' },
