@@ -44,7 +44,7 @@ const formatCount = computed(() => {
 <template>
     <b-card>
         <b-card-title tag="h6">{{ props.title }}</b-card-title>
-        <b-card-text tag="h3">{{ formatCount }}</b-card-text>
+        <b-card-text tag="h3" class="text-nowrap overflow-hidden" style="text-overflow: ellipsis; font-size: 1.5rem; max-width: 100%;">{{ formatCount }}</b-card-text>
     </b-card>
 </template>
 
