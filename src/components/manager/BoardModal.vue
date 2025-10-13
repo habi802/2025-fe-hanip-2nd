@@ -1,6 +1,7 @@
 <script setup>
 import { computed, defineExpose, ref } from 'vue';
-import defaultImage from "@/imgs/owner/haniplogo_sample4.png";
+import defaultImage from "@/imgs/owner/owner-service2.png";
+import bannerDefaultImage from "@/imgs/owner/owner-service5.png";
 
 const props = defineProps({
     title: String,
@@ -79,7 +80,7 @@ const showImage = (title, id, image) => {
                     <b-col cols="6" class="content">
                         <template v-if="isExistItem">
                             <div class="d-flex justify-content-center align-items-center">
-                                <img :src="showImage('store', props.item.id, props.item.imagePath)" @error="e => e.target.src = defaultImage"
+                                <img :src="showImage('store', props.item.storeId, props.item.imagePath)" @error="e => e.target.src = defaultImage"
                                     class="image" :alt="`${props.item.name}의 가게 이미지`" />
                             </div>
                         </template>
@@ -101,8 +102,8 @@ const showImage = (title, id, image) => {
                     <b-col cols="12" class="content">
                         <template v-if="isExistItem">
                             <div class="d-flex justify-content-center align-items-center">
-                                <img :src="showImage('store', props.item.id, props.item.bannerPath)" @error="e => e.target.src = defaultImage"
-                                    class="image" :alt="`${props.item.name}의 가게 배너 이미지`" />
+                                <img :src="showImage('store', props.item.storeId, props.item.bannerPath)" @error="e => e.target.src = bannerDefaultImage"
+                                    class="banner-image" :alt="`${props.item.name}의 가게 배너 이미지`" />
                             </div>
                         </template>
                     </b-col>
@@ -282,7 +283,11 @@ const showImage = (title, id, image) => {
     min-height: 180px;
 
     .image {
-        width: 60%;
+        width: 80%;
+    }
+
+    .banner-image {
+        width: 50%;
     }
 }
 
