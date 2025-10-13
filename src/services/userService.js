@@ -49,3 +49,10 @@ export const updateUser = args => {
 export const kakaoLogin = ({ code }) => {
     return axios.post('/kakao-login/login', { code }).catch(e => e.response);
 }
+
+export const naverLogin = ({code,state})=>{
+return axios.post('/naver-login/token', { code,state }).catch(e => e.response);
+}
+export const naverGetToken = ({token})=>{
+    return axios.post('/naver-login/nid', { token }).catch(e => e.response);
+}
