@@ -8,9 +8,28 @@ dayjs.extend(relativeTime);
 dayjs.locale("ko");
 const now = dayjs();
 
+//dayjs로 날짜 포맷
+const formatDate = (date) => {
+  if (!date) return "----.--.--";
+  return dayjs(date).format("YYYY.MM.DD");
+};
+
+// 에밋정의
 const emit = defineEmits(["update-date"]);
 
+const updateDate = () => {
+  emit("update-date", {
+      selectedChartOption: selectedChartOption.value,
+      startDate:  dayjs(selectedDate.startDate).format("YYYY-MM-DD"),
+      endDate:  dayjs(selectedDate.endDate).format("YYYY-MM-DD")
+    })};
 
+
+// 달력토글함수
+const showDatePicker = ref(false);
+const toggleDatePicker = () => {
+  showDatePicker.value = !showDatePicker.value;
+};
 
 // 날짜 조회 필터
 const selectedLabel = ref("");
@@ -19,7 +38,7 @@ const selectedDate = reactive({
   endDate: "",
 });
 
-const dateOptions = ['연간', '월간', '주간' , '일간', "직접선택"];
+const dateOptions = ['연간', '월간', '주간' , '오늘'];
 const selectedChartOption = ref(dateOptions[1]);  //기본값 : 한달
 
 //날짜 필터 선택 시 날짜 전달
@@ -28,15 +47,10 @@ const selectRange = (range) => {
   const startDate = now;
   const endDate = now;// 기본:현재
 
-  const updateDate = () => {emit("update-date", {
-        selectedChartOption: selectedChartOption.value,
-        startDate: selectedDate.startDate.format("YYYY-MM-DD"),
-        endDate: selectedDate.endDate.format("YYYY-MM-DD")
-      })};
 
   switch (range) {
     case dateOptions[3]:
-    console.log("일간")
+    console.log("오늘")
       selectedLabel.value = dateOptions[3];
       selectedDate.startDate = startDate;
       selectedDate.endDate = endDate;
@@ -84,11 +98,39 @@ const selectRange = (range) => {
       updateDate();
 
       break;
+
     default : 
       selectedDate.startDate = startDate;
       selectedDate.endDate = endDate;
     break;
   }
+};
+
+
+
+// 직접 날짜 선택 후 적용
+const applyCustomRange = () => {
+  if (!selectedDate.startDate || !selectedDate.endDate) {
+    alert("시작일과 종료일을 모두 선택해주세요.");
+    return;
+  }
+  if (dayjs(selectedDate.startDate).isAfter(selectedDate.endDate)) {
+    alert("종료일이 시작일보다 작을 수 없습니다.");
+    return;
+  }
+  if (dayjs(selectedDate.startDate).isAfter(dayjs())) {
+    alert("시작일 및 종료일은 오늘보다 클 수 없습니다.");
+    return;
+  }
+
+  //직접입력 상태로 전환
+  selectedLabel.value = "직접입력";
+  selectedChartOption.value = "직접입력";
+
+  showDatePicker.value = false;
+
+  //부모로 즉시 emit
+  updateDate();
 };
 
 
@@ -99,31 +141,25 @@ onMounted(async () => {
 
 
 
-
-// 임시보관용ㅎㅎ;
-
-
-
-
 </script>
 
 <template>
   <!-- ✅ 수정됨: 기존 드롭다운 + 커스텀 날짜 설정 통합 -->
   <div class="date-option dropdown" ref="orderDetail">
     <!-- 조회 기간 선택 버튼 -->
-    <button
-      class="date-filter"
-      type="button"
-      id="dropdownMenuButton"
-      data-bs-toggle="dropdown"
-    >
+    <button class="date-filter white-card" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" >
       <img src="/src/imgs/owner/Icon_조회기간설정2.svg" alt="캘린더아이콘" />
       <!-- ✅ 수정됨: 선택된 라벨 표시 -->
-      <span>{{ selectedLabel || "조회 기간 선택" }}</span>
+      <div >
+        <span>{{ selectedLabel || "조회 기간 선택" }}</span>
+        <span v-if="selectedLabel === '직접입력'" style="font-size: 12px; color: #838383; font-weight: 300;">
+          {{ formatDate(selectedDate.startDate) }} ~ {{ formatDate(selectedDate.endDate) }}
+        </span>
+      </div>
       <img src="/src/imgs/owner/Icon_목록단추.svg" alt="목록단추" />
     </button>
 
-    <!-- ✅ 수정됨: 드롭다운 메뉴 통합 -->
+    <!-- 드롭다운 메뉴-->
     <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdownMenuButton">
       <!-- 기본 날짜 옵션 -->
       <li v-for="(op, idx) in dateOptions" :key="idx">
@@ -134,35 +170,27 @@ onMounted(async () => {
 
       <li class="dropdown-divider"></li>
 
-      <!-- ✅ 수정됨: 커스텀 날짜 설정 영역 -->
+      <!--커스텀 날짜 설정 영역 -->
       <li class="dropdown-item custom-range">
         <div class="date-picker-title">
-          <img src="/src/imgs/owner/Icon_조회기간설정.svg" alt="캘린더아이콘" />
-          <div class="title-text">
-            <span style="font-size: 16px; font-weight: 600;">조회 기간 설정</span>
+          <div class="title-text"  @click.stop="toggleDatePicker">
+            <span style="font-size: 16px; font-weight: 600;">직접입력</span>
             <span style="font-size: 12px; color: #838383; font-weight: 300;">
-              {{ formatDate(startDate) }} ~ {{ formatDate(endDate) }}
+              {{ formatDate(selectedDate.startDate) }} ~ {{ formatDate(selectedDate.endDate) }}
             </span>
           </div>
-          <img
-            src="/src/imgs/owner/Icon_목록단추.svg"
-            alt="달력 열기"
-            title="달력 열기"
-            style="cursor: pointer;"
-            @click.stop="toggleDatePicker"
-          />
+          <img src="/src/imgs/owner/Icon_목록단추.svg" alt="달력 열기" title="달력 열기" style="cursor: pointer;" @click.stop="toggleDatePicker"/>
         </div>
-
-        <!-- ✅ 수정됨: 달력 팝업 -->
+        <!--달력 팝업 -->
         <transition name="fade">
           <div v-if="showDatePicker" class="date-picker-popup">
             <label>
               시작일
-              <input type="date" v-model="startDate" />
+              <input type="date" v-model="selectedDate.startDate" />
             </label>
             <label>
               종료일
-              <input type="date" v-model="endDate" />
+              <input type="date" v-model="selectedDate.endDate" />
             </label>
             <button class="btn-confirm" @click="applyCustomRange">적용</button>
           </div>
@@ -175,30 +203,35 @@ onMounted(async () => {
 
 
 <style scoped scss="lang">
-.date-filter {
-  width: 300px;
-  height: 50px;
-  background-color: #fff;
-  border-radius: var(--card-lg-radius);
-  box-shadow: var(--card-shadow);
+.date-filter{
+  position: relative;
+  border-radius: 15px;
+  box-shadow: 2px 2px 5px 1px  #c6c6c6;
   display: flex;
-  justify-content: space-around;
   align-items: center;
-  padding: 10px 15px;
+  justify-content: space-between;
+  width: 295px;
+  height: 75px;
+  padding: 15px 15px;
+  
   span {
-    display: block;
-    width: 100%;
     font-size: 1.2rem;
     text-align: left;
-    padding-left: 10%;
+  
   }
-  img:last-child {
-    transform: translateY(-1px);
+  div{
+      span{
+          display: block;
+          margin-right: 10px;
+          line-height: 1.5;
+      }
   }
-}
+  img:last-child{
+      width: 24px;
+      height: 24px;
+      transform: translateY(-1px);
+  }
 
-.date-filter {
-position: relative;
 
 .date-picker-popup {
   position: absolute;
@@ -206,11 +239,11 @@ position: relative;
   top: 93%;
   right: 0;
   z-index: 10;
-  background: #fff;
   padding: 15px;
   margin-top: 8px;
   border-radius: 15px;
   box-shadow: 2px 2px 5px #ccc;
+  border: none;
   display: flex;
   gap: 10px;
   justify-content: center;
@@ -228,27 +261,64 @@ position: relative;
     border-radius: 6px;
   }
 }
+
 }
-.date-filter{
-background-color: #fff;
-border-radius: 15px;
-box-shadow: 2px 2px 5px 1px  #c6c6c6;
-display: flex;
-align-items: center;
-justify-content: space-around;
-width: 295px;
-height: 75px;
-padding: 15px 15px;
-div{
-    span{
-        display: block;
-        margin-right: 10px;
-        line-height: 1.5;
-    }
+
+.dropdown-menu{
+  width: 20%;
+  border: none;
+  border-radius: var(--card-lg-radius);
+  box-shadow: var(--card-shadow);
 }
-img:last-child{
-    width: 24px;
-    height: 24px;
+
+.date-option {
+  position: relative;
 }
+
+.date-picker-title {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
 }
+
+.title-text {
+  display: flex;
+  flex-direction: column;
+}
+
+.date-picker-popup {
+  margin-top: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.date-picker-popup input {
+  font-size: 13px;
+  padding: 4px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+.btn-confirm {
+  margin-top: 6px;
+  padding: 6px 10px;
+  background-color: #333;
+  color: white;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+}
+
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.15s ease;
+}
+
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
+}
+
 </style>
