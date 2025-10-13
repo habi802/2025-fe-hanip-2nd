@@ -27,6 +27,9 @@ H A N I P 은 앱 설치 없이 웹에서 바로 접속해 주문할 수 있고,
 - 🍳 메뉴 등록, 수정 및 삭제
 - 💬 리뷰 조회 / 리뷰 코멘트 등록, 및 삭제
 
+### 🙍🏻‍♂️ 배달원
+- ⏰ 음식 픽업 / 배달
+
 ## 👥 참여 인원
 
 - **풀스택**
@@ -34,12 +37,13 @@ H A N I P 은 앱 설치 없이 웹에서 바로 접속해 주문할 수 있고,
 
 ## 📆 참여 기간
 
-- 1차 프로젝트 기간 :2025.07.16 ~ 2025.07.30
+- 1차 프로젝트 기간 : 2025.07.16 ~ 2025.07.30
+- 2차 프로젝트 기간 : 2025.09.01 ~ 2025.10.14
 
 ## 🔨 사용 기술 및 라이브러리
 
-<table>
-  <thead>
+<table  cellpadding="8" cellspacing="0" style="border-collapse: collapse; width: 100%; text-align: left;">
+  <thead style="background-color:#4CAF50; color: white;">
     <tr>
       <th>구분</th>
       <th>카테고리</th>
@@ -47,58 +51,57 @@ H A N I P 은 앱 설치 없이 웹에서 바로 접속해 주문할 수 있고,
     </tr>
   </thead>
   <tbody>
-    <tr style="background-color:#f9f9f9">
-      <td>Frontend</td>
+    <tr style="background-color:#e8f5e9">
+      <td rowspan="7" style="vertical-align: middle; font-weight:bold;">Frontend</td>
       <td>Framework</td>
       <td>Vue 3</td>
     </tr>
-    <tr style="background-color:#f9f9f9">
-     <td>Frontend</td>
+    <tr style="background-color:#f1f8e9">
       <td>스타일링</td>
       <td>Bootstrap, Sass</td>
     </tr>
-    <tr style="background-color:#ffffff">
-      <td>Frontend</td>
+    <tr style="background-color:#e8f5e9">
       <td>상태 관리</td>
       <td>Pinia</td>
     </tr>
-    <tr style="background-color:#f9f9f9">
-      <td>Frontend</td>
+    <tr style="background-color:#f1f8e9">
       <td>HTTP 통신</td>
       <td>Axios</td>
     </tr>
-    <tr style="background-color:#ffffff">
-      <td>Frontend</td>
+    <tr style="background-color:#e8f5e9">
       <td>지도 API</td>
       <td>네이버 지도 API</td>
     </tr>
-    <tr style="background-color:#f9f9f9">
-      <td>Frontend</td>
+    <tr style="background-color:#f1f8e9">
+      <td>라이브러리</td>
+      <td>Swiper, Day.js, Chart.js</td>
+    </tr>
+    <tr style="background-color:#e8f5e9">
       <td>개발 툴</td>
       <td>VSCode</td>
     </tr>
-    <tr style="background-color:#ffffff">
-      <td>Backend</td>
+    <tr style="background-color:#e3f2fd">
+      <td rowspan="6" style="vertical-align: middle; font-weight:bold;">Backend</td>
       <td>Framework</td>
       <td>Spring Boot</td>
     </tr>
-    <tr style="background-color:#f9f9f9">
-      <td>Backend</td>
+    <tr style="background-color:#bbdefb">
       <td>데이터베이스</td>
       <td>MariaDB</td>
     </tr>
-    <tr style="background-color:#ffffff">
-      <td>Backend</td>
+    <tr style="background-color:#e3f2fd">
       <td>DB 관리 툴</td>
       <td>HeidiSQL</td>
     </tr>
-    <tr style="background-color:#f9f9f9">
-      <td>Backend</td>
+    <tr style="background-color:#bbdefb">
       <td>API 테스트</td>
       <td>Postman</td>
     </tr>
-    <tr style="background-color:#ffffff">
-      <td>Backend</td>
+    <tr style="background-color:#e3f2fd">
+      <td>API 연동</td>
+      <td>네이버 페이, 네이버 소셜 로그인, 카카오 페이, 카카오 소셜 로그인, SSE</td>
+    </tr>
+    <tr style="background-color:#bbdefb">
       <td>개발 툴</td>
       <td>IntelliJ IDEA</td>
     </tr>
@@ -120,7 +123,7 @@ H A N I P 은 앱 설치 없이 웹에서 바로 접속해 주문할 수 있고,
 </div>
 
 <div>
-<a href="https://www.erdcloud.com/d/GoRPuTcMd2JJEcr7i" target="_blank" >
+<a href="https://www.erdcloud.com/d/dE7hMs76FjLRcXv8f" target="_blank" >
 <img src="/src/imgs/icon/Erdcloud.png"alt="Erdcloud Icon" >
 </a>
 </div>

@@ -249,7 +249,7 @@ const formatDateTime = (isoStr) => {
         border-radius: 100%;
         width: 48px;
         height: 48px;
-        box-shadow: 5px 5px 20px #ccc;
+        box-shadow: 1px 1px 3px #ccc;
       }
       .profile-circle img {
         width: 100%;
