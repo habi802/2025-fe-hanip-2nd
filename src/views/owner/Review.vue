@@ -8,6 +8,9 @@ import { getReviewsByStoreId  } from '@/services/reviewServices.js';
 import { getReviewsAllByStoreId2 } from '@/services/reviewServices.js';
 import ReviewDateFilter from '@/components/owner/ReviewDateFilter.vue';
 
+
+const baseUrl = ref(import.meta.env.VITE_BASE_URL);
+
 //가게정보가져오기 
 const ownerStore = useOwnerStore();
 
@@ -33,6 +36,27 @@ const handleDateUpdate = (payload) => {
 
   fetchReviews(); //날짜 바뀌면 자동 갱신
 };
+
+
+const imgSrc = computed(() => {
+  // 파일 선택 시 미리보기 우선
+  if (selectedFile.value) return previewUrl.value;
+
+  // 소셜 로그인(userPic이 외부 URL인 경우)
+  if (state.form.providerType !== "로컬" && state.form.imagePath) {
+    if (state.form.imagePath.startsWith("http")) {
+      return state.form.imagePath.replace(/^http:\/\//, "https://");
+    }
+  }
+
+  // 로컬 로그인 또는 서버 이미지
+  if (state.form.id && state.form.imagePath && state.form.imagePath !== "null") {
+    return `${baseUrl.value}/images/user/${state.form.id}/${state.form.imagePath}`;
+  }
+
+  // 기본 이미지
+  return defaultUserProfile;
+});
 
 
 const reviews = ref([])
@@ -83,9 +107,12 @@ const sum = allReview.value.reduce((acc, review) => acc + review.rating, 0);
 return (sum / allReview.value.length).toFixed(1);
 });
 
-onMounted(async()=> {
-    fetchReviews();
-})
+
+const reviewSrcList = computed(() => {
+  if (!reviews.item?.pic || props.item.pic.length === 0) return [];
+
+  return props.item.pic.map(fileName => `${baseUrl.value}/images/Review/${props.item.id}/${fileName}`);
+});
 
 
 
@@ -98,6 +125,9 @@ onMounted(async()=> {
 //     `,
 // };
 
+onMounted(async()=> {
+    fetchReviews();
+})
 
 </script>
 
