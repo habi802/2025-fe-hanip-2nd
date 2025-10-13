@@ -213,7 +213,6 @@ const closeOrder = () => {
       </RouterLink>
     </div>
     <div
-      v-if="hasOrders"
       class="order-status d-flex flex-column gap-2"
       style="margin-bottom: 10px"
     >
