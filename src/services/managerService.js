@@ -95,6 +95,16 @@ export const patchOrderStatus = params => {
     ).catch(e => e.response);
 }
 
+// 금일 가입자 수, 가게 등록 수 통계 조회
+export const getTodayActorStats = () => {
+    return axios.get(`${actorPath}/stats`).catch(e => e.response);
+}
+
+// 금일 주문 건 수, 매출액 통계 조회
+export const getTodayActionStats = () => {
+    return axios.get(`${actionPath}/stats`).catch(e => e.response);
+}
+
 // 가입자 수 통계 조회
 export const getUserStats = params => {
     return axios.get(`${actorPath}/user/stats`, { params }).catch(e => e.response);
