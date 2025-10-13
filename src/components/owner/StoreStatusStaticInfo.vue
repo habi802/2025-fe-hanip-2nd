@@ -53,6 +53,15 @@ const onCroppedBanner = (file) => {
 const selectedCategory = ref([]);
 const showCategoryDropdown = ref(false);
 const categoryOption = ['한식','중식','일식','양식','디저트','분식','패스트푸드','아시안','치킨','피자','야식'];
+const categoryWrapRef = ref(null);
+
+const onClickOutsideCategory = (e) => {
+  if (!showCategoryDropdown.value) return;
+  const el = categoryWrapRef.value;
+  if (el && !el.contains(e.target)) {
+    showCategoryDropdown.value = false;
+  }
+};
 
 function toggleCategoryItem(option) {
   const idx = selectedCategory.value.indexOf(option);
@@ -66,6 +75,7 @@ const sortedSelectedCategory = computed(() =>
 
 onMounted(() => {
   selectedCategory.value = props.form.categories.filter(val => categoryOption.includes(val));
+  document.addEventListener('click', onClickOutsideCategory);
 });
 
 const updateForm = (key, value) => {
@@ -133,30 +143,35 @@ const updateForm = (key, value) => {
 
         <div class="mb-3 row">
           <label class="col-sm-3 col-form-label fw-semibold">업종</label>
-          <div class="col-sm-8 position-relative">
-            <input
-              type="text"
-              class="form-control"
-              :value="sortedSelectedCategory.join(', ')"
-              readonly
-              @click="showCategoryDropdown = !showCategoryDropdown"
-              :disabled="props.isActive === 1"
-            />
-            <ul v-if="showCategoryDropdown" class="dropdown-menu show w-100">
-              <li
-                v-for="option in categoryOption"
-                :key="option"
-                @click="toggleCategoryItem(option)"
-                :class="[
-                  'dropdown-item',
-                  selectedCategory.includes(option) ? 'active' : '',
-                  !selectedCategory.includes(option) && selectedCategory.length >= 3 ? 'disabled text-muted' : ''
-                ]"
-                style="cursor: pointer;"
-              >
-                {{ option }}
-              </li>
-            </ul>
+          <div class="col-sm-8">
+            <!-- 인풋+드롭다운 고정폭 래퍼 -->
+            <div class="category-field" ref="categoryWrapRef">
+              <input
+                type="text"
+                class="form-control w-100"
+                :value="sortedSelectedCategory.join(', ')"
+                readonly
+                @click="showCategoryDropdown = !showCategoryDropdown"
+                @keydown.esc.prevent="showCategoryDropdown = false"
+                @keydown.enter.prevent
+                :disabled="props.isActive === 1"
+              />
+              <ul v-if="showCategoryDropdown" class="dropdown-menu show category-dropdown">
+                <li
+                  v-for="option in categoryOption"
+                  :key="option"
+                  @click="toggleCategoryItem(option)"
+                  :class="[
+                    'dropdown-item',
+                    selectedCategory.includes(option) ? 'active' : '',
+                    !selectedCategory.includes(option) && selectedCategory.length >= 3 ? 'disabled text-muted' : ''
+                  ]"
+                  style="cursor: pointer;"
+                >
+                  {{ option }}
+                </li>
+              </ul>
+            </div>
           </div>
         </div>
 
@@ -178,14 +193,14 @@ const updateForm = (key, value) => {
     <!-- 이미지 관리 -->
     <h5 class="mt-4 mb-3 fw-bold border-bottom pb-2 text-center">이미지 관리</h5>
     <div class="row g-4 align-items-stretch justify-content-center">
-      <!-- 대표 이미지 (정사각형 유지) -->
+      <!-- 대표 이미지 (정사각형 유지 + 카드 높이 동기화) -->
       <div class="col-md-4 d-flex">
         <div class="image-upload-card flex-fill">
           <div class="card-title">대표 이미지</div>
 
-          <!-- 바깥 컨테이너: 배너와 같은 1900:400 비율(=카드 높이 동일화) -->
+          <!-- 바깥 컨테이너: 배너와 동일한 비율(카드 높이 동일화) -->
           <div class="outer-wrapper hoverable" @click="selectStoreImageFile">
-            <!-- 안쪽 정사각형 박스: 높이 100%로 세로를 채우고 가로는 동일(정사각형) -->
+            <!-- 내부 정사각형 박스 -->
             <div class="square-box">
               <img
                 :src="storePreviewImage"
@@ -256,7 +271,7 @@ const updateForm = (key, value) => {
 </template>
 
 <style scoped lang="scss">
-/* 카드 공통 */
+/* ===== 이미지 카드 ===== */
 .image-upload-card {
   display: flex;
   flex-direction: column;
@@ -270,33 +285,29 @@ const updateForm = (key, value) => {
   }
 }
 
-/* ================= 대표 이미지: 정사각형 + 카드 높이 동기화 ================= */
-/* 바깥 컨테이너는 배너와 동일한 비율로(1900:400) → 두 카드의 세로 높이 동일 */
 .outer-wrapper {
   position: relative;
   width: 100%;
   height: auto;
-  aspect-ratio: 100 / 45;
+  aspect-ratio: 100 / 45;   
   background: #f8f9fa;
   border-radius: var(--card-lg-radius);
   border: 2px dashed #dee2e6;
   overflow: hidden;
 }
 
-/* 내부 정사각형 박스: 컨테이너의 높이를 100%로 채움 → 진짜 정사각형 */
 .square-box {
   position: absolute;
   top: 50%;
   left: 50%;
-  height: 100%;          /* 세로를 꽉 채우고 */
-  width: auto;           /* 가로는 자동 → 정사각형이므로 height와 동일 */
-  aspect-ratio: 1 / 1;   /* 정사각형 강제 */
-  transform: translate(-50%, -50%); /* 수평/수직 중앙 정렬 */
+  height: 100%;    
+  width: auto;
+  aspect-ratio: 1 / 1; 
+  transform: translate(-50%, -50%);
   border-radius: var(--card-lg-radius);
   overflow: hidden;
 }
 
-/* 정사각형 내부 이미지 */
 .square-box > img {
   width: 100%;
   height: 100%;
@@ -305,7 +316,6 @@ const updateForm = (key, value) => {
   transition: transform .3s ease;
 }
 
-/* ================= 배너 이미지 ================= */
 .image-wrapper.banner {
   position: relative;
   width: 100%;
@@ -317,7 +327,7 @@ const updateForm = (key, value) => {
   overflow: hidden;
 
   @media (min-width: 992px) {
-    min-height: 160px; /* 너무 얇아지는 것 방지 */
+    min-height: 160px;
   }
 }
 .image-wrapper.banner img {
@@ -328,7 +338,7 @@ const updateForm = (key, value) => {
   transition: transform .3s ease;
 }
 
-/* 공통 hover 오버레이 */
+/* 공통 hover */
 .hoverable .overlay {
   position: absolute; inset: 0;
   display: flex; align-items: center; justify-content: center;
@@ -341,10 +351,33 @@ const updateForm = (key, value) => {
 .image-wrapper.banner:hover img { transform: scale(1.05); }
 .hoverable:hover .overlay { opacity: 1; }
 
-/* 초광폭 화면에서 배너 카드 가독성 보정(선택) */
 .banner-card {
   max-width: 1100px;
   margin: 0 auto;
 }
-</style>
 
+.category-field {
+  position: relative;
+  width: 323px; 
+  max-width: 100%;
+}
+
+.category-dropdown {
+  position: absolute;
+  left: 0;
+  top: calc(100% + 2px);
+  width: 100%;   
+  max-height: 240px;
+  overflow: auto;
+  z-index: 1050;
+  border-radius: .375rem;
+  box-shadow: 0 .5rem 1rem rgba(0,0,0,.08);
+  padding: .25rem 0;
+}
+.category-dropdown .dropdown-item { line-height: 1.6; }
+.category-dropdown .dropdown-item.disabled { pointer-events: none; opacity: .6; }
+
+@media (max-width: 575.98px) {
+  .category-field { width: 100%; }
+}
+</style>
