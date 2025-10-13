@@ -103,7 +103,7 @@ const showImage = (title, id, image) => {
                         <template v-if="isExistItem">
                             <div class="d-flex justify-content-center align-items-center">
                                 <img :src="showImage('store', props.item.storeId, props.item.bannerPath)" @error="e => e.target.src = bannerDefaultImage"
-                                    class="banner-image" :alt="`${props.item.name}의 가게 배너 이미지`" />
+                                    class="image" :alt="`${props.item.name}의 가게 배너 이미지`" />
                             </div>
                         </template>
                     </b-col>
@@ -283,11 +283,7 @@ const showImage = (title, id, image) => {
     min-height: 180px;
 
     .image {
-        width: 80%;
-    }
-
-    .banner-image {
-        width: 50%;
+        width: 100%;
     }
 }
 
