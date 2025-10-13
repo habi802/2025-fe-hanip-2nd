@@ -1,6 +1,7 @@
 <script setup>
 import { computed, defineExpose, ref } from 'vue';
-import defaultImage from "@/imgs/owner/haniplogo_sample4.png";
+import defaultImage from "@/imgs/owner/owner-service2.png";
+import bannerDefaultImage from "@/imgs/owner/owner-service5.png";
 
 const props = defineProps({
     title: String,
@@ -36,9 +37,9 @@ const setItemStatus = (id, status, newStatus) => {
 const baseUrl = import.meta.env.VITE_BASE_URL;
 
 // 이미지 표시
-const showImage = (title, image) => {
+const showImage = (title, id, image) => {
     return image !== undefined && image !== null && image !== ''
-        ? `${baseUrl}/images/${title}/${props.item.id}/${image}`
+        ? `${baseUrl}/images/${title}/${id}/${image}`
         : defaultImage;
 };
 </script>
@@ -77,14 +78,19 @@ const showImage = (title, image) => {
                 </b-row>
                 <b-row>
                     <b-col cols="6" class="content">
-                        
+                        <template v-if="isExistItem">
+                            <div class="d-flex justify-content-center align-items-center">
+                                <img :src="showImage('store', props.item.storeId, props.item.imagePath)" @error="e => e.target.src = defaultImage"
+                                    class="image" :alt="`${props.item.name}의 가게 이미지`" />
+                            </div>
+                        </template>
                     </b-col>
                     <b-col cols="6" class="content">
                         <template v-if="isExistItem">
-                            <img :src="showImage('user', props.item.licensePath)" :alt="`${props.item.name}의 사업자 등록증 이미지`" />
-                        </template>
-                        <template v-else>
-
+                            <div class="d-flex justify-content-center align-items-center">
+                                <img :src="showImage('user', props.item.userId, props.item.licensePath)" @error="e => e.target.src = defaultImage"
+                                    class="image" :alt="`${props.item.name}의 사업자 등록증 이미지`" />
+                            </div>
                         </template>
                     </b-col>
                 </b-row>
@@ -94,7 +100,12 @@ const showImage = (title, image) => {
                 </b-row>
                 <b-row>
                     <b-col cols="12" class="content">
-
+                        <template v-if="isExistItem">
+                            <div class="d-flex justify-content-center align-items-center">
+                                <img :src="showImage('store', props.item.storeId, props.item.bannerPath)" @error="e => e.target.src = bannerDefaultImage"
+                                    class="banner-image" :alt="`${props.item.name}의 가게 배너 이미지`" />
+                            </div>
+                        </template>
                     </b-col>
                 </b-row>
 
@@ -270,6 +281,14 @@ const showImage = (title, image) => {
 
 .content {
     min-height: 180px;
+
+    .image {
+        width: 80%;
+    }
+
+    .banner-image {
+        width: 50%;
+    }
 }
 
 /* 결제 수단 스타일 */
