@@ -161,6 +161,7 @@ const filteredGroups = computed(() => {
 }
 
 .menu-list {
+  padding-left: 13px;
   height: 100vh;
   display: flex;
   flex-direction: column;
@@ -200,6 +201,7 @@ const filteredGroups = computed(() => {
 
 /* 리스트 스크롤 */
 .menu-scroll {
+  max-height: 800px;
   flex: 1;
   overflow-y: auto;
   overflow-x: hidden;

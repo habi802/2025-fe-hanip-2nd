@@ -268,7 +268,16 @@ const closeOrder = () => {
 </template>
 
 <style scoped lang="scss">
-/* 상단 8개 카드 */
+.wrap {
+  display: grid;
+  grid-template-columns: 1fr minmax(0, 1495px) 1fr;
+  column-gap: 24px;
+  padding-inline: 16px;
+}
+
+.wrap > * {
+  grid-column: 2;
+}
 .total-wrap {
   font-family: "Pretendard", sans-serif;
   margin-top: 5px;
