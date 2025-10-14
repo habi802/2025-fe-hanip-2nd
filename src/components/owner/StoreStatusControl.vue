@@ -1,89 +1,385 @@
-<script setup>
-import { ref } from 'vue';
+<script setup lang="ts">
+import { reactive, ref, watch, onActivated } from "vue";
 
-const props = defineProps({
-    form: Object
+const props = defineProps<{
+  form: Record<string, any>;
+  isActive?: number;
+}>();
+const emit = defineEmits<{ "update-form": [any] }>();
+
+const localForm = reactive({ ...props.form });
+
+watch(
+  () => props.form,
+  (v) => {
+    Object.assign(localForm, v ?? {});
+  },
+  { deep: true }
+);
+
+watch(
+  localForm,
+  (v) => {
+    emit("update-form", { ...v });
+  },
+  { deep: true }
+);
+
+onActivated(() => {
+  Object.assign(localForm, props.form ?? {});
 });
 
-const emit = defineEmits(['update-form']);
+const fmt = new Intl.NumberFormat("ko-KR");
+const uncomma = (s: string) =>
+  Number(String(s ?? "").replace(/[^\d]/g, "") || 0);
+const comma = (n: number) => (isNaN(n) ? "" : fmt.format(n));
 
-const isOpen = ref(props.form.isOpen);
-const isPickUp = ref(props.form.isPickUp);
-
-// 토글로 된 데이터 상태 변경
-const updateToggle = key => {
-    updateForm(key, key === 'isOpen' ? isOpen.value : isPickUp.value);
+/* 금액 입력 핸들러 */
+const onMoneyInput = (
+  e: Event,
+  key: "minAmount" | "minDeliveryFee" | "maxDeliveryFee"
+) => {
+  const el = e.target as HTMLInputElement;
+  const num = uncomma(el.value);
+  (localForm as any)[key] = num;
+  el.value = comma(num);
 };
 
-// 부모 컴포넌트(StatusStore.vue)에 입력한 값 전달
-const updateForm = (key, value) => {
-    emit('update-form', { ...props.form, [key]: value })
-}
+/* 토글 (1/0) */
+const onToggle = (key: "isOpen" | "isPickUp", v: boolean) => {
+  (localForm as any)[key] = v ? 1 : 0;
+};
 </script>
+
 <template>
-    <div>
-        <div class="control-wrap">
-            <span>영업 중</span>
-            <div class="toggle-container" style="height: 40px">
-                <label class="switch">
-                    <input type="checkbox" v-model="isOpen" :true-value="1" :false-value="0" @change="updateToggle('isOpen')" />
-                    <span class="slider"></span>
-                </label>
-            </div>
-            
-            <span>영업 시간</span>
-            <div class="d-flex gap-3">
-                <input type="time" v-model="props.form.openTime" @change="updateForm('openTime', $event.target.value)" class="gray-content">
-                <span>~</span>
-                <input type="time" v-model="props.form.closeTime" @change="updateForm('closeTime', $event.target.value)" class="gray-content">
-            </div>
-            
-            <span>휴무일</span>
-            <div class="d-flex gap-3">
-                <label><input type="radio" v-model="props.form.closedDay" @change="updateForm('closedDay', $event.target.value)" value="월요일">월</input></label>
-                <label><input type="radio" v-model="props.form.closedDay" @change="updateForm('closedDay', $event.target.value)" value="화요일">화</input></label>
-                <label><input type="radio" v-model="props.form.closedDay" @change="updateForm('closedDay', $event.target.value)" value="수요일">수</input></label>
-                <label><input type="radio" v-model="props.form.closedDay" @change="updateForm('closedDay', $event.target.value)" value="목요일">목</input></label>
-                <label><input type="radio" v-model="props.form.closedDay" @change="updateForm('closedDay', $event.target.value)" value="금요일">금</input></label>
-                <label><input type="radio" v-model="props.form.closedDay" @change="updateForm('closedDay', $event.target.value)" value="토요일">토</input></label>
-                <label><input type="radio" v-model="props.form.closedDay" @change="updateForm('closedDay', $event.target.value)" value="일요일">일</input></label> 
-            </div>
+  <div class="container-fluid">
+    <h5 class="mb-3 fw-bold border-bottom pb-2 text-center">가게 운영관리</h5>
 
-            <span>최소 주문 금액</span>
-            <label for="minOrderPrice">
-                <input type="text" v-model="props.form.minAmount" @input="updateForm('minAmount', $event.target.value)" class="gray-content" id="minOrderPrice" placeholder="원 이상 주문가능">
-            </label>
-
-            <span>배달료</span>
-            <div class="d-flex gap-3">
-                <input type="text" v-model="props.form.minDeliveryFee" @change="updateForm('minDeliveryFee', $event.target.value)" class="gray-content">
-                <span>~</span>
-                <input type="text" v-model="props.form.maxDeliveryFee" @change="updateForm('maxDeliveryFee', $event.target.value)" class="gray-content">
+    <div class="row align-items-start">
+      <!-- 좌측: 영업 상태/포장 여부 -->
+      <div class="col-md-6">
+        <!-- 영업 중 -->
+        <div class="mb-3 row">
+          <label class="col-sm-3 col-form-label fw-semibold">영업 중</label>
+          <div class="col-sm-8 d-flex align-items-center">
+            <div class="form-check form-switch">
+              <input
+                class="form-check-input"
+                type="checkbox"
+                :checked="localForm.isOpen === 1"
+                @change="
+                  onToggle(
+                    'isOpen',
+                    ($event.target as HTMLInputElement).checked
+                  )
+                "
+                :disabled="props.isActive === 1"
+              />
+              <span class="ms-2">{{
+                localForm.isOpen === 1 ? "ON" : "OFF"
+              }}</span>
             </div>
-
-            <span>포장 주문 가능</span>
-            <div class="toggle-container" style="height: 40px">
-                <label class="switch">
-                    <input type="checkbox" v-model="isPickUp" :true-value="1" :false-value="0" @change="updateToggle('isPickUp')" />
-                    <span class="slider"></span>
-                </label>
-            </div>
-
-            <span>가게 이벤트 공지</span>
-            <textarea v-model="props.form.eventComment" @input="updateForm('eventComment', $event.target.value)" class="gray-content" placeholder="최대 500자 이하 재료소진, 배달지연, 이벤트 안내 등 설정해보세요!"></textarea>
+          </div>
         </div>
+
+        <!-- 포장 주문 가능 -->
+        <div class="mb-3 row">
+          <label class="col-sm-3 col-form-label fw-semibold">포장 주문</label>
+          <div class="col-sm-8 d-flex align-items-center">
+            <div class="form-check form-switch">
+              <input
+                class="form-check-input"
+                type="checkbox"
+                :checked="localForm.isPickUp === 1"
+                @change="
+                  onToggle(
+                    'isPickUp',
+                    ($event.target as HTMLInputElement).checked
+                  )
+                "
+                :disabled="props.isActive === 1"
+              />
+              <span class="ms-2">{{
+                localForm.isPickUp === 1 ? "가능" : "불가"
+              }}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- 가게 이벤트 공지 -->
+        <div class="mb-3 row">
+          <label class="col-sm-3 col-form-label fw-semibold">이벤트 공지</label>
+          <div class="col-sm-8">
+            <textarea
+              class="form-control"
+              rows="4"
+              :value="localForm.eventComment"
+              @input="
+                localForm.eventComment = (
+                  $event.target as HTMLTextAreaElement
+                ).value
+              "
+              placeholder="최대 500자 이하: 재료소진, 배달지연, 이벤트 안내 등"
+              :disabled="props.isActive === 1"
+            />
+          </div>
+        </div>
+      </div>
+
+      <!-- 우측: 시간/휴무/금액 -->
+      <div class="col-md-6">
+        <!-- 영업 시간 -->
+        <div class="mb-3 row">
+          <label class="col-sm-3 col-form-label fw-semibold">영업 시간</label>
+          <div class="col-sm-8 d-flex align-items-center gap-2">
+            <input
+              type="time"
+              class="form-control w-auto"
+              :value="localForm.openTime"
+              @change="
+                localForm.openTime = ($event.target as HTMLInputElement).value
+              "
+              :disabled="props.isActive === 1"
+            />
+            <span class="opacity-75">~</span>
+            <input
+              type="time"
+              class="form-control w-auto"
+              :value="localForm.closeTime"
+              @change="
+                localForm.closeTime = ($event.target as HTMLInputElement).value
+              "
+              :disabled="props.isActive === 1"
+            />
+          </div>
+        </div>
+
+        <!-- 휴무일 -->
+        <div class="mb-3 row">
+          <label class="col-sm-3 col-form-label fw-semibold">휴무일</label>
+          <div class="col-sm-8">
+            <div class="d-flex flex-wrap gap-3">
+              <label class="form-check">
+                <input
+                  class="form-check-input"
+                  type="radio"
+                  name="closedDay"
+                  value="월요일"
+                  :checked="localForm.closedDay === '월요일'"
+                  @change="localForm.closedDay = '월요일'"
+                  :disabled="props.isActive === 1"
+                />
+                <span class="ms-1">월</span>
+              </label>
+              <label class="form-check">
+                <input
+                  class="form-check-input"
+                  type="radio"
+                  name="closedDay"
+                  value="화요일"
+                  :checked="localForm.closedDay === '화요일'"
+                  @change="localForm.closedDay = '화요일'"
+                  :disabled="props.isActive === 1"
+                />
+                <span class="ms-1">화</span>
+              </label>
+              <label class="form-check">
+                <input
+                  class="form-check-input"
+                  type="radio"
+                  name="closedDay"
+                  value="수요일"
+                  :checked="localForm.closedDay === '수요일'"
+                  @change="localForm.closedDay = '수요일'"
+                  :disabled="props.isActive === 1"
+                />
+                <span class="ms-1">수</span>
+              </label>
+              <label class="form-check">
+                <input
+                  class="form-check-input"
+                  type="radio"
+                  name="closedDay"
+                  value="목요일"
+                  :checked="localForm.closedDay === '목요일'"
+                  @change="localForm.closedDay = '목요일'"
+                  :disabled="props.isActive === 1"
+                />
+                <span class="ms-1">목</span>
+              </label>
+              <label class="form-check">
+                <input
+                  class="form-check-input"
+                  type="radio"
+                  name="closedDay"
+                  value="금요일"
+                  :checked="localForm.closedDay === '금요일'"
+                  @change="localForm.closedDay = '금요일'"
+                  :disabled="props.isActive === 1"
+                />
+                <span class="ms-1">금</span>
+              </label>
+              <label class="form-check">
+                <input
+                  class="form-check-input"
+                  type="radio"
+                  name="closedDay"
+                  value="토요일"
+                  :checked="localForm.closedDay === '토요일'"
+                  @change="localForm.closedDay = '토요일'"
+                  :disabled="props.isActive === 1"
+                />
+                <span class="ms-1">토</span>
+              </label>
+              <label class="form-check">
+                <input
+                  class="form-check-input"
+                  type="radio"
+                  name="closedDay"
+                  value="일요일"
+                  :checked="localForm.closedDay === '일요일'"
+                  @change="localForm.closedDay = '일요일'"
+                  :disabled="props.isActive === 1"
+                />
+                <span class="ms-1">일</span>
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <!-- 최소 주문 금액 -->
+        <div class="mb-3 row">
+          <label class="col-sm-3 col-form-label fw-semibold"
+            >최소 주문 금액</label
+          >
+          <div class="col-sm-8">
+            <div class="input-group">
+              <input
+                type="text"
+                class="form-control text-end"
+                :value="
+                  localForm.minAmount
+                    ? localForm.minAmount.toLocaleString('ko-KR')
+                    : ''
+                "
+                inputmode="numeric"
+                placeholder="0"
+                @input="onMoneyInput($event, 'minAmount')"
+                :disabled="props.isActive === 1"
+              />
+              <span class="input-group-text">원 이상</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- 배달료 -->
+        <div class="mb-3 row">
+          <label class="col-sm-3 col-form-label fw-semibold">배달료</label>
+          <div class="col-sm-8 d-flex align-items-center gap-2">
+            <div class="input-group w-50">
+              <input
+                type="text"
+                class="form-control text-end"
+                :value="
+                  localForm.minDeliveryFee
+                    ? localForm.minDeliveryFee.toLocaleString('ko-KR')
+                    : ''
+                "
+                inputmode="numeric"
+                placeholder="0"
+                @input="onMoneyInput($event, 'minDeliveryFee')"
+                :disabled="props.isActive === 1"
+              />
+              <span class="input-group-text">원</span>
+            </div>
+            <span class="opacity-75">~</span>
+            <div class="input-group w-50">
+              <input
+                type="text"
+                class="form-control text-end"
+                :value="
+                  localForm.maxDeliveryFee
+                    ? localForm.maxDeliveryFee.toLocaleString('ko-KR')
+                    : ''
+                "
+                inputmode="numeric"
+                placeholder="0"
+                @input="onMoneyInput($event, 'maxDeliveryFee')"
+                :disabled="props.isActive === 1"
+              />
+              <span class="input-group-text">원</span>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
+  </div>
 </template>
 
-<style lang="scss" scoped>
-.control-wrap {
-    display: grid;
-    grid-template-columns: 150px 2fr;
-    gap: 20px 50px;
+<style scoped>
+h5 {
+  letter-spacing: 0.2px;
+}
+.col-form-label {
+  color: #212529;
+}
+.form-check-input {
+  cursor: pointer;
+}
+.input-group-text {
+  min-width: 70px;
+  justify-content: center;
+}
 
-    span {
-        display: flex;
-        align-items: center;
-    }
+@media (max-width: 575.98px) {
+  .input-group-text {
+    min-width: 56px;
+  }
+}
+
+/* --- Switch(토글) 색/크기 커스텀 --- */
+:deep(.form-switch .form-check-input) {
+  width: 3rem; /* 토글 길이 */
+  height: 1.6rem; /* 토글 높이 */
+  background-color: #e9ecef; /* OFF 트랙 색 */
+  border-color: #ced4da;
+}
+:deep(.form-switch .form-check-input:not(:checked)) {
+  background-color: #adb5bd; /* OFF일 때 좀 더 진한 회색 */
+}
+
+/* ON 트랙/테두리 색 */
+:deep(.form-switch .form-check-input:checked) {
+  background-color: #ff6666; /* Bootstrap primary 예시 (#0d6efd) */
+  border-color: #ff6666;
+}
+
+/* 토글 '동그라미' 색 (기본은 흰색인데 바꾸고 싶으면) */
+:deep(.form-switch .form-check-input::before) {
+  background-color: #fff; /* OFF 노브 */
+}
+:deep(.form-switch .form-check-input:checked::before) {
+  background-color: #fff; /* ON 노브 (원하면 #0b5ed7 같은 진한색으로) */
+}
+
+/* 포커스 링 */
+:deep(.form-switch .form-check-input:focus) {
+  box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25); /* primary 색의 투명 링 */
+}
+
+/* --- Radio(라디오) 색 커스텀 --- */
+:deep(.form-check-input[type="radio"]) {
+  border-color: #adb5bd; /* 테두리 기본색 */
+}
+
+/* 체크되었을 때 점/배경/테두리 */
+:deep(.form-check-input[type="radio"]:checked) {
+  background-color: #ff6b6b;
+  border-color: #ff6b6b;
+}
+
+/* 라디오 포커스 링 */
+:deep(.form-check-input[type="radio"]:focus) {
+  box-shadow: 0 0 0 0.25rem rgba(255, 107, 107, 0.25);
 }
 </style>

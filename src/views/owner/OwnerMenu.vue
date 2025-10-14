@@ -8,7 +8,7 @@ import {
   modifyMenu,
   deleteMenu,
   modifiyMenuHide,
-  modifiyMenuSoldOut
+  modifiyMenuSoldOut,
 } from "@/services/menuService";
 import { onMounted, reactive } from "vue";
 
@@ -108,7 +108,7 @@ const handleSaved = async (payload, file) => {
   );
   if (file) {
     formData.append("pic", file);
-    console.log("pic", file)
+    console.log("pic", file);
   }
 
   const res = isEdit ? await modifyMenu(formData) : await saveMenu(formData);
@@ -119,7 +119,6 @@ const handleSaved = async (payload, file) => {
       const d = await getOneMenu(reqBody.menuId);
       state.selectedMenu = d?.data?.resultData ?? null;
       showAlert("메뉴가 정상적으로 수정됐습니다.", "alert-success");
-      
     } else {
       state.mode = "create";
       state.selectedMenu = null;
@@ -132,7 +131,7 @@ const handleSaved = async (payload, file) => {
 };
 
 // 삭제하기
-const handleDeleted = async(menuId) => {
+const handleDeleted = async (menuId) => {
   // console.log("ㅎㅇ: ", menuId)
   const res = await deleteMenu(menuId);
   if (res?.status !== 200) {
@@ -147,61 +146,59 @@ const handleDeleted = async(menuId) => {
   }
 
   showAlert("메뉴가 정상적으로 삭제됐습니다.", "alert-success");
-}
+};
 
 // 숨기기
-const handleHide = async(payload) => {
-  // console.log("req: ", payload)
-  const newHide = payload.isHide === 1 ? 0 : 1;
-  const req = { ...payload, isHide: newHide };
+const handleHide = async ({ menuId, isHide }) => {
+  const req = { menuId, isHide }; // 👈 그대로 보냄 (이중 토글 금지)
 
-  const res = await modifiyMenuHide(req)
+  const res = await modifiyMenuHide(req);
   if (res?.status !== 200) {
     showAlert("수정에 실패했습니다.");
     return;
   }
 
-  const target = state.menus.find(m => m.menuId === req.menuId);
-  if (target) {
-      target.isHide = payload.isHide;
-    }
+  // 낙관적 업데이트 (목록 + 상세 동기화)
+  const target = state.menus.find((m) => m.menuId === menuId);
+  if (target) target.isHide = isHide;
 
-  if (state.selectedMenu?.menuId === payload.menuId) {
-    state.selectedMenu.isHide = newHide;
+  if (state.selectedMenu?.menuId === menuId) {
+    state.selectedMenu.isHide = isHide;
   }
 
   showAlert(
-    !newHide ? "메뉴가 숨김 처리되었습니다." : "메뉴가 다시 표시되었습니다.",
+    !isHide ? "메뉴가 숨김 처리되었습니다." : "메뉴가 다시 표시되었습니다.",
     "alert-success"
   );
+
+  // 필요시 한 번만 최신화 (중복 갱신이면 생략 가능)
   await fetchMenus();
-}
+};
 
-const handleSoldOut = async(payload) => {
-  const newSoldOut = payload.isSoldOut === 1 ? 0 : 1;
-  const req = { ...payload, isSoldOut: newSoldOut };
+// 품절
+const handleSoldOut = async ({ menuId, isSoldOut }) => {
+  const req = { menuId, isSoldOut };
 
-  const res = await modifiyMenuSoldOut(req)
+  const res = await modifiyMenuSoldOut(req);
   if (res?.status !== 200) {
     showAlert("수정에 실패했습니다.");
     return;
   }
 
-  const target = state.menus.find(m => m.menuId === req.menuId);
-  if (target) {
-      target.isSoldOut = payload.isSoldOut;
-    }
+  const target = state.menus.find((m) => m.menuId === menuId);
+  if (target) target.isSoldOut = isSoldOut;
 
-  if (state.selectedMenu?.menuId === payload.menuId) {
-    state.selectedMenu.isSoldOut = newSoldOut;
+  if (state.selectedMenu?.menuId === menuId) {
+    state.selectedMenu.isSoldOut = isSoldOut;
   }
 
   showAlert(
-    !newSoldOut ? "메뉴가 품절 처리되었습니다." : "메뉴가 판매중입니다.",
+    !isSoldOut ? "메뉴가 품절 처리되었습니다." : "메뉴가 판매중입니다.",
     "alert-success"
   );
+
   await fetchMenus();
-}
+};
 
 onMounted(async () => {
   await fetchMenus();
@@ -231,17 +228,33 @@ const removeAlert = (id) => {
 
 <template>
   <div class="wrap">
-
     <!-- alert -->
-    <div style=" position: fixed; top: 20px; left: 50%; transform: translateX(-50%); z-index: 1055; " >
-      <div  v-for="(alert, index) in alerts" :key="alert.id" :class="['alert', alert.type, 'alert-dismissible', 'fade', 'show']"
-        role="alert" style="margin-bottom: 10px; min-width: 300px; max-width: 600px" >
+    <div
+      style="
+        position: fixed;
+        top: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        z-index: 1055;
+      "
+    >
+      <div
+        v-for="(alert, index) in alerts"
+        :key="alert.id"
+        :class="['alert', alert.type, 'alert-dismissible', 'fade', 'show']"
+        role="alert"
+        style="margin-bottom: 10px; min-width: 300px; max-width: 600px"
+      >
         {{ alert.message }}
-        <button  type="button" class="btn-close" @click="removeAlert(alert.id)" ></button>
+        <button
+          type="button"
+          class="btn-close"
+          @click="removeAlert(alert.id)"
+        ></button>
       </div>
     </div>
     <!-- alert 끝 -->
-    
+
     <div class="d-flex gap-5">
       <!-- 왼쪽: 메뉴 리스트 -->
       <div class="section-left">
@@ -253,7 +266,7 @@ const removeAlert = (id) => {
       </div>
 
       <!-- 오른쪽: 상세 -->
-      <div class="section-right white-card ">
+      <div class="section-right white-card">
         <MenuDetail
           :key="state.selectedMenu?.menuId ?? 'create'"
           :menu="state.selectedMenu"
@@ -265,8 +278,8 @@ const removeAlert = (id) => {
         />
       </div>
     </div>
-
-  </div><!--wrap 끝-->
+  </div>
+  <!--wrap 끝-->
 </template>
 
 <style scoped lang="scss">
