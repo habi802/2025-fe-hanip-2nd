@@ -6,13 +6,6 @@ import { nextTick } from "vue";
 import defaultUserProfile from "@/imgs/owner/user_profile.jpg";
 import AlertModal from "@/components/modal/AlertModal.vue";
 
-const modalRef = ref(null); // ref로 모달 제어
-
-// 기존 showModal 함수 대체
-const showModal = (message) => {
-  modalRef.value?.open(message); // ref를 통해 공용 모달 열기
-};
-
 const router = useRouter();
 onMounted(() => {
   nextTick(() => {
@@ -29,7 +22,14 @@ const selectedFile = ref(null); // 실제 선택된 파일
 function triggerFileInput() {
   fileInput.value?.click();
 }
-
+// 모달창
+const showModal = (message) => {
+  const modalBody = document.getElementById("alertModalBody");
+  if (modalBody) modalBody.textContent = message;
+  if (alertModal) {
+    alertModal.show();
+  }
+};
 // 프로필 이미지
 // const imgSrc = computed(() => {
 //   // 파일을 선택했으면 미리보기 적용
@@ -179,11 +179,6 @@ function onPhoneInput(modelRef, event) {
   let val = event.target.value.replace(/\D/g, ""); // 숫자만 남김
   if (val.length > 4) val = val.slice(0, 4); // 최대 4자리 제한
   modelRef.value = val;
-
-  //   // 자동 포커스 이동
-  //   if (modelRef === phone2 && val.length === 4) {
-  //     nextTick(() => phone3Input.value?.focus());
-  //   }
 }
 // 현재 비밀번호 서버 검증 함수
 // const checkCorrectPassword = async () => {
@@ -581,8 +576,6 @@ const isPasswordChecked = ref(false); // 비밀번호 확인 여부
       </div>
     </div>
   </div>
-  <!-- 모달창 -->
-  <alert-modal ref="alertModal"></alert-modal>
 </template>
 
 <style lang="scss" scoped>
@@ -878,5 +871,21 @@ input[readonly] {
 .title {
   text-align: center;
   font-size: 1.2em;
+}
+// 모달 버튼 전용 스타일
+#alertModal .btn {
+  margin: 0;
+  width: auto;
+  padding: 0.5rem 1rem;
+  background-color: #ff6666;
+  color: #fff;
+
+  &:hover {
+    background-color: #ed5f5f;
+  }
+
+  &:active {
+    color: #fff;
+  }
 }
 </style>

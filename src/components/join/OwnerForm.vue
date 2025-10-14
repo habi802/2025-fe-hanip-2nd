@@ -513,7 +513,7 @@ watch(
           v-model="localOwner.storeName"
           @input="(e) => updateField('storeName', e.target.value)"
           :class="{ invalid: errors.storeName }"
-          placeholder="가게 이름 입력"
+          placeholder="가게 상호명"
         />
         <!-- 카테고리 선택 -->
         <select @change="onCategorySelect($event)" :class="{ invalid: errors.category }">
