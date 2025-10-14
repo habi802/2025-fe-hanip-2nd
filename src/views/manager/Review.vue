@@ -181,6 +181,7 @@ const openBoardModal = async item => {
 
     if (res !== undefined && res.status === 200) {
         review.value = res.data.resultData;
+        console.log(review.value);
 
         boardModalRef.value.open();
     }
