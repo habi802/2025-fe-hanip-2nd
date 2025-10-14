@@ -125,12 +125,14 @@ const firstItem = reactive({
 }
 
 
+
 .menu {
     display: flex;
     flex-direction: column;
     justify-content: space-between;
     cursor: pointer;
     padding: 10px;
+    height: 210px;
 
 
     &:hover {
@@ -152,6 +154,7 @@ const firstItem = reactive({
         height: 100%;
     }
 }
+
 
 .bottom-box {
     display: flex;
