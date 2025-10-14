@@ -7,7 +7,7 @@ import ReviewCard from '@/components/owner/ReviewCard.vue';
 import { getReviewsByStoreId  } from '@/services/reviewServices.js';
 import { getReviewsAllByStoreId2 } from '@/services/reviewServices.js';
 import ReviewDateFilter from '@/components/owner/ReviewDateFilter.vue';
-
+import dayjs from "dayjs";
 
 //가게정보가져오기 
 const ownerStore = useOwnerStore();
@@ -33,10 +33,12 @@ const handleDateUpdate = (payload) => {
   selectedDate.endDate = payload.endDate;
   console.log("날짜 필터 변경 감지:", payload);
 
+  
+  // 필터 변경 시 페이지 초기화
+  params.page = 1;
+
   fetchReviews(); //날짜 바뀌면 자동 갱신
 };
-
-
 
 
 //리뷰정보 갖고오기
@@ -70,10 +72,29 @@ const fetchReviews = async () => {
     }
 };
 
-//페이지네이션 total-lows 
-const row = computed(()=> allReview.value.length || 1 ) ;
 
-// 감시: 페이지네이션 값 변경 시 be자료호출
+// 특정 기간의 리뷰만 추리기
+const filteredReviews = computed(() => {
+  if (!selectedDate.startDate || !selectedDate.endDate) return allReview.value; // 기간 없으면 전체 반환
+
+  const start = dayjs(selectedDate.startDate);
+  const end = dayjs(selectedDate.endDate);
+
+  return allReview.value.filter(review => {
+    const reviewDate = dayjs(review.createdAt);
+    return reviewDate.isAfter(start) && reviewDate.isBefore(end);
+  });
+});
+
+
+//페이지네이션 total-lows 
+const row = computed(()=> filteredReviews.value.length || 1 ) ;
+
+
+// 날짜 필터가 변경될 때마다 데이터 통신
+watch([selectedDate.startDate, selectedDate.endDate],fetchReviews, { immediate: true });
+
+// 페이지네이션 값 변경 시 be자료호출
 watch(() => [params.page, params.rowPerPage], fetchReviews, { immediate: true });
 
 
