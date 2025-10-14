@@ -466,7 +466,7 @@ const cartMenu = async () => {
             <h3 class="store-name">{{ state.store.name }}</h3>
             <div class="store-meta">
               <div class="rating">
-                <img id="icon" src="/src/imgs/star.png" alt="별점" />
+                <div class="star">★</div>
                 <div v-if="state.reviewNum !== 'NaN'">
                   <span class="score">{{ state.store.rating }}</span>
                   <span class="count">({{ (state.reviewLeng?.length || 0) }})</span>
@@ -480,7 +480,7 @@ const cartMenu = async () => {
                 </div>
               </div>
               <div class="likes">
-                <img id="icon" src="/src/imgs/love.png" alt="찜" />
+                <div class="hart">♥</div>
                 <span class="like-count">{{ state.store.favorites }}</span>
               </div>
             </div>
@@ -543,11 +543,10 @@ const cartMenu = async () => {
 }
 
 @font-face {
-  // 프리텐다드
-  font-family: "Pretendard-Regular";
-  src: url("https://fastly.jsdelivr.net/gh/Project-Noonnu/noonfonts_2107@1.1/Pretendard-Regular.woff") format("woff");
+  font-family: "YFavorite";
+  src: url("https://cdn.jsdelivr.net/gh/projectnoonnu/2410-1@1.0/YOnepickTTF-Regular.woff2") format("woff2");
   font-weight: 400;
-  font-style: normal;
+  font-display: swap;
 }
 
 
@@ -780,22 +779,20 @@ const cartMenu = async () => {
 
   .store-content {
 
-
-
     .store-name {
       font-size: 25px;
       font-weight: 200;
 
       color: #000;
       text-align: center;
-      margin: 30px 0px;
+      margin: 22px 0px;
     }
 
     .store-meta {
       display: flex;
       justify-content: center;
       align-items: center;
-      gap: 60px;
+      gap: 50px;
 
       .rating,
       .likes {
@@ -805,17 +802,8 @@ const cartMenu = async () => {
         color: #797979;
       }
 
-      img {
-        // 별, 하트 아이콘
-        width: 20px;
-        height: 20px;
-        margin-right: 5px;
-      }
-
-
-
-
       .score {
+        font-size: 1.2em;
         font-weight: bold; // 별점 숫자 굵게
         color: #6c6c6c; // 짙은 회색
       }
@@ -825,6 +813,7 @@ const cartMenu = async () => {
         font-size: 18px;
         text-align: center;
         letter-spacing: 2px;
+        margin-left: 5px;
       }
     }
 
@@ -1166,5 +1155,23 @@ p {
 
 .min {
   width: 20%;
+}
+
+.star {
+  padding: 0px 3px 0px 0px;
+  font-family: "BMJUA";
+  font-size: 1.8em;
+  color: #FAC729;
+}
+
+.hart {
+  font-family: "YFavorite";
+  font-size: 1.45em;
+  color: red;
+}
+
+.like-count {
+  font-size: 1.2em;
+  margin-left: 5px;
 }
 </style>
