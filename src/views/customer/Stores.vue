@@ -122,190 +122,125 @@ const arrow = () => {
       <div class="swiperLeft">
         <img class="left" src="/src/imgs/NavigationLeft.png" />
       </div>
-      <swiper
-        :navigation="{ nextEl: '.swiperRight', prevEl: '.swiperLeft' }"
-        :slides-per-view="6"
-        :modules="[Navigation, Pagination, Scrollbar, A11y, Autoplay]"
-        :speed="100"
-        :loop="true"
-      >
+      <swiper :navigation="{ nextEl: '.swiperRight', prevEl: '.swiperLeft' }" :slides-per-view="6"
+        :modules="[Navigation, Pagination, Scrollbar, A11y, Autoplay]" :speed="100" :loop="true">
         <swiper-slide>
           <div class="imgBox">
-            <img
-              @click="
-                state.form.page = 1;
-                state.form.category = '';
-                getStore();
-              "
-              id="cImg"
-              src="/src/imgs/allImg.png"
-              alt="allImg"
-            />
+            <img @click="
+              state.form.page = 1;
+            state.form.category = '';
+            getStore();
+            " id="cImg" src="/src/imgs/allImg.png" alt="allImg" />
           </div>
           <div id="cName">전체</div>
         </swiper-slide>
         <swiper-slide>
           <div class="imgBox">
-            <img
-              @click="
-                state.form.page = 1;
-                state.form.category = '01';
-                getStore();
-              "
-              id="cImg"
-              src="/src/imgs/koreanfood.png"
-              alt="koreanImg"
-            />
+            <img @click="
+              state.form.page = 1;
+            state.form.category = '01';
+            getStore();
+            " id="cImg" src="/src/imgs/koreanfood.png" alt="koreanImg" />
           </div>
           <div id="cName">한식</div>
         </swiper-slide>
         <swiper-slide>
           <div class="imgBox">
-            <img
-              @click="
-                state.form.page = 1;
-                state.form.category = '02';
-                getStore();
-              "
-              id="cImg"
-              src="/src/imgs/jjajangmyeon.png"
-              alt="ChinaImg"
-            />
+            <img @click="
+              state.form.page = 1;
+            state.form.category = '02';
+            getStore();
+            " id="cImg" src="/src/imgs/jjajangmyeon.png" alt="ChinaImg" />
           </div>
           <div id="cName">중식</div>
         </swiper-slide>
         <swiper-slide>
           <div class="imgBox">
-            <img
-              @click="
-                state.form.page = 1;
-                state.form.category = '03';
-                getStore();
-              "
-              id="cImg"
-              src="/src/imgs/porkcutlet.png"
-              alt="japanese"
-            />
+            <img @click="
+              state.form.page = 1;
+            state.form.category = '03';
+            getStore();
+            " id="cImg" src="/src/imgs/porkcutlet.png" alt="japanese" />
           </div>
           <div id="cName">일식</div>
         </swiper-slide>
         <swiper-slide>
           <div class="imgBox">
-            <img
-              @click="
-                state.form.page = 1;
-                state.form.category = '04';
-                getStore();
-              "
-              id="cImg"
-              src="/src/imgs/pasta.png"
-              alt="westernFood"
-            />
+            <img @click="
+              state.form.page = 1;
+            state.form.category = '04';
+            getStore();
+            " id="cImg" src="/src/imgs/pasta.png" alt="westernFood" />
           </div>
           <div id="cName">양식</div>
         </swiper-slide>
         <swiper-slide>
           <div class="imgBox">
-            <img
-              @click="
-                state.form.page = 1;
-                state.form.category = '05';
-                getStore();
-              "
-              id="cImg"
-              src="/src/imgs/dessert.png"
-              alt="dessert"
-            />
+            <img @click="
+              state.form.page = 1;
+            state.form.category = '05';
+            getStore();
+            " id="cImg" src="/src/imgs/dessert.png" alt="dessert" />
           </div>
           <div id="cName">카페/디저트</div>
         </swiper-slide>
         <swiper-slide>
           <div class="imgBox">
-            <img
-              @click="
-                state.form.page = 1;
-                state.form.category = '06';
-                getStore();
-              "
-              id="cImg"
-              src="/src/imgs/tteokbokki.png"
-              alt="snackFood"
-            />
+            <img @click="
+              state.form.page = 1;
+            state.form.category = '06';
+            getStore();
+            " id="cImg" src="/src/imgs/tteokbokki.png" alt="snackFood" />
           </div>
           <div id="cName">분식</div>
         </swiper-slide>
         <swiper-slide>
           <div class="imgBox">
-            <img
-              @click="
-                state.form.page = 1;
-                state.form.category = '07';
-                getStore();
-              "
-              id="cImg"
-              src="/src/imgs/hamburger.png"
-              alt="fastFood"
-            />
+            <img @click="
+              state.form.page = 1;
+            state.form.category = '07';
+            getStore();
+            " id="cImg" src="/src/imgs/hamburger.png" alt="fastFood" />
           </div>
           <div id="cName">패스트푸드</div>
         </swiper-slide>
         <swiper-slide>
           <div class="imgBox">
-            <img
-              @click="
-                state.form.page = 1;
-                state.form.category = '08';
-                getStore();
-              "
-              id="cImg"
-              src="/src/imgs/nd.png"
-              alt="asian"
-            />
+            <img @click="
+              state.form.page = 1;
+            state.form.category = '08';
+            getStore();
+            " id="cImg" src="/src/imgs/nd.png" alt="asian" />
           </div>
           <div id="cName">아시안</div>
         </swiper-slide>
         <swiper-slide>
           <div class="imgBox">
-            <img
-              @click="
-                state.form.page = 1;
-                state.form.category = '09';
-                getStore();
-              "
-              id="cImg"
-              src="/src/imgs/chicken.png"
-              alt="chick"
-            />
+            <img @click="
+              state.form.page = 1;
+            state.form.category = '09';
+            getStore();
+            " id="cImg" src="/src/imgs/chicken.png" alt="chick" />
           </div>
           <div id="cName">치킨</div>
         </swiper-slide>
         <swiper-slide>
           <div class="imgBox">
-            <img
-              @click="
-                state.form.page = 1;
-                state.form.category = '10';
-                getStore();
-              "
-              id="cImg"
-              src="/src/imgs/pizza.png"
-              alt="pizza"
-            />
+            <img @click="
+              state.form.page = 1;
+            state.form.category = '10';
+            getStore();
+            " id="cImg" src="/src/imgs/pizza.png" alt="pizza" />
           </div>
           <div id="cName">피자</div>
         </swiper-slide>
         <swiper-slide>
           <div class="imgBox">
-            <img
-              @click="
-                state.form.page = 1;
-                state.form.category = '11';
-                getStore();
-              "
-              id="cImg"
-              src="/src/imgs/pigfeet.png"
-              alt="lateNight"
-            />
+            <img @click="
+              state.form.page = 1;
+            state.form.category = '11';
+            getStore();
+            " id="cImg" src="/src/imgs/pigfeet.png" alt="lateNight" />
           </div>
           <div id="cName">야식</div>
         </swiper-slide>
@@ -317,31 +252,18 @@ const arrow = () => {
   </div>
 
   <div class="searchBar">
-    <input
-      v-model="state.form.searchText"
-      @keyup.enter="
-        state.form.page = 1;
-        getStore();
-      "
-      type="text"
-      class="searchBox"
-      placeholder="찾는 맛집 이름,메뉴가 무엇인가요?"
-    />
-    <img
-      @click="
-        state.form.page = 1;
-        getStore();
-      "
-      class="searchImg"
-      src="/src/imgs/fluent_search.png"
-    />
+    <input v-model="state.form.searchText" @keyup.enter="
+      state.form.page = 1;
+    getStore();
+    " type="text" class="searchBox" placeholder="찾는 맛집 이름,메뉴가 무엇인가요?" />
+    <img @click="
+      state.form.page = 1;
+    getStore();
+    " class="searchImg" src="/src/imgs/fluent_search.png" />
   </div>
 
   <div class="sort-options">
-    <span
-      :class="{ active: state.form.sortColumn === 'minAmount' }"
-      @click="sortStore('minAmount')"
-    >
+    <span :class="{ active: state.form.sortColumn === 'minAmount' }" @click="sortStore('minAmount')">
       주문 금액 순
       <span class="arrow" aria-hidden="true">{{
         state.form.sortColumn === "minAmount"
@@ -352,10 +274,7 @@ const arrow = () => {
       }}</span>
     </span>
     <span class="divider">|</span>
-    <span
-      :class="{ active: state.form.sortColumn === 'rating' }"
-      @click="sortStore('rating')"
-    >
+    <span :class="{ active: state.form.sortColumn === 'rating' }" @click="sortStore('rating')">
       별점 순
       <span class="arrow" aria-hidden="true">{{
         state.form.sortColumn === "rating"
@@ -366,10 +285,7 @@ const arrow = () => {
       }}</span>
     </span>
     <span class="divider">|</span>
-    <span
-      :class="{ active: state.form.sortColumn === 'favorites' }"
-      @click="sortStore('favorites')"
-    >
+    <span :class="{ active: state.form.sortColumn === 'favorites' }" @click="sortStore('favorites')">
       찜 순
       <span class="arrow" aria-hidden="true">{{
         state.form.sortColumn === "favorites"
@@ -384,15 +300,10 @@ const arrow = () => {
   <div class="guideBox" :class="{ 'mb-3': state.stores.length > 0 }">
     <template v-if="state.stores.length > 0">
       <div class="row">
-        <div
-          class="col-3 g-3"
-          v-for="store in state.stores"
-          :key="store.id"
-          :class="{
-            isActive: store.isActive === 0,
-            isOpen: store.isOpen === 0,
-          }"
-        >
+        <div class="col-3 g-3" v-for="store in state.stores" :key="store.id" :class="{
+          isActive: store.isActive === 0,
+          isOpen: store.isOpen === 0,
+        }">
           <StoreCard :store="store" />
         </div>
       </div>
@@ -404,14 +315,8 @@ const arrow = () => {
     </template>
   </div>
 
-  <b-pagination
-    v-if="state.stores[0]?.totalRow > 0"
-    align="center"
-    v-model="state.currentPage"
-    :per-page="state.size"
-    :total-rows="state.stores[0]?.totalRow"
-    @update:model-value="changePage"
-  ></b-pagination>
+  <b-pagination v-if="state.stores[0]?.totalRow > 0" align="center" v-model="state.currentPage" :per-page="state.size"
+    :total-rows="state.stores[0]?.totalRow" @update:model-value="changePage"></b-pagination>
 
   <img @click="arrow" class="arrow" src="/src/imgs/arrow.png" />
 </template>
@@ -419,8 +324,7 @@ const arrow = () => {
 <style lang="scss" scoped>
 @font-face {
   font-family: "BMJUA";
-  src: url("https://fastly.jsdelivr.net/gh/projectnoonnu/noonfonts_one@1.0/BMJUA.woff")
-    format("woff");
+  src: url("https://fastly.jsdelivr.net/gh/projectnoonnu/noonfonts_one@1.0/BMJUA.woff") format("woff");
   font-weight: normal;
   font-style: normal;
 }
@@ -656,8 +560,10 @@ const arrow = () => {
 .isActive {
   display: none;
 }
+
 .isOpen {
-  opacity: 50%;
+  opacity: 70%;
+  mix-blend-mode: multiply;
   pointer-events: none;
 }
 </style>

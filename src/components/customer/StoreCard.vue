@@ -24,6 +24,7 @@ const storeImage = computed(() => {
 <template>
   <div class="store">
     <div v-if="store.isOpen === 0" class="overlay">운영 준비중 입니다...</div>
+    <div :class="{ dark: store.isOpen === 0 }"></div>
     <div class="storeImgBox">
       <img class="sImg" :src="storeImage" @error="(e) => (e.target.src = defaultImage)" />
     </div>
@@ -96,6 +97,7 @@ const storeImage = computed(() => {
   height: 380px;
   border-radius: 20px;
   border: #797979 solid 1px;
+  overflow: hidden;
   //-webkit-box-shadow: 6px 7px 5px -2px rgba(0, 0, 0, 0.33);
   //box-shadow: 6px 7px 5px -2px rgba(0, 0, 0, 0.33);
 
@@ -182,7 +184,18 @@ const storeImage = computed(() => {
 }
 
 .overlay {
+  color: #fff;
   position: absolute;
   transform: translate(40%, 300%);
+  z-index: 10;
+}
+
+.dark {
+  background-color: #000;
+  position: absolute;
+  width: 280px;
+  height: 380px;
+  border-radius: 18px;
+  opacity: 30%;
 }
 </style>
