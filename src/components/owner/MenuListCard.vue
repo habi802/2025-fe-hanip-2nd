@@ -24,109 +24,55 @@ console.log("props.men: ", props.menu.menuId)
 </script>
 
 <template>
- <div
-  class="menu-card d-flex justify-content-between align-items-center"
-  :class="{ dimmed: !menu.isHide }"
-  @click="emit('select', menu.menuId)"
->
-  <!-- 상태 배지 -->
-  <div v-if="!menu.isHide || !menu.isSoldOut" class="status-overlay">
-    <p v-if="!menu.isHide" class="hidden-text">숨겨진 메뉴</p>
-    <p v-if="!menu.isSoldOut" class="soldout-text">품절됨</p>
-  </div>
-
-  <!-- 메뉴 정보 -->
-  <div class="menu-info">
-    <h6 class="fw-bold mb-1 text-truncate">{{ menu.name }}</h6>
-    <p class="text-muted small text-truncate">{{ menu.comment }}</p>
-  </div>
-
-  <!-- 가격 + 이미지 -->
-  <div class="d-flex align-items-center">
-    <span class="fw-bold">
-      {{ Number(menu.price ?? 0).toLocaleString() }} 원
-    </span>
-    <img
-      :src="imgSrc"
-      alt="menu"
-      class="menu-img ms-3"
-    />
-  </div>
-</div>
-
-</template>
+  <div
+   class="menu-card d-flex justify-content-between align-items-center"
+   :class="{ dimmed: !menu.isHide }"
+   @click="emit('select', menu.menuId)"
+ >
+   <!-- 좌측: 제목 + 배지 + 코멘트 -->
+   <div class="menu-info">
+     <div class="title-row">
+       <h6 class="fw-bold mb-1 title-text">{{ menu.name }}</h6>
+       <div class="chips">
+         <!-- 기존 조건 그대로 사용 -->
+         <span v-if="!menu.isHide" class="chip chip-hidden">숨김</span>
+         <span v-if="!menu.isSoldOut" class="chip chip-soldout">품절</span>
+       </div>
+     </div>
+     <p class="text-muted small text-truncate mb-0">{{ menu.comment }}</p>
+   </div>
+ 
+   <!-- 우측: 가격 + 이미지 -->
+   <div class="d-flex align-items-center">
+     <span class="fw-bold">
+       {{ Number(menu.price ?? 0).toLocaleString() }} 원
+     </span>
+     <img :src="imgSrc" alt="menu" class="menu-img ms-3" />
+   </div>
+ </div>
+ </template> 
 
 <style scoped>
-.menu-card {
-  width: 693px;
-  height: 130px;
-  padding: 15px;
-  margin-bottom: 12px;
-  border: 1px solid #eee;
-  border-radius: 10px;
-  background: #fff;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  position: relative;
-  overflow: hidden;
+.title-row { display:flex; align-items:center; gap:8px; }
+.title-text {
+  margin:0;
+  max-width: 360px;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
 }
 
-/* 숨김일 때만 카드 흐리게 */
-.menu-card.dimmed {
-  opacity: 0.5;
+.chips { display:flex; align-items:center; gap:6px; flex-shrink:0; }
+.chip {
+  display:inline-flex; align-items:center;
+  padding:2px 8px; font-size:12px; font-weight:700;
+  border-radius:999px; line-height:1.2; user-select:none;
 }
+.chip-hidden { background:rgba(0,0,0,0.6); color:#fff; }
+.chip-soldout { background:#ff4d4f; color:#fff; }
 
-.status-overlay {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  text-align: center;
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  pointer-events: none;
-}
-
-.hidden-text {
-  margin: 0;
-  background: rgba(0, 0, 0, 0.6);
-  color: #fff;
-  padding: 4px 8px;
-  border-radius: 6px;
-  font-size: 14px;
-}
-
-.soldout-text {
-  margin: 0;
-  background: #ff4d4f;
-  color: #fff;
-  padding: 4px 8px;
-  border-radius: 6px;
-  font-size: 14px;
-  font-weight: bold;
-}
-
-.menu-img {
-  width: 90px;
-  height: 90px;
-  border-radius: 6px;
-  object-fit: cover;
-}
-
-.menu-info {
-  flex: 1;
-  overflow: hidden;
-}
-
-.text-truncate {
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.menu-card:hover * {
-  color: #fff !important;
-}
+.menu-card { width:693px; height:130px; padding:15px; margin-bottom:12px; border:1px solid #eee; border-radius:10px; background:#fff; display:flex; justify-content:space-between; align-items:center; position:relative; overflow:hidden; }
+/* .menu-card.dimmed { opacity:0.5; } */
+.menu-img { width:90px; height:90px; border-radius:6px; object-fit:cover; }
+.menu-info { flex:1; overflow:hidden; min-width:0; }
+.text-truncate { white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.menu-card:hover * { color:#fff !important; }
 </style>
