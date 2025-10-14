@@ -29,6 +29,7 @@ onMounted(async () => {
         console.log(res.data.resultData);
         state.order = res.data.resultData;
     }
+    console.log("상태 확인", state.order?.status)
 });
 
 // 주문 상태 확인
@@ -40,8 +41,8 @@ const status = computed(() => {
             return { width: "33%", backgroundColor: "#FF6666" };
         case "PREPARING":
             return { width: "82%", backgroundColor: "#FF6666" };
-        case "DELIVERING":
-            return { width: "185%", backgroundColor: "#FF6666" };
+        case "DELIVERED":
+            return { width: "290%", backgroundColor: "#FF6666" };
         case "COMPLETED":
             return { width: "100000%", backgroundColor: "#FF6666" };
     }
@@ -154,7 +155,7 @@ const getPayment = computed(() => {
                 <div class="border rounded p-5">
                     <div class="row mb-3">
                         <div class="col-3 text-muted">결제일시</div>
-                        <div class="col">{{ state.order.createdAt }}</div>
+                        <div class="col">{{ state.order.createdAt ? state.order.createdAt.split('.')[0] : '' }}</div>
                     </div>
                     <div class="row mb-3">
                         <div class="col-3 text-muted">결제 수단</div>
