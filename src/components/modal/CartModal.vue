@@ -415,10 +415,24 @@ span.total {
   min-height: 40px;
   max-height: 300px;
   overflow-y: auto;
-
+  padding-right: 5px;
 }
 
 .big-box::-webkit-scrollbar {
+  width: 5px;
+}
+
+.big-box::-webkit-scrollbar-track {
+  background: #ffeeee;
+  border-radius: 10px;
+}
+
+.big-box::-webkit-scrollbar-thumb {
+  background: #ffb7b7;
+  border-radius: 10px;
+}
+
+.big-box::-webkit-scrollbar-button {
   display: none;
 }
 </style>
