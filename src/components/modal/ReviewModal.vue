@@ -15,8 +15,6 @@ import { getReviewOne } from '@/services/reviewServices';
 import { putReview } from '@/services/reviewServices';
 
 
-
-
 // 리뷰 별점
 const selected = ref(0);
 const stars = [1, 2, 3, 4, 5];
@@ -208,8 +206,18 @@ const onFileChange = (e) => {
         const availableSlots = 5 - currentCount;
         selectedFiles.splice(availableSlots);
     }
+    const MAX_SIZE = 15 * 1024 * 1024;
+    const validFiles = selectedFiles.filter(file => {
+        if (file.size > MAX_SIZE) {
+            return false;
+        }
+        return true;
+    });
 
-    selectedFiles.forEach(file => {
+
+
+
+    validFiles.forEach(file => {
         files.image.push({
             file,
             preview: URL.createObjectURL(file)
