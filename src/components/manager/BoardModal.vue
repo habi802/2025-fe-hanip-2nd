@@ -236,7 +236,9 @@ const showImage = (title, id, image) => {
                 </b-row>
                 <b-row>
                     <b-col cols="12" class="content">
-
+                        <template v-if="isExistItem">
+                            <MenuTable :menus="props.item.menus" />
+                        </template>
                     </b-col>
                 </b-row>
 
