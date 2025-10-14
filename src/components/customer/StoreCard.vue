@@ -195,7 +195,7 @@ const storeImage = computed(() => {
   position: absolute;
   width: 280px;
   height: 380px;
-  border-radius: 18px;
+  border-radius: 21px;
   opacity: 30%;
 }
 </style>

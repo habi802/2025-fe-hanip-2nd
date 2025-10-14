@@ -314,7 +314,7 @@ const buy = async () => {
 
       console.log("데이터?", data)
       const redirectUrl = `${data.next_redirect_pc_url}`;
-      window.open(redirectUrl, "_blank");
+      window.location.href = redirectUrl;
     }
 
   }

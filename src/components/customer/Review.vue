@@ -1,6 +1,7 @@
 <script setup>
-import defaultImage from '@/imgs/owner/owner-service3.png'
-import { computed, ref } from 'vue';
+import defaultImage from '@/imgs/owner/owner-service3.png';
+import profile from '@/imgs/default_profile.png';
+import { computed, onMounted, ref } from 'vue';
 
 // 스와이퍼 사용
 import { Swiper, SwiperSlide } from 'swiper/vue';
@@ -25,7 +26,6 @@ dayjs.locale('ko');
 const timeAgo = computed(() => {
   return dayjs(props.item.createdAt).fromNow();
 });
-
 
 
 const props = defineProps({
@@ -67,7 +67,7 @@ const imgSrc = computed(() => {
   if (props.item?.userId && userPic) {
     return `${baseUrl.value}/images/user/${props.item.userId}/${userPic}`
   }
-  return defaultImage
+  return profile
 })
 
 </script>

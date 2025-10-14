@@ -9,6 +9,7 @@ import "swiper/css/navigation";
 
 const prevBtn = ref(null);
 const nextBtn = ref(null);
+const baseUrl = ref(import.meta.env.VITE_BASE_URL);
 
 // 부모로부터 받는 props
 const props = defineProps({
@@ -16,11 +17,18 @@ const props = defineProps({
   modelValue: String, // 사장님 답글 입력값 (v-model)
   show: Boolean, // 모달 열림 상태
 });
-// 임시 테스트용 이미지 배열 - 스와이프 기능 확인용
-const mockImages = [defaultImage, defaultImage, defaultImage];
 
 // 이벤트 emit
 const emit = defineEmits(["update:modelValue", "update:show", "submit"]);
+
+// 임시 테스트용 이미지 배열 - 스와이프 기능 확인용
+// const mockImages = [defaultImage, defaultImage, defaultImage];
+
+//리뷰이미지
+const reviewImgSrc = computed(() => {
+  if (!props.review?.pic || props.review.pic.length === 0) return [defaultImage] ;
+  return props.review.pic.map(fileName => `${baseUrl.value}/images/Review/${props.review.id}/${fileName}`);
+});
 
 // 답글 입력 필드 로컬 상태
 const localComment = ref(props.modelValue);
@@ -40,7 +48,7 @@ const handleSubmit = () => {
 };
 
 // 프로필 이미지 (없으면 기본 이미지)
-const profileImage = computed(() => props.review?.userProfile || defaultUserProfile);
+const profileImage = computed(() => props.review?.userPic || defaultUserProfile);
 
 // 날짜 포맷 함수 (yyyy-mm-dd hh:mm)
 const formatDateTime = (date) => {
@@ -64,10 +72,14 @@ const timeAgo = computed(() => {
   if (!props.review || !props.review.created) return "";
   return dayjs(props.review.created).fromNow();
 });
+
 // 없는 이미지 경로
 const displayImage = computed(() => {
   return props.review?.image || defaultImage;
 });
+
+
+
 </script>
 
 <template>
@@ -85,8 +97,8 @@ const displayImage = computed(() => {
                 <
               </div>
               <Swiper :modules="[Navigation]" :navigation="{ nextEl: '.swiperRight',  prevEl: '.swiperLeft', }" class="mySwiper">
-                <SwiperSlide v-for="(img, index) in mockImages" :key="index">
-                  <img :src="img" alt="리뷰 이미지" />
+                <SwiperSlide v-for="(img, index) in reviewImgSrc" :key="index">
+                  <img :src="img" alt="리뷰 이미지" @error="(e) => e.target.src = defaultImage" />
                 </SwiperSlide>
               </Swiper>
               <div class="swiperRight arrow-btn">
@@ -106,7 +118,7 @@ const displayImage = computed(() => {
             <!-- 프로필 -->
             <div class="profile-header">
               <div class="profile-box">
-                <img :src="profileImage" alt="프로필" />
+                <img :src="profileImage" alt="프로필" @error="(e) => e.target.src = defaultUserProfile" />
                 <div class="profile-info">
                   <span>{{ review?.userName }}</span>
                   <!-- 작성자 이름 -->
@@ -222,8 +234,8 @@ const displayImage = computed(() => {
 .modal-content {
   display: flex;
   flex-direction: row;
-  justify-content: space-between;
-  align-items: center;
+  justify-content: space-around;
+  //align-items: center;
   gap: 30px;
 }
 
@@ -235,7 +247,6 @@ const displayImage = computed(() => {
 
   .review-image-wrap {
     width: 100%;
-    max-width: 320px;
     height: 320px;
     border-radius: 10px;
     display: flex;

@@ -126,193 +126,133 @@ const arrow = () => {
         :modules="[Navigation, Pagination, Scrollbar, A11y, Autoplay]" :speed="100" :loop="true">
         <swiper-slide>
           <div class="imgBox">
-            <img
-              @click="
-                state.form.page = 1;
-                state.currentPage = 1;
-                state.form.category = '';
-                getStore();
-              "
-              id="cImg"
-              src="/src/imgs/allImg.png"
-              alt="allImg"
-            />
+            <img @click="
+              state.form.page = 1;
+            state.currentPage = 1;
+            state.form.category = '';
+            getStore();
+            " id="cImg" src="/src/imgs/allImg.png" alt="allImg" />
           </div>
           <div id="cName">전체</div>
         </swiper-slide>
         <swiper-slide>
           <div class="imgBox">
-            <img
-              @click="
-                state.form.page = 1;
-                state.currentPage = 1;
-                state.form.category = '01';
-                getStore();
-              "
-              id="cImg"
-              src="/src/imgs/koreanfood.png"
-              alt="koreanImg"
-            />
+            <img @click="
+              state.form.page = 1;
+            state.currentPage = 1;
+            state.form.category = '01';
+            getStore();
+            " id="cImg" src="/src/imgs/koreanfood.png" alt="koreanImg" />
           </div>
           <div id="cName">한식</div>
         </swiper-slide>
         <swiper-slide>
           <div class="imgBox">
-            <img
-              @click="
-                state.form.page = 1;
-                state.currentPage = 1;
-                state.form.category = '02';
-                getStore();
-              "
-              id="cImg"
-              src="/src/imgs/jjajangmyeon.png"
-              alt="ChinaImg"
-            />
+            <img @click="
+              state.form.page = 1;
+            state.currentPage = 1;
+            state.form.category = '02';
+            getStore();
+            " id="cImg" src="/src/imgs/jjajangmyeon.png" alt="ChinaImg" />
           </div>
           <div id="cName">중식</div>
         </swiper-slide>
         <swiper-slide>
           <div class="imgBox">
-            <img
-              @click="
-                state.form.page = 1;
-                state.currentPage = 1;
-                state.form.category = '03';
-                getStore();
-              "
-              id="cImg"
-              src="/src/imgs/porkcutlet.png"
-              alt="japanese"
-            />
+            <img @click="
+              state.form.page = 1;
+            state.currentPage = 1;
+            state.form.category = '03';
+            getStore();
+            " id="cImg" src="/src/imgs/porkcutlet.png" alt="japanese" />
           </div>
           <div id="cName">일식</div>
         </swiper-slide>
         <swiper-slide>
           <div class="imgBox">
-            <img
-              @click="
-                state.form.page = 1;
-                state.currentPage = 1;
-                state.form.category = '04';
-                getStore();
-              "
-              id="cImg"
-              src="/src/imgs/pasta.png"
-              alt="westernFood"
-            />
+            <img @click="
+              state.form.page = 1;
+            state.currentPage = 1;
+            state.form.category = '04';
+            getStore();
+            " id="cImg" src="/src/imgs/pasta.png" alt="westernFood" />
           </div>
           <div id="cName">양식</div>
         </swiper-slide>
         <swiper-slide>
           <div class="imgBox">
-            <img
-              @click="
-                state.form.page = 1;
-                state.currentPage = 1;
-                state.form.category = '05';
-                getStore();
-              "
-              id="cImg"
-              src="/src/imgs/dessert.png"
-              alt="dessert"
-            />
+            <img @click="
+              state.form.page = 1;
+            state.currentPage = 1;
+            state.form.category = '05';
+            getStore();
+            " id="cImg" src="/src/imgs/dessert.png" alt="dessert" />
           </div>
           <div id="cName">카페/디저트</div>
         </swiper-slide>
         <swiper-slide>
           <div class="imgBox">
-            <img
-              @click="
-                state.form.page = 1;
-                state.currentPage = 1;
-                state.form.category = '06';
-                getStore();
-              "
-              id="cImg"
-              src="/src/imgs/tteokbokki.png"
-              alt="snackFood"
-            />
+            <img @click="
+              state.form.page = 1;
+            state.currentPage = 1;
+            state.form.category = '06';
+            getStore();
+            " id="cImg" src="/src/imgs/tteokbokki.png" alt="snackFood" />
           </div>
           <div id="cName">분식</div>
         </swiper-slide>
         <swiper-slide>
           <div class="imgBox">
-            <img
-              @click="
-                state.form.page = 1;
-                state.currentPage = 1;
-                state.form.category = '07';
-                getStore();
-              "
-              id="cImg"
-              src="/src/imgs/hamburger.png"
-              alt="fastFood"
-            />
+            <img @click="
+              state.form.page = 1;
+            state.currentPage = 1;
+            state.form.category = '07';
+            getStore();
+            " id="cImg" src="/src/imgs/hamburger.png" alt="fastFood" />
           </div>
           <div id="cName">패스트푸드</div>
         </swiper-slide>
         <swiper-slide>
           <div class="imgBox">
-            <img
-              @click="
-                state.form.page = 1;
-                state.currentPage = 1;
-                state.form.category = '08';
-                getStore();
-              "
-              id="cImg"
-              src="/src/imgs/nd.png"
-              alt="asian"
-            />
+            <img @click="
+              state.form.page = 1;
+            state.currentPage = 1;
+            state.form.category = '08';
+            getStore();
+            " id="cImg" src="/src/imgs/nd.png" alt="asian" />
           </div>
           <div id="cName">아시안</div>
         </swiper-slide>
         <swiper-slide>
           <div class="imgBox">
-            <img
-              @click="
-                state.form.page = 1;
-                state.currentPage = 1;
-                state.form.category = '09';
-                getStore();
-              "
-              id="cImg"
-              src="/src/imgs/chicken.png"
-              alt="chick"
-            />
+            <img @click="
+              state.form.page = 1;
+            state.currentPage = 1;
+            state.form.category = '09';
+            getStore();
+            " id="cImg" src="/src/imgs/chicken.png" alt="chick" />
           </div>
           <div id="cName">치킨</div>
         </swiper-slide>
         <swiper-slide>
           <div class="imgBox">
-            <img
-              @click="
-                state.form.page = 1;
-                state.currentPage = 1;
-                state.form.category = '10';
-                getStore();
-              "
-              id="cImg"
-              src="/src/imgs/pizza.png"
-              alt="pizza"
-            />
+            <img @click="
+              state.form.page = 1;
+            state.currentPage = 1;
+            state.form.category = '10';
+            getStore();
+            " id="cImg" src="/src/imgs/pizza.png" alt="pizza" />
           </div>
           <div id="cName">피자</div>
         </swiper-slide>
         <swiper-slide>
           <div class="imgBox">
-            <img
-              @click="
-                state.form.page = 1;
-                state.currentPage = 1;
-                state.form.category = '11';
-                getStore();
-              "
-              id="cImg"
-              src="/src/imgs/pigfeet.png"
-              alt="lateNight"
-            />
+            <img @click="
+              state.form.page = 1;
+            state.currentPage = 1;
+            state.form.category = '11';
+            getStore();
+            " id="cImg" src="/src/imgs/pigfeet.png" alt="lateNight" />
           </div>
           <div id="cName">야식</div>
         </swiper-slide>
@@ -381,20 +321,18 @@ const arrow = () => {
       </div>
     </template>
     <template v-else>
-      <div class="w-100 d-flex justify-content-end">
-        <img src="/src/imgs/owner/owner-service2.png" />
+      <div class="else-box">
+        <div class="w-100 d-flex imgbox">
+          <img src="/src/imgs/owner/owner-service2.png" />
+        </div>
+        <div> 검색되는 가게가 없습니다.
+        </div>
       </div>
     </template>
   </div>
 
-  <b-pagination
-    v-if="state.stores.length && state.stores[0]?.totalRow > 0"
-    align="center"
-    v-model="state.currentPage"
-    :per-page="state.form.size"
-    :total-rows="state.stores[0].totalRow"
-    @update:model-value="changePage"
-  ></b-pagination>
+  <b-pagination v-if="state.stores.length && state.stores[0]?.totalRow > 0" align="center" v-model="state.currentPage"
+    :per-page="state.form.size" :total-rows="state.stores[0].totalRow" @update:model-value="changePage"></b-pagination>
 
   <img @click="arrow" class="arrow" src="/src/imgs/arrow.png" />
 </template>
@@ -640,8 +578,22 @@ const arrow = () => {
 }
 
 .isOpen {
-  opacity: 70%;
-  mix-blend-mode: multiply;
+  opacity: 50%;
   pointer-events: none;
+}
+
+.imgbox {
+  display: flex;
+  justify-content: center;
+}
+
+.else-box {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 50px;
+  font-size: 1.5em;
+  margin-bottom: 150px;
 }
 </style>
