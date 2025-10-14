@@ -32,6 +32,8 @@ const errors = reactive({
   ownerPhone2: "",
   ownerPhone3: "",
   openDate: "",
+  storeName: "",
+  category: "",
 });
 
 // form 데이터 상태 관리
@@ -167,6 +169,16 @@ const validateBusinessNumber = () => {
     ? "" // 조건 만족 → 메시지 제거
     : "사업자 등록번호는 10자리 숫자여야 합니다.";
 };
+// 가게 상호명 검사
+const validateStoreName = () => {
+  errors.storeName = state.owner.storeName?.trim() ? "" : "가게 상호명을 입력해주세요.";
+};
+
+// 카테고리 선택 검사
+const validateCategory = () => {
+  errors.category =
+    state.owner.category.length > 0 ? "" : "카테고리를 최소 1개 이상 선택해주세요.";
+};
 
 // 제출 전 모든 필드 유효성 검사
 const validateForm = () => {
@@ -181,6 +193,8 @@ const validateForm = () => {
     validateOwnerPhone();
     validateBusinessNumber();
     validateOpenDate();
+    validateStoreName();
+    validateCategory();
   }
   console.log("errors:", JSON.stringify(errors));
   return Object.values(errors).every((msg) => msg === "");
@@ -532,13 +546,13 @@ const categoryLabels = state.owner.category
 const submit = async () => {
   console.log("제출 직전 state.owner:", JSON.stringify(state.owner));
 
-  // 1️⃣ 아이디 중복 체크 필수
-  if (!isIdChecked.value) {
-    showModal("아이디 중복 검사를 해주세요.");
-    return;
-  }
+  // // 아이디 중복 체크 필수
+  // if (!isIdChecked.value) {
+  //   showModal("아이디 중복 검사를 해주세요.");
+  //   return;
+  // }
 
-  // 2️⃣ 전체 유효성 검사
+  // 전체 유효성 검사
   if (!validateForm()) {
     showModal("입력값을 다시 확인해주세요.");
     return;
