@@ -1103,6 +1103,25 @@ p {
   max-height: 400px;
   padding: 10px;
   overflow-y: scroll;
+  padding-right: 20px;
+}
+
+.menu-box::-webkit-scrollbar {
+  width: 10px;
+}
+
+.menu-box::-webkit-scrollbar-track {
+  background: #ffeeee;
+  border-radius: 10px;
+}
+
+.menu-box::-webkit-scrollbar-thumb {
+  background: #ffb7b7;
+  border-radius: 10px;
+}
+
+.menu-box::-webkit-scrollbar-button {
+  display: none;
 }
 
 .menus-title {
