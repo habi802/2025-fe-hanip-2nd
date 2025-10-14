@@ -62,7 +62,7 @@ const validateOptionNames = (payload) => {
       const v = children[ci] ?? {};
       const vName = (v.comment ?? v.opt ?? "").trim();
       if (!vName) {
-        showAlert(`옵션그룹- 항목의 이름을 입력하세요.`);
+        showAlert(`옵션그룹 항목의 이름을 입력하세요.`);
         return false;
       }
     }
@@ -317,7 +317,7 @@ const removeAlert = (id) => {
       </div>
     </div>
   </div>
-  <!--wrap 끝-->
+
 </template>
 
 <style scoped lang="scss">
@@ -342,7 +342,6 @@ const removeAlert = (id) => {
   height: 100%;
   min-height: 1000px;
   padding: 20px;
-  overflow-y: auto;
 }
 
 .menu-item:hover {

@@ -30,9 +30,9 @@ const formatTime = (dateString) => {
   <div class="order-card pb-4" @click="emit('selectOrder', order.orderId)">
     <div class="order-content" :class="{'cancel' : cancel}"  >
       <div>
+        <span v-if="cancel" style="font-size: 12px; font-weight: 700;">취소된주문</span>
         <span>주문번호</span>
         <span class="order-num">{{order.orderId}}</span>
-        <span v-if="cancel">( 취소된 주문 )</span>
       </div>
       <div>
         <span>{{formatDate(order.createdAt)}}</span>

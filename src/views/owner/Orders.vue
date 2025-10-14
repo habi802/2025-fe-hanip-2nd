@@ -467,7 +467,7 @@ const selectRange = async (range) => {
     max-width: 800px;
     // 주문상세내역
     .orders-wrap {
-      height: 90%;
+      height: 100%;
       display: flex;
       flex-direction: column;
       justify-content: space-around;
