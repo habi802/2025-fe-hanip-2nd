@@ -1,6 +1,7 @@
 <script setup>
 import { computed, defineExpose, ref } from 'vue';
 import MenuTable from './MenuTable.vue';
+import OrderMenuTable from './OrderMenuTable.vue';
 import defaultImage from "@/imgs/owner/owner-service2.png";
 import bannerDefaultImage from "@/imgs/owner/owner-service5.png";
 
@@ -189,8 +190,20 @@ const showImage = (title, id, image) => {
                 </b-row>
                 <b-row>
                     <b-col cols="12" class="content-scrolled">
-                        
+                        <template v-if="isExistItem">
+                            <OrderMenuTable :storeId="props.item.storeId" :menus="props.item.menus" />
+                        </template>
                     </b-col>
+                </b-row>
+
+                <!-- <b-row>
+                    <b-col cols="3"><strong>배달료</strong></b-col>
+                    <b-col cols="9">{{ isExistItem ? props.item.amount?.toLocaleString() + '원' : '' }}</b-col>
+                </b-row> -->
+
+                <b-row>
+                    <b-col cols="3"><strong>결제 금액</strong></b-col>
+                    <b-col cols="9">{{ isExistItem ? props.item.amount?.toLocaleString() + '원' : '' }}</b-col>
                 </b-row>
 
                 <b-row>
@@ -236,9 +249,7 @@ const showImage = (title, id, image) => {
                 </b-row>
                 <b-row>
                     <b-col cols="12" class="content">
-                        <template v-if="isExistItem">
-                            <MenuTable :menus="props.item.menus" />
-                        </template>
+                        
                     </b-col>
                 </b-row>
 

@@ -2,8 +2,7 @@
 import defaultImage from "@/imgs/owner/owner-service2.png";
 
 const props = defineProps({
-    menus: Array,
-    field: Array
+    menus: Array
 });
 
 const baseUrl = import.meta.env.VITE_BASE_URL;
