@@ -9,8 +9,6 @@ import { getReviewsAllByStoreId2 } from '@/services/reviewServices.js';
 import ReviewDateFilter from '@/components/owner/ReviewDateFilter.vue';
 
 
-const baseUrl = ref(import.meta.env.VITE_BASE_URL);
-
 //가게정보가져오기 
 const ownerStore = useOwnerStore();
 
@@ -18,6 +16,7 @@ const params = reactive({
     page : 1,
     rowPerPage : 6
 })
+
 
 
 // 날짜 필터 상태
@@ -38,27 +37,9 @@ const handleDateUpdate = (payload) => {
 };
 
 
-const imgSrc = computed(() => {
-  // 파일 선택 시 미리보기 우선
-  if (selectedFile.value) return previewUrl.value;
-
-  // 소셜 로그인(userPic이 외부 URL인 경우)
-  if (state.form.providerType !== "로컬" && state.form.imagePath) {
-    if (state.form.imagePath.startsWith("http")) {
-      return state.form.imagePath.replace(/^http:\/\//, "https://");
-    }
-  }
-
-  // 로컬 로그인 또는 서버 이미지
-  if (state.form.id && state.form.imagePath && state.form.imagePath !== "null") {
-    return `${baseUrl.value}/images/user/${state.form.id}/${state.form.imagePath}`;
-  }
-
-  // 기본 이미지
-  return defaultUserProfile;
-});
 
 
+//리뷰정보 갖고오기
 const reviews = ref([])
 const allReview = ref([])
 const fetchReviews = async () => {
@@ -149,9 +130,9 @@ onMounted(async()=> {
                 </div>
             <!-- 리뷰카드  -->
             <div class="review-wrap" v-if="reviews && reviews.length > 0" >
-                <ReviewCard  v-if="reviews && reviews.length > 0" :key="params.page"  :reviews="reviews" />
+                <ReviewCard v-for="review in reviews" :key="review.id" :review="review" />
             </div>
-            <div v-else style="height: 600px; display:flex; justify-content:center; align-items:center">
+            <div v-else style=" min-height: 75vh; height: 600px; display:flex; justify-content:center; align-items:center">
                 등록된 리뷰가 없습니다.
             </div>
         </div>
@@ -198,7 +179,10 @@ onMounted(async()=> {
     }
 
     .review-wrap{
-        min-height: 75vh;
+
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 10px;
     }
 }
 
