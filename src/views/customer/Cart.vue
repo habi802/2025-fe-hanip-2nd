@@ -771,7 +771,8 @@ const cartMenu = async () => {
 
   .thumbnail {
     // 사진
-    width: 100%; // 썸네일 가로 꽉 차게
+    width: 326px; // 썸네일 가로 꽉 차게
+    height: 223px;
     // height: 10%; // 썸네일 고정 높이
     border-radius: 10px;
     object-fit: cover; // 이미지 비율 유지하며 채우기
