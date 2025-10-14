@@ -241,7 +241,7 @@ const optionTotal = (item) => {
 .modal-content {
   background: white;
   padding: 20px;
-  width: 450px;
+  width: 460px;
   max-height: 1000px;
   overflow-y: auto;
   border-radius: 12px;
@@ -411,11 +411,11 @@ span.total {
 }
 
 .big-box {
-  max-width: 495px;
+  max-width: 500px;
   min-height: 40px;
   max-height: 300px;
   overflow-y: auto;
-  padding-right: 5px;
+  padding-right: 10px;
 }
 
 .big-box::-webkit-scrollbar {
