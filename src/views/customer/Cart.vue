@@ -1105,6 +1105,10 @@ p {
   overflow-y: scroll;
 }
 
+.menu-box::-webkit-scrollbar {
+  display: none;
+}
+
 .menus-title {
   width: 60%;
   font-size: 1.4em;

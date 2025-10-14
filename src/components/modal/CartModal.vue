@@ -417,4 +417,8 @@ span.total {
   overflow-y: auto;
 
 }
+
+.big-box::-webkit-scrollbar {
+  display: none;
+}
 </style>
