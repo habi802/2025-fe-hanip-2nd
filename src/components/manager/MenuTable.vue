@@ -33,7 +33,7 @@ const showImage = (storeId, menuId, image) => {
             <template v-for="menu in menuType.menus" :key="menu.menuId">
                 <tr>
                     <td>
-                        <img :src="showImage(props.menus.storeId, menu.menuId, menu.imagePath)" :alt="`${menu.name}의 이미지`" @error="e => e.target.src = defaultImage" class="menu-image" />
+                        <img :src="showImage(menu.storeId, menu.menuId, menu.imagePath)" :alt="`${menu.name}의 이미지`" @error="e => e.target.src = defaultImage" class="menu-image" />
                     </td>
                     <td>{{ menu.name }}</td>
                     <td>{{ menu.price?.toLocaleString() + '원' }}</td>

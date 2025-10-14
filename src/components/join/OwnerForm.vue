@@ -401,6 +401,7 @@ watch(
           <option>063</option>
           <option>064</option>
           <option>070</option>
+          <option>0507</option>
         </select>
         <input
           type="text"
@@ -530,6 +531,8 @@ watch(
             <button type="button" @click="removeCategory(index)">x</button>
           </span>
         </div>
+        <span v-if="errors.storeName" class="error">{{ errors.storeName }}</span>
+        <span v-if="errors.category" class="error-msg">{{ errors.category }}</span>
         <li>카테고리는 최대 3개까지 선택 가능합니다.</li>
       </div>
     </div>
@@ -738,7 +741,7 @@ li {
   }
 
   // 유효성 검사 스타일
-  input.invalid,
+  input,
   select.invalid {
     box-shadow: 0 0 3px #ff6666(233, 0, 0, 0.3) !important;
     background-color: #ffe5e5;
@@ -758,6 +761,11 @@ li {
   margin-left: 300px; // sortation 너비와 맞춤
   margin-top: 5px;
   margin-bottom: -5px;
+}
+.error {
+  color: #ff6666;
+  font-size: 15px;
+  margin-right: -140px;
 }
 
 // 주소 그룹만 레이아웃 별도 적용
