@@ -30,6 +30,7 @@ onMounted(async () => {
         state.order = res.data.resultData;
     }
     console.log("상태 확인", state.order?.status)
+    console.log("시간", state.order.createdAt)
 });
 
 // 주문 상태 확인
@@ -88,7 +89,7 @@ const getPayment = computed(() => {
                                         </div>
                                         <span>{{ menu.quantity }}개</span>
                                         <span class="item-price">{{ (menu.price * menu.quantity).toLocaleString()
-                                            }}원</span>
+                                        }}원</span>
                                     </div>
                                 </div>
                                 <template v-if="menu.options">
@@ -155,7 +156,7 @@ const getPayment = computed(() => {
                 <div class="border rounded p-5">
                     <div class="row mb-3">
                         <div class="col-3 text-muted">결제일시</div>
-                        <div class="col">{{ state.order.createdAt ? state.order.createdAt.split('.')[0] : '' }}</div>
+                        <div class="col">{{ state.order.createdAt ? state.order.createdAt.split('T')[0] : '' }}</div>
                     </div>
                     <div class="row mb-3">
                         <div class="col-3 text-muted">결제 수단</div>
