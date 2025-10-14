@@ -44,7 +44,7 @@ const toStore = () => {
         <div class="star">
           <div class="starIcon">★</div>
           <span class="starNum">
-            {{ props.stores?.rating }}
+            {{ Number(props.stores?.rating).toFixed(1) }}
           </span>
           <span class="starNum"></span>
         </div>
