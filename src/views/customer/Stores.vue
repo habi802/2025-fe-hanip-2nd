@@ -134,10 +134,7 @@ const arrow = () => {
             <img
               @click="
                 state.form.page = 1;
-<<<<<<< HEAD
-=======
                 state.currentPage = 1;
->>>>>>> 9c02b522bf52fe6429728adc79e18ab57a769cc8
                 state.form.category = '';
                 getStore();
               "
@@ -153,10 +150,7 @@ const arrow = () => {
             <img
               @click="
                 state.form.page = 1;
-<<<<<<< HEAD
-=======
                 state.currentPage = 1;
->>>>>>> 9c02b522bf52fe6429728adc79e18ab57a769cc8
                 state.form.category = '01';
                 getStore();
               "
@@ -172,10 +166,7 @@ const arrow = () => {
             <img
               @click="
                 state.form.page = 1;
-<<<<<<< HEAD
-=======
                 state.currentPage = 1;
->>>>>>> 9c02b522bf52fe6429728adc79e18ab57a769cc8
                 state.form.category = '02';
                 getStore();
               "
@@ -191,10 +182,7 @@ const arrow = () => {
             <img
               @click="
                 state.form.page = 1;
-<<<<<<< HEAD
-=======
                 state.currentPage = 1;
->>>>>>> 9c02b522bf52fe6429728adc79e18ab57a769cc8
                 state.form.category = '03';
                 getStore();
               "
@@ -210,10 +198,7 @@ const arrow = () => {
             <img
               @click="
                 state.form.page = 1;
-<<<<<<< HEAD
-=======
                 state.currentPage = 1;
->>>>>>> 9c02b522bf52fe6429728adc79e18ab57a769cc8
                 state.form.category = '04';
                 getStore();
               "
@@ -229,10 +214,7 @@ const arrow = () => {
             <img
               @click="
                 state.form.page = 1;
-<<<<<<< HEAD
-=======
                 state.currentPage = 1;
->>>>>>> 9c02b522bf52fe6429728adc79e18ab57a769cc8
                 state.form.category = '05';
                 getStore();
               "
@@ -248,10 +230,7 @@ const arrow = () => {
             <img
               @click="
                 state.form.page = 1;
-<<<<<<< HEAD
-=======
                 state.currentPage = 1;
->>>>>>> 9c02b522bf52fe6429728adc79e18ab57a769cc8
                 state.form.category = '06';
                 getStore();
               "
@@ -267,10 +246,7 @@ const arrow = () => {
             <img
               @click="
                 state.form.page = 1;
-<<<<<<< HEAD
-=======
                 state.currentPage = 1;
->>>>>>> 9c02b522bf52fe6429728adc79e18ab57a769cc8
                 state.form.category = '07';
                 getStore();
               "
@@ -286,10 +262,7 @@ const arrow = () => {
             <img
               @click="
                 state.form.page = 1;
-<<<<<<< HEAD
-=======
                 state.currentPage = 1;
->>>>>>> 9c02b522bf52fe6429728adc79e18ab57a769cc8
                 state.form.category = '08';
                 getStore();
               "
@@ -305,10 +278,7 @@ const arrow = () => {
             <img
               @click="
                 state.form.page = 1;
-<<<<<<< HEAD
-=======
                 state.currentPage = 1;
->>>>>>> 9c02b522bf52fe6429728adc79e18ab57a769cc8
                 state.form.category = '09';
                 getStore();
               "
@@ -324,10 +294,7 @@ const arrow = () => {
             <img
               @click="
                 state.form.page = 1;
-<<<<<<< HEAD
-=======
                 state.currentPage = 1;
->>>>>>> 9c02b522bf52fe6429728adc79e18ab57a769cc8
                 state.form.category = '10';
                 getStore();
               "
@@ -343,10 +310,7 @@ const arrow = () => {
             <img
               @click="
                 state.form.page = 1;
-<<<<<<< HEAD
-=======
                 state.currentPage = 1;
->>>>>>> 9c02b522bf52fe6429728adc79e18ab57a769cc8
                 state.form.category = '11';
                 getStore();
               "
@@ -453,19 +417,11 @@ const arrow = () => {
   </div>
 
   <b-pagination
-<<<<<<< HEAD
-    v-if="state.stores[0]?.totalRow > 0"
-    align="center"
-    v-model="state.currentPage"
-    :per-page="state.size"
-    :total-rows="state.stores[0]?.totalRow"
-=======
     v-if="state.stores.length && state.stores[0]?.totalRow > 0"
     align="center"
     v-model="state.currentPage"
     :per-page="state.form.size"
     :total-rows="state.stores[0].totalRow"
->>>>>>> 9c02b522bf52fe6429728adc79e18ab57a769cc8
     @update:model-value="changePage"
   ></b-pagination>
 
