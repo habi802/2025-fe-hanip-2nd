@@ -455,7 +455,7 @@ watch(sortedMenus, (newVal) => {
           <div class="store-info-detail">
             <div class="statistics">
               <div class="text-color">
-                가계 통계
+                가게 통계
               </div>
               <hr>
               </hr>

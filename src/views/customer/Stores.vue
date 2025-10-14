@@ -122,8 +122,13 @@ const arrow = () => {
       <div class="swiperLeft">
         <img class="left" src="/src/imgs/NavigationLeft.png" />
       </div>
-      <swiper :navigation="{ nextEl: '.swiperRight', prevEl: '.swiperLeft' }" :slides-per-view="6"
-        :modules="[Navigation, Pagination, Scrollbar, A11y, Autoplay]" :speed="100" :loop="true">
+      <swiper
+        :navigation="{ nextEl: '.swiperRight', prevEl: '.swiperLeft' }"
+        :slides-per-view="6"
+        :modules="[Navigation, Pagination, Scrollbar, A11y, Autoplay]"
+        :speed="100"
+        :loop="true"
+      >
         <swiper-slide>
           <div class="imgBox">
             <img
@@ -324,18 +329,31 @@ const arrow = () => {
   </div>
 
   <div class="searchBar">
-    <input v-model="state.form.searchText" @keyup.enter="
-      state.form.page = 1;
-    getStore();
-    " type="text" class="searchBox" placeholder="찾는 맛집 이름,메뉴가 무엇인가요?" />
-    <img @click="
-      state.form.page = 1;
-    getStore();
-    " class="searchImg" src="/src/imgs/fluent_search.png" />
+    <input
+      v-model="state.form.searchText"
+      @keyup.enter="
+        state.form.page = 1;
+        getStore();
+      "
+      type="text"
+      class="searchBox"
+      placeholder="찾는 맛집 이름,메뉴가 무엇인가요?"
+    />
+    <img
+      @click="
+        state.form.page = 1;
+        getStore();
+      "
+      class="searchImg"
+      src="/src/imgs/fluent_search.png"
+    />
   </div>
 
   <div class="sort-options">
-    <span :class="{ active: state.form.sortColumn === 'minAmount' }" @click="sortStore('minAmount')">
+    <span
+      :class="{ active: state.form.sortColumn === 'minAmount' }"
+      @click="sortStore('minAmount')"
+    >
       주문 금액 순
       <span class="arrow" aria-hidden="true">{{
         state.form.sortColumn === "minAmount"
@@ -346,7 +364,10 @@ const arrow = () => {
       }}</span>
     </span>
     <span class="divider">|</span>
-    <span :class="{ active: state.form.sortColumn === 'rating' }" @click="sortStore('rating')">
+    <span
+      :class="{ active: state.form.sortColumn === 'rating' }"
+      @click="sortStore('rating')"
+    >
       별점 순
       <span class="arrow" aria-hidden="true">{{
         state.form.sortColumn === "rating"
@@ -357,7 +378,10 @@ const arrow = () => {
       }}</span>
     </span>
     <span class="divider">|</span>
-    <span :class="{ active: state.form.sortColumn === 'favorites' }" @click="sortStore('favorites')">
+    <span
+      :class="{ active: state.form.sortColumn === 'favorites' }"
+      @click="sortStore('favorites')"
+    >
       찜 순
       <span class="arrow" aria-hidden="true">{{
         state.form.sortColumn === "favorites"
@@ -372,10 +396,15 @@ const arrow = () => {
   <div class="guideBox" :class="{ 'mb-3': state.stores.length > 0 }">
     <template v-if="state.stores.length > 0">
       <div class="row">
-        <div class="col-3 g-3" v-for="store in state.stores" :key="store.id" :class="{
-          isActive: store.isActive === 0,
-          isOpen: store.isOpen === 0,
-        }">
+        <div
+          class="col-3 g-3"
+          v-for="store in state.stores"
+          :key="store.id"
+          :class="{
+            isActive: store.isActive === 0,
+            isOpen: store.isOpen === 0,
+          }"
+        >
           <StoreCard :store="store" />
         </div>
       </div>
@@ -402,7 +431,8 @@ const arrow = () => {
 <style lang="scss" scoped>
 @font-face {
   font-family: "BMJUA";
-  src: url("https://fastly.jsdelivr.net/gh/projectnoonnu/noonfonts_one@1.0/BMJUA.woff") format("woff");
+  src: url("https://fastly.jsdelivr.net/gh/projectnoonnu/noonfonts_one@1.0/BMJUA.woff")
+    format("woff");
   font-weight: normal;
   font-style: normal;
 }
@@ -638,10 +668,8 @@ const arrow = () => {
 .isActive {
   display: none;
 }
-
 .isOpen {
-  opacity: 70%;
-  mix-blend-mode: multiply;
+  opacity: 50%;
   pointer-events: none;
 }
 </style>
