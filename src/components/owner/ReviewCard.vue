@@ -5,23 +5,29 @@ import defaultUserProfile from "@/imgs/owner/user_profile.jpg";
 import OwnerReviewModal from "../modal/OwnerReviewModal.vue";
 import { postOwnerComment } from "@/services/reviewServices";
 
+const baseUrl = ref(import.meta.env.VITE_BASE_URL);
+
 //유저정보 가져오기
 const userInfo = useUserInfo();
 //가게정보가져오기
 const ownerStore = useOwnerStore();
-// // 리뷰 데이터 가져오기
-// const reviewStore = useReviewStore();
 
 const userId = computed(() => userInfo.userId);
 const storeId = computed(() => ownerStore.storeId);
 
+//프롭스(리뷰정보)
 const props = defineProps({
-  reviews: Array,
+  review: {
+    type: Object,
+    required: true
+  }
+
 });
-console.log( "프롭" , props.reviews )
+console.log( "리뷰카드 프롭 " , props.review )
 
 //프롭정보 갱신 감시
-watch(() => props.reviews,  (newVal) => { console.log("프롭 변경됨:", newVal) },  { immediate: true });
+watch(() => props.review,  (newVal) => { console.log("프롭 변경됨:", newVal) },  { immediate: true });
+
 
 
 //----------사장 댓글 다는 부분------------
@@ -95,15 +101,42 @@ const submitReview = async () => {
 
 // 유저 프로필 없을 시 대체 이미지 나타내기
 const imgSrc = computed(() => {
-  return props.reviews &&
-    props.reviews.imagePath &&
-    props.reviews.imagePath !== "null"
-    ? `/pic/store-profile/${props.reviews.id}/${props.reviews.imagePath}`
-    : defaultUserProfile;
+
+  const userPic = props.review?.userPic
+  if (userPic?.startsWith('http')) {
+    return userPic.replace('http://', 'https://')
+  }
+  if (props.review?.userId && userPic) {
+    return `${baseUrl.value}/images/user/${props.review.userId}/${userPic}`
+  }
+  return defaultUserProfile    
 });
+
 
 // // 유저 프로필 경로
 // const img = "`/pic/user-profile/${review.id}/${review.imagePath}`";
+
+// const imgSrc = computed(() => {
+//   // 파일 선택 시 미리보기 우선
+//   if (selectedFile.value) return previewUrl.value;
+
+//   // 소셜 로그인(userPic이 외부 URL인 경우)
+//   if (state.form.providerType !== "로컬" && state.form.imagePath) {
+//     if (state.form.imagePath.startsWith("http")) {
+//       return state.form.imagePath.replace(/^http:\/\//, "https://");
+//     }
+//   }
+
+//   // 로컬 로그인 또는 서버 이미지
+//   if (state.form.id && state.form.imagePath && state.form.imagePath !== "null") {
+//     return `${baseUrl.value}/images/user/${state.form.id}/${state.form.imagePath}`;
+//   }
+
+//   // 기본 이미지
+//   return defaultUserProfile;
+// });
+
+
 
 // 리뷰카드 날짜
 const formatDateTime = (isoStr) => {
@@ -120,80 +153,78 @@ const formatDateTime = (isoStr) => {
 
 <template>
   <!-- 리뷰카드  -->
-  <div v-if="reviews?.length > 0" class="review-wrap">
-    <div class="review-box shadow" v-for="reviews in props.reviews" :key="reviews.id">
-      <div class="review-header">
-        <div class="profile">
-          <div class="profile-circle">
-            <img :src="imgSrc" @error="(e) => (e.target.src = defaultUserProfile)" alt="프로필" />
-          </div>
-          <div class="profile-username">
-            <span> {{ reviews.userName ||  "-" }} </span>
-            <span> {{ formatDateTime(reviews.createdAt) ||  "-" }} </span>
-          </div>
+  <div v-if="review" class="review-box shadow">
+    <div class="review-header">
+      <div class="profile">
+        <div class="profile-circle">
+          <img :src="imgSrc" @error="(e) => (e.target.src = defaultUserProfile)" alt="프로필" />
         </div>
-        <div class="orderMenu">
-          <!-- 메뉴 연동하기 -->
-          <span> {{ reviews.menuName[1] ||  "-" }} </span>
-          <br></br>
-          <span v-if="reviews.menuName.length > 1"> 외 {{ reviews.menuName.length - 1 }} 건 </span>
+        <div class="profile-username">
+          <span> {{ review.userName ||  "-" }} </span>
+          <span> {{ formatDateTime(review.createdAt) ||  "-" }} </span>
         </div>
       </div>
-
-      <div class="comment">
-        <div class="comment-wrap">
-          <div>
-            <span>고객님 리뷰</span>
-            <!-- 별점표시 -->
-            <div class="review-score">
-              <div class="star-ratings">
-                <!-- 채워진 별 -->
-                <div  class="star-ratings-fill" :style="{ width: reviews.rating * 20 + '%' }" >
-                  <svg v-for="n in 5" :key="'fill' + n" class="star-icon" viewBox="0 0 24 24" fill="currentColor" >
-                    <path  d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.286 3.975a1 1 0 00.95.69h4.184c.969 0 1.371 1.24.588 1.81l-3.39 2.46a1 1 0 00-.364 1.118l1.286 3.975c.3.921-.755 1.688-1.54 1.118l-3.39-2.46a1 1 0 00-1.175 0l-3.39 2.46c-.785.57-1.84-.197-1.54-1.118l1.286-3.975a1 1 0 00-.364-1.118L2.22 9.402c-.783-.57-.38-1.81.588-1.81h4.184a1 1 0 00.95-.69l1.286-3.975z" />
-                  </svg>
-                </div>
-
-                <!-- 기본 별 -->
-                <div class="star-ratings-base">
-                  <svg  v-for="n in 5" :key="'base' + n" class="star-icon" viewBox="0 0 24 24" fill="currentColor" >
-                    <path
-                      d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.286 3.975a1 
-                                    1 0 00.95.69h4.184c.969 0 1.371 1.24.588 
-                                    1.81l-3.39 2.46a1 1 0 00-.364 1.118l1.286 
-                                    3.975c.3.921-.755 1.688-1.54 
-                                    1.118l-3.39-2.46a1 1 0 00-1.175 
-                                    0l-3.39 2.46c-.785.57-1.84-.197-1.54-1.118l1.286-3.975a1 
-                                    1 0 00-.364-1.118L2.22 9.402c-.783-.57-.38-1.81.588-1.81h4.184a1 
-                                    1 0 00.95-.69l1.286-3.975z"
-                    />
-                  </svg>
-                </div>
-              </div>
-              <span class="score-text">{{ reviews.rating ||  "-" }}</span>
-            </div>
-          </div>
-          <p class="line-clamp-2">{{ reviews.comment ||  "-" }}</p>
-        </div>
-        <div class="comment-wrap" v-if="reviews.ownerComment != null && reviews.ownerComment != ''" >
-          <span>사장님 답글</span>
-          <p class="line-clamp-2">{{ reviews.ownerComment ||  "-" }}</p>
-        </div>
-      </div>
-      <div class="btn-wrap">
-        <button  class="btn btn-comment" @click=" () => { selectedReview = reviews; replyComment = reviews.ownerComment || ''; isModalOpen = true; } ">
-          댓글 작성
-        </button>
+      <div class="orderMenu">
+        <!-- 메뉴 연동하기 -->
+        <span> {{ review.menuName[1] ||  "-" }} </span>
+        <br></br>
+        <span v-if="review.menuName.length > 1"> 외 {{ review.menuName.length - 1 }} 건 </span>
       </div>
     </div>
+
+    <div class="comment">
+      <div class="comment-wrap">
+        <div>
+          <span>고객님 리뷰</span>
+          <!-- 별점표시 -->
+          <div class="review-score">
+            <div class="star-ratings">
+              <!-- 채워진 별 -->
+              <div  class="star-ratings-fill" :style="{ width: review.rating * 20 + '%' }" >
+                <svg v-for="n in 5" :key="'fill' + n" class="star-icon" viewBox="0 0 24 24" fill="currentColor" >
+                  <path  d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.286 3.975a1 1 0 00.95.69h4.184c.969 0 1.371 1.24.588 1.81l-3.39 2.46a1 1 0 00-.364 1.118l1.286 3.975c.3.921-.755 1.688-1.54 1.118l-3.39-2.46a1 1 0 00-1.175 0l-3.39 2.46c-.785.57-1.84-.197-1.54-1.118l1.286-3.975a1 1 0 00-.364-1.118L2.22 9.402c-.783-.57-.38-1.81.588-1.81h4.184a1 1 0 00.95-.69l1.286-3.975z" />
+                </svg>
+              </div>
+
+              <!-- 기본 별 -->
+              <div class="star-ratings-base">
+                <svg  v-for="n in 5" :key="'base' + n" class="star-icon" viewBox="0 0 24 24" fill="currentColor" >
+                  <path
+                    d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.286 3.975a1 
+                                  1 0 00.95.69h4.184c.969 0 1.371 1.24.588 
+                                  1.81l-3.39 2.46a1 1 0 00-.364 1.118l1.286 
+                                  3.975c.3.921-.755 1.688-1.54 
+                                  1.118l-3.39-2.46a1 1 0 00-1.175 
+                                  0l-3.39 2.46c-.785.57-1.84-.197-1.54-1.118l1.286-3.975a1 
+                                  1 0 00-.364-1.118L2.22 9.402c-.783-.57-.38-1.81.588-1.81h4.184a1 
+                                  1 0 00.95-.69l1.286-3.975z"
+                  />
+                </svg>
+              </div>
+            </div>
+            <span class="score-text">{{ review.rating ||  "-" }}</span>
+          </div>
+        </div>
+        <p class="line-clamp-2">{{ review.comment ||  "-" }}</p>
+      </div>
+      <div class="comment-wrap" v-if="review.ownerComment != null && review.ownerComment != ''" >
+        <span>사장님 답글</span>
+        <p class="line-clamp-2">{{ review.ownerComment ||  "-" }}</p>
+      </div>
+    </div>
+    <div class="btn-wrap">
+      <button  class="btn btn-comment" @click=" () => { selectedReview = review; replyComment = review.ownerComment || ''; isModalOpen = true; } ">
+        댓글 작성
+      </button>
+    </div>
   </div>
-  <div v-else class="review-box-wrap text-center py-4">
+  <!-- <div v-else class="review-box-wrap text-center py-4">
     <p class="text-muted">아직 등록된 리뷰가 없습니다.</p>
-  </div>
+  </div> -->
 
   <!--  리뷰카드 밑 여백인데 필요없을듯?
     <div class="d-flex justify-content-center mt-3">
-      <div  v-for="n in 6 - reviews.length"  :key="'empty-' + n"  class="review-box shadow empty-card"  v-if="reviews.length < 6" ></div>
+      <div  v-for="n in 6 - review.length"  :key="'empty-' + n"  class="review-box shadow empty-card"  v-if="review.length < 6" ></div>
     </div>
   -->
     
@@ -219,102 +250,96 @@ const formatDateTime = (isoStr) => {
   margin-bottom: 10px;
 }
 
-// 리뷰 카드 여백조절
-.review-wrap {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 10px;
-
-  // 리뷰 카드
-  .review-box {
+// 리뷰 카드
+.review-box {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  background-color: #fff;
+  border-radius: 15px;
+  padding: 30px 40px;
+  width: 100%;
+  min-height: 300px;
+  .review-header{
     display: flex;
-    flex-direction: column;
+    align-items: center;
     justify-content: space-between;
-    background-color: #fff;
-    border-radius: 15px;
-    padding: 30px 40px;
-    width: 100%;
-    min-height: 300px;
-    .review-header{
-      display: flex;
+    margin-bottom: 20px;
+  }
+  .profile {
+    display: flex;
+
+    .profile-circle {
+      background-color: #a3a3a3;
+      border-radius: 100%;
+      width: 48px;
+      height: 48px;
+      box-shadow: 1px 1px 3px #ccc;
+    }
+    .profile-circle img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      border-radius: 50%;
+    }
+    .profile-username > span {
+      display: block;
       align-items: center;
-      justify-content: space-between;
-      margin-bottom: 20px;
+      padding-left: 15px;
     }
-    .profile {
-      display: flex;
-
-      .profile-circle {
-        background-color: #a3a3a3;
-        border-radius: 100%;
-        width: 48px;
-        height: 48px;
-        box-shadow: 1px 1px 3px #ccc;
-      }
-      .profile-circle img {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-        border-radius: 50%;
-      }
-      .profile-username > span {
-        display: block;
-        align-items: center;
-        padding-left: 15px;
-      }
-      .orderMenu{
-        padding-left: 150px;
-      }
-
-      .profile-username > span:nth-of-type(2) , .orderMenu > span:nth-of-type(2)  {
-        color: #a3a3a3;
-      }
+    .orderMenu{
+      padding-left: 150px;
     }
 
-    .comment-wrap {
-      div {
-        display: flex;
-        span {
-          margin-right: 20px;
-        }
-      }
-      span {
-        font-weight: 700;
-        color: #ff6666;
-      }
-    }
-    p {
-      font-size: 14px;
-      color: #333;
-      line-height: 1.4;
-      display: -webkit-box;
-      -webkit-line-clamp: 2; // 두 줄로 제한
-      -webkit-box-orient: vertical; // 수직 방향 설정
-      overflow: hidden;
-      text-overflow: ellipsis;
-      word-break: break-word; // 긴 단어도 줄바꿈되게
-      max-width: 100%; // 너비 제한
-    }
-
-    .btn-wrap {
-      display: flex;
-      justify-content: flex-end;
-      width: 100%;
-    }
-    .btn {
-      border-radius: 15px;
-      border: #ff6666 1px solid;
-      color: #ff6666;
-      height: 50px;
-      max-width: 150px;
-      width: 100%;
-    }
-    .btn:hover {
-      background-color: #ff6666;
-      color: #fff;
+    .profile-username > span:nth-of-type(2) , .orderMenu > span:nth-of-type(2)  {
+      color: #a3a3a3;
     }
   }
+
+  .comment-wrap {
+    div {
+      display: flex;
+      span {
+        margin-right: 20px;
+      }
+    }
+    span {
+      font-weight: 700;
+      color: #ff6666;
+    }
+  }
+  p {
+    font-size: 14px;
+    color: #333;
+    line-height: 1.4;
+    display: -webkit-box;
+    -webkit-line-clamp: 2; // 두 줄로 제한
+    -webkit-box-orient: vertical; // 수직 방향 설정
+    overflow: hidden;
+    text-overflow: ellipsis;
+    word-break: break-word; // 긴 단어도 줄바꿈되게
+    max-width: 100%; // 너비 제한
+  }
+
+  .btn-wrap {
+    display: flex;
+    justify-content: flex-end;
+    width: 100%;
+  }
+  .btn {
+    border-radius: 15px;
+    border: #ff6666 1px solid;
+    color: #ff6666;
+    height: 50px;
+    max-width: 150px;
+    width: 100%;
+  }
+  .btn:hover {
+    background-color: #ff6666;
+    color: #fff;
+  }
 }
+
 
 .review-score {
   display: flex;

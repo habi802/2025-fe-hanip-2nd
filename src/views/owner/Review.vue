@@ -8,6 +8,7 @@ import { getReviewsByStoreId  } from '@/services/reviewServices.js';
 import { getReviewsAllByStoreId2 } from '@/services/reviewServices.js';
 import ReviewDateFilter from '@/components/owner/ReviewDateFilter.vue';
 
+
 //가게정보가져오기 
 const ownerStore = useOwnerStore();
 
@@ -15,6 +16,7 @@ const params = reactive({
     page : 1,
     rowPerPage : 6
 })
+
 
 
 // 날짜 필터 상태
@@ -35,6 +37,9 @@ const handleDateUpdate = (payload) => {
 };
 
 
+
+
+//리뷰정보 갖고오기
 const reviews = ref([])
 const allReview = ref([])
 const fetchReviews = async () => {
@@ -83,9 +88,12 @@ const sum = allReview.value.reduce((acc, review) => acc + review.rating, 0);
 return (sum / allReview.value.length).toFixed(1);
 });
 
-onMounted(async()=> {
-    fetchReviews();
-})
+
+const reviewSrcList = computed(() => {
+  if (!reviews.item?.pic || props.item.pic.length === 0) return [];
+
+  return props.item.pic.map(fileName => `${baseUrl.value}/images/Review/${props.item.id}/${fileName}`);
+});
 
 
 
@@ -98,6 +106,9 @@ onMounted(async()=> {
 //     `,
 // };
 
+onMounted(async()=> {
+    fetchReviews();
+})
 
 </script>
 
@@ -119,9 +130,9 @@ onMounted(async()=> {
                 </div>
             <!-- 리뷰카드  -->
             <div class="review-wrap" v-if="reviews && reviews.length > 0" >
-                <ReviewCard  v-if="reviews && reviews.length > 0" :key="params.page"  :reviews="reviews" />
+                <ReviewCard v-for="review in reviews" :key="review.id" :review="review" />
             </div>
-            <div v-else style="height: 600px; display:flex; justify-content:center; align-items:center">
+            <div v-else style=" min-height: 75vh; height: 600px; display:flex; justify-content:center; align-items:center">
                 등록된 리뷰가 없습니다.
             </div>
         </div>
@@ -168,7 +179,10 @@ onMounted(async()=> {
     }
 
     .review-wrap{
-        min-height: 75vh;
+
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 10px;
     }
 }
 
