@@ -245,6 +245,7 @@ const getStoreInfo = async (id) => {
 
   const res = await getStoreId(id);
   store.storeInfo = res.data.resultData;
+  console.log("스토어 정보", store.storeInfo)
 
   if (store.storeInfo.isActive != 1 || store.storeInfo.isOpen != 1) {
     setTimeout(async () => {
@@ -380,7 +381,7 @@ watch(sortedMenus, (newVal) => {
             <div class="star">★</div>
           </span>
           <span class="star-num">
-            {{ store.storeInfo.rating }}
+            {{ Number(store.storeInfo.rating).toFixed(1) }}
           </span>
           <!-- 이거 수정 -->
           <span class="text-color review-length star-num">( {{ state.store.revieLeng }} )</span>
