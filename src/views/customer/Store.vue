@@ -1,5 +1,5 @@
 <script setup>
-import { onMounted,onBeforeUnmount, reactive, ref, computed,watch } from "vue";
+import { onMounted, onBeforeUnmount, reactive, ref, computed, watch } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { getMenus } from "@/services/menuService";
 import { getReviewsByStoreId, getOwnerCommentList } from "@/services/reviewServices";
@@ -34,12 +34,12 @@ const state = reactive({
   reviewLeng: [],
   // 사장 코멘트 갯수
   ownerCommentNum: 0,
-  myFavorite: 0  
+  myFavorite: 0
 });
 
 onMounted(() => {
   const storeId = route.params.id;
-  currentPage.value = 1;     
+  currentPage.value = 1;
   noMoreReviews.value = false;
   getStoreInfo(storeId);
   getStoreMenu(storeId);
@@ -123,7 +123,7 @@ const loadReviews = async (id, isInitial = false) => {
 
   state.store.revieLeng = revieLeng.data.resultData.length
   store.reviewAll = revieLeng.data.resultData;
-    const today = new Date();
+  const today = new Date();
   const todayString = today.toLocaleDateString("sv-SE");
 
   // 오늘 작성한 리뷰 개수 계산
@@ -154,40 +154,40 @@ const loadReviews = async (id, isInitial = false) => {
       }
       currentPage.value += 1;
     }
-  
-  // 리뷰 총점 구하기
-  let ratingNumCal = 0;
-  for (let i = 0; i < state.reviews.length; i++) {
-    ratingNumCal += state.reviews[i].rating;
-  }
-  
-  const count = (ratingNumCal / state.reviews.length).toFixed(1)
-  state.reviewNum = count
-  
-  let commentNum = "";
-  let comLeng = 0;
-  
-  for (let i = 0; i < state.reviews.length; i++) {
-    commentNum = state.reviews[i].ownerComment
-    if (typeof commentNum === "string" && commentNum !== null && commentNum !== "") {
-      comLeng += 1;
+
+    // 리뷰 총점 구하기
+    let ratingNumCal = 0;
+    for (let i = 0; i < state.reviews.length; i++) {
+      ratingNumCal += state.reviews[i].rating;
     }
-    state.ownerCommentNum = comLeng;
-  };
-}
- isLoading.value = false;
+
+    const count = (ratingNumCal / state.reviews.length).toFixed(1)
+    state.reviewNum = count
+
+    let commentNum = "";
+    let comLeng = 0;
+
+    for (let i = 0; i < state.reviews.length; i++) {
+      commentNum = state.reviews[i].ownerComment
+      if (typeof commentNum === "string" && commentNum !== null && commentNum !== "") {
+        comLeng += 1;
+      }
+      state.ownerCommentNum = comLeng;
+    };
+  }
+  isLoading.value = false;
 };
 
 
 //스크롤 감지
-  const handleScroll = () => {
+const handleScroll = () => {
   const scrollTop = window.scrollY || document.documentElement.scrollTop;
   const windowHeight = window.innerHeight;
   const fullHeight = document.documentElement.scrollHeight;
 
-if (scrollTop + windowHeight >= fullHeight - 400 && !isLoading.value && !noMoreReviews.value) { 
-  loadReviews(route.params.id, false);
-}
+  if (scrollTop + windowHeight >= fullHeight - 400 && !isLoading.value && !noMoreReviews.value) {
+    loadReviews(route.params.id, false);
+  }
 };
 
 
@@ -237,7 +237,7 @@ const store = reactive({
   ownerComment: [],
   todayReviewCount: 0,
   myFavorite: 0,
-  reviewAll:[]
+  reviewAll: []
 })
 
 // 가게 정보 조회
@@ -245,10 +245,11 @@ const getStoreInfo = async (id) => {
 
   const res = await getStoreId(id);
   store.storeInfo = res.data.resultData;
+  console.log("스토어 정보", store.storeInfo)
 
-  if(store.storeInfo.isActive !=1 || store.storeInfo.isOpen !=1){
-     setTimeout(async () => {
-  const alret = await alertResolveModal.value.showModal("준비중인 가게입니다.");
+  if (store.storeInfo.isActive != 1 || store.storeInfo.isOpen != 1) {
+    setTimeout(async () => {
+      const alret = await alertResolveModal.value.showModal("준비중인 가게입니다.");
       if (alret) {
         document.body.style.overflow = "";
         router.push("/")
@@ -258,7 +259,7 @@ const getStoreInfo = async (id) => {
 
   if (store.storeInfo === null || store.storeInfo === undefined) {
     setTimeout(async () => {
-  const alret = await alertResolveModal.value.showModal("잘못된 접근입니다.");
+      const alret = await alertResolveModal.value.showModal("잘못된 접근입니다.");
       if (alret) {
         document.body.style.overflow = "";
         router.push("/")
@@ -352,8 +353,8 @@ const sortedMenus = computed(() => {
 
 watch(sortedMenus, (newVal) => {
   if (newVal.length === 0) {
-        setTimeout(async () => {
-  const alret = await alertResolveModal.value.showModal("판매하는 메뉴가 없습니다.");
+    setTimeout(async () => {
+      const alret = await alertResolveModal.value.showModal("판매하는 메뉴가 없습니다.");
       if (alret) {
         router.push("/")
       }
@@ -380,13 +381,14 @@ watch(sortedMenus, (newVal) => {
             <div class="star">★</div>
           </span>
           <span class="star-num">
-            {{ store.storeInfo.rating }}
+            {{ Number(store.storeInfo.rating).toFixed(1) }}
           </span>
           <!-- 이거 수정 -->
           <span class="text-color review-length star-num">( {{ state.store.revieLeng }} )</span>
           <span>
-            <div class="favorite" @click="toggleFavorite(store.storeInfo.id)">{{ state.myFavorite === 1 ? "♥" : "♡"
-            }}</div>
+            <div class="favorite" :class="{ nonLogin: !account.state.loggedIn }"
+              @click="toggleFavorite(store.storeInfo.id)">{{ state.myFavorite === 1 ? "♥" : "♡"
+              }}</div>
           </span>
           <span class="favorite-num">
             {{ store.storeInfo.favorites ? store.storeInfo.favorites + 0 : store.storeInfo.favorites + 0 }}
@@ -787,11 +789,12 @@ watch(sortedMenus, (newVal) => {
   font-size: 30px;
   color: #FAC729;
 }
-.no-star{
-    font-family: "BMJUA";
-    font-size: 1.5em;
+
+.no-star {
+  font-family: "BMJUA";
+  font-size: 1.5em;
   color: #ccc;
-  
+
 }
 
 .left-box {
@@ -1031,5 +1034,9 @@ hr {
   font-family: "BMJUA";
   font-size: 1em;
   color: #FAC729;
+}
+
+.nonLogin {
+  pointer-events: none;
 }
 </style>
