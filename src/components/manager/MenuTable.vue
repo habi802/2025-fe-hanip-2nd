@@ -11,7 +11,7 @@ const baseUrl = import.meta.env.VITE_BASE_URL;
 // 이미지 표시
 const showImage = (storeId, menuId, image) => {
     return image !== undefined && image !== null && image !== ''
-        ? `${baseUrl}/images/stores/${storeId}/menu/${menuId}/${image}`
+        ? `${baseUrl}/images/store/${storeId}/menu/${menuId}/${image}`
         : defaultImage;
 };
 </script>
