@@ -468,7 +468,7 @@ const cartMenu = async () => {
               <div class="rating">
                 <div class="star">★</div>
                 <div v-if="state.reviewNum !== 'NaN'">
-                  <span class="score">{{ state.store.rating }}</span>
+                  <span class="score">{{ Number(state.store.rating).toFixed(1) }}</span>
                   <span class="count">({{ (state.reviewLeng?.length || 0) }})</span>
                 </div>
                 <div v-else>

@@ -67,7 +67,7 @@ const reviews = async () => {
           <div class="score-box">
             <span class="star">★</span>
             <span class="small">
-              {{ props.store.rating }} ({{ leng }})
+              {{ Number(props.store.rating).toFixed(1) }} ({{ leng }})
             </span>
             <sapn class="love">♥</sapn>
             <span class="small">

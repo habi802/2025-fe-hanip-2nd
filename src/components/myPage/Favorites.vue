@@ -142,7 +142,7 @@ const toStore = (id) => {
                   <div class="score-box">
                     <span class="star">★</span>
                     <span class="small-text">
-                      {{ store.rating }}
+                      {{ Number(store.rating).toFixed(1) }}
                     </span>
                     <span class="love">♥</span>
                     <span class="small-text">

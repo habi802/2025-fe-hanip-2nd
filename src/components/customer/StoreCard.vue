@@ -33,9 +33,7 @@ const storeImage = computed(() => {
       <div class="icons">
         <div class="d-flex align-items-center star">
           <span class="star">★</span>
-          <span class="starNum">{{
-            props.store.rating !== 0 ? props.store.rating.toFixed(1) : 0
-          }}</span>
+          <span class="starNum">{{ Number(props.store.rating).toFixed(1) }}</span>
         </div>
         <div class="d-flex align-items-center love">
           <span class="love">♥</span>
