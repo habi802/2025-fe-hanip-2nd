@@ -4,6 +4,14 @@ import { useRouter } from "vue-router";
 import { getUser, checkPassword, updateUser } from "@/services/userService";
 import { nextTick } from "vue";
 import defaultUserProfile from "@/imgs/owner/user_profile.jpg";
+import AlertModal from "@/components/modal/AlertModal.vue";
+
+const modalRef = ref(null); // ref로 모달 제어
+
+// 기존 showModal 함수 대체
+const showModal = (message) => {
+  modalRef.value?.open(message); // ref를 통해 공용 모달 열기
+};
 
 const router = useRouter();
 onMounted(() => {
@@ -272,126 +280,6 @@ onMounted(async () => {
   }
 });
 //  정보 수정 성공 여부
-
-// const submitForm = async (e) => {
-//   e.preventDefault();
-
-//   // 현재 비밀번호 확인 필수
-//   if (!state.form.loginPw) {
-//     errors.loginPw = "현재 비밀번호를 입력해주세요.";
-//     return;
-//   }
-
-//   // 새 비밀번호를 바꾸려는 경우만 validate
-//   const isPwChanging = confirmPw.value || confirmPwCheck.value;
-//   if (isPwChanging) {
-//     if (confirmPw.value !== confirmPwCheck.value) {
-//       errors.confirmPw = "새 비밀번호가 일치하지 않습니다.";
-//       return;
-//     }
-//     // 비밀번호 확인 버튼 누르지 않았으면
-//     if (checkResult.value !== "비밀번호가 확인되었습니다.") {
-//       showModal("현재 비밀번호를 먼저 확인해주세요.");
-//       return;
-//     }
-//   }
-
-//   try {
-//     const formData = new FormData();
-//     const userPutReq = {
-//       name: state.form.name,
-//       loginPw: state.form.loginPw, // 항상 필요
-//       newLoginPw: isPwChanging ? confirmPw.value : null, // 변경 시만 포함
-//       phone: `${phone1.value}-${phone2.value}-${phone3.value}`,
-//       email: state.form.email,
-//     };
-
-//     formData.append(
-//       "req",
-//       new Blob([JSON.stringify(userPutReq)], { type: "application/json" })
-//     );
-
-//     if (selectedFile.value) {
-//       formData.append("pic", selectedFile.value); // 이미지만 변경 가능
-//     }
-
-//     const res = await updateUser(formData);
-
-//     if (res.status === 200) {
-//       showModal("정보가 성공적으로 수정되었습니다.");
-//       router.push("/");
-//     } else {
-//       showModal("정보 수정에 실패했습니다.");
-//     }
-//   } catch (err) {
-//     console.error("정보 수정 실패:", err);
-//     showModal("정보 수정 중 오류가 발생했습니다.");
-//   }
-// };
-
-
-// const submitForm = async (e) => {
-//   e.preventDefault();
-
-//   // 로컬 로그인이면 비밀번호 검증
-//   if (state.form.providerType === "로컬") {
-//     if (!state.form.loginPw) {
-//       errors.loginPw = "현재 비밀번호를 입력해주세요.";
-//       return;
-//     }
-
-//     const isPwChanging = confirmPw.value || confirmPwCheck.value;
-//     if (isPwChanging) {
-//       if (confirmPw.value !== confirmPwCheck.value) {
-//         errors.confirmPw = "새 비밀번호가 일치하지 않습니다.";
-//         return;
-//       }
-//       if (checkResult.value !== "비밀번호가 확인되었습니다.") {
-//         showModal("현재 비밀번호를 먼저 확인해주세요.");
-//         return;
-//       }
-//     }
-//   }
-
-//   try {
-//     const formData = new FormData();
-
-//     // 서버로 보낼 객체
-//     const userPutReq = {
-//       name: state.form.name,
-//       phone: `${phone1.value}-${phone2.value}-${phone3.value}`,
-//       email: state.form.email,
-//     };
-
-//     // 로컬 회원이면 비밀번호 포함
-//     if (state.form.providerType === "로컬") {
-//       userPutReq.loginPw = state.form.loginPw;
-//       const isPwChanging = confirmPw.value || confirmPwCheck.value;
-//       if (isPwChanging) userPutReq.newLoginPw = confirmPw.value;
-//     }
-
-//     formData.append(
-//       "req",
-//       new Blob([JSON.stringify(userPutReq)], { type: "application/json" })
-//     );
-
-//     if (selectedFile.value) {
-//       formData.append("pic", selectedFile.value);
-//     }
-
-//     const res = await updateUser(formData);
-
-//     if (res.status === 200) {
-//       showModal("정보가 성공적으로 수정되었습니다.");
-//       router.push("/");
-//     } else {
-//       showModal("정보 수정에 실패했습니다.");
-//     }
-//   } catch (err) {
-//     console.error("정보 수정 실패:", err);
-//     showModal("정보 수정 중 오류가 발생했습니다.");
-//   }
-// };
 const submitForm = async (e) => {
   e.preventDefault();
 
@@ -483,15 +371,15 @@ function handlePhoneInput(modelRef, key) {
   // }
 }
 
-// 모달창
-const showModal = (message) => {
-  const modalBody = document.getElementById("alertModalBody");
-  if (modalBody) modalBody.textContent = message;
+// // 모달창
+// const showModal = (message) => {
+//   const modalBody = document.getElementById("alertModalBody");
+//   if (modalBody) modalBody.textContent = message;
 
-  if (alertModal) {
-    alertModal.show();
-  }
-};
+//   if (alertModal) {
+//     alertModal.show();
+//   }
+// };
 
 const isPasswordChecked = ref(false); // 비밀번호 확인 여부
 </script>
@@ -693,6 +581,8 @@ const isPasswordChecked = ref(false); // 비밀번호 확인 여부
       </div>
     </div>
   </div>
+  <!-- 모달창 -->
+  <alert-modal ref="alertModal"></alert-modal>
 </template>
 
 <style lang="scss" scoped>
