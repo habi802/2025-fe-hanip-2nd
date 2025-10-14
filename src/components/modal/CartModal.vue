@@ -201,7 +201,7 @@ const optionTotal = (item) => {
 }
 
 .item-name {
-  width: 200px;
+  width: 190px;
   min-height: 20px;
 }
 

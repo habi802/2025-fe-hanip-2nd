@@ -1,5 +1,6 @@
 <script setup>
 import { computed, defineExpose, ref } from 'vue';
+import MenuTable from './MenuTable.vue';
 import defaultImage from "@/imgs/owner/owner-service2.png";
 import bannerDefaultImage from "@/imgs/owner/owner-service5.png";
 
@@ -45,7 +46,7 @@ const showImage = (title, id, image) => {
 </script>
 
 <template>
-    <b-modal v-model="show" :title="`${props.title === 'store' ? '가게' : (props.title === 'order' ? '주문' : '리뷰')} 정보`" size="lg" hide-footer centered scrollable @shown="onModalShown">
+    <b-modal v-model="show" :title="`${props.title === 'store' ? '가게' : (props.title === 'order' ? '주문' : '리뷰')} 정보`" size="lg" hide-footer centered scrollable>
         <b-card class="border-0" body-class="pt-0">
             <!-- 가게 상세 조회 -->
             <template v-if="props.title === 'store'">
@@ -148,8 +149,10 @@ const showImage = (title, id, image) => {
                     <b-col cols="12"><strong>메뉴</strong></b-col>
                 </b-row>
                 <b-row>
-                    <b-col cols="12" class="content">
-
+                    <b-col cols="12" class="content-scrolled">
+                        <template v-if="isExistItem">
+                            <MenuTable :menus="props.item.menus" />
+                        </template>
                     </b-col>
                 </b-row>
 
@@ -185,8 +188,8 @@ const showImage = (title, id, image) => {
                     <b-col cols="12"><strong>메뉴</strong></b-col>
                 </b-row>
                 <b-row>
-                    <b-col cols="12" class="content">
-
+                    <b-col cols="12" class="content-scrolled">
+                        
                     </b-col>
                 </b-row>
 
@@ -233,7 +236,9 @@ const showImage = (title, id, image) => {
                 </b-row>
                 <b-row>
                     <b-col cols="12" class="content">
-
+                        <template v-if="isExistItem">
+                            <MenuTable :menus="props.item.menus" />
+                        </template>
                     </b-col>
                 </b-row>
 
@@ -285,6 +290,11 @@ const showImage = (title, id, image) => {
     .image {
         width: 100%;
     }
+}
+
+.content-scrolled {
+    height: 360px;
+    overflow-y: scroll;
 }
 
 /* 결제 수단 스타일 */

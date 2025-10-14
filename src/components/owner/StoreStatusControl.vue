@@ -343,6 +343,8 @@ h5 {
   height: 1.6rem; /* 토글 높이 */
   background-color: #e9ecef; /* OFF 트랙 색 */
   border-color: #ced4da;
+  transition: background-color 0.15s ease, border-color 0.15s ease,
+  box-shadow 0.15s ease, opacity 0.15s ease;
 }
 :deep(.form-switch .form-check-input:not(:checked)) {
   background-color: #adb5bd; /* OFF일 때 좀 더 진한 회색 */
@@ -350,7 +352,7 @@ h5 {
 
 /* ON 트랙/테두리 색 */
 :deep(.form-switch .form-check-input:checked) {
-  background-color: #ff6666; /* Bootstrap primary 예시 (#0d6efd) */
+  background-color: #ff6666;
   border-color: #ff6666;
 }
 
@@ -364,7 +366,7 @@ h5 {
 
 /* 포커스 링 */
 :deep(.form-switch .form-check-input:focus) {
-  box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25); /* primary 색의 투명 링 */
+  box-shadow: 0 0 0 0.25rem rgba(255, 107, 107, 0.25);
 }
 
 /* --- Radio(라디오) 색 커스텀 --- */

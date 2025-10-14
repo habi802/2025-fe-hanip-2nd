@@ -47,6 +47,29 @@ const handleAddMenu = () => {
   state.selectedMenu = null;
 };
 
+// 유효성 검사기
+const validateOptionNames = (payload) => {
+  const groups = payload?.options ?? [];
+  for (let gi = 0; gi < groups.length; gi++) {
+    const g = groups[gi] ?? {};
+    const gName = (g.comment ?? g.name ?? "").trim();
+    if (!gName) {
+      showAlert(`옵션그룹의 이름을 입력하세요.`);
+      return false;
+    }
+    const children = g.children ?? g.values ?? [];
+    for (let ci = 0; ci < children.length; ci++) {
+      const v = children[ci] ?? {};
+      const vName = (v.comment ?? v.opt ?? "").trim();
+      if (!vName) {
+        showAlert(`옵션그룹- 항목의 이름을 입력하세요.`);
+        return false;
+      }
+    }
+  }
+  return true;
+}
+
 // 변환기
 const toMenuOptionPostReq = (uiOptions = []) =>
   uiOptions.map((g) => ({
@@ -92,10 +115,25 @@ const buildPutReq = (payload) => ({
 
 // 메뉴 등록 / 수정
 const handleSaved = async (payload, file) => {
+  // 유효성
+  if(!payload?.name || !payload.name.trim()) {
+    showAlert("메뉴 이름은 필수입니다.");
+    return;
+  }
+
+  const nameTrim = payload.name.trim();
+  const dup = state.menus.some(
+    (m) => m.name?.trim() === nameTrim && m.menuId !== payload.menuId
+  );
+  if (dup) {
+    showAlert("동일한 이름의 메뉴가 이미 있습니다.");
+    return false;
+  }
+
+  if (!validateOptionNames(payload)) return;
+
   const isEdit = state.mode === "edit";
-
   const reqBody = isEdit ? buildPutReq(payload) : buildPostReq(payload);
-
   console.log(
     `[REQ ${isEdit ? "PUT" : "POST"}]`,
     JSON.stringify(reqBody, null, 2)
