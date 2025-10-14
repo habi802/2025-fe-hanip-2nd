@@ -16,20 +16,14 @@ import {
   patchDeliveredOrder,
   patchCanceledOrder,
 } from "@/services/orderService";
+import LoadingModal from '@/components/modal/LoadingModal.vue';
+import ConfirmModal from '@/components/modal/ConfirmModal.vue';
 
 const ownerStore = useOwnerStore();
 const orderStore = useOrderStore();
 
-
-// sse status 애니메이션
-const updatedOrders = ref([]);
-
-const markUpdated = (orderId) => {
-  updatedOrders.value.push(orderId);
-  setTimeout(() => {
-    updatedOrders.value = updatedOrders.value.filter((id) => id !== orderId);
-  }, 1000);
-}
+const loadingModalRef = ref(null);
+const confirmModalRef = ref(null);
 
 
 // 가게 ID 변경 감시
@@ -129,16 +123,36 @@ onMounted(async () => {
 
 //영업중/정비중 버튼
 const isOpen = computed(() => ownerStore.state.storeData.isOpen);
+const toggling = ref(false);
 const toggleStoreStatus = async () => {
-  if (
-    confirm(
-      isOpen.value ? "영업을 중단하시겠습니까?" : "영업을 시작하시겠습니까?"
-    )
-  ) {
-    const res = await patchIsOpen(ownerStore.state.storeData.id);
-    if (res && res.status === 200) {
+  if (toggling.value) return;
+
+  const msg = isOpen.value
+    ? '가게 영업을 중단하시겠습니까?'
+    : '가게 영업을 시작하시겠습니까?';
+  const isConfirmed = await confirmModalRef.value.showModal(msg);
+  if (!isConfirmed) return;
+
+  const storeId = ownerStore.state.storeData?.id;
+  if (!storeId) {
+    alert('오류 발생');
+    return;
+  }
+
+  toggling.value = true;
+
+  try {
+    const res = await patchIsOpen(storeId);
+    if (res?.status === 200) {
       ownerStore.setIsOpen();
+    } else {
+      alert('상태 변경 실패');
     }
+  } catch (e) {
+    console.error(e);
+    alert('요청 실패: 네트워크/서버 오류');
+  } finally {
+    toggling.value = false;
   }
 };
 
@@ -248,6 +262,9 @@ const closeOrder = () => {
       />
     </div>
   </div>
+
+  <LoadingModal ref="loadingModalRef" />
+  <ConfirmModal ref="confirmModalRef" />
 </template>
 
 <style scoped lang="scss">
