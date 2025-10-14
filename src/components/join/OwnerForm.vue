@@ -312,6 +312,7 @@ watch(
         :value="localOwner.openDate"
         @input="updateField('openDate', $event.target.value)"
         @blur="validateopenDate"
+        :class="{ invalid: errors.openDate }"
         placeholder="ex) 2025.09.01"
       />
     </div>
@@ -367,6 +368,7 @@ watch(
             }
           "
           class="full-width"
+          :class="{ invalid: errors.address }"
           placeholder="상세주소"
         />
       </div>
@@ -510,10 +512,11 @@ watch(
           type="text"
           v-model="localOwner.storeName"
           @input="(e) => updateField('storeName', e.target.value)"
+          :class="{ invalid: errors.storeName }"
           placeholder="가게 이름 입력"
         />
         <!-- 카테고리 선택 -->
-        <select @change="onCategorySelect($event)">
+        <select @change="onCategorySelect($event)" :class="{ invalid: errors.category }">
           <option value="" disabled selected>카테고리 선택</option>
           <option v-for="cat in categories" :key="cat.value" :value="cat.value">
             {{ cat.label }}
@@ -741,7 +744,7 @@ li {
   }
 
   // 유효성 검사 스타일
-  input,
+  input.invalid,
   select.invalid {
     box-shadow: 0 0 3px #ff6666(233, 0, 0, 0.3) !important;
     background-color: #ffe5e5;
