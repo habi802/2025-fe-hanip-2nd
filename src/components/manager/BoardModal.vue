@@ -1,9 +1,18 @@
 <script setup>
+import 'swiper/css';
+import 'swiper/css/navigation';
+import 'swiper/css/pagination';
+import 'swiper/css/scrollbar';
+
+
 import { computed, defineExpose, ref } from 'vue';
+import { Swiper, SwiperSlide } from 'swiper/vue';
 import MenuTable from './MenuTable.vue';
 import OrderMenuTable from './OrderMenuTable.vue';
 import defaultImage from "@/imgs/owner/owner-service2.png";
 import bannerDefaultImage from "@/imgs/owner/owner-service5.png";
+
+import { Navigation, Pagination, Scrollbar, A11y, Autoplay } from 'swiper/modules';
 
 const props = defineProps({
     title: String,
@@ -244,14 +253,23 @@ const showImage = (title, id, image) => {
                     <b-col cols="3">{{ isExistItem ? props.item.userName : '' }}</b-col>
                 </b-row>
 
-                <b-row>
-                    <b-col cols="12"><strong>이미지</strong></b-col>
-                </b-row>
-                <b-row>
-                    <b-col cols="12" class="content">
-                        
-                    </b-col>
-                </b-row>
+                <template v-if="props.item.images !== undefined && props.item.images !== null && props.item.images?.length > 0">
+                    <b-row>
+                        <b-col cols="12"><strong>이미지</strong></b-col>
+                    </b-row>
+                    <b-row>
+                        <b-col cols="12" class="content">
+                            <swiper :slides-per-view="3" :modules="[Navigation, Pagination, Scrollbar, A11y, Autoplay]"
+                                :speed="1000" :space-between="10" :resistance="false" :resistance-ratio="0">
+                                <swiper-slide v-for="(image, idx) in props.item.images" :key="idx">
+                                    <div class="review-image border">
+                                        <img class="review-image" :src="showImage('Review', props.item.reviewId, image)" @error="e => e.target.src = defaultImage" alt="리뷰 이미지" />
+                                    </div>
+                                </swiper-slide>
+                            </swiper>
+                        </b-col>
+                    </b-row>
+                </template>
 
                 <b-row>
                     <b-col cols="12"><strong>내용</strong></b-col>
@@ -317,5 +335,11 @@ const showImage = (title, id, image) => {
 .bg-naver {
     background-color: #00B074;
     color: white;
+}
+
+.review-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
 }
 </style>
