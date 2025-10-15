@@ -248,9 +248,7 @@ const ownerPathList = ['owner', 'owner-dashboard', 'owner-check', 'owner-status'
 const managerPathList = ['manager-dashboard', 'manager-user', 'manager-store', 'manager-order', 'manager-review', 'manager-recommand', 'manager-stats'];
 const loginPath = ['login', 'join', 'manager-login'];
 const ownerRouteNames = new Set([
-  'owner','owner-dashboard','owner-check','owner-status','owner-store',
-  'owner-menu','owner-order','owner-review','owner-stats','owner-delivery',
-  'owner-customer','owner-coupons','owner-ads'
+  'owner','owner-dashboard',
 ]);
 
 router.beforeEach(async (to, from) => {
