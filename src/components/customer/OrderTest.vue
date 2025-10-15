@@ -109,4 +109,4 @@ const reOrder = async menus => {
         @review="openModal(order.orderId, order.storeName, order.menuItems, order.getReview)" />
 </template>
 
-<style scoped></style>
+<style lang="scss" scoped></style>
