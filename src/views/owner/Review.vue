@@ -135,15 +135,7 @@ onMounted(async()=> {
 <template>
 
  <!-- alert -->
- <div
-      style="
-        position: fixed;
-        top: 20px;
-        left: 50%;
-        transform: translateX(-50%);
-        z-index: 1055;
-      "
-    >
+ <div style=" position: fixed; top: 20px; left: 50%; transform: translateX(-50%); z-index: 1055;" >
       <div
         v-for="(alert, index) in alerts"
         :key="alert.id"
@@ -163,19 +155,19 @@ onMounted(async()=> {
 
     <template v-if="totalReviewCount > 0">
         <div class="wrap" > 
-                <!-- 조회기간설정 카드 :추후 구현 -->
-                <ReviewDateFilter @update-date="handleDateUpdate"></ReviewDateFilter>
-                <!-- 전체 토탈 카드 -->
-                <div class="total-wrap">
-                    <div class="white-card total-box">
-                        <span>전체 리뷰 수</span>
-                        <span>{{ totalReviewCount || 0 }} </span>
-                    </div>
-                    <div class="white-card total-box">
-                        <span>평균 별점</span>
-                        <span>{{avgReview || 0}} </span>
-                    </div>
-                </div>
+          <!-- 전체 토탈 카드 -->
+          <div class="total-wrap">
+            <!-- 조회기간설정 카드 -->
+            <ReviewDateFilter @update-date="handleDateUpdate"></ReviewDateFilter>
+              <div class="white-card total-box">
+                  <span>전체 리뷰 수</span>
+                  <span>{{ totalReviewCount || 0 }} </span>
+              </div>
+              <div class="white-card total-box">
+                  <span>평균 별점</span>
+                  <span>{{avgReview || 0}} </span>
+              </div>
+            </div>
             <!-- 리뷰카드  -->
             <div class="review-wrap" v-if="reviews && reviews.length > 0" >
                 <ReviewCard v-for="review in reviews" :key="review.id" :review="review" />
@@ -185,7 +177,7 @@ onMounted(async()=> {
             </div>
         </div>
 
-        <b-pagination v-model="params.page" :total-rows="row" :per-page="params.rowPerPage" aria-controls="my-table"></b-pagination>
+        <b-pagination v-model="params.page" :total-rows="row" :per-page="params.rowPerPage" aria-controls="my-table"  hide-goto-end-buttons prev-text="이전" next-text="다음" :limit="1"></b-pagination>
     </template>
 
     <template v-else >
@@ -231,6 +223,7 @@ onMounted(async()=> {
         display: grid;
         grid-template-columns: repeat(3, 1fr);
         gap: 10px;
+        margin-bottom: 40px;
     }
 }
 </style>
