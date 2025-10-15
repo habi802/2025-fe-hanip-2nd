@@ -119,23 +119,28 @@ onMounted(async () => {
 <style scoped scss="lang">
 .date-filter {
   width: 300px;
-  height: 50px;
+  height: 90px;
   background-color: #fff;
   border-radius: var(--card-lg-radius);
   box-shadow: var(--card-shadow);
   display: flex;
   justify-content: space-around;
   align-items: center;
-  padding: 10px 15px;
+  padding: 15px 30px;
   span {
     display: block;
     width: 100%;
     font-size: 1.2rem;
-    text-align: left;
-    padding-left: 10%;
+    text-align: center;
   }
   img:last-child {
     transform: translateY(-1px);
   }
+}
+.dropdown-menu{
+width: 100%;
+border: none;
+border-radius: var(--card-lg-radius);
+box-shadow: var(--card-shadow);
 }
 </style>

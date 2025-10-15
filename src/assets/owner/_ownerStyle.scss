@@ -355,60 +355,114 @@ input:checked+.slider::before {
 
 
 
-//페이지네이션 커스텀
+// //페이지네이션 커스텀
+// .page-item {
+//   display: flex;
+//   justify-content: center;
+//   align-items: center;
+
+//   &.active {
+//     .page-link {
+//       color: #ff6666;
+//       text-decoration: underline;
+//     }
+//   }
+
+//   &.disabled {
+//     .page-link {
+//       color: #ccc;
+//     }
+//   }
+
+//   &:first-child,
+//   &:nth-child(2),
+//   &:nth-last-child(2),
+//   &:last-child {
+//     .page-link {
+//       display: flex;
+//       justify-content: center;
+//       align-items: center;
+//       font-size: 24pt;
+//     }
+//   }
+
+//   .page-link {
+//     color: black;
+//     border: none;
+//     background-color: transparent !important;
+//     font-size: 16pt;
+
+//     &:hover {
+//       color: #ff8989;
+//     }
+
+//     &:focus {
+//       box-shadow: none;
+//       outline: none;
+//     }
+//   }
+// }
+
+// .isActive {
+//   display: none;
+// }
+// .isOpen {
+//   opacity: 50%;
+//   pointer-events: none;
+// }
+
+// //페이지네이션끝
+
+
+/* 페이지네이션 전체 정렬 */
+.pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+}
+
+/* 각 페이지 아이템 기본 */
 .page-item {
   display: flex;
   justify-content: center;
   align-items: center;
-
-  &.active {
-    .page-link {
-      color: #ff6666;
-      text-decoration: underline;
-    }
-  }
-
-  &.disabled {
-    .page-link {
-      color: #ccc;
-    }
-  }
-
-  &:first-child,
-  &:nth-child(2),
-  &:nth-last-child(2),
-  &:last-child {
-    .page-link {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      font-size: 24pt;
-    }
-  }
-
-  .page-link {
-    color: black;
-    border: none;
-    background-color: transparent !important;
-    font-size: 16pt;
-
-    &:hover {
-      color: #ff8989;
-    }
-
-    &:focus {
-      box-shadow: none;
-      outline: none;
-    }
-  }
+  border: 1px solid #ddd;
+  border-radius: 999px !important; /* pill 형태 */
 }
 
-.isActive {
-  display: none;
+/* 기본 버튼 스타일 */
+.page-link {
+  border: none;
+  background-color: #fff;
+  color: #333;
+  font-size: 14px;
+  padding: 3px 15px;
+  transition: all 0.2s;
+  border-radius: 999px !important; /* pill 형태 */
 }
-.isOpen {
-  opacity: 50%;
+
+.page-link:hover {
+  background-color: #f5f5f5;
+  color: #292929;
+}
+
+/* 현재 페이지 */
+.page-item.active .page-link {
+  background-color: #ff6666;
+  min-width: 50px;
+  color: #fff;
+  font-weight: 600;
+}
+
+/* 비활성 버튼 (이전, 다음 비활성화 시) */
+.page-item.disabled .page-link {
+  background-color: #f1f1f1;
+  color: #727272;
   pointer-events: none;
 }
 
-//페이지네이션끝
+/* 클릭 시 테두리나 그림자 제거 */
+.page-link:focus {
+  box-shadow: none;
+}
