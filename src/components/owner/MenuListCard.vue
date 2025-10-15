@@ -20,7 +20,6 @@ const imgSrc = computed(() => {
 });
 
 const emit = defineEmits(["select"]);
-console.log("props.men: ", props.menu.menuId)
 </script>
 
 <template>
