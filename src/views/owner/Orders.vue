@@ -615,4 +615,13 @@ const selectRange = async (range) => {
   font-weight: 700;
   font-size: 13px;
 }
+
+
+.dropdown-menu{
+  width: 100%;
+  border: none;
+  border-radius: var(--card-lg-radius);
+  box-shadow: var(--card-shadow);
+}
+
 </style>

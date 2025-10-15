@@ -49,6 +49,17 @@ const handleSubmit = () => {
 
 // 프로필 이미지 (없으면 기본 이미지)
 const profileImage = computed(() => props.review?.userPic || defaultUserProfile);
+const profileImageSrc = computed(() => {
+
+const userPic = props.review?.userPic
+if (userPic?.startsWith('http')) {
+  return userPic.replace('http://', 'https://')
+}
+if (props.review?.userId && userPic) {
+  return `${baseUrl.value}/images/user/${props.review.userId}/${userPic}`
+}
+return defaultUserProfile    
+});
 
 // 날짜 포맷 함수 (yyyy-mm-dd hh:mm)
 const formatDateTime = (date) => {
@@ -118,7 +129,7 @@ const displayImage = computed(() => {
             <!-- 프로필 -->
             <div class="profile-header">
               <div class="profile-box">
-                <img :src="profileImage" alt="프로필" @error="(e) => e.target.src = defaultUserProfile" />
+                <img :src="profileImageSrc" alt="프로필" @error="(e) => e.target.src = defaultUserProfile" />
                 <div class="profile-info">
                   <span>{{ review?.userName }}</span>
                   <!-- 작성자 이름 -->
