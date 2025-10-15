@@ -434,7 +434,7 @@ const pay = reactive({
           <div class="fee-box">
             <div class="fee-row">
               <span>배달료</span>
-              <span>{{ state.storeInfo.minDeliveryFee }}</span>
+              <span>{{ state.storeInfo.minDeliveryFee.toLocaleString() }}</span>
             </div>
           </div>
 
