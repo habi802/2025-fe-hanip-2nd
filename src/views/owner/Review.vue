@@ -130,10 +130,37 @@ const reviewSrcList = computed(() => {
 onMounted(async()=> {
     fetchReviews();
 })
-
 </script>
 
 <template>
+
+ <!-- alert -->
+ <div
+      style="
+        position: fixed;
+        top: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        z-index: 1055;
+      "
+    >
+      <div
+        v-for="(alert, index) in alerts"
+        :key="alert.id"
+        :class="['alert', alert.type, 'alert-dismissible', 'fade', 'show']"
+        role="alert"
+        style="margin-bottom: 10px; min-width: 300px; max-width: 600px"
+      >
+        {{ alert.message }}
+        <button
+          type="button"
+          class="btn-close"
+          @click="removeAlert(alert.id)"
+        ></button>
+      </div>
+    </div>
+    <!-- alert 끝 -->
+
     <template v-if="totalReviewCount > 0">
         <div class="wrap" > 
                 <!-- 조회기간설정 카드 :추후 구현 -->
@@ -206,7 +233,4 @@ onMounted(async()=> {
         gap: 10px;
     }
 }
-
-
-
 </style>
