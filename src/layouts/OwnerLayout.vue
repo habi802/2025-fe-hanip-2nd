@@ -223,6 +223,7 @@ watch(
 </template>
 
 <style lang="scss" scoped>
+
 .box {
   font-family: "Pretendard", sans-serif;
 }
@@ -239,7 +240,6 @@ watch(
 .store-name {
   font-size: 40px;
   font-weight: 100;
-  font-family: Pretendard, serif;
   width: 310px;
   word-break: keep-all;
   overflow-wrap: break-word;
