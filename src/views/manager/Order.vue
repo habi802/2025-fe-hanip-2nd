@@ -101,7 +101,7 @@ const addSelectedItem = item => {
         id: item.id,
         status: item.status
     }];
-    setIsHide(item.newStatus);
+    cancelOrder(item.newStatus);
 }
 
 // 주문 취소
