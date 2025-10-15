@@ -54,10 +54,14 @@ const submit = async () => {
       if (role === '사장') {
         await ownerStore.fetchStoreInfo();
         const storeData = ownerStore.state.storeData;
-        const isActive = storeData?.isActive ?? 0;
+        const isActive = storeData?.isActive;
+        console.log("활성화: ", storeData)
         if (isActive === 0) {
+          console.log("isActive 홈: ", isActive)
           router.push("/owner");
+        
         } else {
+          console.log("isActive 대시보드: ", isActive)
           router.push("/owner/dashboard");
         }
       } else {

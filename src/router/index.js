@@ -1,5 +1,5 @@
 import { createRouter, createWebHistory } from "vue-router";
-import { useAccountStore, useUserInfo } from "@/stores/account";
+import { useAccountStore, useUserInfo, useOwnerStore } from "@/stores/account";
 import CustomerLayout from "@/layouts/CustomerLayout.vue";
 import OwnerLayout from "@/layouts/OwnerLayout.vue";
 import ManagerLayout from "@/layouts/ManagerLayout.vue";
@@ -247,7 +247,63 @@ const customerPathList = ['address', 'check', 'my-page', 'cart', 'order', 'order
 const ownerPathList = ['owner', 'owner-dashboard', 'owner-check', 'owner-status', 'owner-store', 'owner-menu', 'owner-order', 'owner-review', 'owner-stats', 'owner-delivery', 'owner-customer', 'owner-coupons', 'owner-ads'];
 const managerPathList = ['manager-dashboard', 'manager-user', 'manager-store', 'manager-order', 'manager-review', 'manager-recommand', 'manager-stats'];
 const loginPath = ['login', 'join', 'manager-login'];
+const ownerRouteNames = new Set([
+  'owner','owner-dashboard','owner-check','owner-status','owner-store',
+  'owner-menu','owner-order','owner-review','owner-stats','owner-delivery',
+  'owner-customer','owner-coupons','owner-ads'
+]);
 
+router.beforeEach(async (to, from) => {
+  const account  = useAccountStore();
+  const userInfo = useUserInfo();
+  const owner    = useOwnerStore();
+
+  // A) 라우트 존재 여부 안전 체크 (name 없을 때 path로 보조)
+  const existsByName = to.name ? router.hasRoute(to.name) : true;
+  const existsByPath = router.getRoutes().some(r => r.path === to.path);
+  if (!existsByName && !existsByPath) {
+    if (account.state.loggedIn) {
+      const role = userInfo.state.userData && userInfo.state.userData.role;
+      if (role === '관리자') return { path: '/hanip-manager' };
+      if (role === '사장')   return { path: '/owner' };
+      return { path: '/' };
+    }
+    return { path: '/' };
+  }
+
+  // B) 로그인 상태면 role 하이드레이션 보장
+  if (account.state.loggedIn && !(userInfo.state.userData && userInfo.state.userData.role)) {
+    await userInfo.fetchStore();
+  }
+  const role = userInfo.state.userData && userInfo.state.userData.role;
+
+  // C) 사장 영역 접근 시 isActive까지 고려해 단일 분기
+  if (ownerRouteNames.has(String(to.name))) {
+    if (role !== '사장') {
+      return { path: role === '관리자' ? '/hanip-manager' : '/' };
+    }
+
+    if (!owner.state.storeData) {
+      try { await owner.fetchStoreInfo(); } catch (e) {}
+    }
+
+    const sd = owner.state.storeData;
+    const isActiveNum = Number(
+      sd && sd.isActive === true ? 1
+      : sd && sd.isActive === false ? 0
+      : sd && sd.isActive != null ? sd.isActive
+      : 0
+    );
+
+    // 비활성 사장은 /owner 고정, 활성 사장은 /owner/dashboard 고정
+    if (isActiveNum === 0 && to.name !== 'owner') {
+      return { path: '/owner', replace: true };
+    }
+    if (isActiveNum === 1 && to.name === 'owner') {
+      return { path: '/owner/dashboard', replace: true };
+    }
+  }
+});
 
 router.beforeEach(async (to, from) => {
   const account = useAccountStore();
