@@ -7,7 +7,7 @@ const props = defineProps({
 <template>
   <div class="wrap">
     <section>
-      <h3>주문 정보</h3>
+      <h3>주문 정보 {{ order?.orderId }}</h3>
       <table class="info-table">
         <tbody>
           <tr>
