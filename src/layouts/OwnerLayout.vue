@@ -32,12 +32,13 @@ const menuStyle = (menu) => {
   const isBlinking =
     menu.path === "/owner/dashboard" && redDotDashboard.value && !isActive;
 
-  if (isActive) {
-    return { backgroundColor: "#f66463", color: "#FFFFFF" };
+  // 대시보드가 비활성화면 강제로 회색톤 고정
+  if (menu.path === "/owner/dashboard" && !canUseDashboard.value) {
+    return { backgroundColor: "#e3e3e3", color: "#9c9c9c", cursor: "not-allowed" };
   }
-  if (isBlinking) {
-    return { backgroundColor: "#ffb3b3", color: "#FFFFFF" };
-  }
+
+  if (isActive) return { backgroundColor: "#f66463", color: "#FFFFFF" };
+  if (isBlinking)   return { backgroundColor: "#ffb3b3", color: "#FFFFFF" };
   return { backgroundColor: "#dddddd", color: "#333333" };
 };
 
@@ -120,6 +121,10 @@ watch(
     }
   }
 );
+
+const canUseDashboard = computed(() => {
+  return (owner.state.storeData?.isActive ?? 0) !== 0;
+});
 </script>
 
 <template>
@@ -186,7 +191,18 @@ watch(
       </div>
       <ul class="nav nav-pills flex-column gap-4 align-items-center">
         <li class="nav-item" v-for="menu in menus" :key="menu.text">
+          <div
+          v-if="menu.path === '/owner/dashboard' && !canUseDashboard"
+          class="nav-link w-80 text-center size d-flex justify-content-center align-items-center disabled-link"
+          :style="menuStyle(menu)"
+          :title="'가게 활성화 후 이용 가능합니다.'"
+          aria-disabled="true"
+          tabindex="-1"
+          >
+          {{ menu.text }}
+        </div>
           <RouterLink
+          v-else
             :to="menu.path"
             class="nav-link w-80 text-center size d-flex justify-content-center align-items-center"
             :class="{
@@ -223,6 +239,10 @@ watch(
 </template>
 
 <style lang="scss" scoped>
+.nav-link.disabled-link { 
+  filter: grayscale(0.3);
+  box-shadow: none;
+}
 
 .box {
   font-family: "Pretendard", sans-serif;

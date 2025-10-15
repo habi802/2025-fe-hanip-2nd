@@ -74,7 +74,7 @@ onMounted(() => {
 
     <!-- 메인 -->
     <div class="container-fluid d-flex" style="height: 100vh; padding:40px;">
-        <div class="card shadow p-5 w-100 text-center d-flex justify-content-center align-items-center flex-column" style="max-width: 1501px;">
+        <div class="card shadow p-5 w-100 text-center d-flex justify-content-center align-items-center flex-column" style="max-width: 1501px; max-height: 900px;">
             <!-- 영업 승인 전 화면 -->
             <template v-if="!owner.state.storeData.isActive">
                 <div class="notice-wrap">

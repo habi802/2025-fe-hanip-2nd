@@ -248,6 +248,7 @@ const ownerPathList = ['owner', 'owner-dashboard', 'owner-check', 'owner-status'
 const managerPathList = ['manager-dashboard', 'manager-user', 'manager-store', 'manager-order', 'manager-review', 'manager-recommand', 'manager-stats'];
 const loginPath = ['login', 'join', 'manager-login'];
 
+
 router.beforeEach(async (to, from) => {
   const account = useAccountStore();
   const userInfo = useUserInfo();
