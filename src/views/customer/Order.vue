@@ -434,7 +434,7 @@ const pay = reactive({
           <div class="fee-box">
             <div class="fee-row">
               <span>배달료</span>
-              <span>{{ state.storeInfo.minDeliveryFee.toLocaleString() }}</span>
+              <span>{{ state.storeInfo.minDeliveryFee?.toLocaleString() }}</span>
             </div>
           </div>
 
@@ -649,6 +649,25 @@ const pay = reactive({
   overflow: auto;
   padding-right: 6px;
 }
+
+.items::-webkit-scrollbar {
+  width: 10px;
+}
+
+.items::-webkit-scrollbar-track {
+  background: #ffeeee;
+  border-radius: 10px;
+}
+
+.items::-webkit-scrollbar-thumb {
+  background: #ffb7b7;
+  border-radius: 10px;
+}
+
+.items::-webkit-scrollbar-button {
+  display: none;
+}
+
 
 .items-list {
   display: flex;

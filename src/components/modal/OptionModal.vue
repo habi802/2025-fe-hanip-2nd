@@ -154,7 +154,7 @@ const emit = defineEmits(['cartAdded'])
 
 
 const goCart = async () => {
-    if(!account.state.loggedIn){
+    if (!account.state.loggedIn) {
         alertModal.value.open('로그인 후 이용해주세요');
     }
 
@@ -302,7 +302,27 @@ const goCart = async () => {
     justify-content: center;
     flex-wrap: wrap;
     width: 500px;
+    margin: -10px;
 }
+
+.body::-webkit-scrollbar {
+    width: 10px;
+}
+
+.body::-webkit-scrollbar-track {
+    background: #ffeeee;
+    border-radius: 10px;
+}
+
+.body::-webkit-scrollbar-thumb {
+    background: #ffb7b7;
+    border-radius: 10px;
+}
+
+.body::-webkit-scrollbar-button {
+    display: none;
+}
+
 
 .option {
     width: 500px;
