@@ -230,7 +230,7 @@ const displayImage = computed(() => {
   z-index: 1000;
 }
 .modal-wrap{
-  width: 70%;
+  width: 75%;
   max-width: 835px;
   padding: 40px;
   display: flex;
@@ -251,7 +251,7 @@ const displayImage = computed(() => {
 }
 
 .left-side {
-  width: 45%;
+  width: 50%;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -314,14 +314,14 @@ const displayImage = computed(() => {
     flex-wrap: wrap;
     gap: 5px 20px;
     margin-top: 20px;
-    margin-left: 40px;
+    padding: 0 35px;
 
     div {
       font-size: 14px;
       font-weight: 300;
       border-radius: 9999px;
       border: solid 1px #ccc;
-      padding: 10px;
+      padding: 5px 15px;
     }
   }
 }
@@ -452,10 +452,10 @@ const displayImage = computed(() => {
   background: #fff;
   border: #ff6666 1px solid;
   color: #ff6666;
-  border-radius: 8px;
+  border-radius: 15px;
   font-size: 18px;
   width: 150px;
-  height: 40px;
+  height: 45px;
 }
 
 // 취소 버튼
@@ -463,10 +463,10 @@ const displayImage = computed(() => {
   background: #fff;
   border: #797979 1px solid;
   color: #797979;
-  border-radius: 8px;
+  border-radius: 15px;
   font-size: 18px;
   width: 150px;
-  height: 40px;
+  height: 45px;
 }
 
 
