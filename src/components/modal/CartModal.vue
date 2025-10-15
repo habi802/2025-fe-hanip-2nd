@@ -419,7 +419,7 @@ span.total {
 }
 
 .big-box::-webkit-scrollbar {
-  width: 5px;
+  width: 10px;
 }
 
 .big-box::-webkit-scrollbar-track {
