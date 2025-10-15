@@ -223,7 +223,7 @@ onMounted(async()=> {
         display: grid;
         grid-template-columns: repeat(3, 1fr);
         gap: 10px;
-        margin-bottom: 40px;
+        margin-bottom: 80px;
     }
 }
 </style>
