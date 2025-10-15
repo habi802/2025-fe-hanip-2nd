@@ -1,6 +1,13 @@
 <script setup>
 import HomeImg from "@/components/customer/HomeImg.vue";
 import ContactMain from "@/components/customerService/ContactMain.vue";
+
+const arrow = () => {
+  window.scrollTo({
+    top: 0,
+    behavior: 'smooth',
+  });
+};
 </script>
 
 <template>
@@ -14,9 +21,27 @@ import ContactMain from "@/components/customerService/ContactMain.vue";
       <ContactMain />
     </div>
   </div>
+  <img @click="arrow" class="arrow" src="/src/imgs/arrow.png" />
 </template>
 
 <style lang="scss" scoped>
+.contact {
+  position: relative;
+}
+
+.arrow {
+  position: sticky;
+  width: 2.8%;
+  bottom: 100px;
+  left: 93%;
+  z-index: 999;
+  margin-bottom: 100px;
+
+  &:hover {
+    opacity: 80%;
+  }
+}
+
 .title {
   font-size: 40px;
   font-weight: 400;
