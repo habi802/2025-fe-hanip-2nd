@@ -214,16 +214,14 @@ const toStore = () => {
 
 @media (max-width: 1400px) {
   .guideBox {
-    width: 900px;
-
     .store {
       width: 200px;
       height: 300px;
 
       .storeImgBox {
-        width: 150px;
-        height: 130px;
-        margin-left: 25px;
+        display: flex;
+        width: 200px;
+        height: 120px;
         margin-top: 2px;
 
         .sImg {
@@ -236,11 +234,39 @@ const toStore = () => {
         font-size: 0.8em;
       }
 
-      .btn {
-        width: 100px;
+    }
+  }
+}
+
+
+
+@media (max-width: 990px) {
+  .guideBox {
+
+    .store {
+      width: 150px;
+      height: 250px;
+
+      .storeImgBox {
+        display: flex;
+        width: 200px;
+        height: 90px;
+        margin-top: 2px;
+
+        .sImg {
+          width: 150px;
+        }
+      }
+
+      .storeTextBox {
         font-size: 0.6em;
+      }
+
+      .btn {
+        width: 90px;
+        font-size: 0.5em;
         margin-top: 3px;
-        margin-left: 50px;
+        // margin-left: 50px;
       }
     }
   }
@@ -249,14 +275,14 @@ const toStore = () => {
 .starIcon {
   padding: 0px 3px 0px 0px;
   font-family: "BMJUA";
-  font-size: 2em;
+  font-size: 1.8em;
   color: #FAC729;
 }
 
 .loveIcon {
   padding: 0px 3px 0px 0px;
   font-family: 'YFavorite';
-  font-size: 1.5em;
+  font-size: 0.8em;
   color: red;
 }
 
