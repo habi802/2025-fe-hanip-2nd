@@ -493,7 +493,6 @@ const cartMenu = async () => {
               <p>
                 배달료
                 {{ (state.store.minDeliveryFee ?? 0).toLocaleString() || "3,000" }}원
-                ~ {{ (state.store.maxDeliveryFee ?? 0).toLocaleString() }}원
               </p>
             </div>
           </div>

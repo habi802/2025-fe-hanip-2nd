@@ -441,7 +441,7 @@ const pay = reactive({
           <div class="total-box">
             <div class="total-row">
               <strong>총 결제 금액</strong>
-              <strong>{{ (totalPrice ?? 0).toLocaleString() }}원</strong>
+              <strong>{{ (totalPrice + state.storeInfo.minDeliveryFee ?? 0).toLocaleString() }}원</strong>
             </div>
           </div>
 

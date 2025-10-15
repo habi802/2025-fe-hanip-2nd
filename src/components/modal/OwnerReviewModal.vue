@@ -69,8 +69,8 @@ dayjs.locale("ko");
 
 // 리뷰 작성 시간 기준 상대시간 표시
 const timeAgo = computed(() => {
-  if (!props.review || !props.review.created) return "";
-  return dayjs(props.review.created).fromNow();
+  if (!props.review || !props.review.createdAt) return "";
+  return dayjs(props.review.createdAt).fromNow();
 });
 
 // 없는 이미지 경로
