@@ -291,6 +291,7 @@ const removeAlert = (id) => {
   margin-top: 10px;
   border: none;
   cursor: pointer;
+  
 }
 
 .review-header {
@@ -376,7 +377,7 @@ const removeAlert = (id) => {
     width: 100%;
   }
   .btn {
-    border-radius: 15px;
+    border-radius: var(--card-small-radius);
     border: #ff6666 1px solid;
     color: #ff6666;
     height: 45px;

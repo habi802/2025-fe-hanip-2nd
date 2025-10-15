@@ -452,7 +452,7 @@ const displayImage = computed(() => {
   background: #fff;
   border: #ff6666 1px solid;
   color: #ff6666;
-  border-radius: 15px;
+  border-radius: var(--card-small-radius);
   font-size: 18px;
   width: 150px;
   height: 45px;
@@ -463,7 +463,7 @@ const displayImage = computed(() => {
   background: #fff;
   border: #797979 1px solid;
   color: #797979;
-  border-radius: 15px;
+  border-radius: var(--card-small-radius);
   font-size: 18px;
   width: 150px;
   height: 45px;

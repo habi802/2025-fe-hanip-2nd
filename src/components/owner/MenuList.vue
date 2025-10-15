@@ -162,7 +162,7 @@ const filteredGroups = computed(() => {
 
 .menu-list {
   padding-left: 13px;
-  height: 100vh;
+  height: 100%;
   display: flex;
   flex-direction: column;
   overflow: visible;
