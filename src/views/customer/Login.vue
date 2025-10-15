@@ -9,6 +9,7 @@ import AlertModal from "@/components/modal/AlertModal.vue";
 const router = useRouter();
 const account = useAccountStore();
 const userInfo = useUserInfo();
+const ownerStore = useOwnerStore();
 
 const alertModal = ref(null);
 
@@ -51,9 +52,9 @@ const submit = async () => {
       userInfo.fetchStore();
 
       if (role === '사장') {
-        const ownerStore = useOwnerStore();
-        const res = await ownerStore.fetchStoreInfo();
-        const isActive = ownerStore.storeData?.isActive;
+        await ownerStore.fetchStoreInfo();
+        const storeData = ownerStore.state.storeData;
+        const isActive = storeData?.isActive ?? 0;
         if (isActive === 0) {
           router.push("/owner");
         } else {
