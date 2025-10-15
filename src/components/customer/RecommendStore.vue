@@ -86,7 +86,31 @@ onMounted(async () => {
   margin-bottom: 200px;
 }
 
+@media (max-width: 1700px) {
+  .guideBox {
+    width: 1000px;
+  }
+}
+
+
+
+
 @media (max-width: 990px) {
+  .guideBox {
+    width: 800px;
+  }
+
+  .f-text {
+    letter-spacing: 2px;
+    font-size: 1.5em;
+  }
+}
+
+@media (max-width: 750px) {
+  .guideBox {
+    width: 500px;
+  }
+
   .f-text {
     letter-spacing: 2px;
     font-size: 1.5em;
