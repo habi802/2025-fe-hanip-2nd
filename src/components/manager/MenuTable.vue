@@ -22,12 +22,12 @@ const showImage = (storeId, menuId, image) => {
                 <th colspan="7">{{ menuType.menuType }}</th>
             </tr>
             <tr>
-                <th>이미지</th>
-                <th>메뉴명</th>
-                <th>가격</th>
+                <th style="width: 15%;">이미지</th>
+                <th style="width: 20%;">메뉴명</th>
+                <th style="width: 15%;">가격</th>
                 <th>설명</th>
-                <th>상태</th>
-                <th>품절</th>
+                <th style="width: 10%;">상태</th>
+                <th style="width: 10%;">품절</th>
             </tr>
             <template v-for="menu in menuType.menus" :key="menu.menuId">
                 <tr>
@@ -40,9 +40,9 @@ const showImage = (storeId, menuId, image) => {
                     <td>{{ menu.isHide === 1 ? '공개' : '숨김' }}</td>
                     <td>{{ menu.isSoldOut === 1 ? '판매중' : '품절' }}</td>
                 </tr>
-                <tr v-if="1">
+                <!-- <tr v-if="1">
                     <th colspan="7">옵션</th>
-                </tr>
+                </tr> -->
             </template>
         </tbody>
     </table>

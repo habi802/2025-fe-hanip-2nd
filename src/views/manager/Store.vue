@@ -210,7 +210,6 @@ const openBoardModal = async item => {
 
     if (res !== undefined && res.status === 200) {
         store.value = res.data.resultData;
-        console.log(store.value);
 
         boardModalRef.value.open();
     }

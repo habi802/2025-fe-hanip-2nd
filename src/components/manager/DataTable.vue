@@ -117,6 +117,11 @@ const rowClicked = item => {
         </template>
 
         <!-- 사장 답변 등록 여부 컬럼 커스텀 -->
+        <template #cell(comment)="row">
+            <span>{{ row.item.comment.length > 40 ? row.item.comment.slice(0, 40) + '...' : row.item.comment }}</span>
+        </template>
+
+        <!-- 사장 답변 등록 여부 컬럼 커스텀 -->
         <template #cell(ownerComment)="row">
             <span v-if="row.item.ownerComment === 0" class="badge bg-danger fs-6">미등록</span>
             <span v-else-if="row.item.ownerComment === 1" class="badge bg-primary fs-6">등록</span>
