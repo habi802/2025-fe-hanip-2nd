@@ -163,17 +163,6 @@ const loadReviews = async (id, isInitial = false) => {
 
     const count = (ratingNumCal / state.reviews.length).toFixed(1)
     state.reviewNum = count
-
-    let commentNum = "";
-    let comLeng = 0;
-
-    for (let i = 0; i < state.reviews.length; i++) {
-      commentNum = state.reviews[i].ownerComment
-      if (typeof commentNum === "string" && commentNum !== null && commentNum !== "") {
-        comLeng += 1;
-      }
-      state.ownerCommentNum = comLeng;
-    };
   }
   isLoading.value = false;
 };
@@ -239,7 +228,8 @@ const store = reactive({
   myFavorite: 0,
   reviewAll: []
 })
-
+let commentNum = "";
+let comLeng = 0;
 // 가게 정보 조회
 const getStoreInfo = async (id) => {
 
@@ -281,6 +271,14 @@ const getStoreInfo = async (id) => {
 
   const ownerCommentList = await getOwnerCommentList(id);
   store.ownerComment = ownerCommentList.data.resultData;
+  console.log("오너 코맨트?", store.ownerComment)
+  for (let i = 0; i < store.ownerComment.length; i++) {
+    commentNum = store.ownerComment[i].ownerComment
+    if (typeof commentNum === "string" && commentNum !== null && commentNum !== "") {
+      comLeng += 1;
+    }
+    console.log("사장 리뷰 갯수", comLeng)
+  };
 }
 
 
@@ -538,7 +536,7 @@ watch(sortedMenus, (newVal) => {
                         </div>
                         <div>
                           <span>사장님 댓글</span>
-                          <span class="count-num"> {{ store.ownerComment.length }}개</span>
+                          <span class="count-num"> {{ comLeng }}개</span>
                         </div>
                       </div>
                     </div>
