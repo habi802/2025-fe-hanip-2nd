@@ -263,7 +263,7 @@ const removeAlert = (id) => {
     </div>
     <div class="btn-wrap">
       <button  class="btn btn-comment" @click=" () => { selectedReview = review; replyComment = review.ownerComment || ''; isModalOpen = true; } ">
-        댓글 작성
+        {{ review.ownerComment ? "댓글 수정" : "댓글 등록"}}
       </button>
     </div>
   </div>
@@ -379,7 +379,7 @@ const removeAlert = (id) => {
     border-radius: 15px;
     border: #ff6666 1px solid;
     color: #ff6666;
-    height: 50px;
+    height: 45px;
     max-width: 150px;
     width: 100%;
   }
