@@ -334,27 +334,44 @@ function toggleAllAgree() {
   agreement.terms.privacyPolicy = checked;
   agreement.terms.thirdParty = checked;
   agreement.marketing = checked;
-  agreement.sms = checked;
-  agreement.email = checked;
+
+  // 전체 동의/해지 시 SMS, Email도 동기화
+  if (checked) {
+    agreement.sms = true;
+    agreement.email = true;
+  } else {
+    agreement.sms = false;
+    agreement.email = false;
+  }
 }
-// 쇼핑정보 수신 동의
+
+// 쇼핑정보 수신 동의 (SMS, Email)에서 마케팅 동기화
 watch([() => agreement.sms, () => agreement.email], ([sms, email]) => {
-  const allChecked = sms && email;
-  agreement.marketing = allChecked;
+  // sms와 email이 모두 체크되었을 때만 마케팅을 true로 설정
+  if (sms && email) {
+    agreement.marketing = true;
+  } else {
+    agreement.marketing = false;
+  }
 });
+
+// 마케팅 동의 변경 시 SMS, Email을 동기화 (전체 동의 및 해지)
 watch(
   () => agreement.marketing,
-  (newVal, oldVal) => {
-    // 만약 marketing이 true로 바뀌었을 때만 sms/email 업데이트
+  (newVal) => {
     if (newVal) {
+      // 마케팅이 체크되면 sms와 email도 모두 체크
       agreement.sms = true;
       agreement.email = true;
+    } else {
+      // 마케팅이 해지되면 sms와 email도 모두 해지
+      agreement.sms = false;
+      agreement.email = false;
     }
-    // marketing이 false로 바뀌었을 때는 아무것도 하지 않음
-    // 사용자가 직접 해제한 sms/email 상태를 유지
   }
 );
 
+// 약관 동의 상태가 변경될 때 전체 동의 체크박스를 업데이트
 watch(
   [
     () => agreement.terms.useTerms,
@@ -365,6 +382,7 @@ watch(
     () => agreement.email,
   ],
   ([useTerms, privacyPolicy, thirdParty, marketing, sms, email]) => {
+    // 모든 항목이 체크되어야 전체 동의가 체크됨
     const allChecked =
       useTerms && privacyPolicy && thirdParty && marketing && sms && email;
     agreement.allAgree = allChecked;
@@ -546,10 +564,78 @@ const submit = async () => {
 };
 
 // 약관 설명 텍스트 (마지막에 내용 다 넣기)
+// const termsText = {
+//   useTerms: "한입 이용약관 내용...",
+//   privacyPolicy: "개인정보 처리방침 내용...",
+//   thirdParty: "제3자 제공 안내 내용...",
+// };
 const termsText = {
-  useTerms: "한입 이용약관 내용...",
-  privacyPolicy: "개인정보 처리방침 내용...",
-  thirdParty: "제3자 제공 안내 내용...",
+  useTerms: `제1조 (목적)
+    본 약관은 "한입 hanip" (이하 '서비스')에서 제공하는 배달 서비스 이용에 관한 조건과 절차를 규정하는 것을 목적으로 합니다. 이용자는 본 약관에 동의함으로써 서비스 이용에 필요한 모든 조건을 수락한 것으로 간주됩니다.
+    제2조 (서비스의 제공)
+    1. 서비스는 회원 가입을 통해 제공됩니다.
+    2. 이용자는 본 서비스의 기능을 통해 음식 주문 및 배달을 진행할 수 있습니다.
+    제3조 (이용자의 의무)
+    1. 이용자는 서비스 이용 시 제공된 정보를 정확하게 입력해야 하며, 이를 바탕으로 제공되는 서비스에 대해 책임을 집니다.
+    2. 이용자는 본 서비스의 불법적, 부당한 용도로의 사용을 금지합니다.
+    제4조 (회원 탈퇴 및 서비스 중지)
+    1. 이용자는 언제든지 회원 탈퇴를 요청할 수 있으며, 탈퇴 시 서비스 제공이 중단됩니다.
+    2. 서비스 제공자는 불법적인 활동이나 약관을 위반하는 사용자의 이용을 중지할 수 있습니다.
+    제5조 (서비스 이용 요금)
+    1. 서비스 이용에 따른 요금은 각 서비스의 정책에 따릅니다.
+    2. 서비스 제공자는 서비스의 요금을 변경할 수 있으며, 변경 사항은 사전 공지 후 적용됩니다.
+    제6조 (면책사항)
+    1. 서비스 제공자는 천재지변, 시스템 장애 등의 불가항력적인 상황에 대해 책임을 지지 않습니다.
+    2. 이용자의 부주의로 인한 데이터 손실, 정보 유출에 대해서도 책임을 지지 않습니다.
+    제7조 (약관의 개정)
+    1. 서비스 제공자는 본 약관을 변경할 수 있으며, 변경 시에는 공지 후 적용됩니다.
+    2. 변경된 약관은 공지된 날로부터 7일 이내에 효력이 발생합니다.
+    제8조 (법적 책임)
+    본 약관은 대한민국 법률을 따르며, 약관에 대한 분쟁이 발생할 경우 서비스 제공자의 소재지를 관할하는 법원을 제1심 법원으로 합니다.
+  `,
+  privacyPolicy: `제1조 (목적)
+    "한입 hanip" (이하 '서비스')은 고객님의 개인정보를 보호하기 위해 본 개인정보 처리방침을 수립하였습니다. 본 방침은 서비스 제공 및 이용에 따른 개인정보 수집, 이용, 보관, 보호의 방침을 설명합니다.
+    제2조 (수집하는 개인정보 항목)
+    서비스는 다음과 같은 개인정보를 수집할 수 있습니다:
+    1. 필수 항목: 이름, 연락처, 이메일 주소, 배송지 주소
+    2. 선택 항목: 생년월일, 성별, 주문내역
+    제3조 (개인정보의 수집 및 이용 목적)
+    1. 회원 가입 및 서비스 제공을 위한 본인 인증
+    2. 주문 처리 및 배달 서비스 제공
+    3. 마케팅 및 이벤트 안내 (선택사항)
+    제4조 (개인정보의 보유 및 이용 기간)
+    1. 개인정보는 회원 탈퇴 시 또는 서비스 제공이 완료된 후 5년간 보유합니다.
+    2. 다만, 관련 법령에 의해 보유해야 하는 경우에는 그 기간 동안 보유할 수 있습니다.
+    제5조 (개인정보의 제3자 제공)
+    서비스는 원칙적으로 이용자의 개인정보를 제3자에게 제공하지 않습니다. 다만, 다음과 같은 경우는 예외로 할 수 있습니다:
+    1. 법령에 따른 요청
+    2. 서비스 제공을 위해 협력업체와의 정보 공유
+    제6조 (개인정보의 안전성 확보 조치)
+    서비스는 이용자의 개인정보 보호를 위해 기술적, 관리적 보호 조치를 취하고 있으며, 이를 위해 암호화 및 접근 제한 등의 방법을 사용합니다.
+    제7조 (이용자의 권리)
+    이용자는 언제든지 자신의 개인정보를 조회하거나 수정할 수 있으며, 개인정보 처리에 대한 동의를 철회할 수 있습니다.
+    제8조 (개인정보 보호 책임자)
+    개인정보 보호 관련 문의는 아래의 담당자에게 문의할 수 있습니다:
+    개인정보 보호 담당자: [담당자 이름]
+    연락처: [연락처]
+    이메일: [이메일]
+  `,
+  thirdParty: `제1조 (제3자 제공 목적)
+    "한입 hanip" (이하 '서비스')은 서비스를 원활히 제공하기 위해 아래와 같은 제3자와 개인정보를 공유할 수 있습니다.
+    제2조 (제3자 제공 항목)
+    제공되는 개인정보 항목:
+    1. 이름, 연락처, 배송지 주소
+    2. 주문내역
+    제3조 (제3자 제공 대상)
+    서비스는 아래와 같은 제3자에게 개인정보를 제공할 수 있습니다:
+    1. 배송업체: 주문한 음식의 배송을 위해 필요한 개인정보를 제공
+    2. 결제 시스템 제공업체: 결제 정보 처리 및 결제 완료 후 통지
+    제4조 (제3자 제공 목적)
+    1. 배송 및 서비스 제공을 위해 제3자와 정보 공유
+    2. 결제 처리와 관련된 업무를 위한 정보 제공
+    제5조 (제3자 제공 동의)
+    제3자에게 개인정보가 제공되는 것을 원하지 않으시는 경우, 서비스 이용에 제한이 있을 수 있습니다. 본 서비스는 개인정보 제공을 동의하지 않는 이용자에게도 서비스를 제공할 수 있습니다.
+  `,
 };
 
 // 모달
@@ -1105,11 +1191,11 @@ select.invalid {
       // 약관 내용 박스
       .terms-box {
         width: 850px;
-        height: 105px;
+        height: 120px;
         border: 1px solid #ccc;
-        padding: 15px;
-        margin-top: 25px;
-        margin-bottom: 25px;
+        padding: 7px 10px;
+        margin-top: 10px;
+        margin-bottom: 20px;
         border-radius: 8px;
         background-color: #fff;
         overflow-y: scroll;
