@@ -207,7 +207,7 @@ const emit = defineEmits(['cart-updated']);
 
 
                 <div class="footer-btn">
-                    <button type="button" class="hn-btn-gray" data-bs-dismiss="modal">주문취소</button>
+                    <button type="button" class="hn-btn-gray" data-bs-dismiss="modal">돌아가기</button>
                     <button type="button" class="hn-btn-gray" @click="readyCart(selectData.cartId)"
                         data-bs-dismiss="modal">메뉴담기</button>
                 </div>
