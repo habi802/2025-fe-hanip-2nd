@@ -85,7 +85,7 @@ const getStats = async () => {
 
     const userStatsRes = await getUserStats(state.form);
     if (userStatsRes !== undefined || userStatsRes.status === 200) {
-        userStatsRes.data.resultData.forEach((data, idx) => {
+        userStatsRes.data.resultData?.forEach((data, idx) => {
             state.stats.user.label[idx] = data.period;
             state.stats.user.data[idx] = data.total;
         });
@@ -93,7 +93,7 @@ const getStats = async () => {
 
     const storeStatsRes = await getStoreStats(state.form);
     if (storeStatsRes !== undefined || storeStatsRes.status === 200) {
-        storeStatsRes.data.resultData.forEach((data, idx) => {
+        storeStatsRes.data.resultData?.forEach((data, idx) => {
             state.stats.store.label[idx] = data.period;
             state.stats.store.data[idx] = data.total;
         });
@@ -101,7 +101,7 @@ const getStats = async () => {
 
     const orderStatsRes = await getOrderStats(state.form);
     if (orderStatsRes !== undefined || orderStatsRes.status === 200) {
-        orderStatsRes.data.resultData.forEach((data, idx) => {
+        orderStatsRes.data.resultData?.forEach((data, idx) => {
             state.stats.order.label[idx] = data.period;
             state.stats.order.data[idx] = data.total;
         });
@@ -109,7 +109,7 @@ const getStats = async () => {
 
     const amountStatsRes = await getAmountStats(state.form);
     if (amountStatsRes !== undefined || amountStatsRes.status === 200) {
-        amountStatsRes.data.resultData.forEach((data, idx) => {
+        amountStatsRes.data.resultData?.forEach((data, idx) => {
             state.stats.amount.label[idx] = data.period;
             state.stats.amount.data[idx] = data.totalAmount;
         });
