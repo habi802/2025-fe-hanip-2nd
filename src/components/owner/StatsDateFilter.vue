@@ -119,7 +119,7 @@ onMounted(async () => {
 <style scoped scss="lang">
 .date-filter {
   width: 300px;
-  height: 50px;
+  height: 90px;
   background-color: #fff;
   border-radius: var(--card-lg-radius);
   box-shadow: var(--card-shadow);

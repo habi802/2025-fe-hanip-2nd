@@ -42,7 +42,8 @@ const currentChartData = () =>{
         datasets: [{
             label: props?.labelY || "Y축 제목", //y축 값 종류(범례)
             data: props.chartData?.data || [0],
-            backgroundColor: '#ffcc66'
+            backgroundColor: '#ffcc66',
+            tension: 0.4, // 👈 이게 "부드러운 곡선"의 핵심!
         }]
     },
     options: {
@@ -87,28 +88,29 @@ onMounted(() => {
 </script>
 
 <template>
-    <div class="wrap">
-        <div class="title">
-            <span>{{ props.title || "-" }}</span>
-        </div>
+    <div class="wrap white-card">
+        <!-- <div class="title"> <span>{{ props.title || "-" }}</span> </div> -->
         <canvas ref="chartCanvas"></canvas>
     </div>
 </template>
 
 <style scoped lang="scss">
 .wrap{
+    width: 100% !important;
+    height: 100%;
     padding: 20px 40px;
     display: flex;
     flex-direction: column;
     align-items: center;
+    padding: 80px;
 }
 .title{
     width: 90%;
     text-align: left;
 }
 canvas {
-  max-width: 600px;
-  max-height: 400px;
+  max-width: 1500px;
+  max-height: 800px;
 }
 .title{
     font-size: 1.5rem;
