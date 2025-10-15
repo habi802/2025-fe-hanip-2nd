@@ -323,15 +323,12 @@ const removeAlert = (id) => {
 <style scoped lang="scss">
 /* 왼쪽 영역 */
 .section-left {
-  //position: relative;
-  //left: -3px;
   width: 50%;
   min-width: 740px;
   max-width: 800px;
   height: 100%;
   display: flex;
   flex-direction: column;
-  //padding-right: 20px;
 }
 
 /* 오른쪽 영역 */
