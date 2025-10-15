@@ -100,6 +100,11 @@ export const getTodayActorStats = () => {
     return axios.get(`${actorPath}/stats`).catch(e => e.response);
 }
 
+// 대시보드 가게 조회
+export const getStoreInDashboard = () => {
+    return axios.get(`${actorPath}/store/dashboard`).catch(e => e.response);
+}
+
 // 금일 주문 건 수, 매출액 통계 조회
 export const getTodayActionStats = () => {
     return axios.get(`${actionPath}/stats`).catch(e => e.response);

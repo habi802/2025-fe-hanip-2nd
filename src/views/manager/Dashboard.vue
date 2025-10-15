@@ -5,7 +5,7 @@ import StatsCard from '@/components/manager/StatsCard.vue';
 import ChartCard from '@/components/manager/ChartCard.vue';
 import DashboardCard from '@/components/manager/DashboardCard.vue';
 import { onMounted, onUnmounted, reactive, ref } from 'vue';
-import { getTodayActorStats, getTodayActionStats, getUserStats, getStoreStats, getOrderStats, getAmountStats } from '@/services/managerService';
+import { getTodayActorStats, getTodayActionStats, getUserStats, getStoreStats, getOrderStats, getAmountStats, getStoreInDashboard } from '@/services/managerService';
 
 const todayUsers = ref(0);
 const todayStores = ref(0);
@@ -17,26 +17,7 @@ const state = reactive({
         label: ['2025-01', '2025-02', '2025-03'],
         data: [0, 0, 0],
     },
-    stores: [
-        {
-            0: '재원이 두마리 치킨',
-            1: '부산광역시 기장군 철마면 철마천로 190',
-            2: '2025-08-27',
-            3: 0
-        },
-        {
-            0: '숙다방',
-            1: '경상북도 구미시 구미대로24길 4',
-            2: '2025-08-25',
-            3: 0
-        },
-        {
-            0: '홍플러스',
-            1: '경기도 화성시 팔탄면 버들로 1337-8',
-            2: '2025-08-24',
-            3: 1
-        }
-    ]
+    stores: []
 });
 
 // 각종 통계 조회
@@ -54,6 +35,7 @@ const getStats = async () => {
     }
 
     getMonthStats();
+    getStores();
 };
 
 // 월별 차트 select 관련 변수
@@ -85,6 +67,15 @@ const getMonthStats = async () => {
             state.chartData.label[idx] = data.period;
             state.chartData.data[idx] = data.total || data.totalAmount;
         });
+    }
+};
+
+// 가게 조회
+const getStores = async () => {
+    const res = await getStoreInDashboard();
+
+    if (res !== undefined && res.status === 200) {
+        state.stores = res.data.resultData;
     }
 };
 

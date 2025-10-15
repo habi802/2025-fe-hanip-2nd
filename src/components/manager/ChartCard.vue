@@ -21,7 +21,8 @@ onMounted(() => {
             datasets: [{
                 label: props.title,
                 data: props.chartData.data,
-                backgroundColor: '#E65558'
+                backgroundColor: '#E65558',
+                barThickness: 180,
             }]
         },
         options: {
