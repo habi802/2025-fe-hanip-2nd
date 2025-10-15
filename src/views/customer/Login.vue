@@ -166,8 +166,10 @@ onMounted(() => {
         </div>
 
         <button type="submit" class="btn login-btn">로그인</button>
-        <div class="btn naver-btn" @click="naver">네이버 로그인</div>
-        <div class="btn kakao-btn" @click="kakao">카카오 로그인</div>
+        <div :style="{ visibility: state.form.role === '고객' ? 'visible' : 'hidden' }">
+          <div class="btn naver-btn" @click="naver">네이버 로그인</div>
+          <div class="btn kakao-btn" @click="kakao">카카오 로그인</div>
+        </div>
         <div class="foot"></div>
       </form>
     </div>
@@ -389,6 +391,7 @@ onMounted(() => {
       }
 
       .naver-btn {
+        margin-bottom: 1rem;
         background-color: #3fc754;
         color: #fff;
 

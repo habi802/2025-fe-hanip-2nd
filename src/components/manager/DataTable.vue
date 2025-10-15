@@ -73,6 +73,16 @@ const rowClicked = item => {
             <input type="checkbox" v-model="row.item._checked" />
         </template>
 
+        <!-- 고객 주소 컬럼 커스텀 -->
+        <template #cell(address)="row">
+            <span>{{ row.item.address !== undefined && row.item.address !== null && row.item.address !== '' ? row.item.address : '-' }}</span>
+        </template>
+
+        <!-- 고객 이메일 컬럼 커스텀 -->
+        <template #cell(email)="row">
+            <span>{{ row.item.email !== undefined && row.item.email !== null && row.item.email !== '' ? row.item.email : '-' }}</span>
+        </template>
+
         <!-- 가입 유형 컬럼 커스텀 -->
         <template #cell(providerType)="row">
             <span v-if="row.item.providerType === '01'" class="badge bg-dark fs-6">일반</span>
