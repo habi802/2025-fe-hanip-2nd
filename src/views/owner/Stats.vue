@@ -230,7 +230,7 @@ const totalCardData = [
 ]
 
 
-
+const selected = ref("control");
 
 // 날짜필터 선택 시 chartForm[] 해당배열번호 리턴
 // const currentChartData = computed(()=>{
@@ -251,17 +251,24 @@ onMounted(async () => {
 <template>
   
   <div class="wrap">
-    <!-- 조회기간 설정 (기본 한달) -->
-      <StatsDateFilter @update-date="handleDateUpdate" ></StatsDateFilter>
-    <!-- 조회기간설정카드 끝-->
-
+    
     <div class="total-wrap">
+      <!-- 조회기간 설정 (기본 한달) -->
+      <StatsDateFilter @update-date="handleDateUpdate" ></StatsDateFilter>
       <TotalCard v-for="(data, idx) in totalCardData" :key="idx" :selected-chart-option=selectedChartOption :title=data.title :count=data.count :to-local-string=data.toLocalString></TotalCard>
     </div><!--total-wrap 끝 -->
 
     <div class="chart-wrap">
-      <ChartCard class="white-card" :title=chartForm.title labelY="주문추이" type="bar" :chart-data="chartForm" :unit="chartForm.unit"/>
-      <ChartCard class="white-card" :title=chartForm2.title labelY="매출추이" type="line" :chart-data="chartForm2" :unit="chartForm2.unit" />
+      <div class="btn-group gap-3" role="group">
+      <button type="button" class="submenu-btn" :class="selected === 'control' ? 'submenu-active' : 'submenu-none'" @click="selected = 'control'" >
+        주문추이
+      </button>
+      <button type="button" class="submenu-btn" :class="selected === 'basic' ? 'submenu-active' : 'submenu-none'" @click="selected = 'basic'" >
+        매출추이
+      </button>
+    </div>
+      <ChartCard v-if="selected === 'control'" :title=chartForm.title labelY="주문추이" type="bar" :chart-data="chartForm" :unit="chartForm.unit"/>
+      <ChartCard v-if="selected === 'basic'" :title=chartForm2.title labelY="매출추이" type="line" :chart-data="chartForm2" :unit="chartForm2.unit" />
       <!-- <ChartCard class="white-card" title="주문 추이" labelY="y축범례" type="bar" :chart-data="currentChartData" />
       <ChartCard class="white-card" title="매출 추이" labelY="y축범례" type="line" :chart-data="currentChartData" /> -->
     </div>
@@ -274,19 +281,25 @@ onMounted(async () => {
 width: 95%;
 display: flex;
 flex-direction: column;
-gap: 20px;
+gap: 40px;
 
 .total-wrap{
   width: 100%;
   display: flex;
+  flex: 1;
   gap: 15px;
   align-items: center;
+  justify-content: space-between;
 }
 
 .chart-wrap{
   width: 100%;
   display: flex;
-  gap: 15px;
+  flex-direction: column;
+
+  .btn-group{
+    margin-left: 5%;
+  }
 }
   
 }//wrap
