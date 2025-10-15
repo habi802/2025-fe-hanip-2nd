@@ -124,14 +124,23 @@ const cancelOrder = async status => {
         if (res !== undefined && res.status === 200) {
             alertModalRef.value.open('상태가 변경되었습니다.');
 
-            // 상태가 변경된 항목은 state.orders 에서 제거
-            items.forEach(item => {
-                const idx = state.orders.findIndex(order => order.orderId === item.id && order.status !== status);
-                if (idx >= 0) {
-                    state.orders.splice(idx, 1);
-                    pagination.state.totalRow = pagination.state.totalRow - 1;
-                }
-            });
+            // 상태가 변경된 항목은 state.orders 에서 제거하거나 상태를 바꿈
+            if (state.form.status !== '') {
+                items.forEach(item => {
+                    const idx = state.orders.findIndex(order => order.orderId === item.id && order.status !== status);
+                    if (idx >= 0) {
+                        state.orders.splice(idx, 1);
+                        pagination.state.totalRow = pagination.state.totalRow - 1;
+                    }
+                });
+            } else {
+                items.forEach(item => {
+                    const idx = state.orders.findIndex(order => order.orderId === item.id && order.status !== status);
+                    if (idx >= 0) {
+                        state.orders[idx].status = status;
+                    }
+                });
+            }
         }
 
         loadingModalRef.value.hide();

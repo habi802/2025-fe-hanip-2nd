@@ -150,14 +150,23 @@ const setIsActive = async isActive => {
         if (res !== undefined && res.status === 200) {
             alertModalRef.value.open('상태가 변경되었습니다.');
 
-            // 상태가 변경된 항목은 state.stores 에서 제거
-            items.forEach(item => {
-                const idx = state.stores.findIndex(store => store.storeId === item.id && store.isActive !== isActive);
-                if (idx >= 0) {
-                    state.stores.splice(idx, 1);
-                    pagination.state.totalRow = pagination.state.totalRow - 1;
-                }
-            });
+            // 상태가 변경된 항목은 state.stores 에서 제거하거나 상태를 바꿈
+            if (state.form.isActive !== '') {
+                items.forEach(item => {
+                    const idx = state.stores.findIndex(store => store.storeId === item.id && store.isActive !== isActive);
+                    if (idx >= 0) {
+                        state.stores.splice(idx, 1);
+                        pagination.state.totalRow = pagination.state.totalRow - 1;
+                    }
+                });
+            } else {
+                items.forEach(item => {
+                    const idx = state.stores.findIndex(store => store.storeId === item.id && store.isActive !== isActive);
+                    if (idx >= 0) {
+                        state.stores[idx].isActive = isActive;
+                    }
+                });
+            }
         }
 
         loadingModalRef.value.hide();
