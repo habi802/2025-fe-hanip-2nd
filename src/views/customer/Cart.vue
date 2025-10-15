@@ -998,9 +998,10 @@ const cartMenu = async () => {
   text-align: center;
   font-size: 1em;
   padding: 2px 8px;
-  border: #ccc 1px solid;
+  border: #ff3535 1px solid;
   border-radius: 5px;
-  color: #ccc;
+  color: #fd8181;
+  cursor: pointer;
 }
 
 .options-box {
