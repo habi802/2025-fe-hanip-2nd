@@ -73,6 +73,11 @@ const rowClicked = item => {
             <input type="checkbox" v-model="row.item._checked" />
         </template>
 
+        <!-- 고객 아이디 컬럼 커스텀 -->
+        <template #cell(loginId)="row">
+            <span>{{ row.item.providerType === '01' ? row.item.loginId : row.item.name }}</span>
+        </template>
+
         <!-- 고객 주소 컬럼 커스텀 -->
         <template #cell(address)="row">
             <span>{{ row.item.address !== undefined && row.item.address !== null && row.item.address !== '' ? row.item.address : '-' }}</span>
