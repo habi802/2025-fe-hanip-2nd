@@ -1,41 +1,40 @@
 <script setup>
 const props = defineProps({
-    table: Object
+    table: Array
 });
-
-const getStatus = status => {
-    if (props.table.name === '가게 관리') {
-        return status ? '활성화' : '비활성화';
-    } else {
-        return status ? '등록' : '미등록';
-    }
-};
 </script>
 
 <template>
     <tabla class="table">
         <thead>
             <tr>
-                <th scope="col" v-for="(title, idx) in props.table.title" :key="idx">
-                    {{ title }}
-                </th>
+                <th style="width: 12%;">상호명</th>
+                <th style="width: 5%;">대표자명</th>
+                <th style="width: 10%;">사업자 등록번호</th>
+                <th style="width: 30%;">주소</th>
+                <th style="width: 8%;">개업연월일</th>
+                <th style="width: 10%;">전화번호</th>
+                <th style="width: 7%;">영업 승인</th>
+                <th style="width: 18%;">가게 등록일</th>
             </tr>
         </thead>
         <tbody>
-            <tr v-for="(data, idx) in props.table.data" :key="idx">
-                <td>{{ data[0] }}</td>
-                <td>{{ data[1] }}</td>
-                <td>{{ data[2] }}</td>
+            <tr v-for="item in props.table" :key="item.storeId">
+                <td>{{ item.name }}</td>
+                <td>{{ item.ownerName }}</td>
+                <td>{{ item.businessNumber }}</td>
+                <td>{{ item.address }}</td>
+                <td>{{ item.openDate }}</td>
+                <td>{{ item.tel }}</td>
                 <td>
-                    <span :class="['badge', data[3] ? 'bg-success' : 'bg-danger']">
-                        {{ getStatus(data[3]) }}
-                    </span>
+                    <span v-if="item.isActive === 0" class="badge bg-danger fs-6">대기</span>
+                    <span v-else-if="item.isActive === 1" class="badge bg-success fs-6">완료</span>
                 </td>
+                <td>{{ item.createdAt }}</td>
             </tr>
         </tbody>
     </tabla>
 </template>
 
 <style scoped>
-
 </style>

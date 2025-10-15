@@ -4,7 +4,7 @@ import DashboardTable from './DashboardTable.vue';
 const props = defineProps({
     title: String,
     board: String,
-    table: Object
+    table: Array
 });
 
 const managerPath = import.meta.env.VITE_MANAGER_PATH;
