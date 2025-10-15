@@ -27,7 +27,7 @@ const formatTime = (dateString) => {
 </script>
 
 <template>
-  <div class="order-card pb-4" @click="emit('selectOrder', order.orderId)">
+  <div class="order-card pb-3" @click="emit('selectOrder', order.orderId)">
     <div class="order-content" :class="{'cancel' : cancel}"  >
       <div>
         <span v-if="cancel" style="font-size: 12px; font-weight: 700;">취소된주문</span>

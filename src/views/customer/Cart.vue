@@ -1174,4 +1174,9 @@ p {
   font-size: 1.2em;
   margin-left: 5px;
 }
+
+.option-name {
+  width: 150px;
+  height: auto;
+}
 </style>

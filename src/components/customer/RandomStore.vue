@@ -90,7 +90,7 @@ const reviews = async () => {
     </div>
   </div>
 </template>
-<style>
+<style lang="scss" scoped>
 @font-face {
   font-family: "YFavorite";
   src: url("https://cdn.jsdelivr.net/gh/projectnoonnu/2410-1@1.0/YOnepickTTF-Regular.woff2") format("woff2");

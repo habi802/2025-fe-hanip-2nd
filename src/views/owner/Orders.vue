@@ -113,7 +113,7 @@ const data = reactive({
   start_date: null,
   end_date: null,
   page: 1,
-  row_per_page: 5,
+  row_per_page: 6,
   search_type: "all",
   keyword: "",
 });
@@ -394,7 +394,7 @@ const selectRange = async (range) => {
     max-width: 800px;
     display: flex;
     flex-direction: column;
-    gap: 20px;
+    gap: 15px;
     .orders-header {
       display: flex;
       align-items: center;
@@ -447,7 +447,7 @@ const selectRange = async (range) => {
     }
     .order-list-wrap {
       width: 100%;
-      height: 80vh;
+      flex:1; overflow:auto;
       display: flex;
       flex-direction: column;
       justify-content: start;

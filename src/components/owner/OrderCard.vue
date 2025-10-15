@@ -72,6 +72,7 @@ onMounted(() => {
     now.value = new Date();
   }, 60000); // 1분마다
   onUnmounted(() => clearInterval(timer));
+  console.log("orders: ", props.orders)
 });
 
 const getElapsed = (createdAt) => {

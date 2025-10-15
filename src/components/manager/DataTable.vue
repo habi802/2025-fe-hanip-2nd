@@ -73,6 +73,21 @@ const rowClicked = item => {
             <input type="checkbox" v-model="row.item._checked" />
         </template>
 
+        <!-- 고객 아이디 컬럼 커스텀 -->
+        <template #cell(loginId)="row">
+            <span>{{ row.item.providerType === '01' ? row.item.loginId : row.item.name }}</span>
+        </template>
+
+        <!-- 고객 주소 컬럼 커스텀 -->
+        <template #cell(address)="row">
+            <span>{{ row.item.address !== undefined && row.item.address !== null && row.item.address !== '' ? row.item.address : '-' }}</span>
+        </template>
+
+        <!-- 고객 이메일 컬럼 커스텀 -->
+        <template #cell(email)="row">
+            <span>{{ row.item.email !== undefined && row.item.email !== null && row.item.email !== '' ? row.item.email : '-' }}</span>
+        </template>
+
         <!-- 가입 유형 컬럼 커스텀 -->
         <template #cell(providerType)="row">
             <span v-if="row.item.providerType === '01'" class="badge bg-dark fs-6">일반</span>
@@ -114,6 +129,11 @@ const rowClicked = item => {
         <template #cell(isDeleted)="row">
             <span v-if="row.item.isDeleted === 0" class="badge bg-success fs-6">정상</span>
             <span v-else-if="row.item.isDeleted === 1" class="badge bg-danger fs-6">삭제됨</span>
+        </template>
+
+        <!-- 사장 답변 등록 여부 컬럼 커스텀 -->
+        <template #cell(comment)="row">
+            <span>{{ row.item.comment.length > 40 ? row.item.comment.slice(0, 40) + '...' : row.item.comment }}</span>
         </template>
 
         <!-- 사장 답변 등록 여부 컬럼 커스텀 -->

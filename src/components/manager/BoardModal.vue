@@ -53,6 +53,37 @@ const showImage = (title, id, image) => {
         ? `${baseUrl}/images/${title}/${id}/${image}`
         : defaultImage;
 };
+
+const hasImage = ref(true);
+const hasLicenseImage = ref(true);
+const hasBannerImage = ref(true);
+
+// 이미지 에러 여부에 따른 함수
+function handleImageError(e, imageName) {
+    console.log(imageName);
+    if (imageName === 'store') {
+        hasImage.value = false;
+        console.log(hasImage.value);
+    } else if (imageName === 'license') {
+        hasLicenseImage.value = false;
+        console.log(hasLicenseImage.value);
+    } else {
+        hasBannerImage.value = false;
+        console.log(hasBannerImage.value);
+    }
+
+    e.target.src = defaultImage;
+}
+
+function handleImageLoad(imageName) {
+    if (imageName === 'store') {
+        hasImage.value = true;
+    } else if (imageName === 'license') {
+        hasLicenseImage.value = true;
+    } else {
+        hasBannerImage.value = true;
+    }
+}
 </script>
 
 <template>
@@ -91,16 +122,16 @@ const showImage = (title, id, image) => {
                     <b-col cols="6" class="content">
                         <template v-if="isExistItem">
                             <div class="d-flex justify-content-center align-items-center">
-                                <img :src="showImage('store', props.item.storeId, props.item.imagePath)" @error="e => e.target.src = defaultImage"
-                                    class="image" :alt="`${props.item.name}의 가게 이미지`" />
+                                <img :src="showImage('store', props.item.storeId, props.item.imagePath)" @error="handleImageError($event, 'store')" @load="handleImageLoad('store')"
+                                    :class="{ 'image': hasImage.value, 'default-image': !hasImage.value }" :alt="`${props.item.name}의 가게 이미지`" />
                             </div>
                         </template>
                     </b-col>
                     <b-col cols="6" class="content">
                         <template v-if="isExistItem">
                             <div class="d-flex justify-content-center align-items-center">
-                                <img :src="showImage('user', props.item.userId, props.item.licensePath)" @error="e => e.target.src = defaultImage"
-                                    class="image" :alt="`${props.item.name}의 사업자 등록증 이미지`" />
+                                <img :src="showImage('user', props.item.userId, props.item.licensePath)" @error="handleImageError($event, 'license')" @load="handleImageLoad('license')"
+                                :class="{ 'license-image': hasLicenseImage.value, 'default-image': !hasLicenseImage.value }" :alt="`${props.item.name}의 사업자 등록증 이미지`" />
                             </div>
                         </template>
                     </b-col>
@@ -113,8 +144,8 @@ const showImage = (title, id, image) => {
                     <b-col cols="12" class="content">
                         <template v-if="isExistItem">
                             <div class="d-flex justify-content-center align-items-center">
-                                <img :src="showImage('store', props.item.storeId, props.item.bannerPath)" @error="e => e.target.src = bannerDefaultImage"
-                                    class="image" :alt="`${props.item.name}의 가게 배너 이미지`" />
+                                <img :src="showImage('store', props.item.storeId, props.item.bannerPath)" @error="handleImageError($event, 'banner')" @load="handleImageLoad('banner')"
+                                :class="{ 'banner-image': hasBannerImage.value, 'default-image': !hasBannerImage.value }" :alt="`${props.item.name}의 가게 배너 이미지`" />
                             </div>
                         </template>
                     </b-col>
@@ -262,7 +293,7 @@ const showImage = (title, id, image) => {
                             <swiper :slides-per-view="3" :modules="[Navigation, Pagination, Scrollbar, A11y, Autoplay]"
                                 :speed="1000" :space-between="10" :resistance="false" :resistance-ratio="0">
                                 <swiper-slide v-for="(image, idx) in props.item.images" :key="idx">
-                                    <div class="review-image border">
+                                    <div class="review-image-box border">
                                         <img class="review-image" :src="showImage('Review', props.item.reviewId, image)" @error="e => e.target.src = defaultImage" alt="리뷰 이미지" />
                                     </div>
                                 </swiper-slide>
@@ -315,8 +346,24 @@ const showImage = (title, id, image) => {
 
 .content {
     min-height: 180px;
+    overflow-y: scroll;
+
+    .default-image {
+        width: 300px;
+        height: 180px;
+    }
 
     .image {
+        width: 180px;
+        height: 180px;
+    }
+
+    .license-image {
+        width: 180px;
+        height: 280px;
+    }
+
+    .banner-image {
         width: 100%;
     }
 }
@@ -337,9 +384,19 @@ const showImage = (title, id, image) => {
     color: white;
 }
 
-.review-image {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
+.review-image-box {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 230px;
+    height: 180px;
+    border-radius: 10px;
+    overflow: hidden;
+
+    .review-image {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
 }
 </style>

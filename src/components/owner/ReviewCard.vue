@@ -78,7 +78,7 @@ const handleSubmit = async () => {
     //   ownerComment: replyComment.value,
     // });
     selectedReview.value.ownerComment = replyComment.value;
-    alert("댓글이 등록되었습니다.");
+    showAlert("댓글이 등록되었습니다.", "alert-success");
   } catch (e) {
     console.error("댓글 저장 실패", e);
   }
@@ -149,9 +149,58 @@ const formatDateTime = (isoStr) => {
     // minute: "2-digit",
   });
 };
+
+// 부트스트랩 alert
+let alertId = 0;
+
+const alerts = reactive([]);
+
+const showAlert = (message, type = "alert-danger") => {
+  const id = ++alertId;
+  const newAlert = { id, message, type };
+  alerts.push(newAlert);
+
+  // 자동 삭제 (3초 뒤)
+  setTimeout(() => {
+    removeAlert(id);
+  }, 3000);
+};
+
+const removeAlert = (id) => {
+  const index = alerts.findIndex((a) => a.id === id);
+  if (index !== -1) alerts.splice(index, 1);
+};
 </script>
 
 <template>
+
+ <!-- alert -->
+ <div
+      style="
+        position: fixed;
+        top: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        z-index: 1055;
+      "
+    >
+      <div
+        v-for="(alert, index) in alerts"
+        :key="alert.id"
+        :class="['alert', alert.type, 'alert-dismissible', 'fade', 'show']"
+        role="alert"
+        style="margin-bottom: 10px; min-width: 300px; max-width: 600px"
+      >
+        {{ alert.message }}
+        <button
+          type="button"
+          class="btn-close"
+          @click="removeAlert(alert.id)"
+        ></button>
+      </div>
+    </div>
+    <!-- alert 끝 -->
+
   <!-- 리뷰카드  -->
   <div v-if="review" class="review-box shadow">
     <div class="review-header">
@@ -483,5 +532,22 @@ const formatDateTime = (isoStr) => {
   visibility: hidden; // 내용은 안 보이지만 자리 확보
   min-height: 394px; // 실제 카드 높이와 동일
   border-radius: 15px; // 기존 카드 모양과 맞춤
+}
+
+
+/* alert 에니메이션 */
+.fade.show {
+  animation: slideDown 0.5s ease;
+}
+
+@keyframes slideDown {
+  from {
+    transform: translateY(-20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
 }
 </style>
