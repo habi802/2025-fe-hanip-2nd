@@ -248,7 +248,29 @@ const emit = defineEmits(['cart-updated']);
     justify-content: center;
     flex-wrap: wrap;
     width: 500px;
+        margin-left: -5px;
 }
+
+.body::-webkit-scrollbar {
+    width: 10px;
+}
+
+.body::-webkit-scrollbar-track {
+    background: #ffeeee;
+    border-radius: 10px;
+}
+
+.body::-webkit-scrollbar-thumb {
+    background: #ffb7b7;
+    border-radius: 10px;
+}
+
+.body::-webkit-scrollbar-button {
+    display: none;
+}
+
+
+
 
 .option {
     width: 500px;
@@ -266,7 +288,7 @@ hr {
 
 .essential {
     font-weight: 400;
-    font-size: 0.7em;
+    font-size: 0.9em;
     margin-top: -15px;
     margin-bottom: 15px;
 }
@@ -290,6 +312,8 @@ hr {
 
 .option-detail {
     width: 150px;
+    height: auto;
+    font-size: 1.1em;
     text-align: start;
 }
 
@@ -354,7 +378,7 @@ input:checked::before {
 
 .body {
     max-width: 495px;
-    max-height: 500px;
+    max-height: 400px;
     overflow-y: auto;
 }
 
