@@ -272,7 +272,7 @@ const isOverThreeDays = computed(() => {
           margin-top: 10px;
 
           .name {
-            width: 200px;
+            width: 400px;
             text-align: left;
           }
 
