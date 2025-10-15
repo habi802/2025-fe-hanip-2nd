@@ -210,9 +210,9 @@ onMounted(async () => {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  width: 295px;
-  height: 75px;
-  padding: 15px 15px;
+  width: 300px;
+  height: 90px;
+  padding: 15px 30px;
   
   span {
     font-size: 1.2rem;
@@ -265,7 +265,7 @@ onMounted(async () => {
 }
 
 .dropdown-menu{
-  width: 20%;
+  width: 100%;
   border: none;
   border-radius: var(--card-lg-radius);
   box-shadow: var(--card-shadow);
