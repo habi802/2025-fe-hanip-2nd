@@ -12,7 +12,7 @@ const state = reactive({
     sortColumn: "",
     sortOrder: "",
     page: 1,
-    size: 12,
+    size: 100,
   },
 });
 
@@ -48,19 +48,14 @@ onMounted(async () => {
             >
               <recommend-store-card :stores="item" />
             </div> -->
-    <recomend-store-card
-      v-for="store in randomThreeStores"
-      :key="store.storeId"
-      :stores="store"
-    />
+    <recomend-store-card v-for="store in randomThreeStores" :key="store.storeId" :stores="store" />
   </div>
   <div class="footer"></div>
 </template>
 <style lang="scss" scoped>
 @font-face {
   font-family: "BMJUA";
-  src: url("https://fastly.jsdelivr.net/gh/projectnoonnu/noonfonts_one@1.0/BMJUA.woff")
-    format("woff");
+  src: url("https://fastly.jsdelivr.net/gh/projectnoonnu/noonfonts_one@1.0/BMJUA.woff") format("woff");
   font-weight: 600;
   font-style: normal;
 }
@@ -86,6 +81,7 @@ onMounted(async () => {
   margin-top: 50px;
   background-color: #fff;
 }
+
 .footer {
   margin-bottom: 200px;
 }
